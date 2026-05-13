@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+build/
+.vercel/
+reports/
+
+# Local/editor files
+.DS_Store
+Thumbs.db
+*.log

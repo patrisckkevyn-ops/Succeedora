@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /login
+Disallow: /signin
+Disallow: /signup
+Disallow: /profile
+Disallow: /settings
+Disallow: /admin
+
+Sitemap: https://succeedora.com/sitemap.xml
