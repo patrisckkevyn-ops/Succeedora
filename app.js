@@ -12,7 +12,11 @@ const SESSION_STORAGE_KEY = "succeedora.session";
 const PENDING_ROUTE_STORAGE_KEY = "succeedora.pendingRoute";
 const LEGACY_MIGRATION_STORAGE_KEY = "succeedora.legacyMigration";
 const PAYMENT_REQUESTS_STORAGE_KEY = "succeedora.paymentRequests";
+const ADMIN_AUDIT_LOG_STORAGE_KEY = "succeedora.adminAuditLog";
 const SITE_ORIGIN = "https://succeedora.com";
+const ADMIN_EMAILS = ["patrisckkevyn@gmail.com"];
+const VERIFICATION_CODE_TTL_MS = 10 * 60 * 1000;
+const VERIFICATION_RESEND_COOLDOWN_MS = 60 * 1000;
 const paymentConfig = {
   // Confirm this CNPJ is registered as a Pix key at the bank before using this QR Code in production.
   // If it is not registered, generated Pix BR Codes must not be considered valid for production payments.
@@ -254,9 +258,12 @@ const I18N = {
       privacy: "Privacy Policy",
       forgotPassword: "Forgot password?",
       verifyTitle: "Confirm your email",
-      verifySubtitle: "Enter the 6-digit code sent to your email.",
-      verifyButton: "Confirm and continue",
+      verifySubtitle: "We sent a 6-digit code to your email.",
+      verifyButton: "Confirm email",
       resendCode: "Resend code",
+      backToLogin: "Back to login",
+      verificationSent: "Verification email sent.",
+      verificationSendError: "We could not send the verification email. Please try again.",
       resetTitle: "Reset password",
       resetVerifyTitle: "Verify code",
       resetSubtitle: "Enter your email to receive reset instructions.",
@@ -278,7 +285,7 @@ const I18N = {
         password: "Use at least 8 characters.",
         confirm: "Passwords must match.",
         code: "Enter a valid 6-digit code.",
-        expired: "This code has expired. Please request a new code.",
+        expired: "Code expired. Please request a new code.",
         attempts: "Too many attempts. Please resend the code.",
       },
     },
@@ -678,6 +685,14 @@ const I18N = {
       verifySubtitle: "Digite o código de 6 dígitos enviado para seu e-mail.",
       verifyButton: "Confirmar e continuar",
       resendCode: "Reenviar código",
+      backToLogin: "Voltar ao login",
+      verificationSent: "E-mail de confirmaÃ§Ã£o enviado.",
+      verificationSendError: "NÃ£o foi possÃ­vel enviar o e-mail de confirmaÃ§Ã£o. Tente novamente.",
+      verifySubtitle: "Enviamos um cÃ³digo de 6 dÃ­gitos para o seu e-mail.",
+      verifyButton: "Confirmar e-mail",
+      verificationSent: "E-mail de confirma\u00e7\u00e3o enviado.",
+      verificationSendError: "N\u00e3o foi poss\u00edvel enviar o e-mail de confirma\u00e7\u00e3o. Tente novamente.",
+      verifySubtitle: "Enviamos um c\u00f3digo de 6 d\u00edgitos para o seu e-mail.",
       resetTitle: "Recuperar senha",
       resetVerifyTitle: "Verificar código",
       resetSubtitle: "Digite seu e-mail e enviaremos um código para redefinir sua senha.",
@@ -1001,19 +1016,25 @@ Object.assign(I18N.en.pricing, {
   comingSoon: "Coming soon",
   paymentComingSoon: "Payment coming soon",
   currentPlanLabel: "Current plan",
-  featureComparisonTitle: "Feature comparison",
-  featureComparisonSubtitle: "Compare what is included in each Succeedora plan.",
+  featureComparisonTitle: "Compare plans",
+  featureComparisonSubtitle: "See the difference between Free, Pro and Premium.",
+  featureColumnLabel: "Feature",
   included: "Included",
   limited: "Limited",
   notIncluded: "Not included",
+  plans: [
+    ["Free", "$0", ["1 basic resume", "Limited templates", "Basic editing", "PDF with Succeedora branding"]],
+    ["Pro", "$12", ["Multiple resumes", "Premium templates", "PDF without branding", "AI resume improvements", "Cover letter generator"]],
+    ["Premium", "$24", ["Unlimited resumes", "All premium templates", "Advanced ATS analysis", "Job-specific tailoring", "Priority support"]],
+  ],
   comparisonRows: [
-    ["Resume builder", "Included", "Included", "Included"],
-    ["Resume versions", "1 resume", "Multiple resumes", "Multiple resumes"],
-    ["Templates", "Basic templates", "Premium templates", "Premium templates"],
-    ["PDF export", "With Succeedora branding", "Without branding", "Without branding"],
-    ["Cover letters", "Limited", "Included", "Included"],
-    ["AI tools", "Limited", "Included", "Advanced"],
-    ["ATS analysis", "Not included", "Basic", "Advanced"],
+    ["Saved resumes", "1 basic resume", "Multiple resumes", "Unlimited resumes"],
+    ["Templates", "Limited templates", "Premium templates", "All premium templates"],
+    ["PDF", "With Succeedora branding", "Without branding", "Without branding"],
+    ["Cover letter", "Limited basic access", "Cover letter generator", "Advanced tailored letters"],
+    ["AI / ATS", "Limited", "AI improvements", "ATS analysis and advanced suggestions"],
+    ["Job tailoring", "No", "Basic", "Advanced"],
+    ["Support", "Standard", "Basic priority", "Priority"],
   ],
 });
 Object.assign(I18N.en, {
@@ -1099,19 +1120,25 @@ Object.assign(I18N.pt.pricing, {
   comingSoon: "Em breve",
   paymentComingSoon: "Pagamento em breve",
   currentPlanLabel: "Plano atual",
-  featureComparisonTitle: "Comparativo de recursos",
-  featureComparisonSubtitle: "Compare o que est\u00e1 inclu\u00eddo em cada plano da Succeedora.",
+  featureComparisonTitle: "Compare os planos",
+  featureComparisonSubtitle: "Veja a diferen\u00e7a entre Gr\u00e1tis, Pro e Premium.",
+  featureColumnLabel: "Recurso",
   included: "Inclu\u00eddo",
   limited: "Limitado",
   notIncluded: "N\u00e3o inclu\u00eddo",
+  plans: [
+    ["Gr\u00e1tis", "R$0", ["1 curr\u00edculo b\u00e1sico", "Modelos limitados", "Edi\u00e7\u00e3o b\u00e1sica", "PDF com marca da Succeedora"]],
+    ["Pro", "R$59", ["V\u00e1rios curr\u00edculos", "Modelos premium", "PDF sem marca", "Melhorias com IA", "Gerador de carta de apresenta\u00e7\u00e3o"]],
+    ["Premium", "R$99", ["Curr\u00edculos ilimitados", "Todos os modelos premium", "An\u00e1lise ATS avan\u00e7ada", "Adapta\u00e7\u00e3o para vagas", "Suporte priorit\u00e1rio"]],
+  ],
   comparisonRows: [
-    ["Criador de curr\u00edculos", "Inclu\u00eddo", "Inclu\u00eddo", "Inclu\u00eddo"],
-    ["Vers\u00f5es de curr\u00edculo", "1 curr\u00edculo", "V\u00e1rios curr\u00edculos", "V\u00e1rios curr\u00edculos"],
-    ["Modelos", "Modelos b\u00e1sicos", "Modelos premium", "Modelos premium"],
-    ["Exporta\u00e7\u00e3o em PDF", "Com marca da Succeedora", "Sem marca", "Sem marca"],
-    ["Cartas de apresenta\u00e7\u00e3o", "Limitado", "Inclu\u00eddo", "Inclu\u00eddo"],
-    ["Ferramentas de IA", "Limitado", "Inclu\u00eddo", "Avan\u00e7ado"],
-    ["An\u00e1lise ATS", "N\u00e3o inclu\u00eddo", "B\u00e1sico", "Avan\u00e7ado"],
+    ["Curr\u00edculos salvos", "1 curr\u00edculo b\u00e1sico", "V\u00e1rios curr\u00edculos", "Curr\u00edculos ilimitados"],
+    ["Modelos", "Modelos limitados", "Modelos premium", "Todos os modelos premium"],
+    ["PDF", "PDF com marca da Succeedora", "PDF sem marca", "PDF sem marca"],
+    ["Carta de apresenta\u00e7\u00e3o", "B\u00e1sico limitado", "Gerador de carta", "Cartas avan\u00e7adas e adaptadas"],
+    ["IA / ATS", "Limitado", "Melhorias com IA", "An\u00e1lise ATS e sugest\u00f5es avan\u00e7adas"],
+    ["Adapta\u00e7\u00e3o para vaga", "N\u00e3o", "B\u00e1sico", "Avan\u00e7ado"],
+    ["Suporte", "Padr\u00e3o", "Priorit\u00e1rio b\u00e1sico", "Priorit\u00e1rio"],
   ],
 });
 Object.assign(I18N.pt, {
@@ -1253,12 +1280,12 @@ Object.assign(I18N.pt.dashboard.access, {
 });
 
 Object.assign(I18N.en.pricing, {
-  plannedPaymentMethodsTitle: "Planned payment methods",
+  plannedPaymentMethodsTitle: "Payment methods",
   plannedPaymentMethodsStatus: "Payments coming soon",
-  plannedPaymentMethodsText: "Pix will be available only for one-time payments. Credit card via Stripe may be used for one-time payments, subscriptions and installment payments.",
+  plannedPaymentMethodsText: "Payment setup is prepared visually, but real Pix and Stripe connections are not active yet.",
   paymentMethods: [
-    ["Pix", "One-time payments only"],
-    ["Card via Stripe", "One-time payments, subscriptions and installments"],
+    ["Pix", "Fast Pix payment. Ideal for manual releases, one-time payments or plans unlocked after confirmation."],
+    ["Card via Stripe", "Card payment via Stripe. Ideal for subscriptions, international payments and recurring billing when activated."],
   ],
   oneTimePaymentsTitle: "One-time payments",
   oneTimePaymentsText: "One-time payments unlock specific features without automatically turning the user into a subscriber.",
@@ -1273,22 +1300,20 @@ Object.assign(I18N.en.pricing, {
   oneTimePaymentNote: "Planned payment: Pix or card via Stripe.",
   creditPaymentNote: "Planned payment: Pix or card via Stripe for one-time credit packs.",
   paymentFaq: [
-    ["Can I use Succeedora for free?", "Yes. The Free plan lets users test the builder and create a basic resume."],
-    ["Can I pay only once?", "Yes. One-time options may use Pix or card via Stripe for a premium download, Career Pack, template, AI credits or online resume link."],
-    ["Can Pix be used for subscriptions?", "No. Pix will be accepted only for one-time purchases and will not be used for recurring subscriptions or installment payments."],
-    ["How will card payments work?", "Card payments may be processed via Stripe for one-time purchases, Pro and Premium subscriptions, installments and international payments when available."],
-    ["What are AI credits?", "AI Credits let you use AI tools such as rewriting, translation, cover letters and job tailoring without a subscription."],
-    ["Can I cancel my subscription anytime?", "Real billing logic is not integrated yet, but the intended model supports cancellation details before purchase confirmation."],
+    ["Can Pix be used for subscriptions?", "No. Pix is planned for one-time payments and manual confirmations, not automatic recurring billing."],
+    ["How will card payments work?", "Card payments may be processed via Stripe for Pro and Premium subscriptions, international payments and recurring billing when available."],
+    ["What are AI credits?", "AI credits unlock AI actions such as rewriting, translation, cover letters, job tailoring and ATS suggestions."],
+    ["Can I cancel my subscription anytime?", "Yes. When subscriptions are activated, cancellation details will be shown before purchase confirmation."],
   ],
 });
 
 Object.assign(I18N.pt.pricing, {
-  plannedPaymentMethodsTitle: "Formas de pagamento planejadas",
+  plannedPaymentMethodsTitle: "M\u00e9todos de pagamento",
   plannedPaymentMethodsStatus: "Pagamentos em breve",
-  plannedPaymentMethodsText: "Pix estar\u00e1 dispon\u00edvel apenas para pagamentos \u00fanicos. Cart\u00e3o de cr\u00e9dito via Stripe poder\u00e1 ser usado para pagamentos \u00fanicos, assinaturas e pagamentos parcelados.",
+  plannedPaymentMethodsText: "A estrutura visual est\u00e1 preparada, mas Pix real e Stripe real ainda n\u00e3o est\u00e3o conectados.",
   paymentMethods: [
-    ["Pix", "Somente pagamentos \u00fanicos"],
-    ["Cart\u00e3o via Stripe", "Pagamentos \u00fanicos, assinaturas e parcelamento"],
+    ["Pix", "Pagamento r\u00e1pido via Pix. Ideal para libera\u00e7\u00f5es manuais, pagamentos \u00fanicos ou planos liberados ap\u00f3s confirma\u00e7\u00e3o."],
+    ["Cart\u00e3o via Stripe", "Pagamento por cart\u00e3o via Stripe. Ideal para assinaturas, pagamentos internacionais e cobran\u00e7a recorrente quando ativado."],
   ],
   oneTimePaymentsTitle: "Pagamentos \u00fanicos",
   oneTimePaymentsText: "Pagamentos \u00fanicos liberam recursos espec\u00edficos sem transformar automaticamente o usu\u00e1rio em assinante.",
@@ -1303,12 +1328,10 @@ Object.assign(I18N.pt.pricing, {
   oneTimePaymentNote: "Pagamento planejado: Pix ou cart\u00e3o via Stripe.",
   creditPaymentNote: "Pagamento planejado: Pix ou cart\u00e3o via Stripe para pacotes avulsos de cr\u00e9ditos.",
   paymentFaq: [
-    ["Posso usar a Succeedora gr\u00e1tis?", "Sim. O plano Gr\u00e1tis permite testar o criador e fazer um curr\u00edculo b\u00e1sico."],
-    ["Posso pagar apenas uma vez?", "Sim. Op\u00e7\u00f5es avulsas poder\u00e3o usar Pix ou cart\u00e3o via Stripe para download premium, pacote carreira, modelo, cr\u00e9ditos de IA ou link online."],
-    ["Pix poder\u00e1 ser usado em assinaturas?", "N\u00e3o. Pix ser\u00e1 aceito apenas para compras avulsas e pagamentos \u00fanicos, sem assinatura recorrente ou parcelamento."],
-    ["Como funcionar\u00e1 o cart\u00e3o?", "Pagamentos com cart\u00e3o poder\u00e3o ser processados via Stripe para compras \u00fanicas, assinaturas Pro e Premium, parcelamento e pagamentos internacionais quando dispon\u00edveis."],
-    ["O que s\u00e3o cr\u00e9ditos de IA?", "Cr\u00e9ditos de IA permitem usar recursos como reescrita, tradu\u00e7\u00e3o, carta de apresenta\u00e7\u00e3o e adapta\u00e7\u00e3o para vaga sem assinatura."],
-    ["Posso cancelar minha assinatura quando quiser?", "A cobran\u00e7a real ainda n\u00e3o foi integrada, mas o modelo previsto exibir\u00e1 detalhes de cancelamento antes da confirma\u00e7\u00e3o da compra."],
+    ["Pix poder\u00e1 ser usado em assinaturas?", "N\u00e3o. Pix est\u00e1 previsto para pagamentos \u00fanicos e confirma\u00e7\u00f5es manuais, n\u00e3o para cobran\u00e7a recorrente autom\u00e1tica."],
+    ["Como funcionar\u00e1 o cart\u00e3o?", "Pagamentos com cart\u00e3o poder\u00e3o ser processados via Stripe para assinaturas Pro e Premium, pagamentos internacionais e cobran\u00e7a recorrente quando dispon\u00edveis."],
+    ["O que s\u00e3o cr\u00e9ditos de IA?", "Cr\u00e9ditos de IA liberam a\u00e7\u00f5es como reescrita, tradu\u00e7\u00e3o, carta de apresenta\u00e7\u00e3o, adapta\u00e7\u00e3o para vaga e sugest\u00f5es ATS."],
+    ["Posso cancelar minha assinatura quando quiser?", "Sim. Quando assinaturas forem ativadas, os detalhes de cancelamento aparecer\u00e3o antes da confirma\u00e7\u00e3o da compra."],
   ],
 });
 Object.assign(I18N.pt.settings, {
@@ -1326,6 +1349,47 @@ Object.assign(I18N.pt.settings, {
   privacyText: "Consulte as p\u00e1ginas legais p\u00fablicas sem encerrar sua sess\u00e3o.",
   saveDuplicate: "Este e-mail j\u00e1 est\u00e1 cadastrado.",
   mockPasswordMessage: "Recupera\u00e7\u00e3o de senha preparada. Configure o envio de e-mails para ativar em produ\u00e7\u00e3o.",
+});
+
+Object.assign(I18N.en.dashboard.nav, { admin: "Admin" });
+Object.assign(I18N.pt.dashboard.nav, { admin: "Admin" });
+
+Object.assign(I18N.en, {
+  admin: {
+    title: "Admin",
+    restricted: "Restricted access.",
+    primaryAdmin: "Primary admin email",
+    sections: { overview: "Overview", users: "Users", payments: "Payments", pendingPix: "Pending Pix", plans: "Plans", purchases: "One-time purchases", credits: "AI Credits", settings: "Settings" },
+    metrics: { users: "Registered users", pending: "Pending payments", approved: "Approved payments", pro: "Pro plans", premium: "Premium plans", purchases: "One-time purchases", creditsSold: "AI credits sold" },
+    table: { name: "Name", email: "Email", plan: "Current plan", createdAt: "Created at", emailVerified: "Email confirmed", resumes: "Resumes", letters: "Letters", status: "Account status", actions: "Actions", id: "Order ID", user: "User", product: "Product", amount: "Amount", currency: "Currency", method: "Payment method", date: "Date", pixKey: "Pix key", unlocked: "Feature unlocked" },
+    actions: { view: "View", changePlan: "Change plan", addCredits: "Add credits", removeCredits: "Remove credits", block: "Block user", unblock: "Unblock user", approve: "Approve", reject: "Reject", details: "View details", save: "Save", cancel: "Cancel" },
+    filters: { search: "Search by name, email or product", status: "Filter by status", all: "All statuses" },
+    status: { active: "Active", blocked: "Blocked", yes: "Yes", no: "No", pending_payment: "Waiting for payment", pending_manual_confirmation: "Waiting for confirmation", approved: "Approved", rejected: "Rejected", cancelled: "Cancelled", pix: "Pix", stripe: "Card via Stripe" },
+    messages: { planUpdated: "Plan updated successfully.", paymentApproved: "Payment approved and feature unlocked.", paymentRejected: "Payment rejected.", creditsAdded: "Credits added.", creditsRemoved: "Credits removed.", userBlocked: "User blocked.", userUnblocked: "User unblocked." },
+    fields: { quantity: "Quantity", reason: "Reason", newPlan: "New plan" },
+    rejectReasons: ["Payment not found", "Incorrect amount", "Invalid receipt", "Duplicate request", "Other reason"],
+    details: { profile: "User details", savedResumes: "Saved resumes", savedLetters: "Saved cover letters", payments: "Payments", purchases: "One-time purchases", credits: "AI Credits", noData: "No records yet." },
+    settings: { cnpj: "Pix CNPJ", pixKey: "Pix key", pixKeyType: "Pix key type", pixManual: "Pix status", stripe: "Stripe status", manual: "Manual for now", disabled: "Disabled for now" },
+  },
+});
+
+Object.assign(I18N.pt, {
+  admin: {
+    title: "Admin",
+    restricted: "Acesso restrito.",
+    primaryAdmin: "E-mail admin principal",
+    sections: { overview: "Vis\u00e3o geral", users: "Usu\u00e1rios", payments: "Pagamentos", pendingPix: "Pix pendentes", plans: "Planos", purchases: "Compras avulsas", credits: "Cr\u00e9ditos de IA", settings: "Configura\u00e7\u00f5es" },
+    metrics: { users: "Usu\u00e1rios cadastrados", pending: "Pagamentos pendentes", approved: "Pagamentos aprovados", pro: "Planos Pro", premium: "Planos Premium", purchases: "Compras avulsas", creditsSold: "Cr\u00e9ditos de IA vendidos" },
+    table: { name: "Nome", email: "E-mail", plan: "Plano atual", createdAt: "Cadastro", emailVerified: "E-mail confirmado", resumes: "Curr\u00edculos", letters: "Cartas", status: "Status da conta", actions: "A\u00e7\u00f5es", id: "ID do pedido", user: "Usu\u00e1rio", product: "Produto", amount: "Valor", currency: "Moeda", method: "M\u00e9todo de pagamento", date: "Data", pixKey: "Chave Pix", unlocked: "Recurso liberado" },
+    actions: { view: "Ver", changePlan: "Alterar plano", addCredits: "Adicionar cr\u00e9ditos", removeCredits: "Remover cr\u00e9ditos", block: "Bloquear usu\u00e1rio", unblock: "Desbloquear usu\u00e1rio", approve: "Aprovar", reject: "Recusar", details: "Ver detalhes", save: "Salvar", cancel: "Cancelar" },
+    filters: { search: "Buscar por nome, e-mail ou produto", status: "Filtrar por status", all: "Todos os status" },
+    status: { active: "Ativo", blocked: "Bloqueado", yes: "Sim", no: "N\u00e3o", pending_payment: "Aguardando pagamento", pending_manual_confirmation: "Aguardando confirma\u00e7\u00e3o", approved: "Aprovado", rejected: "Recusado", cancelled: "Cancelado", pix: "Pix", stripe: "Cart\u00e3o via Stripe" },
+    messages: { planUpdated: "Plano alterado com sucesso.", paymentApproved: "Pagamento aprovado e recurso liberado.", paymentRejected: "Pagamento recusado.", creditsAdded: "Cr\u00e9ditos adicionados.", creditsRemoved: "Cr\u00e9ditos removidos.", userBlocked: "Usu\u00e1rio bloqueado.", userUnblocked: "Usu\u00e1rio desbloqueado." },
+    fields: { quantity: "Quantidade", reason: "Motivo", newPlan: "Novo plano" },
+    rejectReasons: ["Pagamento n\u00e3o encontrado", "Valor incorreto", "Comprovante inv\u00e1lido", "Pedido duplicado", "Outro motivo"],
+    details: { profile: "Detalhes do usu\u00e1rio", savedResumes: "Curr\u00edculos salvos", savedLetters: "Cartas salvas", payments: "Pagamentos", purchases: "Compras avulsas", credits: "Cr\u00e9ditos de IA", noData: "Nenhum registro ainda." },
+    settings: { cnpj: "CNPJ Pix", pixKey: "Chave Pix", pixKeyType: "Tipo da chave Pix", pixManual: "Status Pix", stripe: "Status Stripe", manual: "Manual por enquanto", disabled: "Desativado por enquanto" },
+  },
 });
 
 const routes = {
@@ -1347,7 +1411,14 @@ const routes = {
   "/reset-password": renderForgotPassword,
   "/profile": renderProfile,
   "/settings": renderAccountSettings,
-  "/admin": renderSignIn,
+  "/admin": renderAdminOverview,
+  "/admin/users": renderAdminUsers,
+  "/admin/payments": renderAdminPayments,
+  "/admin/payments/pix": renderAdminPendingPix,
+  "/admin/plans": renderAdminPlans,
+  "/admin/purchases": renderAdminPurchases,
+  "/admin/credits": renderAdminCredits,
+  "/admin/settings": renderAdminSettings,
   "/dashboard": renderDashboard,
   "/dashboard/resumes": renderResumes,
   "/dashboard/builder": renderBuilder,
@@ -1372,6 +1443,13 @@ const PRIVATE_ROUTES = new Set([
   "/profile",
   "/settings",
   "/admin",
+  "/admin/users",
+  "/admin/payments",
+  "/admin/payments/pix",
+  "/admin/plans",
+  "/admin/purchases",
+  "/admin/credits",
+  "/admin/settings",
 ]);
 
 const PUBLIC_CLEAN_ROUTES = new Set(["/pricing", "/terms", "/privacy", "/contact", "/templates"]);
@@ -3391,7 +3469,14 @@ function loadAccounts() {
       email: normalizeEmail(account.email),
       password: String(account.password || ""),
       plan: ["free", "pro", "premium"].includes(account.plan) ? account.plan : "free",
+      status: account.status === "blocked" ? "blocked" : "active",
+      emailVerified: account.emailVerified === false ? false : true,
+      verificationCode: String(account.verificationCode || ""),
+      verificationCodeExpiresAt: account.verificationCodeExpiresAt || "",
+      verificationCodeSentAt: account.verificationCodeSentAt || "",
       createdAt: account.createdAt || isoNow(),
+      manualPlanUpdatedAt: account.manualPlanUpdatedAt || "",
+      manualPlanUpdatedBy: normalizeEmail(account.manualPlanUpdatedBy || ""),
       profile: {
         fullName: String(account.profile?.fullName || account.fullName || "").trim(),
         email: normalizeEmail(account.profile?.email || account.email),
@@ -3442,6 +3527,10 @@ function currentAccount() {
 
 function isLoggedIn() {
   return Boolean(currentSession());
+}
+
+function isAdminAccount(account = currentAccount()) {
+  return ADMIN_EMAILS.includes(normalizeEmail(account?.email || ""));
 }
 
 function userScopedStorageKey(baseKey, account = currentAccount()) {
@@ -3515,15 +3604,21 @@ function normalizePaymentRequest(request) {
     productName: String(request.productName || ""),
     amount: Number(request.amount || 0),
     currency: request.currency || paymentConfig.currency,
-    paymentMethod: request.paymentMethod === "pix" ? "pix" : "pix",
+    paymentMethod: request.paymentMethod === "stripe" ? "stripe" : "pix",
     pixKey: String(request.pixKey || paymentConfig.pixKey),
     pixPayload: String(request.pixPayload || ""),
+    resumeId: String(request.resumeId || request.targetResumeId || ""),
+    templateKey: String(request.templateKey || ""),
+    creditAmount: Math.max(0, Number(request.creditAmount || 0)),
     status,
     paymentStatus: status,
     createdAt: request.createdAt || isoNow(),
     confirmedByUserAt: request.confirmedByUserAt || "",
     approvedAt: request.approvedAt || "",
+    approvedBy: normalizeEmail(request.approvedBy || ""),
     rejectedAt: request.rejectedAt || "",
+    rejectedBy: normalizeEmail(request.rejectedBy || ""),
+    rejectionReason: String(request.rejectionReason || ""),
   };
 }
 
@@ -3556,6 +3651,79 @@ function paymentStatusLabel(status) {
     cancelled: labels.cancelled,
   };
   return map[status] || labels.waitingPayment;
+}
+
+function loadUserAccess(account) {
+  return normalizeAccessState(readJsonStorage(userScopedStorageKey(ACCESS_STORAGE_KEY, account), {}));
+}
+
+function saveUserAccess(account, access) {
+  return writeJsonStorage(userScopedStorageKey(ACCESS_STORAGE_KEY, account), normalizeAccessState(access));
+}
+
+function loadUserPayments(account) {
+  const requests = readJsonStorage(paymentStorageKey(account), []);
+  return Array.isArray(requests) ? requests.map((request) => normalizePaymentRequest({ ...request, userId: request.userId || account.id, userEmail: request.userEmail || account.email })) : [];
+}
+
+function saveUserPayments(account, requests) {
+  return writeJsonStorage(paymentStorageKey(account), requests.map(normalizePaymentRequest));
+}
+
+function loadAdminAuditLog() {
+  const records = readJsonStorage(ADMIN_AUDIT_LOG_STORAGE_KEY, []);
+  return Array.isArray(records) ? records : [];
+}
+
+function saveAdminAuditLog(entry) {
+  const admin = currentAccount();
+  const records = loadAdminAuditLog();
+  records.unshift({
+    id: `audit_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+    adminEmail: normalizeEmail(entry.adminEmail || admin?.email || ""),
+    action: String(entry.action || ""),
+    targetUserEmail: normalizeEmail(entry.targetUserEmail || ""),
+    paymentId: String(entry.paymentId || ""),
+    oldValue: entry.oldValue ?? "",
+    newValue: entry.newValue ?? "",
+    createdAt: isoNow(),
+  });
+  writeJsonStorage(ADMIN_AUDIT_LOG_STORAGE_KEY, records.slice(0, 250));
+}
+
+function loadAdminDataset() {
+  const accounts = loadAccounts();
+  const users = accounts.map((account) => {
+    const resumes = readJsonStorage(userScopedStorageKey(RESUMES_STORAGE_KEY, account), []);
+    const letters = readJsonStorage(userScopedStorageKey(COVER_LETTERS_STORAGE_KEY, account), []);
+    const access = loadUserAccess(account);
+    const payments = loadUserPayments(account).map((payment) => ({ ...payment, accountId: account.id, accountEmail: account.email, accountName: account.profile?.fullName || account.email }));
+    return {
+      account,
+      access,
+      payments,
+      resumes: Array.isArray(resumes) ? resumes : [],
+      letters: Array.isArray(letters) ? letters : [],
+    };
+  });
+  const payments = users.flatMap((user) => user.payments).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const oneTimePurchases = payments.filter((payment) => ["remove_watermark", "premium_pdf", "premium_template", "career_pack", "ai_credits", "online_resume_link"].includes(payment.productType));
+  return { users, payments, oneTimePurchases, auditLog: loadAdminAuditLog() };
+}
+
+function adminPaymentLabel(payment) {
+  const product = PIX_ONE_TIME_PRODUCTS[payment.productType];
+  return payment.productName || product?.names?.[currentLanguage] || product?.names?.en || payment.productType || "-";
+}
+
+function adminSetFlash(message) {
+  window.succeedoraAdminFlash = message;
+}
+
+function adminTakeFlash() {
+  const message = window.succeedoraAdminFlash || "";
+  window.succeedoraAdminFlash = "";
+  return message;
 }
 
 function emvField(id, value) {
@@ -3890,7 +4058,7 @@ function updateAccount(accountId, updater) {
 function setSession(account) {
   try {
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ userId: account.id, email: account.email, signedInAt: isoNow() }));
-    localStorage.setItem(AUTH_VERIFIED_STORAGE_KEY, "true");
+    localStorage.setItem(AUTH_VERIFIED_STORAGE_KEY, account.emailVerified === false ? "false" : "true");
     rememberAuthEmail(account.email);
     migrateLegacyDataToUser(account);
   } catch (error) {
@@ -3944,7 +4112,14 @@ function createAccount({ fullName, email, password }) {
     email: normalizedEmail,
     password: String(password || ""),
     plan: "free",
+    status: "active",
+    emailVerified: false,
+    verificationCode: "",
+    verificationCodeExpiresAt: "",
+    verificationCodeSentAt: "",
     createdAt: isoNow(),
+    manualPlanUpdatedAt: "",
+    manualPlanUpdatedBy: "",
     profile: {
       fullName: String(fullName || "").trim(),
       email: normalizedEmail,
@@ -3957,6 +4132,82 @@ function createAccount({ fullName, email, password }) {
   const accounts = loadAccounts();
   accounts.push(account);
   return saveAccounts(accounts) ? account : null;
+}
+
+function generateVerificationCode() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+function verificationExpired(account = currentAccount()) {
+  const expiresAt = Date.parse(account?.verificationCodeExpiresAt || "");
+  return !expiresAt || Date.now() > expiresAt;
+}
+
+function verificationResendSecondsLeft(account = currentAccount()) {
+  const sentAt = Date.parse(account?.verificationCodeSentAt || "");
+  if (!sentAt) return 0;
+  return Math.max(0, Math.ceil((VERIFICATION_RESEND_COOLDOWN_MS - (Date.now() - sentAt)) / 1000));
+}
+
+function setAccountVerificationCode(accountId, code = generateVerificationCode()) {
+  const now = Date.now();
+  try {
+    localStorage.setItem("succeedora.verifyAttempts", "0");
+  } catch (error) {
+    // Verification attempts are local UI state.
+  }
+  return updateAccount(accountId, (account) => ({
+    ...account,
+    emailVerified: false,
+    verificationCode: code,
+    verificationCodeExpiresAt: new Date(now + VERIFICATION_CODE_TTL_MS).toISOString(),
+    verificationCodeSentAt: new Date(now).toISOString(),
+  }));
+}
+
+async function sendVerificationEmail(account, code) {
+  if (!account?.email || !/^\d{6}$/.test(code || "")) return { ok: false, reason: "invalid" };
+  try {
+    const response = await fetch("/api/auth/send-verification-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: account.email,
+        name: account.profile?.fullName || account.email,
+        code,
+        language: currentLanguage,
+      }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    return response.ok && payload.ok !== false ? { ok: true, id: payload.id || "" } : { ok: false, reason: payload.error || "send_failed" };
+  } catch (error) {
+    return { ok: false, reason: "network" };
+  }
+}
+
+async function issueVerificationCode(account, { force = false } = {}) {
+  const current = findAccountById(account?.id);
+  if (!current) return { ok: false, reason: "missing_account" };
+  if (!force && current.verificationCode && !verificationExpired(current)) return { ok: true, sent: false, account: current };
+  if (force) {
+    const secondsLeft = verificationResendSecondsLeft(current);
+    if (secondsLeft > 0) return { ok: false, reason: "cooldown", secondsLeft };
+  }
+  const code = generateVerificationCode();
+  const updated = setAccountVerificationCode(current.id, code);
+  if (!updated) return { ok: false, reason: "storage" };
+  const result = await sendVerificationEmail(updated, code);
+  return result.ok ? { ok: true, sent: true, account: updated } : result;
+}
+
+function clearAccountVerification(accountId) {
+  return updateAccount(accountId, (account) => ({
+    ...account,
+    emailVerified: true,
+    verificationCode: "",
+    verificationCodeExpiresAt: "",
+    verificationCodeSentAt: "",
+  }));
 }
 
 function migrateLegacyDataToUser(account) {
@@ -3983,7 +4234,8 @@ function migrateLegacyDataToUser(account) {
 }
 
 function isVerifiedUser() {
-  if (isLoggedIn()) return true;
+  const account = currentAccount();
+  if (account) return account.emailVerified !== false;
   try {
     return localStorage.getItem(AUTH_VERIFIED_STORAGE_KEY) === "true";
   } catch (error) {
@@ -3995,6 +4247,8 @@ function setVerifiedUser(value) {
   if (!value) signOut();
   try {
     localStorage.setItem(AUTH_VERIFIED_STORAGE_KEY, value ? "true" : "false");
+    const account = currentAccount();
+    if (account && value) clearAccountVerification(account.id);
   } catch (error) {
     // Prototype auth state is local only.
   }
@@ -4094,6 +4348,8 @@ function defaultAccessState() {
   return {
     plan: "free",
     aiCredits: 0,
+    creditHistory: [],
+    adminEntitlements: [],
     oneTime: {
       watermarkRemoval: [],
       premiumPdf: [],
@@ -4111,9 +4367,24 @@ function normalizeAccessState(raw = {}) {
   Object.keys(oneTime).forEach((key) => {
     oneTime[key] = Array.isArray(oneTime[key]) ? oneTime[key].map(String) : [];
   });
+  const creditHistory = Array.isArray(raw.creditHistory) ? raw.creditHistory.map((item) => ({
+    amount: Number(item.amount || 0),
+    reason: String(item.reason || ""),
+    adminEmail: normalizeEmail(item.adminEmail || ""),
+    createdAt: item.createdAt || isoNow(),
+  })) : [];
+  const adminEntitlements = Array.isArray(raw.adminEntitlements) ? raw.adminEntitlements.map((item) => ({
+    productType: String(item.productType || ""),
+    targetId: String(item.targetId || ""),
+    paymentId: String(item.paymentId || ""),
+    grantedBy: normalizeEmail(item.grantedBy || ""),
+    grantedAt: item.grantedAt || isoNow(),
+  })) : [];
   return {
     plan,
     aiCredits: Math.max(0, Number(raw.aiCredits) || 0),
+    creditHistory,
+    adminEntitlements,
     oneTime,
   };
 }
@@ -4195,6 +4466,128 @@ function canUseFeature(feature, resumeId = currentResumeAccessId(), access = get
   if (feature === "cover-letter" || feature === "translation" || feature === "basic-ats" || feature === "job-suggestions") return hasOneTime("careerPack", resumeId, access);
   if (feature === "online-link") return hasOneTime("onlineLinks", resumeId, access);
   return ["free-template", "preview", "branded-export", "basic-edit"].includes(feature);
+}
+
+function adminFindAccount(userId) {
+  return loadAccounts().find((account) => account.id === userId) || null;
+}
+
+function adminUpdatePlan(userId, plan) {
+  if (!isAdminAccount() || !["free", "pro", "premium"].includes(plan)) return false;
+  const admin = currentAccount();
+  const account = adminFindAccount(userId);
+  if (!account) return false;
+  const oldPlan = account.plan;
+  updateAccount(userId, (current) => ({
+    ...current,
+    plan,
+    manualPlanUpdatedAt: isoNow(),
+    manualPlanUpdatedBy: admin.email,
+  }));
+  const access = loadUserAccess(account);
+  saveUserAccess(account, { ...access, plan });
+  saveAdminAuditLog({ action: "plan_changed", targetUserEmail: account.email, oldValue: oldPlan, newValue: plan });
+  adminSetFlash(t().admin.messages.planUpdated);
+  return true;
+}
+
+function adminUpdateCredits(userId, amount, reason = "") {
+  if (!isAdminAccount()) return false;
+  const account = adminFindAccount(userId);
+  const admin = currentAccount();
+  const delta = Number(amount) || 0;
+  if (!account || delta === 0) return false;
+  const access = loadUserAccess(account);
+  const nextCredits = Math.max(0, Number(access.aiCredits || 0) + delta);
+  const history = [...(access.creditHistory || []), { amount: delta, reason, adminEmail: admin.email, createdAt: isoNow() }];
+  saveUserAccess(account, { ...access, aiCredits: nextCredits, creditHistory: history });
+  saveAdminAuditLog({ action: delta > 0 ? "credits_added" : "credits_removed", targetUserEmail: account.email, oldValue: access.aiCredits, newValue: nextCredits });
+  adminSetFlash(delta > 0 ? t().admin.messages.creditsAdded : t().admin.messages.creditsRemoved);
+  return true;
+}
+
+function adminSetUserStatus(userId, status) {
+  if (!isAdminAccount() || !["active", "blocked"].includes(status)) return false;
+  const account = adminFindAccount(userId);
+  if (!account) return false;
+  updateAccount(userId, (current) => ({ ...current, status }));
+  saveAdminAuditLog({ action: status === "blocked" ? "user_blocked" : "user_unblocked", targetUserEmail: account.email, oldValue: account.status, newValue: status });
+  adminSetFlash(status === "blocked" ? t().admin.messages.userBlocked : t().admin.messages.userUnblocked);
+  return true;
+}
+
+function adminPaymentCredits(payment) {
+  return Math.max(1, Number(payment.creditAmount || 0) || 10);
+}
+
+function adminAddUnique(list = [], value) {
+  const text = String(value || "");
+  return text && !list.map(String).includes(text) ? [...list, text] : list;
+}
+
+function adminGrantPaymentFeature(account, payment) {
+  if (!account) return;
+  const admin = currentAccount();
+  const access = loadUserAccess(account);
+  const targetId = payment.resumeId || payment.templateKey || "__global__";
+  const oneTime = { ...access.oneTime };
+  let nextAccess = { ...access, oneTime };
+  if (payment.productType === "remove_watermark") oneTime.watermarkRemoval = adminAddUnique(oneTime.watermarkRemoval, targetId);
+  if (payment.productType === "premium_pdf") oneTime.premiumPdf = adminAddUnique(oneTime.premiumPdf, targetId);
+  if (payment.productType === "premium_template") oneTime.premiumTemplates = adminAddUnique(oneTime.premiumTemplates, targetId);
+  if (payment.productType === "career_pack") oneTime.careerPack = adminAddUnique(oneTime.careerPack, targetId);
+  if (payment.productType === "online_resume_link") oneTime.onlineLinks = adminAddUnique(oneTime.onlineLinks, targetId);
+  if (payment.productType === "ai_credits") {
+    const credits = adminPaymentCredits(payment);
+    nextAccess = {
+      ...nextAccess,
+      aiCredits: Math.max(0, Number(nextAccess.aiCredits || 0) + credits),
+      creditHistory: [...(nextAccess.creditHistory || []), { amount: credits, reason: payment.id, adminEmail: admin.email, createdAt: isoNow() }],
+    };
+  }
+  if (payment.productType === "plan_pro" || payment.productType === "plan_premium") {
+    const plan = payment.productType === "plan_premium" ? "premium" : "pro";
+    updateAccount(account.id, (current) => ({ ...current, plan, manualPlanUpdatedAt: isoNow(), manualPlanUpdatedBy: admin.email }));
+    nextAccess.plan = plan;
+  }
+  nextAccess.adminEntitlements = [
+    ...(nextAccess.adminEntitlements || []),
+    { productType: payment.productType, targetId, paymentId: payment.id, grantedBy: admin.email, grantedAt: isoNow() },
+  ];
+  saveUserAccess(account, nextAccess);
+}
+
+function adminUpdatePayment(userId, paymentId, updater) {
+  const account = adminFindAccount(userId);
+  if (!account) return null;
+  const requests = loadUserPayments(account);
+  const index = requests.findIndex((payment) => payment.id === paymentId);
+  if (index < 0) return null;
+  const updated = normalizePaymentRequest(updater(requests[index]));
+  requests[index] = updated;
+  saveUserPayments(account, requests);
+  return { account, payment: updated };
+}
+
+function adminApprovePayment(userId, paymentId) {
+  if (!isAdminAccount()) return false;
+  const admin = currentAccount();
+  const result = adminUpdatePayment(userId, paymentId, (payment) => ({ ...payment, status: "approved", paymentStatus: "approved", approvedAt: isoNow(), approvedBy: admin.email }));
+  if (!result) return false;
+  adminGrantPaymentFeature(result.account, result.payment);
+  saveAdminAuditLog({ action: "payment_approved", targetUserEmail: result.account.email, paymentId, oldValue: "pending", newValue: "approved" });
+  adminSetFlash(t().admin.messages.paymentApproved);
+  return true;
+}
+
+function adminRejectPayment(userId, paymentId, reason = "") {
+  if (!isAdminAccount()) return false;
+  const admin = currentAccount();
+  const result = adminUpdatePayment(userId, paymentId, (payment) => ({ ...payment, status: "rejected", paymentStatus: "rejected", rejectedAt: isoNow(), rejectedBy: admin.email, rejectionReason: reason }));
+  if (!result) return false;
+  saveAdminAuditLog({ action: "payment_rejected", targetUserEmail: result.account.email, paymentId, oldValue: "pending", newValue: reason || "rejected" });
+  adminSetFlash(t().admin.messages.paymentRejected);
+  return true;
 }
 
 function requiresAiCredits(action = "ai") {
@@ -4279,6 +4672,10 @@ function placeholderSendEmailCode(email, purpose) {
 
 function codeMatches(purpose, input) {
   if (!/^\d{6}$/.test(input || "")) return false;
+  if (purpose === "verify") {
+    const account = currentAccount();
+    return Boolean(account?.verificationCode) && account.verificationCode === input;
+  }
   try {
     return localStorage.getItem(`succeedora.${purpose}Code`) === input;
   } catch (error) {
@@ -4287,6 +4684,10 @@ function codeMatches(purpose, input) {
 }
 
 function codeStillValid(purpose) {
+  if (purpose === "verify") {
+    const account = currentAccount();
+    return Boolean(account?.verificationCode) && !verificationExpired(account);
+  }
   try {
     const requested = Number(localStorage.getItem(`succeedora.${purpose}CodeRequestedAt`) || "0");
     return requested > 0 && Date.now() - requested <= 10 * 60 * 1000;
@@ -4310,6 +4711,15 @@ function render() {
     setRoute("/signin");
     return;
   }
+  if (PRIVATE_ROUTES.has(route) && !isVerifiedUser()) {
+    rememberIntendedRoute(route);
+    setRoute("/verify-email");
+    return;
+  }
+  if (route.startsWith("/admin") && !isAdminAccount()) {
+    renderRestrictedAdmin();
+    return;
+  }
   if (route.startsWith("/blog/")) {
     renderBlogArticlePage(route.replace("/blog/", ""));
     return;
@@ -4317,7 +4727,49 @@ function render() {
   routes[route]();
 }
 
+function bindAdminInteractions() {
+  const applyFilters = () => {
+    const query = String(document.querySelector("[data-admin-filter]")?.value || "").trim().toLowerCase();
+    const status = document.querySelector("[data-admin-status-filter]")?.value || "";
+    document.querySelectorAll("[data-admin-row]").forEach((row) => {
+      const matchesQuery = !query || String(row.getAttribute("data-search") || "").includes(query);
+      const matchesStatus = !status || row.getAttribute("data-status") === status;
+      row.hidden = !(matchesQuery && matchesStatus);
+    });
+  };
+  document.querySelector("[data-admin-filter]")?.addEventListener("input", applyFilters);
+  document.querySelector("[data-admin-status-filter]")?.addEventListener("change", applyFilters);
+  document.querySelectorAll("[data-admin-view-user]").forEach((button) => {
+    button.addEventListener("click", () => openAdminUserDetails(button.getAttribute("data-admin-view-user")));
+  });
+  document.querySelectorAll("[data-admin-plan-user]").forEach((button) => {
+    button.addEventListener("click", () => openAdminPlanModal(button.getAttribute("data-admin-plan-user")));
+  });
+  document.querySelectorAll("[data-admin-credits-user]").forEach((button) => {
+    button.addEventListener("click", () => openAdminCreditsModal(button.getAttribute("data-admin-credits-user"), button.getAttribute("data-admin-credit-mode") || "add"));
+  });
+  document.querySelectorAll("[data-admin-user-status]").forEach((button) => {
+    button.addEventListener("click", () => {
+      adminSetUserStatus(button.getAttribute("data-admin-user-status"), button.getAttribute("data-admin-next-status"));
+      render();
+    });
+  });
+  document.querySelectorAll("[data-admin-approve-payment]").forEach((button) => {
+    button.addEventListener("click", () => {
+      adminApprovePayment(button.getAttribute("data-admin-payment-user"), button.getAttribute("data-admin-approve-payment"));
+      render();
+    });
+  });
+  document.querySelectorAll("[data-admin-reject-payment]").forEach((button) => {
+    button.addEventListener("click", () => openAdminRejectModal(button.getAttribute("data-admin-payment-user"), button.getAttribute("data-admin-reject-payment")));
+  });
+  document.querySelectorAll("[data-admin-view-payment]").forEach((button) => {
+    button.addEventListener("click", () => openAdminPaymentDetails(button.getAttribute("data-admin-payment-user"), button.getAttribute("data-admin-view-payment")));
+  });
+}
+
 function bindInteractions() {
+  bindAdminInteractions();
   document.querySelectorAll("[data-auth-form]").forEach((form) => {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -4344,12 +4796,17 @@ function bindInteractions() {
         const loadingLabels = { signin: t().auth.signingIn, signup: t().auth.creatingAccount, forgot: t().auth.sendingCode, verify: t().auth.confirming, reset: t().auth.updatingPassword };
         button.textContent = loadingLabels[mode] || button.textContent;
       }
-      window.setTimeout(() => {
+      window.setTimeout(async () => {
         if (mode === "signin") {
           const account = findAccountByEmail(form.email.value);
           if (account) {
             setSession(account);
-            setRoute(consumeIntendedRoute());
+            if (account.emailVerified === false) {
+              await issueVerificationCode(account);
+              setRoute("/verify-email");
+            } else {
+              setRoute(consumeIntendedRoute());
+            }
           }
         } else if (mode === "signup") {
           const account = createAccount({
@@ -4360,7 +4817,17 @@ function bindInteractions() {
           if (account) {
             setSession(account);
             writeJsonStorage(userScopedStorageKey(PROFILE_STORAGE_KEY, account), account.profile);
-            setRoute(consumeIntendedRoute());
+            const result = await issueVerificationCode(account);
+            if (!result.ok) {
+              showFormError(form, t().auth.verificationSendError);
+              form.dataset.submitting = "false";
+              if (button) {
+                button.disabled = false;
+                button.textContent = t().auth.signUpButton;
+              }
+              return;
+            }
+            setRoute("/verify-email");
           }
         } else if (mode === "forgot") {
           const message = form.querySelector("[data-auth-message]");
@@ -4376,7 +4843,7 @@ function bindInteractions() {
           return;
         } else if (mode === "verify") {
           setVerifiedUser(true);
-          setRoute("/dashboard");
+          setRoute(consumeIntendedRoute());
         } else if (mode === "reset") {
           setRoute("/signin");
         }
@@ -4763,8 +5230,36 @@ function bindInteractions() {
   });
 
   document.querySelectorAll("[data-resend-code]").forEach((button) => {
-    button.addEventListener("click", () => {
-      placeholderSendEmailCode(getAuthEmail(), getRoute() === "/reset-password" ? "reset" : "verify");
+    button.addEventListener("click", async () => {
+      const form = button.closest("form");
+      const error = form?.querySelector("[data-auth-error]");
+      const message = form?.querySelector("[data-auth-message]");
+      if (error) {
+        error.textContent = "";
+        error.hidden = true;
+      }
+      if (message) {
+        message.textContent = "";
+        message.hidden = true;
+      }
+      const purpose = getRoute() === "/reset-password" ? "reset" : "verify";
+      if (purpose === "verify") {
+        const account = currentAccount();
+        const result = await issueVerificationCode(account, { force: true });
+        if (!result.ok) {
+          if (error) {
+            error.textContent = result.reason === "cooldown" ? `${t().auth.codeHelp}` : t().auth.verificationSendError;
+            error.hidden = false;
+          }
+          return;
+        }
+        if (message) {
+          message.textContent = t().auth.verificationSent;
+          message.hidden = false;
+        }
+      } else {
+        placeholderSendEmailCode(getAuthEmail(), "reset");
+      }
       const originalText = button.textContent;
       button.disabled = true;
       let seconds = 60;
@@ -6328,14 +6823,17 @@ function pricingCard(name, price, items, featured, badge = "", index = 0, mode =
   const access = getUserAccess();
   const planKey = planKeyForIndex(index);
   const isCurrent = access.plan === planKey;
-  const showCurrentState = mode !== "home" && isCurrent;
+  const showCurrentState = mode !== "home" && mode !== "public" && isCurrent;
   const label = showCurrentState ? copy.pricing.currentPlanLabel : badge;
   const paymentLabel = mode === "home" ? `<span class="payment-soon-label">${copy.pricing.paymentComingSoon}</span>` : "";
-  const paymentNote = planKey === "free" || mode === "home" ? "" : `<p class="planned-payment-note">${copy.pricing.planPaymentNote}</p>`;
+  const paymentNote = planKey === "free" || mode === "home" || mode === "public" ? "" : `<p class="planned-payment-note">${copy.pricing.planPaymentNote}</p>`;
   return `
     <article class="price-card ${mode === "home" ? "homepage-price-card" : ""} ${featured ? "featured" : ""} ${showCurrentState ? "current-plan-card" : ""}" data-plan="${planKey}">
-      ${label ? `<div class="popular ${showCurrentState ? "current" : ""}">${label}</div>` : ""}
-      <h3>${name}</h3><div class="price"><strong>${price}</strong><span>${copy.pricing.perMonth}</span></div>
+      <div class="plan-card-head">
+        ${label ? `<div class="popular ${showCurrentState ? "current" : ""}">${label}</div>` : `<div class="popular-spacer" aria-hidden="true"></div>`}
+        <h3>${name}</h3>
+        <div class="price"><strong>${price}</strong><span>${copy.pricing.perMonth}</span></div>
+      </div>
       ${paymentLabel}
       ${paymentNote}
       <ul>${items.map((item) => `<li>${icon("check")} ${item}</li>`).join("")}</ul>
@@ -6374,6 +6872,13 @@ function creditCard(name, price, badge, items, featured = false) {
   `;
 }
 
+function comparisonCell(value) {
+  const normalized = String(value).trim().toLowerCase();
+  const unavailable = normalized === "no" || normalized === "n\u00e3o" || normalized.includes("not included") || normalized.includes("n\u00e3o inclu");
+  const indicator = unavailable ? `<span class="comparison-dash" aria-hidden="true">-</span>` : icon("check");
+  return `<span class="comparison-value ${unavailable ? "is-unavailable" : ""}">${indicator}<span>${value}</span></span>`;
+}
+
 function pricingComparisonTable() {
   const pricing = t().pricing;
   const planNames = pricing.plans.map((plan) => plan[0]);
@@ -6385,9 +6890,9 @@ function pricingComparisonTable() {
       </div>
       <div class="comparison-table-wrap">
         <table class="plan-comparison-table">
-          <thead><tr><th>${pricing.featureComparisonTitle}</th>${planNames.map((name) => `<th>${name}</th>`).join("")}</tr></thead>
+          <thead><tr><th>${pricing.featureColumnLabel || pricing.featureComparisonTitle}</th>${planNames.map((name, index) => `<th class="${index === 1 ? "is-pro-column" : ""}">${name}</th>`).join("")}</tr></thead>
           <tbody>
-            ${pricing.comparisonRows.map((row) => `<tr><th>${row[0]}</th><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td></tr>`).join("")}
+            ${pricing.comparisonRows.map((row) => `<tr><th>${row[0]}</th>${row.slice(1).map((cell, index) => `<td class="${index === 1 ? "is-pro-column" : ""}">${comparisonCell(cell)}</td>`).join("")}</tr>`).join("")}
           </tbody>
         </table>
       </div>
@@ -6405,29 +6910,33 @@ function plannedPaymentMethodsSection() {
         <p>${pricing.plannedPaymentMethodsText}</p>
       </div>
       <div class="payment-method-grid">
-        ${pricing.paymentMethods.map(([name, description]) => `
+        ${pricing.paymentMethods.map(([name, description], index) => `
           <article class="payment-method-card">
+            <div class="payment-method-icon">${index === 0 ? "Pix" : icon("card")}</div>
             <strong>${name}</strong>
             <span>${description}</span>
           </article>
         `).join("")}
       </div>
-      <div class="payment-rules-grid">
-        <article>
-          <h3>${pricing.oneTimePaymentsTitle}</h3>
-          <p>${pricing.oneTimePaymentsText}</p>
-          <div class="payment-chip-row">${pricing.oneTimePaymentExamples.map((item) => `<span>${item}</span>`).join("")}</div>
-          <p>${pricing.pixOnlyText}</p>
-        </article>
-        <article>
-          <h3>${pricing.subscriptionsTitle}</h3>
-          <p>${pricing.subscriptionsText}</p>
-          <p>${pricing.stripeCardText}</p>
-        </article>
-        <article>
-          <h3>${pricing.installmentPaymentsTitle}</h3>
-          <p>${pricing.installmentPaymentsText}</p>
-        </article>
+    </section>
+  `;
+}
+
+function pricingFaqAccordion() {
+  const pricing = t().pricing;
+  return `
+    <section class="monetization-block payment-faq">
+      <div class="section-heading">
+        <span class="eyebrow">FAQ</span>
+        <h2>${pricing.paymentFaqTitle}</h2>
+      </div>
+      <div class="pricing-faq-list">
+        ${pricing.paymentFaq.map(([q, a], index) => `
+          <details class="pricing-faq-item" ${index === 0 ? "open" : ""}>
+            <summary>${q}</summary>
+            <p>${a}</p>
+          </details>
+        `).join("")}
       </div>
     </section>
   `;
@@ -6466,6 +6975,23 @@ function monetizationSections(mode = "public") {
   const copy = t();
   const pricing = copy.pricing;
   const pageClass = mode === "dashboard" ? "dashboard-monetization" : "public-monetization";
+  const planCards = `<div class="pricing-grid">${pricing.plans.map((plan, index) => pricingCard(plan[0], plan[1], plan[2], index === 1, index === 1 ? pricing.bestForMost : "", index, mode)).join("")}</div>`;
+  if (mode === "public") {
+    return `
+      <div class="monetization ${pageClass}">
+        <section class="monetization-block pricing-overview-block">
+          <div class="section-heading">
+            <span class="eyebrow">${pricing.monthlyTitle}</span>
+            <h2>${pricing.monthlySubtitle}</h2>
+          </div>
+          ${planCards}
+        </section>
+        ${pricingComparisonTable()}
+        ${plannedPaymentMethodsSection()}
+        ${pricingFaqAccordion()}
+      </div>
+    `;
+  }
   return `
     <div class="monetization ${pageClass}">
       <div class="pricing-tabs" role="tablist" aria-label="${pricing.viewAllOptions}">
@@ -6479,7 +7005,7 @@ function monetizationSections(mode = "public") {
           <span class="eyebrow">${pricing.monthlyTitle}</span>
           <h2>${pricing.monthlySubtitle}</h2>
         </div>
-        <div class="pricing-grid">${pricing.plans.map((plan, index) => pricingCard(plan[0], plan[1], plan[2], index === 1, index === 1 ? pricing.bestForMost : "", index, mode)).join("")}</div>
+        ${planCards}
         ${pricingComparisonTable()}
       </section>
 
@@ -6505,13 +7031,7 @@ function monetizationSections(mode = "public") {
         <div class="credits-grid">${pricing.creditPackages.map((pack, index) => creditCard(pack[0], pack[1], index === 1 ? pricing.bestValue : index === 2 ? pricing.multipleApplications : pack[2], pack[3], index === 1)).join("")}</div>
       </section>
 
-      <section class="monetization-block payment-faq">
-        <div class="section-heading">
-          <span class="eyebrow">FAQ</span>
-          <h2>${pricing.paymentFaqTitle}</h2>
-        </div>
-        <div class="faq-grid">${pricing.paymentFaq.map(([q, a]) => `<article class="faq-item"><h3>${q}</h3><p>${a}</p></article>`).join("")}</div>
-      </section>
+      ${pricingFaqAccordion()}
     </div>
   `;
 }
@@ -6526,7 +7046,7 @@ function renderPricingPage() {
         <section class="pricing-hero">
           <span class="eyebrow">${copy.nav.pricing}</span>
           <h1>${copy.pricing.pricingPageTitle}</h1>
-          <p>${copy.pricing.monthlySubtitle} ${copy.pricing.oneTimeSubtitle}</p>
+          <p>${copy.pricing.monthlySubtitle}</p>
         </section>
         ${monetizationSections("public")}
       </main>
@@ -6947,9 +7467,11 @@ function renderVerifyEmail() {
         <label>${a.verificationCode}<input class="code-input" type="text" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" required /></label>
         <p class="auth-help">${a.codeHelp}</p>
         <p class="auth-error" data-auth-error hidden></p>
+        <p class="settings-message auth-success" data-auth-message hidden></p>
         <button class="primary-button full" type="submit" data-auth-submit>${a.verifyButton}</button>
         <button class="secondary-button full" type="button" data-resend-code>${a.resendCode}</button>
       </form>
+      <p class="switch-auth"><a href="#/signin" data-route="/signin">${a.backToLogin}</a></p>
     </section>
   `);
 }
@@ -7029,6 +7551,391 @@ function renderSignUp() {
   authLayout("signup");
 }
 
+function adminRouteFor(key) {
+  const map = {
+    overview: "/admin",
+    users: "/admin/users",
+    payments: "/admin/payments",
+    pendingPix: "/admin/payments/pix",
+    plans: "/admin/plans",
+    purchases: "/admin/purchases",
+    credits: "/admin/credits",
+    settings: "/admin/settings",
+  };
+  return map[key] || "/admin";
+}
+
+function adminSectionNav(activeKey) {
+  const labels = t().admin.sections;
+  const items = [["overview", "layout"], ["users", "file"], ["payments", "card"], ["pendingPix", "target"], ["plans", "shield"], ["purchases", "download"], ["credits", "sparkles"], ["settings", "settings"]];
+  return items.map(([key, iconName]) => `<a class="${activeKey === key ? "active" : ""}" href="#${adminRouteFor(key)}" data-route="${adminRouteFor(key)}">${icon(iconName)} <span>${labels[key]}</span></a>`).join("");
+}
+
+function renderRestrictedAdmin() {
+  mount(`
+    <div class="public-shell">
+      ${publicHeader()}
+      <main class="admin-restricted">
+        <section class="settings-card">
+          <span class="eyebrow">${t().admin.title}</span>
+          <h1>${t().admin.restricted}</h1>
+          <button class="secondary-button" type="button" data-route="/">${t().dashboard.backToWebsite}</button>
+        </section>
+      </main>
+    </div>
+  `, { title: `${t().admin.title} | Succeedora`, description: t().admin.restricted, canonical: seoUrl("/admin"), noindex: true });
+}
+
+function adminShell(activeKey, content) {
+  const labels = t().admin;
+  const profile = loadProfile();
+  const flash = adminTakeFlash();
+  mount(`
+    <div class="app-shell admin-shell">
+      <aside class="sidebar admin-sidebar">
+        <div class="sidebar-head">${brandLogo("a", "#/admin", "/admin")}<div class="sidebar-head-actions"><button class="icon-button sidebar-toggle" aria-label="${t().dashboard.closeSidebar}">${icon("close")}</button></div></div>
+        <nav class="side-nav">${adminSectionNav(activeKey)}</nav>
+        <div class="sidebar-footer">
+          <button class="sidebar-link-button" data-route="/dashboard" title="${t().dashboard.workspace}">${icon("layout")} <span>${t().dashboard.workspace}</span></button>
+          <button class="sidebar-link-button" data-route="/" title="${t().dashboard.backToWebsite}">${icon("arrow")} <span>${t().dashboard.backToWebsite}</span></button>
+        </div>
+      </aside>
+      <div class="dashboard-main admin-main">
+        <header class="dashboard-topbar">
+          <button class="icon-button sidebar-toggle" aria-label="${t().dashboard.openSidebar}">${icon("menu")}</button>
+          <div><span class="eyebrow">Succeedora</span><h1>${labels.sections[activeKey] || labels.title}</h1></div>
+          <label class="dashboard-search">${icon("file")}<input type="search" placeholder="${labels.filters.search}" data-admin-filter /></label>
+          <div class="topbar-actions">${languageSwitch(true)}${themeToggle()}<button class="user-menu" type="button" data-route="/dashboard"><span>${escapeHtml(profileInitials(profile))}</span>${escapeHtml(profileFirstName(profile))}</button></div>
+        </header>
+        <main class="dashboard-content admin-content">
+          ${flash ? `<p class="settings-message admin-flash">${escapeHtml(flash)}</p>` : ""}
+          ${content}
+        </main>
+      </div>
+    </div>
+  `, { title: `${labels.title} | Succeedora`, description: labels.restricted, canonical: seoUrl("/admin"), noindex: true });
+}
+
+function adminPlanLabel(plan) {
+  const dashboard = t().dashboard;
+  if (plan === "premium") return dashboard.premium;
+  if (plan === "pro") return dashboard.pro;
+  return dashboard.free;
+}
+
+function adminStatusBadge(status, type = "account") {
+  const label = t().admin.status[status] || status;
+  return `<span class="admin-badge ${type}-${escapeHtml(status)}">${escapeHtml(label)}</span>`;
+}
+
+function adminFormatMoney(amount, currency = "BRL") {
+  return new Intl.NumberFormat(currentLanguage === "pt" ? "pt-BR" : "en-US", { style: "currency", currency: currency || "BRL" }).format((Number(amount) || 0) / 100);
+}
+
+function adminStats(dataset = loadAdminDataset()) {
+  const pendingStatuses = ["pending_payment", "pending_manual_confirmation"];
+  const creditTotal = dataset.users.reduce((sum, user) => sum + (user.access.creditHistory || []).filter((item) => Number(item.amount) > 0).reduce((inner, item) => inner + Number(item.amount || 0), 0), 0);
+  return {
+    users: dataset.users.length,
+    pending: dataset.payments.filter((payment) => pendingStatuses.includes(payment.status)).length,
+    approved: dataset.payments.filter((payment) => payment.status === "approved").length,
+    pro: dataset.users.filter((user) => user.access.plan === "pro" || user.account.plan === "pro").length,
+    premium: dataset.users.filter((user) => user.access.plan === "premium" || user.account.plan === "premium").length,
+    purchases: dataset.oneTimePurchases.length,
+    creditsSold: creditTotal,
+  };
+}
+
+function adminMetricCards(dataset) {
+  const labels = t().admin.metrics;
+  const stats = adminStats(dataset);
+  const items = [["users", labels.users], ["pending", labels.pending], ["approved", labels.approved], ["pro", labels.pro], ["premium", labels.premium], ["purchases", labels.purchases], ["creditsSold", labels.creditsSold]];
+  return `<div class="admin-metric-grid">${items.map(([key, label]) => `<article class="admin-metric-card"><span>${escapeHtml(label)}</span><strong>${stats[key]}</strong></article>`).join("")}</div>`;
+}
+
+function adminUserRow(user) {
+  const a = t().admin;
+  const account = user.account;
+  const plan = user.access.plan || account.plan;
+  return `
+    <tr data-admin-row data-search="${escapeHtml(`${account.profile.fullName} ${account.email} ${plan}`.toLowerCase())}" data-status="${escapeHtml(account.status)}">
+      <td><strong>${escapeHtml(account.profile.fullName || "-")}</strong></td>
+      <td>${escapeHtml(account.email)}</td>
+      <td>${adminStatusBadge(plan, "plan")}</td>
+      <td>${escapeHtml(formatPaymentDate(account.createdAt))}</td>
+      <td>${account.emailVerified ? a.status.yes : a.status.no}</td>
+      <td>${user.resumes.length}</td>
+      <td>${user.letters.length}</td>
+      <td>${adminStatusBadge(account.status)}</td>
+      <td class="admin-action-cell">
+        <button class="secondary-button small" type="button" data-admin-view-user="${escapeHtml(account.id)}">${a.actions.view}</button>
+        <button class="secondary-button small" type="button" data-admin-plan-user="${escapeHtml(account.id)}">${a.actions.changePlan}</button>
+        <button class="secondary-button small" type="button" data-admin-credits-user="${escapeHtml(account.id)}" data-admin-credit-mode="add">${a.actions.addCredits}</button>
+        <button class="ghost-button small" type="button" data-admin-credits-user="${escapeHtml(account.id)}" data-admin-credit-mode="remove">${a.actions.removeCredits}</button>
+        <button class="ghost-button small" type="button" data-admin-user-status="${escapeHtml(account.id)}" data-admin-next-status="${account.status === "blocked" ? "active" : "blocked"}">${account.status === "blocked" ? a.actions.unblock : a.actions.block}</button>
+      </td>
+    </tr>
+  `;
+}
+
+function adminUsersTable(users) {
+  const h = t().admin.table;
+  return `
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>${h.name}</th><th>${h.email}</th><th>${h.plan}</th><th>${h.createdAt}</th><th>${h.emailVerified}</th><th>${h.resumes}</th><th>${h.letters}</th><th>${h.status}</th><th>${h.actions}</th></tr></thead>
+        <tbody>${users.map(adminUserRow).join("") || `<tr><td colspan="9">${t().admin.details.noData}</td></tr>`}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function adminPaymentRow(payment, options = {}) {
+  const h = t().admin.table;
+  const a = t().admin;
+  const pending = ["pending_payment", "pending_manual_confirmation"].includes(payment.status);
+  return `
+    <tr data-admin-row data-search="${escapeHtml(`${payment.id} ${payment.accountName} ${payment.accountEmail} ${adminPaymentLabel(payment)} ${payment.status}`.toLowerCase())}" data-status="${escapeHtml(payment.status)}">
+      <td><code>${escapeHtml(payment.id)}</code></td>
+      <td>${escapeHtml(payment.accountName || "-")}</td>
+      <td>${escapeHtml(payment.accountEmail || payment.userEmail || "-")}</td>
+      <td>${escapeHtml(adminPaymentLabel(payment))}</td>
+      <td>${escapeHtml(adminFormatMoney(payment.amount, payment.currency))}</td>
+      <td>${escapeHtml(payment.currency)}</td>
+      <td>${escapeHtml(a.status[payment.paymentMethod] || payment.paymentMethod)}</td>
+      <td>${adminStatusBadge(payment.status, "payment")}</td>
+      <td>${escapeHtml(formatPaymentDate(payment.createdAt))}</td>
+      ${options.showPixKey ? `<td>${escapeHtml(payment.pixKey || "-")}</td>` : ""}
+      ${options.showUnlocked ? `<td>${payment.status === "approved" ? a.status.yes : a.status.no}</td>` : ""}
+      <td class="admin-action-cell">
+        ${pending ? `<button class="primary-button small" type="button" data-admin-approve-payment="${escapeHtml(payment.id)}" data-admin-payment-user="${escapeHtml(payment.accountId)}">${a.actions.approve}</button><button class="ghost-button small" type="button" data-admin-reject-payment="${escapeHtml(payment.id)}" data-admin-payment-user="${escapeHtml(payment.accountId)}">${a.actions.reject}</button>` : ""}
+        <button class="secondary-button small" type="button" data-admin-view-payment="${escapeHtml(payment.id)}" data-admin-payment-user="${escapeHtml(payment.accountId)}">${a.actions.details}</button>
+      </td>
+    </tr>
+  `;
+}
+
+function adminPaymentsTable(payments, options = {}) {
+  const h = t().admin.table;
+  const extraColumns = (options.showPixKey ? 1 : 0) + (options.showUnlocked ? 1 : 0);
+  return `
+    <div class="admin-filter-row">
+      <select data-admin-status-filter aria-label="${t().admin.filters.status}">
+        <option value="">${t().admin.filters.all}</option>
+        ${["pending_payment", "pending_manual_confirmation", "approved", "rejected", "cancelled"].map((status) => `<option value="${status}">${t().admin.status[status]}</option>`).join("")}
+      </select>
+    </div>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>${h.id}</th><th>${h.user}</th><th>${h.email}</th><th>${h.product}</th><th>${h.amount}</th><th>${h.currency}</th><th>${h.method}</th><th>${h.status}</th><th>${h.date}</th>${options.showPixKey ? `<th>${h.pixKey}</th>` : ""}${options.showUnlocked ? `<th>${h.unlocked}</th>` : ""}<th>${h.actions}</th></tr></thead>
+        <tbody>${payments.map((payment) => adminPaymentRow(payment, options)).join("") || `<tr><td colspan="${10 + extraColumns}">${t().admin.details.noData}</td></tr>`}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderAdminOverview() {
+  const dataset = loadAdminDataset();
+  adminShell("overview", `
+    ${adminMetricCards(dataset)}
+    <section class="settings-card admin-panel">
+      <div class="settings-card-head"><div><span class="eyebrow">${t().admin.sections.pendingPix}</span><h2>${t().admin.metrics.pending}</h2></div><button class="secondary-button small" data-route="/admin/payments/pix">${t().admin.actions.details}</button></div>
+      ${adminPaymentsTable(dataset.payments.filter((payment) => payment.paymentMethod === "pix" && ["pending_payment", "pending_manual_confirmation"].includes(payment.status)).slice(0, 5), { showPixKey: true })}
+    </section>
+  `);
+}
+
+function renderAdminUsers() {
+  const dataset = loadAdminDataset();
+  adminShell("users", `<section class="settings-card admin-panel">${adminUsersTable(dataset.users)}</section>`);
+}
+
+function renderAdminPayments() {
+  const dataset = loadAdminDataset();
+  adminShell("payments", `<section class="settings-card admin-panel">${adminPaymentsTable(dataset.payments)}</section>`);
+}
+
+function renderAdminPendingPix() {
+  const dataset = loadAdminDataset();
+  const payments = dataset.payments.filter((payment) => payment.paymentMethod === "pix" && ["pending_payment", "pending_manual_confirmation"].includes(payment.status));
+  adminShell("pendingPix", `<section class="settings-card admin-panel">${adminPaymentsTable(payments, { showPixKey: true })}</section>`);
+}
+
+function renderAdminPlans() {
+  const dataset = loadAdminDataset();
+  const planUsers = dataset.users.filter((user) => ["pro", "premium"].includes(user.access.plan || user.account.plan));
+  adminShell("plans", `<section class="settings-card admin-panel">${adminUsersTable(planUsers)}</section>`);
+}
+
+function renderAdminPurchases() {
+  const dataset = loadAdminDataset();
+  adminShell("purchases", `<section class="settings-card admin-panel">${adminPaymentsTable(dataset.oneTimePurchases, { showUnlocked: true })}</section>`);
+}
+
+function renderAdminCredits() {
+  const dataset = loadAdminDataset();
+  adminShell("credits", `<section class="settings-card admin-panel">${adminUsersTable(dataset.users)}</section>`);
+}
+
+function renderAdminSettings() {
+  const labels = t().admin;
+  adminShell("settings", `
+    <section class="settings-card admin-settings-grid">
+      <article><span>${labels.primaryAdmin}</span><strong>${escapeHtml(ADMIN_EMAILS[0])}</strong></article>
+      <article><span>${labels.settings.cnpj}</span><strong>${escapeHtml(paymentConfig.pixKey)}</strong></article>
+      <article><span>${labels.settings.pixKey}</span><strong>${escapeHtml(paymentConfig.pixKey)}</strong></article>
+      <article><span>${labels.settings.pixKeyType}</span><strong>${escapeHtml(paymentConfig.pixKeyType)}</strong></article>
+      <article><span>${labels.settings.pixManual}</span><strong>${labels.settings.manual}</strong></article>
+      <article><span>${labels.settings.stripe}</span><strong>${labels.settings.disabled}</strong></article>
+    </section>
+  `);
+}
+
+function openAdminDialog(title, body) {
+  document.querySelectorAll(".admin-modal").forEach((modal) => modal.remove());
+  const modal = document.createElement("div");
+  modal.className = "template-preview-modal admin-modal";
+  modal.innerHTML = `
+    <section class="template-preview-dialog admin-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(title)}">
+      <header class="template-preview-header">
+        <h2>${escapeHtml(title)}</h2>
+        <button class="icon-button" type="button" data-admin-modal-close aria-label="${t().dashboard.close}">${icon("close")}</button>
+      </header>
+      <div class="template-preview-content admin-dialog-content">${body}</div>
+    </section>
+  `;
+  document.body.appendChild(modal);
+  const close = () => modal.remove();
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal || event.target.closest("[data-admin-modal-close]")) close();
+  });
+  return modal;
+}
+
+function openAdminPlanModal(userId) {
+  const user = loadAdminDataset().users.find((item) => item.account.id === userId);
+  if (!user) return;
+  const labels = t().admin;
+  const modal = openAdminDialog(labels.actions.changePlan, `
+    <form class="admin-form" data-admin-plan-form="${escapeHtml(userId)}">
+      <label>${labels.fields.newPlan}
+        <select name="plan">
+          ${["free", "pro", "premium"].map((plan) => `<option value="${plan}" ${user.access.plan === plan ? "selected" : ""}>${adminPlanLabel(plan)}</option>`).join("")}
+        </select>
+      </label>
+      <div class="admin-dialog-actions">
+        <button class="secondary-button" type="button" data-admin-modal-close>${labels.actions.cancel}</button>
+        <button class="primary-button" type="submit">${labels.actions.save}</button>
+      </div>
+    </form>
+  `);
+  modal.querySelector("[data-admin-plan-form]")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    adminUpdatePlan(userId, event.currentTarget.plan.value);
+    modal.remove();
+    render();
+  });
+}
+
+function openAdminCreditsModal(userId, mode = "add") {
+  const user = loadAdminDataset().users.find((item) => item.account.id === userId);
+  if (!user) return;
+  const labels = t().admin;
+  const modal = openAdminDialog(mode === "remove" ? labels.actions.removeCredits : labels.actions.addCredits, `
+    <form class="admin-form" data-admin-credit-form="${escapeHtml(userId)}">
+      <label>${labels.fields.quantity}<input type="number" name="quantity" min="1" step="1" value="10" required /></label>
+      <label>${labels.fields.reason}<input type="text" name="reason" placeholder="${labels.fields.reason}" /></label>
+      <div class="admin-dialog-actions">
+        <button class="secondary-button" type="button" data-admin-modal-close>${labels.actions.cancel}</button>
+        <button class="primary-button" type="submit">${labels.actions.save}</button>
+      </div>
+    </form>
+  `);
+  modal.querySelector("[data-admin-credit-form]")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const quantity = Math.max(1, Number(event.currentTarget.quantity.value || 0));
+    adminUpdateCredits(userId, mode === "remove" ? -quantity : quantity, event.currentTarget.reason.value);
+    modal.remove();
+    render();
+  });
+}
+
+function openAdminRejectModal(userId, paymentId) {
+  const labels = t().admin;
+  const modal = openAdminDialog(labels.actions.reject, `
+    <form class="admin-form" data-admin-reject-form>
+      <label>${labels.fields.reason}
+        <select name="reason">${labels.rejectReasons.map((reason) => `<option value="${escapeHtml(reason)}">${escapeHtml(reason)}</option>`).join("")}</select>
+      </label>
+      <div class="admin-dialog-actions">
+        <button class="secondary-button" type="button" data-admin-modal-close>${labels.actions.cancel}</button>
+        <button class="primary-button" type="submit">${labels.actions.reject}</button>
+      </div>
+    </form>
+  `);
+  modal.querySelector("[data-admin-reject-form]")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    adminRejectPayment(userId, paymentId, event.currentTarget.reason.value);
+    modal.remove();
+    render();
+  });
+}
+
+function adminSimpleList(title, items, empty = t().admin.details.noData) {
+  return `<section class="admin-detail-section"><h3>${escapeHtml(title)}</h3>${items.length ? `<div class="admin-detail-list">${items.join("")}</div>` : `<p>${escapeHtml(empty)}</p>`}</section>`;
+}
+
+function openAdminUserDetails(userId) {
+  const user = loadAdminDataset().users.find((item) => item.account.id === userId);
+  if (!user) return;
+  const labels = t().admin;
+  const account = user.account;
+  const payments = user.payments.map((payment) => `<article><strong>${escapeHtml(adminPaymentLabel(payment))}</strong><span>${adminStatusBadge(payment.status, "payment")} ${escapeHtml(adminFormatMoney(payment.amount, payment.currency))}</span></article>`);
+  const resumes = user.resumes.map((resume) => `<article><strong>${escapeHtml(resume.title || resume.name || "-")}</strong><span>${escapeHtml(formatPaymentDate(resume.updatedAt || resume.createdAt))}</span></article>`);
+  const letters = user.letters.map((letter) => `<article><strong>${escapeHtml(letter.title || letter.role || "-")}</strong><span>${escapeHtml(formatPaymentDate(letter.updatedAt || letter.createdAt))}</span></article>`);
+  const purchases = user.payments.filter((payment) => ["remove_watermark", "premium_pdf", "premium_template", "career_pack", "ai_credits", "online_resume_link"].includes(payment.productType)).map((payment) => `<article><strong>${escapeHtml(adminPaymentLabel(payment))}</strong><span>${adminStatusBadge(payment.status, "payment")}</span></article>`);
+  openAdminDialog(labels.details.profile, `
+    <div class="admin-detail-grid">
+      <section class="admin-detail-section">
+        <h3>${escapeHtml(account.profile.fullName || account.email)}</h3>
+        <dl>
+          <div><dt>${labels.table.email}</dt><dd>${escapeHtml(account.email)}</dd></div>
+          <div><dt>${labels.table.plan}</dt><dd>${adminStatusBadge(user.access.plan || account.plan, "plan")}</dd></div>
+          <div><dt>${labels.table.emailVerified}</dt><dd>${account.emailVerified ? labels.status.yes : labels.status.no}</dd></div>
+          <div><dt>${labels.table.createdAt}</dt><dd>${escapeHtml(formatPaymentDate(account.createdAt))}</dd></div>
+          <div><dt>${labels.details.credits}</dt><dd>${Number(user.access.aiCredits || 0)}</dd></div>
+        </dl>
+      </section>
+      ${adminSimpleList(labels.details.savedResumes, resumes)}
+      ${adminSimpleList(labels.details.savedLetters, letters)}
+      ${adminSimpleList(labels.details.payments, payments)}
+      ${adminSimpleList(labels.details.purchases, purchases)}
+    </div>
+  `);
+}
+
+function openAdminPaymentDetails(userId, paymentId) {
+  const user = loadAdminDataset().users.find((item) => item.account.id === userId);
+  const payment = user?.payments.find((item) => item.id === paymentId);
+  if (!user || !payment) return;
+  const labels = t().admin;
+  openAdminDialog(labels.actions.details, `
+    <section class="admin-detail-section">
+      <dl>
+        <div><dt>${labels.table.id}</dt><dd><code>${escapeHtml(payment.id)}</code></dd></div>
+        <div><dt>${labels.table.user}</dt><dd>${escapeHtml(user.account.profile.fullName || "-")}</dd></div>
+        <div><dt>${labels.table.email}</dt><dd>${escapeHtml(user.account.email)}</dd></div>
+        <div><dt>${labels.table.product}</dt><dd>${escapeHtml(adminPaymentLabel(payment))}</dd></div>
+        <div><dt>${labels.table.amount}</dt><dd>${escapeHtml(adminFormatMoney(payment.amount, payment.currency))}</dd></div>
+        <div><dt>${labels.table.method}</dt><dd>${escapeHtml(labels.status[payment.paymentMethod] || payment.paymentMethod)}</dd></div>
+        <div><dt>${labels.table.status}</dt><dd>${adminStatusBadge(payment.status, "payment")}</dd></div>
+        <div><dt>${labels.table.pixKey}</dt><dd>${escapeHtml(payment.pixKey || "-")}</dd></div>
+        <div><dt>${labels.table.date}</dt><dd>${escapeHtml(formatPaymentDate(payment.createdAt))}</dd></div>
+      </dl>
+    </section>
+  `);
+}
+
 function dashboardShell(activeKey, content) {
   restoreSidebarAfterBuilder(activeKey);
   const d = t().dashboard;
@@ -7036,6 +7943,7 @@ function dashboardShell(activeKey, content) {
   const access = getUserAccess();
   const planLabel = accessPlanLabel(access);
   const nav = [["/dashboard", "layout", "dashboard"], ["/dashboard/resumes", "file", "resumes"], ["/dashboard/builder", "pen", "builder"], ["/dashboard/cover-letters", "mail", "coverLetters"], ["/dashboard/templates", "shield", "templates"], ["/dashboard/ai", "sparkles", "ai"], ["/dashboard/profile", "file", "profile"], ["/dashboard/billing", "card", "billing"], ["/dashboard/settings", "settings", "settings"]];
+  if (isAdminAccount()) nav.push(["/admin", "settings", "admin"]);
   const mobileNav = nav.slice(0, 5);
   mount(`
     <div class="app-shell ${sidebarCollapsed ? "sidebar-collapsed" : ""}">
@@ -7064,6 +7972,7 @@ function dashboardShell(activeKey, content) {
                 <button type="button" data-route="/dashboard/profile">${icon("file")} ${d.nav.profile}</button>
                 <button type="button" data-route="/dashboard/settings">${icon("settings")} ${d.nav.settings}</button>
                 <button type="button" data-route="/dashboard/billing">${icon("card")} ${d.billing}</button>
+                ${isAdminAccount() ? `<button type="button" data-route="/admin">${icon("settings")} ${d.nav.admin}</button>` : ""}
                 <button type="button" data-route="/">${icon("arrow")} ${d.backToWebsite}</button>
                 <button type="button" data-route="/" data-sign-out>${icon("close")} ${d.signOut}</button>
               </div>
