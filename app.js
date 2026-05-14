@@ -1099,10 +1099,30 @@ Object.assign(I18N.en, {
     copyCode: "Copy code",
     codeCopied: "Code copied",
     completed: "I have completed the payment",
+    dataTitle: "Pix payment",
+    dataSubtitle: "Confirm the information below before generating the QR Code.",
+    fullName: "Full name",
+    contactEmail: "Contact email",
+    taxId: "CPF or CNPJ",
+    optional: "optional",
+    note: "Note",
+    generatePix: "Generate Pix QR Code",
+    dataHelp: "Use correct information to help us manually confirm your payment.",
+    requiredError: "Fill in the required information to generate the Pix payment.",
+    afterPayInstruction: "After paying, click 'I have completed the payment'.",
+    checkingTitle: "Checking your confirmation...",
+    checkingText: "We are registering your request for manual review.",
+    reviewTitle: "Payment under review",
+    reviewText: "We received your payment confirmation. Our team will manually review the Pix payment and unlock the feature once approved.",
+    reviewNote: "Access may not be immediate.",
+    viewMyPayments: "View my payments",
+    backDashboard: "Back to dashboard",
+    approvedMessage: "Payment approved. Feature unlocked.",
+    rejectedMessage: "Payment rejected. Check the information or contact support.",
     cancel: "Cancel",
     warning: "After payment, access may not be immediate. Confirmation will be manually reviewed by the Succeedora team.",
     waitingPayment: "Waiting for payment",
-    waitingConfirmation: "Waiting for confirmation",
+    waitingConfirmation: "Payment under review",
     approved: "Approved",
     rejected: "Rejected",
     cancelled: "Cancelled",
@@ -1215,10 +1235,30 @@ Object.assign(I18N.pt, {
     copyCode: "Copiar código",
     codeCopied: "Código copiado",
     completed: "Já realizei o pagamento",
+    dataTitle: "Pagamento via Pix",
+    dataSubtitle: "Confirme os dados abaixo antes de gerar o QR Code.",
+    fullName: "Nome completo",
+    contactEmail: "E-mail de contato",
+    taxId: "CPF ou CNPJ",
+    optional: "opcional",
+    note: "Observação",
+    generatePix: "Gerar QR Code Pix",
+    dataHelp: "Use dados corretos para facilitar a confirmação manual do pagamento.",
+    requiredError: "Preencha os dados obrigatórios para gerar o Pix.",
+    afterPayInstruction: "Após pagar, clique em 'Já realizei o pagamento'.",
+    checkingTitle: "Verificando sua confirmação...",
+    checkingText: "Estamos registrando sua solicitação para análise manual.",
+    reviewTitle: "Pagamento em análise",
+    reviewText: "Recebemos sua confirmação de pagamento. Nossa equipe irá verificar manualmente o Pix e liberar o recurso assim que for aprovado.",
+    reviewNote: "A liberação pode não ser imediata.",
+    viewMyPayments: "Ver meus pagamentos",
+    backDashboard: "Voltar ao dashboard",
+    approvedMessage: "Pagamento aprovado. Recurso liberado.",
+    rejectedMessage: "Pagamento recusado. Verifique os dados ou entre em contato com o suporte.",
     cancel: "Cancelar",
     warning: "Após o pagamento, a liberação pode não ser imediata. A confirmação será feita manualmente pela equipe da Succeedora.",
     waitingPayment: "Aguardando pagamento",
-    waitingConfirmation: "Aguardando confirmação",
+    waitingConfirmation: "Em análise",
     approved: "Aprovado",
     rejected: "Recusado",
     cancelled: "Cancelado",
@@ -1467,10 +1507,10 @@ Object.assign(I18N.en, {
     primaryAdmin: "Primary admin email",
     sections: { overview: "Overview", users: "Users", payments: "Payments", pendingPix: "Pending Pix", plans: "Plans", purchases: "One-time purchases", credits: "AI Credits", support: "Support", settings: "Settings" },
     metrics: { users: "Registered users", free: "Free users", pending: "Pending payments", pendingPix: "Pix waiting confirmation", openSupport: "Open support tickets", approved: "Approved payments", pro: "Pro users", premium: "Premium users", purchases: "One-time purchases", creditsSold: "AI credits distributed" },
-    table: { name: "Name", email: "Email", plan: "Effective plan", subscriptionStatus: "Subscription status", planExpiresAt: "Plan validity", createdAt: "Created at", emailVerified: "Email confirmed", resumes: "Resumes", letters: "Letters", aiCredits: "AI credits", status: "Account status", actions: "Actions", id: "Order ID", user: "User", product: "Product", amount: "Amount", currency: "Currency", method: "Payment method", date: "Date", pixKey: "Pix key", unlocked: "Feature unlocked", admin: "Admin", action: "Action", oldValue: "Old value", newValue: "New value" },
+    table: { name: "Name", email: "Email", plan: "Effective plan", subscriptionStatus: "Subscription status", planExpiresAt: "Plan validity", createdAt: "Created at", emailVerified: "Email confirmed", resumes: "Resumes", letters: "Letters", aiCredits: "AI credits", status: "Account status", actions: "Actions", id: "Order ID", user: "User", payerName: "Informed name", payerTaxId: "CPF/CNPJ", product: "Product", amount: "Amount", currency: "Currency", method: "Payment method", date: "Date", pixKey: "Pix key", unlocked: "Feature unlocked", admin: "Admin", action: "Action", oldValue: "Old value", newValue: "New value" },
     actions: { view: "View", reply: "Reply", markInProgress: "Mark in progress", close: "Close", sendReply: "Send reply", changePlan: "Change plan", addCredits: "Add credits", removeCredits: "Remove credits", block: "Block user", unblock: "Unblock user", approve: "Approve", reject: "Reject", details: "View details", save: "Save", cancel: "Cancel" },
     filters: { search: "Search by name, email or product", searchTickets: "Search tickets...", status: "Filter by status", category: "Filter by category", priority: "Filter by priority", all: "All statuses", allCategories: "All categories", allPriorities: "All priorities" },
-    status: { active: "Active", expired: "Expired", noExpiration: "No expiration", blocked: "Blocked", yes: "Yes", no: "No", open: "Open", in_progress: "In progress", answered: "Answered", closed: "Closed", pending_payment: "Waiting for payment", pending_manual_confirmation: "Waiting for confirmation", approved: "Approved", paid: "Paid", pending: "Pending", failed: "Failed", refunded: "Refunded", rejected: "Rejected", cancelled: "Cancelled", pix: "Pix", stripe: "Card via Stripe" },
+    status: { active: "Active", expired: "Expired", noExpiration: "No expiration", blocked: "Blocked", yes: "Yes", no: "No", open: "Open", in_progress: "In progress", answered: "Answered", closed: "Closed", pending_payment: "Waiting for payment", pending_manual_confirmation: "Payment under review", approved: "Approved", paid: "Paid", pending: "Pending", failed: "Failed", refunded: "Refunded", rejected: "Rejected", cancelled: "Cancelled", pix: "Pix", stripe: "Card via Stripe" },
     messages: { planUpdated: "Plan updated successfully.", paymentApproved: "Payment approved and feature unlocked.", paymentRejected: "Payment rejected.", creditsAdded: "Credits added.", creditsRemoved: "Credits removed.", userBlocked: "User blocked.", userUnblocked: "User unblocked.", replySent: "Reply sent successfully.", ticketClosed: "Ticket closed." },
     fields: { quantity: "Quantity", reason: "Reason", newPlan: "New plan", duration: "Duration", customDate: "Custom date" },
     rejectReasons: ["Payment not found", "Incorrect amount", "Invalid receipt", "Duplicate request", "Other reason"],
@@ -1486,10 +1526,10 @@ Object.assign(I18N.pt, {
     primaryAdmin: "E-mail admin principal",
     sections: { overview: "Vis\u00e3o geral", users: "Usu\u00e1rios", payments: "Pagamentos", pendingPix: "Pix pendentes", plans: "Planos", purchases: "Compras avulsas", credits: "Cr\u00e9ditos de IA", support: "Suporte", settings: "Configura\u00e7\u00f5es" },
     metrics: { users: "Usu\u00e1rios cadastrados", free: "Usu\u00e1rios Free", pending: "Pagamentos pendentes", pendingPix: "Pix aguardando confirma\u00e7\u00e3o", openSupport: "Tickets de suporte abertos", approved: "Pagamentos aprovados", pro: "Usu\u00e1rios Pro", premium: "Usu\u00e1rios Premium", purchases: "Compras avulsas", creditsSold: "Cr\u00e9ditos de IA distribu\u00eddos" },
-    table: { name: "Nome", email: "E-mail", plan: "Plano efetivo", subscriptionStatus: "Status da assinatura", planExpiresAt: "Validade do plano", createdAt: "Cadastro", emailVerified: "E-mail confirmado", resumes: "Curr\u00edculos", letters: "Cartas", aiCredits: "Cr\u00e9ditos de IA", status: "Status da conta", actions: "A\u00e7\u00f5es", id: "ID do pedido", user: "Usu\u00e1rio", product: "Produto", amount: "Valor", currency: "Moeda", method: "M\u00e9todo de pagamento", date: "Data", pixKey: "Chave Pix", unlocked: "Recurso liberado", admin: "Admin", action: "A\u00e7\u00e3o", oldValue: "Valor antigo", newValue: "Valor novo" },
+    table: { name: "Nome", email: "E-mail", plan: "Plano efetivo", subscriptionStatus: "Status da assinatura", planExpiresAt: "Validade do plano", createdAt: "Cadastro", emailVerified: "E-mail confirmado", resumes: "Curr\u00edculos", letters: "Cartas", aiCredits: "Cr\u00e9ditos de IA", status: "Status da conta", actions: "A\u00e7\u00f5es", id: "ID do pedido", user: "Usu\u00e1rio", payerName: "Nome informado", payerTaxId: "CPF/CNPJ", product: "Produto", amount: "Valor", currency: "Moeda", method: "M\u00e9todo de pagamento", date: "Data", pixKey: "Chave Pix", unlocked: "Recurso liberado", admin: "Admin", action: "A\u00e7\u00e3o", oldValue: "Valor antigo", newValue: "Valor novo" },
     actions: { view: "Ver", reply: "Responder", markInProgress: "Marcar em andamento", close: "Fechar", sendReply: "Enviar resposta", changePlan: "Alterar plano", addCredits: "Adicionar cr\u00e9ditos", removeCredits: "Remover cr\u00e9ditos", block: "Bloquear usu\u00e1rio", unblock: "Desbloquear usu\u00e1rio", approve: "Aprovar", reject: "Recusar", details: "Ver detalhes", save: "Salvar", cancel: "Cancelar" },
     filters: { search: "Buscar por nome, e-mail ou produto", searchTickets: "Buscar tickets...", status: "Filtrar por status", category: "Filtrar por categoria", priority: "Filtrar por prioridade", all: "Todos os status", allCategories: "Todas as categorias", allPriorities: "Todas as prioridades" },
-    status: { active: "Ativo", expired: "Expirado", noExpiration: "Sem expira\u00e7\u00e3o", blocked: "Bloqueado", yes: "Sim", no: "N\u00e3o", open: "Aberto", in_progress: "Em andamento", answered: "Respondido", closed: "Fechado", pending_payment: "Aguardando pagamento", pending_manual_confirmation: "Aguardando confirma\u00e7\u00e3o", approved: "Aprovado", paid: "Pago", pending: "Pendente", failed: "Falhou", refunded: "Reembolsado", rejected: "Recusado", cancelled: "Cancelado", pix: "Pix", stripe: "Cart\u00e3o via Stripe" },
+    status: { active: "Ativo", expired: "Expirado", noExpiration: "Sem expira\u00e7\u00e3o", blocked: "Bloqueado", yes: "Sim", no: "N\u00e3o", open: "Aberto", in_progress: "Em andamento", answered: "Respondido", closed: "Fechado", pending_payment: "Aguardando pagamento", pending_manual_confirmation: "Em an\u00e1lise", approved: "Aprovado", paid: "Pago", pending: "Pendente", failed: "Falhou", refunded: "Reembolsado", rejected: "Recusado", cancelled: "Cancelado", pix: "Pix", stripe: "Cart\u00e3o via Stripe" },
     messages: { planUpdated: "Plano atualizado com sucesso.", paymentApproved: "Pagamento aprovado e recurso liberado.", paymentRejected: "Pagamento recusado.", creditsAdded: "Cr\u00e9ditos adicionados.", creditsRemoved: "Cr\u00e9ditos removidos.", userBlocked: "Usu\u00e1rio bloqueado.", userUnblocked: "Usu\u00e1rio desbloqueado.", replySent: "Resposta enviada com sucesso.", ticketClosed: "Ticket fechado." },
     fields: { quantity: "Quantidade", reason: "Motivo", newPlan: "Novo plano", duration: "Duração", customDate: "Data personalizada" },
     rejectReasons: ["Pagamento n\u00e3o encontrado", "Valor incorreto", "Comprovante inv\u00e1lido", "Pedido duplicado", "Outro motivo"],
@@ -3981,6 +4021,10 @@ function normalizePaymentRequest(request) {
     userId: String(request.userId || ""),
     userName: String(request.userName || request.accountName || "").trim(),
     userEmail: normalizeEmail(request.userEmail || ""),
+    payerName: String(request.payerName || request.userName || request.accountName || "").trim(),
+    payerEmail: normalizeEmail(request.payerEmail || request.userEmail || ""),
+    payerTaxId: String(request.payerTaxId || request.taxId || "").trim(),
+    payerNote: String(request.payerNote || request.note || "").trim(),
     productType: String(request.productType || ""),
     productName: String(request.productName || ""),
     amount: Number(request.amount || 0),
@@ -7185,10 +7229,14 @@ function openPaymentComingSoonModal() {
   });
 }
 
-function createPixPaymentRequest(productType, context = {}) {
+function createPixPaymentRequest(productType, context = {}, payer = {}) {
   const product = localizedPixProduct(productType);
   const account = currentAccount();
   if (!product || !paymentConfig.pixEnabled || !account?.id) return null;
+  const payerName = String(payer.payerName || account?.profile?.fullName || account?.email || "").trim();
+  const payerEmail = normalizeEmail(payer.payerEmail || account?.email || getAuthEmail());
+  const payerTaxId = String(payer.payerTaxId || "").trim();
+  const payerNote = String(payer.payerNote || "").trim();
   const id = `pix_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
   const pixPayment = generatePixPaymentCode({
     amount: product.amount,
@@ -7203,8 +7251,12 @@ function createPixPaymentRequest(productType, context = {}) {
   return upsertPaymentRequest({
     id,
     userId: account?.id || "",
-    userName: account?.profile?.fullName || account?.email || "",
-    userEmail: account?.email || getAuthEmail(),
+    userName: account?.profile?.fullName || payerName || account?.email || "",
+    userEmail: account?.email || payerEmail || getAuthEmail(),
+    payerName,
+    payerEmail,
+    payerTaxId,
+    payerNote,
     productType,
     productName: product.productName,
     amount: product.amount,
@@ -7236,6 +7288,31 @@ function copyTextToClipboard(text) {
   document.execCommand("copy");
   area.remove();
   return Promise.resolve();
+}
+
+function pixPaymentInitialData(productType) {
+  const product = localizedPixProduct(productType);
+  const account = currentAccount();
+  return {
+    product,
+    fullName: account?.profile?.fullName || account?.profile?.name || "",
+    email: account?.email || getAuthEmail() || "",
+  };
+}
+
+function readPixPaymentForm(form, product) {
+  return {
+    productName: product?.productName || "",
+    amount: Number(product?.amount || 0),
+    payerName: String(form?.payerName?.value || "").trim(),
+    payerEmail: normalizeEmail(form?.payerEmail?.value || ""),
+    payerTaxId: String(form?.payerTaxId?.value || "").trim(),
+    payerNote: String(form?.payerNote?.value || "").trim(),
+  };
+}
+
+function validatePixPaymentData(data) {
+  return Boolean(data.productName && data.amount > 0 && data.payerName && data.payerEmail && validEmail(data.payerEmail));
 }
 
 function stripeMessage(message, type = "error") {
@@ -7473,84 +7550,195 @@ function openPixPaymentModal(productType, context = {}) {
     setRoute("/signin");
     return;
   }
-  const request = createPixPaymentRequest(productType, context);
-  if (!request) {
+  const initialData = pixPaymentInitialData(productType);
+  if (!initialData.product || !paymentConfig.pixEnabled) {
     openPaymentComingSoonModal();
     return;
   }
-  const qrCodeSvg = qrSvg(request.pixPayload);
   closeAccessModal();
   const root = document.body || document.getElementById("app");
   const modal = document.createElement("div");
   modal.className = "template-preview-modal access-modal pix-payment-modal";
-  modal.innerHTML = `
-    <div class="template-preview-backdrop" data-access-close></div>
-    <section class="template-preview-dialog pix-payment-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(labels.title)}">
-      <header class="template-preview-header pix-payment-header">
-        <div>
-          <span class="eyebrow">${escapeHtml(labels.manualBadge)}</span>
-          <h2>${escapeHtml(labels.title)}</h2>
-          <p>${escapeHtml(labels.intro)}</p>
-        </div>
-        <button class="icon-button" type="button" data-access-close aria-label="${t().dashboard.close}">${icon("close")}</button>
-      </header>
-      <div class="pix-payment-body">
-        <div class="pix-qr-card">${qrCodeSvg}</div>
-        <div class="pix-payment-details">
-          <dl>
-            <div><dt>${escapeHtml(labels.orderId)}</dt><dd><code>${escapeHtml(request.id)}</code></dd></div>
-            <div><dt>${escapeHtml(labels.product)}</dt><dd>${escapeHtml(request.productName)}</dd></div>
-            <div><dt>${escapeHtml(labels.amount)}</dt><dd>${escapeHtml(formatCurrencyBRL(request.amount))}</dd></div>
-            <div><dt>${escapeHtml(labels.status)}</dt><dd data-pix-status>${escapeHtml(paymentStatusLabel(request.status))}</dd></div>
-            <div><dt>${escapeHtml(labels.pixKey)}</dt><dd>${escapeHtml(`${request.pixKeyType || paymentConfig.pixKeyType} ${formatPixKeyValue(request.pixKey || paymentConfig.pixKey)}`)}</dd></div>
-          </dl>
-          <label class="pix-copy-field">
-            <span>${escapeHtml(labels.pixCopyPaste)}</span>
-            <textarea readonly data-pix-code>${escapeHtml(request.pixPayload)}</textarea>
-          </label>
-          <p class="pix-payment-warning">${escapeHtml(labels.warning)}</p>
-          <p class="settings-message pix-payment-message" data-pix-message hidden></p>
-        </div>
-      </div>
-      <footer class="template-preview-footer access-actions pix-payment-actions">
-        <button class="secondary-button" type="button" data-pix-copy>${escapeHtml(labels.copyCode)}</button>
-        <button class="primary-button" type="button" data-pix-confirm>${escapeHtml(labels.completed)}</button>
-        <button class="ghost-button" type="button" data-pix-cancel>${escapeHtml(labels.cancel)}</button>
-      </footer>
-    </section>
-  `;
   root.appendChild(modal);
+  let request = null;
+
   const close = () => {
     closeAccessModal();
     if (getRoute() === "/dashboard/billing") render();
   };
   const cancel = () => {
-    if (request.status === "pending_payment") {
+    if (request?.status === "pending_payment") {
       const updated = upsertPaymentRequest({ ...request, status: "cancelled" });
       request.status = updated.status;
     }
     closeAccessModal();
     if (getRoute() === "/dashboard/billing") render();
   };
-  modal.querySelectorAll("[data-access-close]").forEach((item) => item.addEventListener("click", close));
-  modal.querySelector("[data-pix-cancel]")?.addEventListener("click", cancel);
-  modal.querySelector("[data-pix-copy]")?.addEventListener("click", async (event) => {
-    await copyTextToClipboard(request.pixPayload);
-    event.currentTarget.textContent = labels.codeCopied;
-  });
-  modal.querySelector("[data-pix-confirm]")?.addEventListener("click", () => {
-    const updated = upsertPaymentRequest({ ...request, status: "pending_manual_confirmation", confirmedByUserAt: isoNow() });
-    request.status = updated.status;
-    request.confirmedByUserAt = updated.confirmedByUserAt;
-    const status = modal.querySelector("[data-pix-status]");
-    const message = modal.querySelector("[data-pix-message]");
-    if (status) status.textContent = paymentStatusLabel(updated.status);
-    if (message) {
-      message.textContent = labels.confirmedMessage;
-      message.hidden = false;
-    }
-    if (getRoute() === "/dashboard/billing") render();
-  });
+
+  const bindCommon = () => {
+    modal.querySelectorAll("[data-access-close]").forEach((item) => item.addEventListener("click", close));
+    modal.querySelectorAll("[data-pix-cancel]").forEach((item) => item.addEventListener("click", cancel));
+  };
+
+  const renderShell = (content, footer = "", title = labels.dataTitle || labels.title, subtitle = labels.dataSubtitle || labels.intro) => {
+    modal.innerHTML = `
+      <div class="template-preview-backdrop" data-access-close></div>
+      <section class="template-preview-dialog pix-payment-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(title)}">
+        <header class="template-preview-header pix-payment-header">
+          <div>
+            <span class="eyebrow">${escapeHtml(labels.manualBadge)}</span>
+            <h2>${escapeHtml(title)}</h2>
+            <p>${escapeHtml(subtitle)}</p>
+          </div>
+          <button class="icon-button" type="button" data-access-close aria-label="${t().dashboard.close}">${icon("close")}</button>
+        </header>
+        ${content}
+        ${footer}
+      </section>
+    `;
+    bindCommon();
+  };
+
+  const renderDataStep = () => {
+    const product = initialData.product;
+    renderShell(`
+      <form class="pix-data-form" data-pix-data-form>
+        <div class="pix-summary-grid">
+          <div class="pix-summary-card"><span>${escapeHtml(labels.product)}</span><strong>${escapeHtml(product.productName)}</strong></div>
+          <div class="pix-summary-card"><span>${escapeHtml(labels.amount)}</span><strong>${escapeHtml(formatCurrencyBRL(product.amount))}</strong></div>
+        </div>
+        <div class="pix-form-grid">
+          <label>${escapeHtml(labels.fullName)}<input name="payerName" value="${escapeHtml(initialData.fullName)}" autocomplete="name" required /></label>
+          <label>${escapeHtml(labels.contactEmail)}<input name="payerEmail" type="email" value="${escapeHtml(initialData.email)}" autocomplete="email" required /></label>
+          <label>${escapeHtml(labels.taxId)} <small>${escapeHtml(labels.optional)}</small><input name="payerTaxId" inputmode="numeric" autocomplete="off" /></label>
+          <label class="pix-note-field">${escapeHtml(labels.note)} <small>${escapeHtml(labels.optional)}</small><textarea name="payerNote" rows="3"></textarea></label>
+        </div>
+        <p class="pix-payment-warning">${escapeHtml(labels.dataHelp)}</p>
+        <p class="auth-error pix-payment-message" data-pix-error hidden></p>
+      </form>
+    `, `
+      <footer class="template-preview-footer access-actions pix-payment-actions">
+        <button class="primary-button" type="button" data-pix-generate>${escapeHtml(labels.generatePix)}</button>
+        <button class="ghost-button" type="button" data-pix-cancel>${escapeHtml(labels.cancel)}</button>
+      </footer>
+    `);
+    const form = modal.querySelector("[data-pix-data-form]");
+    const submit = () => {
+      const data = readPixPaymentForm(form, product);
+      const error = modal.querySelector("[data-pix-error]");
+      if (!validatePixPaymentData(data)) {
+        if (error) {
+          error.textContent = labels.requiredError;
+          error.hidden = false;
+        }
+        return;
+      }
+      request = createPixPaymentRequest(productType, context, data);
+      if (!request) {
+        openPaymentComingSoonModal();
+        return;
+      }
+      renderQrStep();
+    };
+    form?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      submit();
+    });
+    modal.querySelector("[data-pix-generate]")?.addEventListener("click", submit);
+  };
+
+  const renderQrStep = () => {
+    const qrCodeSvg = qrSvg(request.pixPayload);
+    renderShell(`
+      <div class="pix-payment-body">
+        <div class="pix-qr-card">${qrCodeSvg}</div>
+        <div class="pix-payment-details">
+          <p class="pix-payment-intro">${escapeHtml(labels.intro)}</p>
+          <dl>
+            <div><dt>${escapeHtml(labels.orderId)}</dt><dd><code>${escapeHtml(request.id)}</code></dd></div>
+            <div><dt>${escapeHtml(labels.product)}</dt><dd>${escapeHtml(request.productName)}</dd></div>
+            <div><dt>${escapeHtml(labels.amount)}</dt><dd>${escapeHtml(formatCurrencyBRL(request.amount))}</dd></div>
+            <div><dt>${escapeHtml(labels.status)}</dt><dd><span class="payment-status status-${escapeHtml(request.status)}">${escapeHtml(paymentStatusLabel(request.status))}</span></dd></div>
+            <div><dt>${escapeHtml(labels.pixKey)}</dt><dd>${escapeHtml(`${request.pixKeyType || paymentConfig.pixKeyType} ${formatPixKeyValue(request.pixKey || paymentConfig.pixKey)}`)}</dd></div>
+          </dl>
+          <label class="pix-copy-field">
+            <span>${escapeHtml(labels.pixCopyPaste)}</span>
+            <textarea readonly data-pix-code>${escapeHtml(request.pixPayload)}</textarea>
+          </label>
+          <p class="pix-payment-warning">${escapeHtml(labels.afterPayInstruction)} ${escapeHtml(labels.warning)}</p>
+        </div>
+      </div>
+    `, `
+      <footer class="template-preview-footer access-actions pix-payment-actions">
+        <button class="secondary-button" type="button" data-pix-copy>${escapeHtml(labels.copyCode)}</button>
+        <button class="primary-button" type="button" data-pix-confirm>${escapeHtml(labels.completed)}</button>
+        <button class="ghost-button" type="button" data-pix-cancel>${escapeHtml(labels.cancel)}</button>
+      </footer>
+    `, labels.title, labels.intro);
+    modal.querySelector("[data-pix-copy]")?.addEventListener("click", async (event) => {
+      await copyTextToClipboard(request.pixPayload);
+      event.currentTarget.textContent = labels.codeCopied;
+    });
+    modal.querySelector("[data-pix-confirm]")?.addEventListener("click", () => {
+      const updated = upsertPaymentRequest({
+        ...request,
+        status: "pending_manual_confirmation",
+        confirmedByUserAt: isoNow(),
+        payerName: request.payerName,
+        payerEmail: request.payerEmail,
+        payerTaxId: request.payerTaxId,
+        payerNote: request.payerNote,
+        pixPayload: request.pixPayload,
+        userId: request.userId,
+        userEmail: request.userEmail,
+      });
+      request = updated;
+      renderLoadingStep();
+      window.setTimeout(() => renderReviewStep(), 2400);
+    });
+  };
+
+  const renderLoadingStep = () => {
+    renderShell(`
+      <div class="pix-loading-state">
+        <div class="pix-spinner" aria-hidden="true"></div>
+        <h3>${escapeHtml(labels.checkingTitle)}</h3>
+        <p>${escapeHtml(labels.checkingText)}</p>
+      </div>
+    `, "", labels.checkingTitle, labels.checkingText);
+  };
+
+  const renderReviewStep = () => {
+    renderShell(`
+      <div class="pix-review-state">
+        <span class="payment-status status-${escapeHtml(request.status)}">${escapeHtml(paymentStatusLabel(request.status))}</span>
+        <h3>${escapeHtml(labels.reviewTitle)}</h3>
+        <p>${escapeHtml(labels.reviewText)}</p>
+        <small>${escapeHtml(labels.reviewNote)}</small>
+        <div class="pix-review-card">
+          <div><span>${escapeHtml(labels.product)}</span><strong>${escapeHtml(request.productName)}</strong></div>
+          <div><span>${escapeHtml(labels.amount)}</span><strong>${escapeHtml(formatCurrencyBRL(request.amount))}</strong></div>
+          <div><span>${escapeHtml(labels.orderId)}</span><strong>${escapeHtml(request.id)}</strong></div>
+        </div>
+      </div>
+    `, `
+      <footer class="template-preview-footer access-actions pix-payment-actions">
+        <button class="primary-button" type="button" data-pix-history>${escapeHtml(labels.viewMyPayments)}</button>
+        <button class="secondary-button" type="button" data-pix-dashboard>${escapeHtml(labels.backDashboard)}</button>
+      </footer>
+    `, labels.reviewTitle, labels.reviewText);
+    modal.querySelector("[data-pix-history]")?.addEventListener("click", () => {
+      closeAccessModal();
+      setRoute("/dashboard/billing");
+      window.setTimeout(() => document.querySelector(".payment-history-card")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+    });
+    modal.querySelector("[data-pix-dashboard]")?.addEventListener("click", () => {
+      closeAccessModal();
+      setRoute("/dashboard");
+    });
+  };
+
+  renderDataStep();
 }
 
 function openWatermarkRemovalModal({ resumeId = currentResumeAccessId(), button = null, exportMode = "builder" } = {}) {
@@ -8765,7 +8953,11 @@ function paymentDetailList(payment, { admin = false } = {}) {
     [labels.status, `<span class="payment-status status-${escapeHtml(payment.status)}">${escapeHtml(paymentStatusLabel(payment.status))}</span>`],
     [labels.date, escapeHtml(formatPaymentDate(payment.createdAt))],
   ];
-  if (payment.paymentMethod !== "stripe") rows.splice(5, 0, [labels.pixKey, escapeHtml(pixKeyLabel)]);
+  if (payment.payerName) rows.splice(3, 0, [labels.fullName, escapeHtml(payment.payerName)]);
+  if (payment.payerEmail) rows.splice(4, 0, [labels.contactEmail, escapeHtml(payment.payerEmail)]);
+  if (payment.payerTaxId) rows.splice(5, 0, [labels.taxId, escapeHtml(payment.payerTaxId)]);
+  if (payment.payerNote) rows.splice(6, 0, [labels.note, escapeHtml(payment.payerNote)]);
+  if (payment.paymentMethod !== "stripe") rows.push([labels.pixKey, escapeHtml(pixKeyLabel)]);
   if (payment.confirmedByUserAt) rows.push([labels.confirmedAt, escapeHtml(formatPaymentDate(payment.confirmedByUserAt))]);
   if (payment.approvedAt) rows.push([labels.approvedAt, escapeHtml(formatPaymentDate(payment.approvedAt))]);
   if (payment.approvedBy) rows.push([labels.approvedBy, escapeHtml(payment.approvedBy)]);
@@ -8776,6 +8968,8 @@ function paymentDetailList(payment, { admin = false } = {}) {
   if (payment.stripePaymentIntentId) rows.push(["Stripe PaymentIntent", `<code>${escapeHtml(payment.stripePaymentIntentId)}</code>`]);
   if (payment.stripeSubscriptionId) rows.push([labels.subscription, `<code>${escapeHtml(payment.stripeSubscriptionId)}</code>`]);
   if (payment.receiptUrl) rows.push([labels.receipt, `<a href="${escapeHtml(payment.receiptUrl)}" target="_blank" rel="noopener">${escapeHtml(labels.receipt)}</a>`]);
+  if (["approved", "paid"].includes(payment.status)) rows.push([labels.status, escapeHtml(labels.approvedMessage || labels.approved)]);
+  if (payment.status === "rejected") rows.push([labels.status, escapeHtml(labels.rejectedMessage || labels.rejected)]);
   if (admin && payment.pixPayload) rows.push([labels.pixPayload, `<code>${escapeHtml(payment.pixPayload)}</code>`]);
   return `
     <dl class="payment-detail-list">
@@ -9598,7 +9792,7 @@ function adminFormatMoney(amount, currency = "BRL") {
 }
 
 function isPendingAdminPayment(payment) {
-  return ["pending_payment", "pending_manual_confirmation"].includes(payment?.status);
+  return payment?.status === "pending_manual_confirmation";
 }
 
 function adminPlanStatusLabel(planState) {
@@ -9616,12 +9810,13 @@ function adminPlanExpiryText(planState) {
 
 function adminStats(dataset = loadAdminDataset()) {
   const pendingStatuses = ["pending_payment", "pending_manual_confirmation"];
+  const reviewStatuses = ["pending_manual_confirmation"];
   const creditTotal = dataset.users.reduce((sum, user) => sum + (user.access.creditHistory || []).filter((item) => Number(item.amount) > 0).reduce((inner, item) => inner + Number(item.amount || 0), 0), 0);
   return {
     users: dataset.users.length,
     free: dataset.users.filter((user) => getEffectivePlan(user.account, { access: user.access }).type === "free").length,
     pending: dataset.payments.filter((payment) => pendingStatuses.includes(payment.status)).length,
-    pendingPix: dataset.payments.filter((payment) => payment.paymentMethod === "pix" && pendingStatuses.includes(payment.status)).length,
+    pendingPix: dataset.payments.filter((payment) => payment.paymentMethod === "pix" && reviewStatuses.includes(payment.status)).length,
     openSupport: loadSupportTickets().filter((ticket) => ticket.status !== "closed").length,
     approved: dataset.payments.filter((payment) => payment.status === "approved").length,
     pro: dataset.users.filter((user) => getEffectivePlan(user.account, { access: user.access }).type === "pro").length,
@@ -9753,10 +9948,11 @@ function adminPaymentRow(payment, options = {}) {
   const a = t().admin;
   const pending = isPendingAdminPayment(payment);
   return `
-    <tr data-admin-row data-search="${escapeHtml(`${payment.id} ${payment.accountName} ${payment.accountEmail} ${adminPaymentLabel(payment)} ${payment.status}`.toLowerCase())}" data-status="${escapeHtml(payment.status)}">
+    <tr data-admin-row data-search="${escapeHtml(`${payment.id} ${payment.accountName} ${payment.accountEmail} ${payment.payerName || ""} ${payment.payerEmail || ""} ${payment.payerTaxId || ""} ${adminPaymentLabel(payment)} ${payment.status}`.toLowerCase())}" data-status="${escapeHtml(payment.status)}">
       <td><code>${escapeHtml(payment.id)}</code></td>
       <td>${escapeHtml(payment.accountName || "-")}</td>
       <td>${escapeHtml(payment.accountEmail || payment.userEmail || "-")}</td>
+      ${options.showPixKey ? `<td>${escapeHtml(payment.payerName || "-")}</td><td>${escapeHtml(payment.payerTaxId || "-")}</td>` : ""}
       <td>${escapeHtml(adminPaymentLabel(payment))}</td>
       <td>${escapeHtml(adminFormatMoney(payment.amount, payment.currency))}</td>
       <td>${escapeHtml(payment.currency)}</td>
@@ -9777,7 +9973,7 @@ function adminPaymentRow(payment, options = {}) {
 
 function adminPaymentsTable(payments, options = {}) {
   const h = t().admin.table;
-  const extraColumns = 2 + (options.showPixKey ? 1 : 0) + (options.showUnlocked ? 1 : 0);
+  const extraColumns = 2 + (options.showPixKey ? 3 : 0) + (options.showUnlocked ? 1 : 0);
   return `
     <div class="admin-filter-row">
       <select data-admin-status-filter aria-label="${t().admin.filters.status}">
@@ -9787,7 +9983,7 @@ function adminPaymentsTable(payments, options = {}) {
     </div>
     <div class="admin-table-wrap">
       <table class="admin-table">
-        <thead><tr><th>${h.id}</th><th>${h.user}</th><th>${h.email}</th><th>${h.product}</th><th>${h.amount}</th><th>${h.currency}</th><th>${h.method}</th><th>${h.status}</th><th>${h.date}</th><th>stripeSessionId</th><th>stripeSubscriptionId</th>${options.showPixKey ? `<th>${h.pixKey}</th>` : ""}${options.showUnlocked ? `<th>${h.unlocked}</th>` : ""}<th>${h.actions}</th></tr></thead>
+        <thead><tr><th>${h.id}</th><th>${h.user}</th><th>${h.email}</th>${options.showPixKey ? `<th>${h.payerName}</th><th>${h.payerTaxId}</th>` : ""}<th>${h.product}</th><th>${h.amount}</th><th>${h.currency}</th><th>${h.method}</th><th>${h.status}</th><th>${h.date}</th><th>stripeSessionId</th><th>stripeSubscriptionId</th>${options.showPixKey ? `<th>${h.pixKey}</th>` : ""}${options.showUnlocked ? `<th>${h.unlocked}</th>` : ""}<th>${h.actions}</th></tr></thead>
         <tbody>${payments.map((payment) => adminPaymentRow(payment, options)).join("") || `<tr><td colspan="${10 + extraColumns}">${t().admin.details.noData}</td></tr>`}</tbody>
       </table>
     </div>
@@ -9937,7 +10133,7 @@ function renderAdminOverview() {
     ${adminMetricCards(dataset)}
     <section class="settings-card admin-panel">
       <div class="settings-card-head"><div><span class="eyebrow">${t().admin.sections.pendingPix}</span><h2>${t().admin.metrics.pending}</h2></div><button class="secondary-button small" data-route="/admin/payments/pix">${t().admin.actions.details}</button></div>
-      ${adminPaymentsTable(dataset.payments.filter((payment) => payment.paymentMethod === "pix" && ["pending_payment", "pending_manual_confirmation"].includes(payment.status)).slice(0, 5), { showPixKey: true })}
+      ${adminPaymentsTable(dataset.payments.filter((payment) => payment.paymentMethod === "pix" && payment.status === "pending_manual_confirmation").slice(0, 5), { showPixKey: true })}
     </section>
   `);
 }
@@ -9954,7 +10150,7 @@ function renderAdminPayments() {
 
 function renderAdminPendingPix() {
   const dataset = loadAdminDataset();
-  const payments = dataset.payments.filter((payment) => payment.paymentMethod === "pix" && ["pending_payment", "pending_manual_confirmation"].includes(payment.status));
+  const payments = dataset.payments.filter((payment) => payment.paymentMethod === "pix" && payment.status === "pending_manual_confirmation");
   adminShell("pendingPix", `<section class="settings-card admin-panel">${adminPaymentsTable(payments, { showPixKey: true })}</section>`);
 }
 

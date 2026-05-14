@@ -6445,7 +6445,7 @@ select:focus-visible {
 }
 
 .pix-payment-dialog {
-  width: min(720px, calc(100vw - 28px));
+  width: min(860px, calc(100vw - 28px));
 }
 
 .pix-payment-header {
@@ -6457,6 +6457,80 @@ select:focus-visible {
   grid-template-columns: minmax(220px, 280px) 1fr;
   gap: 22px;
   padding: 22px;
+}
+
+.pix-data-form {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+}
+
+.pix-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.pix-summary-card,
+.pix-review-card {
+  padding: 16px;
+  border: 1px solid rgba(31, 105, 213, 0.14);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #ffffff, #f5fbff);
+}
+
+.pix-summary-card span,
+.pix-review-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.pix-summary-card strong,
+.pix-review-card strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--ink);
+  font-size: 22px;
+  overflow-wrap: anywhere;
+}
+
+.pix-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.pix-form-grid label {
+  display: grid;
+  gap: 7px;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.pix-form-grid small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.pix-form-grid input,
+.pix-form-grid textarea {
+  width: 100%;
+  border: 1px solid rgba(191, 211, 242, 0.78);
+  border-radius: 14px;
+  padding: 12px 13px;
+  color: var(--ink);
+  background: #fff;
+  font: inherit;
+}
+
+.pix-form-grid textarea {
+  resize: vertical;
+}
+
+.pix-note-field {
+  grid-column: 1 / -1;
 }
 
 .pix-qr-card {
@@ -6483,6 +6557,12 @@ select:focus-visible {
   display: grid;
   gap: 14px;
   min-width: 0;
+}
+
+.pix-payment-intro {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
 }
 
 .pix-payment-details dl {
@@ -6543,6 +6623,58 @@ select:focus-visible {
 
 .pix-payment-message {
   margin: 0;
+}
+
+.pix-loading-state,
+.pix-review-state {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 34px 24px 30px;
+  text-align: center;
+}
+
+.pix-loading-state h3,
+.pix-review-state h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(25px, 4vw, 36px);
+}
+
+.pix-loading-state p,
+.pix-review-state p {
+  width: min(560px, 100%);
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.pix-review-state small {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.pix-spinner {
+  width: 56px;
+  height: 56px;
+  border: 4px solid rgba(31, 105, 213, 0.12);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: pixSpin 0.9s linear infinite;
+}
+
+.pix-review-card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  width: min(680px, 100%);
+  margin-top: 8px;
+}
+
+@keyframes pixSpin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .payment-history-list {
@@ -11343,8 +11475,16 @@ select:focus-visible {
   }
 
   .pix-payment-body,
+  .pix-summary-grid,
+  .pix-form-grid,
+  .pix-review-card,
   .payment-history-item {
     grid-template-columns: 1fr;
+  }
+
+  .pix-data-form,
+  .pix-payment-body {
+    padding: 18px;
   }
 
   .payment-status {
