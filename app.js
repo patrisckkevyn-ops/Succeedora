@@ -8821,9 +8821,10 @@ function openPaymentDetailsModal(paymentId) {
   });
 }
 
-function monetizationSections(mode = "public") {
+function monetizationSections(mode = "public", options = {}) {
   const copy = t();
   const pricing = copy.pricing;
+  const showFaq = options.showFaq !== false;
   const pageClass = mode === "dashboard" ? "dashboard-monetization" : "public-monetization";
   const planCards = `<div class="pricing-grid">${pricing.plans.map((plan, index) => pricingCard(plan[0], plan[1], plan[2], index === 1, index === 1 ? pricing.bestForMost : "", index, mode)).join("")}</div>`;
   if (mode === "public") {
@@ -8864,7 +8865,7 @@ function monetizationSections(mode = "public") {
           ${planCards}
         </section>
         ${pricingComparisonTable()}
-        ${pricingFaqAccordion()}
+        ${showFaq ? pricingFaqAccordion() : ""}
       </div>
     `;
   }
@@ -8905,7 +8906,7 @@ function monetizationSections(mode = "public") {
         <div class="credits-grid">${pricing.creditPackages.map((pack, index) => creditCard(pack[0], pack[1], index === 1 ? pricing.bestValue : index === 2 ? pricing.multipleApplications : pack[2], pack[3], index === 1, AI_CREDIT_STRIPE_PRODUCTS[index] || "ai_credits_starter")).join("")}</div>
       </section>
 
-      ${pricingFaqAccordion()}
+      ${showFaq ? pricingFaqAccordion() : ""}
     </div>
   `;
 }
@@ -11641,8 +11642,9 @@ function renderBilling() {
           ${canManageStripe ? `<button class="secondary-button small" type="button" data-stripe-portal>${stripeLabels.manageSubscription}</button>` : ""}
         </div>
       </section>
-      ${monetizationSections("dashboard")}
+      ${monetizationSections("dashboard", { showFaq: false })}
       ${paymentHistorySection()}
+      ${pricingFaqAccordion()}
     </main>
   `);
 }
