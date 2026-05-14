@@ -36,7 +36,7 @@ const paymentConfig = {
 const stripeConfig = {
   enabled: true,
   currency: "brl",
-  mode: "test",
+  mode: "live",
   allowedMethods: ["card"],
   subscriptionsEnabled: true,
   oneTimePaymentsEnabled: true,
@@ -674,7 +674,7 @@ const I18N = {
       oneTimeOptions: [["Remover marca d'água", "R$ 7,90", "Pague uma vez", ["Baixe este currículo sem a marca da Succeedora", "Para um currículo apenas", "Sem assinatura"]], ["Download PDF Premium", "R$29", "Pague uma vez", ["Sem marca da Succeedora", "Exportação em PDF profissional", "7 dias para editar", "Para um currículo"]], ["Career Pack", "R$79", "Sem assinatura", ["Currículo profissional", "Carta de apresentação", "Tradução de currículo", "Análise ATS básica", "Sugestões para a vaga", "Para candidaturas importantes"]], ["Modelo Premium", "R$19", "Pague uma vez", ["Um modelo premium", "Exportação com design premium"]], ["Link Online do Currículo", "R$24", "Pague uma vez", ["Página online compartilhável", "Link público", "Perfil profissional", "Botão de contato"]]],
       creditPackages: [["Créditos Starter", "R$19", "Pacote pequeno", ["Bom para melhorias rápidas"]], ["Créditos Growth", "R$49", "Melhor custo-benefício", ["Pacote médio para quem está se candidatando ativamente"]], ["Créditos Power", "R$99", "Pacote maior", ["Ideal para várias candidaturas"]]],
       creditUses: ["Melhorar resumo profissional", "Reescrever experiência profissional", "Gerar carta de apresentação", "Traduzir currículo", "Adaptar currículo para uma vaga", "Analisar descrição da vaga", "Sugerir palavras-chave ATS"],
-      paymentFaq: [["Posso usar a Succeedora grátis?", "Sim. O plano Grátis permite testar o criador e fazer um currículo básico."], ["Posso pagar apenas uma vez?", "Sim. As opções avulsas servem para quem precisa de um download premium, Career Pack, modelo ou link online sem assinatura."], ["Preciso de assinatura para baixar meu currículo?", "Não. Você pode usar um plano mensal ou escolher o Download PDF Premium avulso."], ["O que são créditos de IA?", "Créditos de IA permitem usar recursos como reescrita, tradução, carta de apresentação e adaptação para vaga sem assinatura."], ["Posso cancelar minha assinatura quando quiser?", "Sim. A lógica real de cobrança ainda não foi integrada, mas o modelo previsto permite cancelamento a qualquer momento."], ["Posso fazer upgrade depois?", "Sim. Você pode começar grátis, comprar uma opção avulsa, usar créditos ou migrar para Pro ou Premium depois."]],
+      paymentFaq: [["Posso usar a Succeedora grátis?", "Sim. O plano Grátis permite testar o criador e fazer um currículo básico."], ["Posso pagar apenas uma vez?", "Sim. As opções avulsas servem para quem precisa de um download premium, Career Pack, modelo ou link online sem assinatura."], ["Preciso de assinatura para baixar meu currículo?", "Não. Você pode usar um plano mensal ou escolher o Download PDF Premium avulso."], ["O que são créditos de IA?", "Créditos de IA permitem usar recursos como reescrita, tradução, carta de apresentação e adaptação para vaga sem assinatura."], ["Posso cancelar minha assinatura quando quiser?", "Sim. Assinaturas por cartão são processadas pela Stripe e podem ser gerenciadas conforme as opções exibidas no checkout e no portal de cobrança."], ["Posso fazer upgrade depois?", "Sim. Você pode começar grátis, comprar uma opção avulsa, usar créditos ou migrar para Pro ou Premium depois."]],
     },
     auth: {
       slogan: "Crie um currículo que aumenta suas chances de entrevista.",
@@ -7288,10 +7288,16 @@ async function openStripeCustomerPortal(button = null) {
     button.textContent = labels.redirectingStripe;
   }
   try {
+    const access = getUserAccess();
     const response = await fetch("/api/stripe/create-customer-portal-session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: account.id, returnUrl: `${window.location.origin}${window.location.pathname}#/dashboard/billing` }),
+      body: JSON.stringify({
+        userId: account.id,
+        userEmail: account.email,
+        stripeCustomerId: access.planState?.stripeCustomerId || "",
+        returnUrl: `${window.location.origin}${window.location.pathname}#/dashboard/billing`,
+      }),
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok || !payload.success || !payload.portalUrl) throw new Error(payload.error || "stripe_portal_failed");
@@ -7302,6 +7308,126 @@ async function openStripeCustomerPortal(button = null) {
       button.disabled = false;
       button.textContent = originalText;
     }
+  }
+}
+
+function stripeCheckoutParams() {
+  const query = String(window.location.hash || "").split("?")[1] || window.location.search.slice(1);
+  return new URLSearchParams(query);
+}
+
+function stripePlanLabel(productType, planType) {
+  if (productType === "plan_premium" || planType === "premium") return currentLanguage === "pt" ? "Plano Premium" : "Premium plan";
+  if (productType === "plan_pro" || planType === "pro") return currentLanguage === "pt" ? "Plano Pro" : "Pro plan";
+  return productType || "Stripe";
+}
+
+function stripeProductAmount(productType) {
+  const product = pixProduct(productType);
+  if (product) return product.amount;
+  if (productType === "plan_pro") return 5900;
+  if (productType === "plan_premium") return 9900;
+  return 0;
+}
+
+function applyStripeCheckoutEntitlement(session) {
+  const account = currentAccount();
+  if (!account || !session?.metadata) return false;
+  const metadata = session.metadata;
+  if (metadata.userId && metadata.userId !== account.id) return false;
+  const productType = metadata.productType || "";
+  const targetId = metadata.resumeId || metadata.templateId || "__global__";
+  const access = loadUserAccess(account);
+  const oneTime = { ...access.oneTime };
+  let nextAccess = { ...access, oneTime };
+
+  if (session.mode === "subscription") {
+    const plan = normalizePlanType(metadata.planType || (productType === "plan_premium" ? "premium" : "pro"));
+    const startedAt = isoNow();
+    const planState = {
+      type: plan,
+      status: ["active", "trialing"].includes(session.subscriptionStatus) ? "active" : "active",
+      startedAt,
+      expiresAt: session.currentPeriodEnd || null,
+      updatedAt: startedAt,
+      source: "stripe",
+      durationLabel: currentLanguage === "pt" ? "Assinatura Stripe" : "Stripe subscription",
+      stripeCustomerId: session.stripeCustomerId || "",
+      stripeSubscriptionId: session.stripeSubscriptionId || "",
+      currentPeriodEnd: session.currentPeriodEnd || null,
+    };
+    updateAccount(account.id, (current) => ({ ...current, plan: planState, manualPlanUpdatedAt: planState.updatedAt, manualPlanUpdatedBy: "stripe" }));
+    nextAccess.plan = plan;
+    nextAccess.planState = planState;
+  } else {
+    if (productType === "remove_watermark") oneTime.watermarkRemoval = adminAddUnique(oneTime.watermarkRemoval, targetId);
+    if (productType === "premium_pdf") oneTime.premiumPdf = adminAddUnique(oneTime.premiumPdf, targetId);
+    if (productType === "premium_template") oneTime.premiumTemplates = adminAddUnique(oneTime.premiumTemplates, targetId);
+    if (productType === "career_pack") oneTime.careerPack = adminAddUnique(oneTime.careerPack, targetId);
+    if (productType === "online_resume_link") oneTime.onlineLinks = adminAddUnique(oneTime.onlineLinks, targetId);
+    if (productType === "ai_credits") {
+      const credits = Math.max(1, Number(metadata.creditsAmount || 10));
+      nextAccess = {
+        ...nextAccess,
+        aiCredits: Math.max(0, Number(nextAccess.aiCredits || 0) + credits),
+        creditHistory: [...(nextAccess.creditHistory || []), { amount: credits, reason: session.id, adminEmail: "stripe", createdAt: isoNow() }],
+      };
+    }
+  }
+
+  nextAccess.adminEntitlements = [
+    ...(nextAccess.adminEntitlements || []),
+    { productType, targetId, paymentId: session.id, grantedBy: "stripe", grantedAt: isoNow() },
+  ];
+  saveUserAccess(account, nextAccess);
+  return true;
+}
+
+async function confirmStripeCheckoutFromUrl() {
+  const account = currentAccount();
+  const params = stripeCheckoutParams();
+  const sessionId = params.get("session_id") || "";
+  const target = document.querySelector("[data-stripe-confirmation]");
+  if (!sessionId || !account || !target) return;
+  const labels = t().payments;
+  try {
+    const response = await fetch(`/api/stripe/checkout-session?session_id=${encodeURIComponent(sessionId)}&user_id=${encodeURIComponent(account.id)}`);
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.success || !payload.session) throw new Error(payload.error || "checkout_session_lookup_failed");
+    const session = payload.session;
+    const paid = session.mode === "subscription"
+      ? ["complete", "open"].includes(session.status) && ["paid", "no_payment_required"].includes(session.paymentStatus)
+      : session.paymentStatus === "paid";
+    if (!paid) throw new Error("payment_not_confirmed");
+    applyStripeCheckoutEntitlement(session);
+    const productType = session.metadata?.productType || "";
+    const product = localizedPixProduct(productType);
+    upsertPaymentRequest({
+      id: session.id,
+      userId: account.id,
+      userName: account.profile?.fullName || account.email,
+      userEmail: account.email,
+      productType,
+      productName: product?.productName || stripePlanLabel(productType, session.metadata?.planType),
+      amount: stripeProductAmount(productType),
+      currency: paymentConfig.currency,
+      paymentMethod: "stripe",
+      status: "paid",
+      stripeSessionId: session.id,
+      stripePaymentIntentId: session.stripePaymentIntentId || "",
+      stripeCustomerId: session.stripeCustomerId || "",
+      stripeSubscriptionId: session.stripeSubscriptionId || "",
+      resumeId: session.metadata?.resumeId || "",
+      templateKey: session.metadata?.templateId || "",
+      creditAmount: productType === "ai_credits" ? Math.max(1, Number(session.metadata?.creditsAmount || 10)) : 0,
+      approvedAt: isoNow(),
+      createdAt: isoNow(),
+    });
+    target.textContent = labels.approved || labels.successText;
+    target.className = "settings-message";
+  } catch (error) {
+    target.textContent = labels.stripeUnavailable;
+    target.className = "auth-error";
   }
 }
 
@@ -8806,6 +8932,7 @@ function renderPaymentStatePage(kind) {
           <span class="eyebrow">${escapeHtml(labels.secureStripe)}</span>
           <h1>${escapeHtml(success ? labels.successTitle : labels.cancelTitle)}</h1>
           <p>${escapeHtml(success ? labels.successText : labels.cancelText)}</p>
+          ${success ? `<p class="settings-message" data-stripe-confirmation>${escapeHtml(labels.waitingPayment)}</p>` : ""}
           <div class="section-actions">
             <a class="primary-button" href="#/dashboard/billing" data-route="/dashboard/billing">${escapeHtml(copy.dashboard.billing)}</a>
             <a class="secondary-button" href="#/pricing" data-route="/pricing">${escapeHtml(copy.nav.pricing)}</a>
@@ -8824,6 +8951,7 @@ function renderPaymentStatePage(kind) {
 
 function renderPaymentSuccess() {
   renderPaymentStatePage("success");
+  confirmStripeCheckoutFromUrl();
 }
 
 function renderPaymentCancel() {
