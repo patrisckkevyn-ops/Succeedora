@@ -4763,12 +4763,31 @@ body,
 }
 
 .dashboard-monetization .price-card {
+  align-items: center;
   padding: clamp(24px, 2.4vw, 34px);
   border-radius: 30px;
+  text-align: center;
 }
 
 .dashboard-monetization .price-card.featured {
   transform: none;
+}
+
+.dashboard-monetization .price-card .plan-card-head {
+  justify-items: center;
+  width: 100%;
+}
+
+.dashboard-monetization .price-card .plan-card-head > .popular,
+.dashboard-monetization .price-card .plan-card-head > .popular-spacer,
+.dashboard-monetization .price-card .plan-kicker,
+.dashboard-monetization .price-card .planned-payment-note {
+  align-self: center;
+  justify-self: center;
+}
+
+.dashboard-monetization .price-card .price {
+  width: 100%;
 }
 
 .dashboard-monetization .price-card h3 {
@@ -4776,8 +4795,15 @@ body,
   font-size: clamp(21px, 1.9vw, 26px);
 }
 
+.dashboard-monetization .price-card ul {
+  justify-items: center;
+  width: 100%;
+}
+
 .dashboard-monetization .price-card li {
+  justify-content: center;
   font-size: clamp(14px, 1.05vw, 16px);
+  text-align: center;
 }
 
 .dashboard-monetization .option-grid {
@@ -4786,16 +4812,19 @@ body,
 
 .credits-band {
   display: grid;
-  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  grid-template-columns: 1fr;
   gap: var(--grid-gap);
   align-items: stretch;
 }
 
 .credits-copy {
+  display: grid;
+  justify-items: center;
   padding: clamp(24px, 3vw, 34px);
   border: 1px solid var(--line);
   border-radius: 28px;
   color: #fff;
+  text-align: center;
   background:
     radial-gradient(circle at 82% 18%, rgba(105, 216, 242, 0.24), transparent 28%),
     linear-gradient(135deg, #0b1736, #123c91 62%, #6650d8);
@@ -4808,6 +4837,7 @@ body,
 }
 
 .credits-copy h2 {
+  max-width: 760px;
   margin: 14px 0 0;
   font-size: clamp(28px, 3vw, 42px);
   line-height: 1.08;
@@ -4827,6 +4857,10 @@ body,
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.credit-uses div {
+  justify-content: center;
 }
 
 .credit-uses span {
