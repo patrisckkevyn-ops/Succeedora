@@ -3,7 +3,10 @@ const ONE_TIME_PRODUCTS = {
   premium_pdf: { env: "STRIPE_PREMIUM_PDF_PRICE_ID", creditsAmount: 0 },
   premium_template: { env: "STRIPE_PREMIUM_TEMPLATE_PRICE_ID", creditsAmount: 0 },
   career_pack: { env: "STRIPE_CAREER_PACK_PRICE_ID", creditsAmount: 0 },
-  ai_credits: { env: "STRIPE_AI_CREDITS_PRICE_ID", creditsAmount: 10 },
+  ai_credits: { env: "STRIPE_AI_CREDITS_STARTER_PRICE_ID", fallbackEnv: "STRIPE_AI_CREDITS_PRICE_ID", creditsAmount: 10 },
+  ai_credits_starter: { env: "STRIPE_AI_CREDITS_STARTER_PRICE_ID", creditsAmount: 10 },
+  ai_credits_growth: { env: "STRIPE_AI_CREDITS_GROWTH_PRICE_ID", creditsAmount: 30 },
+  ai_credits_power: { env: "STRIPE_AI_CREDITS_POWER_PRICE_ID", creditsAmount: 75 },
   online_resume_link: { env: "STRIPE_ONLINE_RESUME_LINK_PRICE_ID", creditsAmount: 0 },
 };
 
@@ -28,7 +31,7 @@ function stripeProduct(productType) {
     return {
       productType,
       mode: "payment",
-      priceId: process.env[product.env] || "",
+      priceId: String(process.env[product.env] || process.env[product.fallbackEnv] || "").trim(),
       planType: "",
       creditsAmount: product.creditsAmount,
     };
@@ -38,7 +41,7 @@ function stripeProduct(productType) {
     return {
       productType,
       mode: "subscription",
-      priceId: process.env[product.env] || "",
+      priceId: String(process.env[product.env] || "").trim(),
       planType: product.planType,
       creditsAmount: 0,
     };

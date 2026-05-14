@@ -48,8 +48,14 @@ const PIX_ONE_TIME_PRODUCTS = {
   premium_template: { amount: 1900, names: { pt: "Modelo premium", en: "Premium template" }, descriptions: { pt: "Desbloqueio manual futuro de um modelo premium.", en: "Future manual unlock for one premium template." } },
   career_pack: { amount: 7900, names: { pt: "Pacote carreira", en: "Career pack" }, descriptions: { pt: "Pacote avulso de recursos de carreira.", en: "One-time career resource pack." } },
   ai_credits: { amount: 1900, names: { pt: "Créditos de IA", en: "AI credits" }, descriptions: { pt: "Pacote avulso de créditos de IA para liberação futura.", en: "One-time AI credits pack for future unlock." } },
+  ai_credits_starter: { amount: 1900, names: { pt: "Créditos Starter", en: "Starter credits" }, descriptions: { pt: "Pacote pequeno de créditos de IA.", en: "Small AI credits pack." } },
+  ai_credits_growth: { amount: 4900, names: { pt: "Créditos Growth", en: "Growth credits" }, descriptions: { pt: "Pacote médio de créditos de IA.", en: "Medium AI credits pack." } },
+  ai_credits_power: { amount: 9900, names: { pt: "Créditos Power", en: "Power credits" }, descriptions: { pt: "Pacote maior de créditos de IA.", en: "Large AI credits pack." } },
   online_resume_link: { amount: 2400, names: { pt: "Link de currículo online", en: "Online resume link" }, descriptions: { pt: "Link público do currículo para liberação futura.", en: "Public resume link for future unlock." } },
 };
+const AI_CREDIT_PRODUCT_TYPES = ["ai_credits", "ai_credits_starter", "ai_credits_growth", "ai_credits_power"];
+const AI_CREDIT_PRODUCT_AMOUNTS = { ai_credits: 10, ai_credits_starter: 10, ai_credits_growth: 30, ai_credits_power: 75 };
+const AI_CREDIT_STRIPE_PRODUCTS = ["ai_credits_starter", "ai_credits_growth", "ai_credits_power"];
 const DISPOSABLE_EMAIL_DOMAINS = new Set(["mailinator.com", "10minutemail.com", "temp-mail.org", "guerrillamail.com", "yopmail.com", "throwawaymail.com", "getnada.com", "emailondeck.com", "fakeinbox.com", "trashmail.com"]);
 const AI_TASK_CREDITS = {
   generate_professional_summary: 1,
@@ -4098,7 +4104,7 @@ function loadAdminDataset() {
     };
   });
   const payments = users.flatMap((user) => user.payments).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  const oneTimePurchases = payments.filter((payment) => ["remove_watermark", "premium_pdf", "premium_template", "career_pack", "ai_credits", "online_resume_link"].includes(payment.productType));
+  const oneTimePurchases = payments.filter((payment) => ["remove_watermark", "premium_pdf", "premium_template", "career_pack", "online_resume_link", ...AI_CREDIT_PRODUCT_TYPES].includes(payment.productType));
   return { users, payments, oneTimePurchases, aiUsage, auditLog: loadAdminAuditLog() };
 }
 
@@ -5512,7 +5518,7 @@ function adminGrantPaymentFeature(account, payment) {
   if (payment.productType === "premium_template") oneTime.premiumTemplates = adminAddUnique(oneTime.premiumTemplates, targetId);
   if (payment.productType === "career_pack") oneTime.careerPack = adminAddUnique(oneTime.careerPack, targetId);
   if (payment.productType === "online_resume_link") oneTime.onlineLinks = adminAddUnique(oneTime.onlineLinks, targetId);
-  if (payment.productType === "ai_credits") {
+  if (AI_CREDIT_PRODUCT_TYPES.includes(payment.productType)) {
     const credits = adminPaymentCredits(payment);
     nextAccess = {
       ...nextAccess,
@@ -7180,7 +7186,7 @@ function createPixPaymentRequest(productType, context = {}) {
     pixPayload: pixPayment.pixPayload,
     resumeId: context.resumeId || currentResumeAccessId(),
     templateKey: context.templateKey || "",
-    creditAmount: productType === "ai_credits" ? 10 : 0,
+    creditAmount: AI_CREDIT_PRODUCT_AMOUNTS[productType] || 0,
     status: "pending_payment",
     createdAt: isoNow(),
     confirmedByUserAt: "",
@@ -7262,7 +7268,7 @@ async function startStripeCheckout(productType, context = {}, button = null) {
       stripeSessionId: payload.sessionId || "",
       resumeId: context.resumeId || currentResumeAccessId(),
       templateKey: context.templateId || selectedTemplateKey || "",
-      creditAmount: productType === "ai_credits" ? 10 : 0,
+      creditAmount: AI_CREDIT_PRODUCT_AMOUNTS[productType] || 0,
       createdAt: isoNow(),
     });
     window.location.assign(payload.checkoutUrl);
@@ -7365,7 +7371,7 @@ function applyStripeCheckoutEntitlement(session) {
     if (productType === "premium_template") oneTime.premiumTemplates = adminAddUnique(oneTime.premiumTemplates, targetId);
     if (productType === "career_pack") oneTime.careerPack = adminAddUnique(oneTime.careerPack, targetId);
     if (productType === "online_resume_link") oneTime.onlineLinks = adminAddUnique(oneTime.onlineLinks, targetId);
-    if (productType === "ai_credits") {
+    if (AI_CREDIT_PRODUCT_TYPES.includes(productType)) {
       const credits = Math.max(1, Number(metadata.creditsAmount || 10));
       nextAccess = {
         ...nextAccess,
@@ -7419,7 +7425,7 @@ async function confirmStripeCheckoutFromUrl() {
       stripeSubscriptionId: session.stripeSubscriptionId || "",
       resumeId: session.metadata?.resumeId || "",
       templateKey: session.metadata?.templateId || "",
-      creditAmount: productType === "ai_credits" ? Math.max(1, Number(session.metadata?.creditsAmount || 10)) : 0,
+      creditAmount: AI_CREDIT_PRODUCT_TYPES.includes(productType) ? Math.max(1, Number(session.metadata?.creditsAmount || AI_CREDIT_PRODUCT_AMOUNTS[productType] || 10)) : 0,
       approvedAt: isoNow(),
       createdAt: isoNow(),
     });
@@ -8596,9 +8602,9 @@ function purchaseCard(name, price, label, items, featured = false, cta = "", pro
   `;
 }
 
-function creditCard(name, price, badge, items, featured = false) {
+function creditCard(name, price, badge, items, featured = false, productType = "ai_credits_starter") {
   const copy = t();
-  const stripeButton = stripeConfig.oneTimePaymentsEnabled ? `<button class="${featured ? "primary-button" : "secondary-button"} full" type="button" data-stripe-checkout="ai_credits">${escapeHtml(copy.payments.payWithCard)}</button>` : "";
+  const stripeButton = stripeConfig.oneTimePaymentsEnabled ? `<button class="${featured ? "primary-button" : "secondary-button"} full" type="button" data-stripe-checkout="${productType}">${escapeHtml(copy.payments.payWithCard)}</button>` : "";
   return `
     <article class="price-card credit-card ${featured ? "featured" : ""}">
       ${badge ? `<div class="popular">${badge}</div>` : ""}
@@ -8797,7 +8803,7 @@ function monetizationSections(mode = "public") {
       : "Subscription access for users who want recurring templates, exports, cover letters and AI tools.";
     const productTypes = ["remove_watermark", "premium_pdf", "career_pack", "premium_template", "online_resume_link"];
     const oneTimeCards = `<div class="option-grid public-one-time-grid">${pricing.oneTimeOptions.map((option, index) => purchaseCard(option[0], option[1], option[2], option[3], index === 2, index === 0 ? pricing.watermark.button : pricing.purchaseCtas[index - 1], productTypes[index] || "premium_pdf")).join("")}</div>`;
-    const creditCards = `<div class="credits-grid public-credit-grid">${pricing.creditPackages.map((pack, index) => creditCard(pack[0], pack[1], index === 1 ? pricing.bestValue : index === 2 ? pricing.multipleApplications : pack[2], pack[3], index === 1)).join("")}</div>`;
+    const creditCards = `<div class="credits-grid public-credit-grid">${pricing.creditPackages.map((pack, index) => creditCard(pack[0], pack[1], index === 1 ? pricing.bestValue : index === 2 ? pricing.multipleApplications : pack[2], pack[3], index === 1, AI_CREDIT_STRIPE_PRODUCTS[index] || "ai_credits_starter")).join("")}</div>`;
     return `
       <div class="monetization ${pageClass} premium-pricing-layout">
         <section class="monetization-block public-pricing-block one-time-pricing-block">
@@ -8880,7 +8886,7 @@ function monetizationSections(mode = "public") {
             <div>${pricing.creditUses.map((use) => `<span>${use}</span>`).join("")}</div>
           </div>
         </div>
-        <div class="credits-grid">${pricing.creditPackages.map((pack, index) => creditCard(pack[0], pack[1], index === 1 ? pricing.bestValue : index === 2 ? pricing.multipleApplications : pack[2], pack[3], index === 1)).join("")}</div>
+        <div class="credits-grid">${pricing.creditPackages.map((pack, index) => creditCard(pack[0], pack[1], index === 1 ? pricing.bestValue : index === 2 ? pricing.multipleApplications : pack[2], pack[3], index === 1, AI_CREDIT_STRIPE_PRODUCTS[index] || "ai_credits_starter")).join("")}</div>
       </section>
 
       ${pricingFaqAccordion()}
@@ -10101,7 +10107,7 @@ function openAdminUserDetails(userId) {
   const payments = user.payments.map((payment) => `<article><strong>${escapeHtml(adminPaymentLabel(payment))}</strong><span>${adminStatusBadge(payment.status, "payment")} ${escapeHtml(adminFormatMoney(payment.amount, payment.currency))}</span></article>`);
   const resumes = user.resumes.map((resume) => `<article><strong>${escapeHtml(resume.title || resume.name || "-")}</strong><span>${escapeHtml(formatPaymentDate(resume.updatedAt || resume.createdAt))}</span></article>`);
   const letters = user.letters.map((letter) => `<article><strong>${escapeHtml(letter.title || letter.role || "-")}</strong><span>${escapeHtml(formatPaymentDate(letter.updatedAt || letter.createdAt))}</span></article>`);
-  const purchases = user.payments.filter((payment) => ["remove_watermark", "premium_pdf", "premium_template", "career_pack", "ai_credits", "online_resume_link"].includes(payment.productType)).map((payment) => `<article><strong>${escapeHtml(adminPaymentLabel(payment))}</strong><span>${adminStatusBadge(payment.status, "payment")}</span></article>`);
+  const purchases = user.payments.filter((payment) => ["remove_watermark", "premium_pdf", "premium_template", "career_pack", "online_resume_link", ...AI_CREDIT_PRODUCT_TYPES].includes(payment.productType)).map((payment) => `<article><strong>${escapeHtml(adminPaymentLabel(payment))}</strong><span>${adminStatusBadge(payment.status, "payment")}</span></article>`);
   const aiUsage = user.aiUsage.map((record) => `<article><strong>${escapeHtml(record.taskType)}</strong><span>${Number(record.creditsUsed || 0)} ${escapeHtml(aiCopy().creditsUsed)} · ${escapeHtml(formatPaymentDate(record.createdAt))}</span></article>`);
   openAdminDialog(labels.details.profile, `
     <div class="admin-detail-grid">

@@ -30,7 +30,9 @@ The script creates these BRL prices:
 - Premium PDF: R$29
 - Premium template: R$19
 - Career pack: R$79
-- AI credits: R$19
+- AI credits Starter: R$19
+- AI credits Growth: R$49
+- AI credits Power: R$99
 - Online resume link: R$24
 
 At the end, it prints the `STRIPE_*_PRICE_ID` values to add in Vercel.
@@ -48,8 +50,10 @@ STRIPE_REMOVE_WATERMARK_PRICE_ID=
 STRIPE_PREMIUM_PDF_PRICE_ID=
 STRIPE_PREMIUM_TEMPLATE_PRICE_ID=
 STRIPE_CAREER_PACK_PRICE_ID=
-STRIPE_AI_CREDITS_PRICE_ID=
 STRIPE_ONLINE_RESUME_LINK_PRICE_ID=
+STRIPE_AI_CREDITS_STARTER_PRICE_ID=
+STRIPE_AI_CREDITS_GROWTH_PRICE_ID=
+STRIPE_AI_CREDITS_POWER_PRICE_ID=
 STRIPE_SUCCESS_URL=https://succeedora.com/#/payment/success?session_id={CHECKOUT_SESSION_ID}
 STRIPE_CANCEL_URL=https://succeedora.com/#/payment/cancel
 ```
