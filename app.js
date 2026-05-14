@@ -6412,7 +6412,8 @@ function bindInteractions() {
       const target = button.getAttribute("data-pricing-jump");
       const tab = document.querySelector(`[data-pricing-tab="${target}"]`);
       if (tab) tab.click();
-      document.querySelector(".monetization")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const panel = document.querySelector(`[data-pricing-panel="${target}"]`);
+      (panel || document.querySelector(".monetization"))?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
 
