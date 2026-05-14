@@ -5,6 +5,7 @@ const COVER_LETTERS_STORAGE_KEY = "succeedora.coverLetters";
 const THEME_STORAGE_KEY = "succeedora.theme";
 const AUTH_VERIFIED_STORAGE_KEY = "succeedora.authVerified";
 const AUTH_EMAIL_STORAGE_KEY = "succeedora.authEmail";
+const AUTH_PASSWORD_STORAGE_KEY = "succeedora.authPassword";
 const AUTH_REMEMBER_STORAGE_KEY = "succeedora.rememberUser";
 const PROFILE_STORAGE_KEY = "succeedora.profile";
 const ACCESS_STORAGE_KEY = "succeedora.access";
@@ -4751,7 +4752,7 @@ function setSession(account, remember = true) {
     localStorage.setItem(AUTH_REMEMBER_STORAGE_KEY, remember ? "true" : "false");
     localStorage.setItem(AUTH_VERIFIED_STORAGE_KEY, account.emailVerified === false ? "false" : "true");
     if (remember) rememberAuthEmail(account.email);
-    else forgetAuthEmail();
+    else forgetAuthCredentials();
     migrateLegacyDataToUser(account);
   } catch (error) {
     // Prototype auth state is local only.
@@ -4960,12 +4961,33 @@ function rememberAuthEmail(email) {
   }
 }
 
+function rememberAuthPassword(password) {
+  try {
+    localStorage.setItem(AUTH_PASSWORD_STORAGE_KEY, String(password || ""));
+  } catch (error) {
+    // Prototype auth state is local only.
+  }
+}
+
 function forgetAuthEmail() {
   try {
     localStorage.removeItem(AUTH_EMAIL_STORAGE_KEY);
   } catch (error) {
     // Prototype auth state is local only.
   }
+}
+
+function forgetAuthPassword() {
+  try {
+    localStorage.removeItem(AUTH_PASSWORD_STORAGE_KEY);
+  } catch (error) {
+    // Prototype auth state is local only.
+  }
+}
+
+function forgetAuthCredentials() {
+  forgetAuthEmail();
+  forgetAuthPassword();
 }
 
 function getAuthEmail() {
@@ -6053,6 +6075,8 @@ function bindInteractions() {
           if (account) {
             const remember = form.rememberUser?.checked !== false;
             setSession(account, remember);
+            if (remember) rememberAuthPassword(form.password.value);
+            else forgetAuthPassword();
             if (account.emailVerified === false) {
               const result = await issueVerificationCode(account);
               if (result.ok) setRoute("/verify-email");
@@ -9418,13 +9442,13 @@ function renderResetPassword() {
   `);
 }
 
-function authPasswordField({ label, name, autocomplete, placeholder, forgotHtml = "" }) {
+function authPasswordField({ label, name, autocomplete, placeholder, forgotHtml = "", value = "" }) {
   const a = t().auth;
   return `
     <label class="auth-password-label">
       <span class="password-label-row"><span>${label}</span>${forgotHtml}</span>
       <span class="password-input-wrap">
-        <input type="password" name="${name}" autocomplete="${autocomplete}" placeholder="${placeholder}" required />
+        <input type="password" name="${name}" autocomplete="${autocomplete}" placeholder="${placeholder}" value="${escapeHtml(value)}" required />
         <button class="password-toggle" type="button" data-password-toggle aria-label="${a.showPassword}" aria-pressed="false" title="${a.showPassword}">${icon("eye")}</button>
       </span>
     </label>
@@ -9439,6 +9463,13 @@ function authLayout(type) {
   const rememberedEmail = (() => {
     try {
       return localStorage.getItem(AUTH_EMAIL_STORAGE_KEY) || "";
+    } catch (error) {
+      return "";
+    }
+  })();
+  const rememberedPassword = (() => {
+    try {
+      return localStorage.getItem(AUTH_PASSWORD_STORAGE_KEY) || "";
     } catch (error) {
       return "";
     }
@@ -9468,7 +9499,7 @@ function authLayout(type) {
         <form class="auth-form" data-auth-form="${type}">
           ${isSignIn ? "" : `<label>${a.fullName}<input type="text" name="fullName" autocomplete="name" placeholder="${a.fullNamePlaceholder}" required /></label>`}
           <label>${a.email}<input type="email" name="email" autocomplete="email" inputmode="email" placeholder="${a.emailPlaceholder}" value="${isSignIn ? escapeHtml(rememberedEmail) : ""}" required /></label>
-          ${authPasswordField({ label: a.password, name: "password", autocomplete: isSignIn ? "current-password" : "new-password", placeholder: a.passwordPlaceholder, forgotHtml })}
+          ${authPasswordField({ label: a.password, name: "password", autocomplete: isSignIn ? "current-password" : "new-password", placeholder: a.passwordPlaceholder, forgotHtml, value: isSignIn ? rememberedPassword : "" })}
           ${isSignIn ? `<label class="legal-check remember-check"><input type="checkbox" name="rememberUser" ${rememberChecked ? "checked" : ""} /><span>${rememberLabel}</span></label>` : ""}
           ${isSignIn ? "" : authPasswordField({ label: a.confirmPassword, name: "confirmPassword", autocomplete: "new-password", placeholder: a.confirmPassword })}
           ${isSignIn ? "" : `<label class="legal-check auth-legal-check"><input type="checkbox" name="acceptLegal" required data-terms-check /><span>${legalAcceptance}</span></label>`}
