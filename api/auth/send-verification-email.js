@@ -45,32 +45,31 @@ function parseBody(req) {
   });
 }
 
-function verificationEmail({ name, code, language, appUrl }) {
+function verificationEmail({ name, code, language }) {
   const isPt = language === "pt";
   const safeName = escapeHtml(name || "Succeedora");
   const safeCode = escapeHtml(code);
   const title = isPt ? "Confirme seu e-mail na Succeedora" : "Confirm your Succeedora email";
-  const intro = isPt
-    ? `Ola, ${safeName}. Use o codigo abaixo para confirmar seu e-mail.`
-    : `Hi, ${safeName}. Use the code below to confirm your email.`;
-  const expires = isPt ? "Este codigo expira em 10 minutos." : "This code expires in 10 minutes.";
+  const greeting = isPt ? `Olá, ${safeName}.` : `Hi, ${safeName}.`;
+  const instruction = isPt ? "Use o código abaixo para confirmar seu e-mail:" : "Use the code below to confirm your email:";
+  const expires = isPt ? "Este código expira em 10 minutos." : "This code expires in 10 minutes.";
   const ignore = isPt
-    ? "Se voce nao criou uma conta na Succeedora, ignore este e-mail."
+    ? "Se você não criou uma conta na Succeedora, ignore este e-mail."
     : "If you did not create a Succeedora account, you can ignore this email.";
   const html = `
     <div style="margin:0;padding:32px;background:#f6f8ff;font-family:Inter,Arial,sans-serif;color:#172033">
       <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #dfe7fb;border-radius:18px;padding:32px;box-shadow:0 20px 60px rgba(23,32,51,.08)">
         <p style="margin:0 0 12px;color:#3156d4;font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:12px">Succeedora</p>
         <h1 style="margin:0 0 16px;font-size:26px;line-height:1.2;color:#111827">${title}</h1>
-        <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#4b5563">${intro}</p>
+        <p style="margin:0 0 10px;font-size:16px;line-height:1.6;color:#4b5563">${greeting}</p>
+        <p style="margin:0 0 24px;font-size:16px;line-height:1.6;color:#4b5563">${instruction}</p>
         <div style="margin:0 0 24px;padding:18px 22px;border-radius:14px;background:#eef4ff;border:1px solid #cddcff;text-align:center;font-size:34px;letter-spacing:8px;font-weight:800;color:#233bd2">${safeCode}</div>
         <p style="margin:0 0 8px;font-size:14px;line-height:1.6;color:#4b5563">${expires}</p>
         <p style="margin:0;font-size:13px;line-height:1.6;color:#6b7280">${ignore}</p>
-        <p style="margin:24px 0 0;font-size:12px;color:#94a3b8">${escapeHtml(appUrl)}</p>
       </div>
     </div>
   `;
-  const text = `${title}\n\n${intro}\n\n${code}\n\n${expires}\n${ignore}\n${appUrl}`;
+  const text = `Succeedora\n\n${title}\n\n${isPt ? `Olá, ${name || "Succeedora"}.` : `Hi, ${name || "Succeedora"}.`}\n\n${instruction}\n\n${code}\n\n${expires}\n\n${ignore}`;
   return { subject: title, html, text };
 }
 
@@ -83,7 +82,6 @@ module.exports = async function handler(req, res) {
   const apiKey = process.env.RESEND_API_KEY;
   const fromEmail = process.env.RESEND_FROM_EMAIL || "contato@succeedora.com";
   const fromName = process.env.RESEND_FROM_NAME || "Succeedora";
-  const appUrl = process.env.APP_URL || "https://succeedora.com";
 
   if (!apiKey) return json(res, 500, { ok: false, error: "missing_resend_api_key" });
 
@@ -103,7 +101,7 @@ module.exports = async function handler(req, res) {
     return json(res, 400, { ok: false, error: "invalid_fields" });
   }
 
-  const message = verificationEmail({ name, code, language, appUrl });
+  const message = verificationEmail({ name, code, language });
   const response = await fetch(RESEND_EMAILS_ENDPOINT, {
     method: "POST",
     headers: {

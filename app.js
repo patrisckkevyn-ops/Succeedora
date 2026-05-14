@@ -5,6 +5,7 @@ const COVER_LETTERS_STORAGE_KEY = "succeedora.coverLetters";
 const THEME_STORAGE_KEY = "succeedora.theme";
 const AUTH_VERIFIED_STORAGE_KEY = "succeedora.authVerified";
 const AUTH_EMAIL_STORAGE_KEY = "succeedora.authEmail";
+const AUTH_REMEMBER_STORAGE_KEY = "succeedora.rememberUser";
 const PROFILE_STORAGE_KEY = "succeedora.profile";
 const ACCESS_STORAGE_KEY = "succeedora.access";
 const ACCOUNTS_STORAGE_KEY = "succeedora.accounts";
@@ -13,21 +14,33 @@ const PENDING_ROUTE_STORAGE_KEY = "succeedora.pendingRoute";
 const LEGACY_MIGRATION_STORAGE_KEY = "succeedora.legacyMigration";
 const PAYMENT_REQUESTS_STORAGE_KEY = "succeedora.paymentRequests";
 const ADMIN_AUDIT_LOG_STORAGE_KEY = "succeedora.adminAuditLog";
+const AI_USAGE_STORAGE_KEY = "succeedora.aiUsage";
+const SUPPORT_TICKETS_STORAGE_KEY = "succeedora_support_tickets";
 const SITE_ORIGIN = "https://succeedora.com";
 const ADMIN_EMAILS = ["patrisckkevyn@gmail.com"];
 const VERIFICATION_CODE_TTL_MS = 10 * 60 * 1000;
 const VERIFICATION_RESEND_COOLDOWN_MS = 60 * 1000;
+const VERIFICATION_EMAIL_TIMEOUT_MS = 12000;
 const paymentConfig = {
   // Confirm this CNPJ is registered as a Pix key at the bank before using this QR Code in production.
   // If it is not registered, generated Pix BR Codes must not be considered valid for production payments.
   pixKey: "60099692000107",
   pixKeyType: "CNPJ",
-  merchantName: "Succeedora",
+  merchantName: "SUCCEEDORA",
   merchantCity: "SERRA",
   currency: "BRL",
   pixManualConfirmation: true,
-  stripeEnabled: false,
+  stripeEnabled: true,
   pixEnabled: true,
+};
+const stripeConfig = {
+  enabled: true,
+  currency: "brl",
+  mode: "test",
+  allowedMethods: ["card"],
+  subscriptionsEnabled: true,
+  oneTimePaymentsEnabled: true,
+  installmentsEnabled: false,
 };
 const PIX_ONE_TIME_PRODUCTS = {
   remove_watermark: { amount: 790, names: { pt: "Remover marca d'água", en: "Remove watermark" }, descriptions: { pt: "PDF sem marca da Succeedora para um currículo.", en: "Watermark-free PDF for one resume." } },
@@ -38,6 +51,19 @@ const PIX_ONE_TIME_PRODUCTS = {
   online_resume_link: { amount: 2400, names: { pt: "Link de currículo online", en: "Online resume link" }, descriptions: { pt: "Link público do currículo para liberação futura.", en: "Public resume link for future unlock." } },
 };
 const DISPOSABLE_EMAIL_DOMAINS = new Set(["mailinator.com", "10minutemail.com", "temp-mail.org", "guerrillamail.com", "yopmail.com", "throwawaymail.com", "getnada.com", "emailondeck.com", "fakeinbox.com", "trashmail.com"]);
+const AI_TASK_CREDITS = {
+  generate_professional_summary: 1,
+  improve_professional_summary: 1,
+  rewrite_experience: 1,
+  suggest_skills: 1,
+  generate_cover_letter: 2,
+  improve_cover_letter: 2,
+  analyze_job_description: 2,
+  ats_keyword_suggestions: 2,
+  assistant_chat: 2,
+  translate_resume: 3,
+  tailor_resume_to_job: 4,
+};
 const BRAZIL_TIMEZONES = new Set([
   "America/Sao_Paulo",
   "America/Manaus",
@@ -62,19 +88,23 @@ const iconPaths = {
   file: "M6 2h8l4 4v16H6V2zm7 1.5V7h3.5M9 12h6M9 16h6M9 20h4",
   pen: "M4 20l4.5-1 10-10a2.1 2.1 0 00-3-3l-10 10L4 20zm11-13l3 3",
   mail: "M3 6h18v12H3V6zm1 1l8 6 8-6M4 17l6-5M20 17l-6-5",
+  headset: "M4 13a8 8 0 0116 0v4a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3M4 12h3a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zm14 7v.5A2.5 2.5 0 0115.5 22H13",
   shield: "M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5l8-3zm-3 10l2 2 4-5",
   globe: "M12 22a10 10 0 100-20 10 10 0 000 20zm0-20c2.5 2.7 3.8 6 3.8 10S14.5 19.3 12 22m0-20C9.5 4.7 8.2 8 8.2 12S9.5 19.3 12 22M2.5 12h19M4.5 7h15M4.5 17h15",
   target: "M12 22a10 10 0 100-20 10 10 0 000 20zm0-4a6 6 0 100-12 6 6 0 000 12zm0-4a2 2 0 100-4 2 2 0 000 4z",
   download: "M12 3v11m0 0l-4-4m4 4l4-4M5 19h14",
   link: "M10 13a5 5 0 007 0l2-2a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-2 2a5 5 0 007 7l1-1",
   layout: "M3 4h18v16H3V4zm0 5h18M9 9v11",
-  settings: "M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7zm0-13v3m0 13v3M4.2 4.2l2.1 2.1m11.4 11.4l2.1 2.1M1 12h3m16 0h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1",
+  settings: "M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 01-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.6V21a2 2 0 01-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1A2 2 0 014.2 17l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.6-1H3a2 2 0 010-4h.1a1.7 1.7 0 001.6-1 1.7 1.7 0 00-.3-1.9L4.3 7A2 2 0 017 4.2l.1.1a1.7 1.7 0 001.9.3h.1a1.7 1.7 0 001-1.6V3a2 2 0 014 0v.1a1.7 1.7 0 001 1.6h.1a1.7 1.7 0 001.9-.3l.1-.1A2 2 0 0119.8 7l-.1.1a1.7 1.7 0 00-.3 1.9v.1a1.7 1.7 0 001.6 1h.1a2 2 0 010 4H21a1.7 1.7 0 00-1.6.9z",
   sun: "M12 4V2m0 20v-2m8-8h2M2 12h2m13.7-5.7l1.4-1.4M4.9 19.1l1.4-1.4m0-11.4L4.9 4.9m14.2 14.2l-1.4-1.4M12 16a4 4 0 100-8 4 4 0 000 8z",
   moon: "M21 14.5A8.5 8.5 0 119.5 3a7 7 0 0011.5 11.5z",
   card: "M3 6h18v12H3V6zm0 4h18M7 15h4",
   arrow: "M5 12h14m-6-6l6 6-6 6",
   arrowLeft: "M19 12H5m6-6l-6 6 6 6",
   check: "M20 6L9 17l-5-5",
+  lock: "M7 11V8a5 5 0 0110 0v3M6 11h12v10H6V11zm6 4.5V17m-2-6V8a2 2 0 114 0v3",
+  eye: "M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6zm10 3a3 3 0 100-6 3 3 0 000 6z",
+  eyeOff: "M3 3l18 18M9.9 4.6A10.7 10.7 0 0112 4c6.5 0 10 8 10 8a17.8 17.8 0 01-3.2 4.2M6.6 6.6C3.5 8.7 2 12 2 12s3.5 8 10 8a10.7 10.7 0 004.2-.9M9.9 9.9A3 3 0 0114.1 14.1",
   menu: "M4 7h16M4 12h16M4 17h16",
   close: "M6 6l12 12M18 6L6 18",
 };
@@ -87,7 +117,7 @@ const I18N = {
     public: {
       eyebrow: "Global AI resume platform",
       heroTitle: "Create a professional resume in minutes with AI.",
-      heroSubtitle: "Build, improve, translate and tailor your resume for any job application.",
+      heroSubtitle: "Build, improve, translate and tailor your resume for each job application with modern templates and smart tools.",
       primaryCta: "Create My Resume",
       secondaryCta: "View Templates",
       trust: ["ATS-friendly", "Multilingual ready", "PDF export"],
@@ -348,7 +378,7 @@ const I18N = {
       upgrade: "Upgrade",
       nav: { dashboard: "Home", resumes: "My Resumes", builder: "Resume Builder", coverLetters: "Cover Letters", templates: "Templates", ai: "AI Assistant", settings: "Settings", billing: "Pricing" },
       home: {
-        title: "Welcome to Succeedora",
+        title: "Welcome to your global career workspace",
         text: "Keep building more professional, job-ready resumes.",
         createResume: "Create new resume",
         improveAi: "Open AI",
@@ -550,10 +580,10 @@ const I18N = {
     public: {
       eyebrow: "PLATAFORMA GLOBAL DE CURRÍCULOS COM IA",
       heroTitle: "Crie um currículo profissional em minutos com IA.",
-      heroSubtitle: "Crie, melhore, traduza e adapte seu currículo para cada candidatura.",
+      heroSubtitle: "Monte, melhore, traduza e adapte seu currículo para cada vaga com modelos modernos e ferramentas inteligentes.",
       primaryCta: "Criar meu currículo",
       secondaryCta: "Ver modelos",
-      trust: ["Compatível com ATS", "Pronto para vários idiomas", "Exportação em PDF"],
+      trust: ["Compatível com ATS", "Pronto para vários idiomas", "Currículo em PDF"],
       heroValues: [
         ["file", "Currículo profissional em minutos", "Monte uma versão pronta para candidatura rapidamente."],
         ["shield", "Compatível com ATS", "Modelos limpos pensados para sistemas de recrutamento."],
@@ -775,7 +805,7 @@ const I18N = {
       upgrade: "Fazer upgrade",
       nav: { dashboard: "Início", resumes: "Meus Currículos", builder: "Criar Currículo", coverLetters: "Cartas de Apresentação", templates: "Modelos", ai: "Assistente IA", settings: "Configurações", billing: "Preços" },
       home: {
-        title: "Bem-vindo à Succeedora",
+        title: "Bem-vindo ao seu workspace global",
         text: "Continue criando currículos mais profissionais e prontos para candidatura.",
         createResume: "Criar novo currículo",
         improveAi: "Abrir IA",
@@ -988,6 +1018,8 @@ Object.assign(I18N.en.auth, {
   fullName: "Name",
   signInButton: "Sign in",
   signUpButton: "Create account",
+  showPassword: "Show password",
+  hidePassword: "Hide password",
   sendingCode: "Preparing instructions...",
   forgotPassword: "Forgot password",
   createAccount: "Create account",
@@ -999,6 +1031,7 @@ Object.assign(I18N.en.auth.errors, {
   duplicate: "This email is already registered.",
   login: "Email or password is incorrect.",
   password: "Use at least 8 characters.",
+  legal: "You need to accept the Terms of Use and Privacy Policy to continue.",
 });
 Object.assign(I18N.en.dashboard.nav, { profile: "Profile" });
 Object.assign(I18N.en.dashboard, {
@@ -1047,12 +1080,20 @@ Object.assign(I18N.en, {
     method: "Method",
     date: "Date",
     pixKey: "Pix key",
+    orderId: "Order ID",
+    pixPayload: "Pix code",
+    confirmedAt: "Confirmed by user",
+    approvedAt: "Approved at",
+    rejectedAt: "Rejected at",
+    approvedBy: "Approved by",
+    rejectedBy: "Rejected by",
+    rejectionReason: "Rejection reason",
     pixCopyPaste: "Pix copy and paste",
-    copyCode: "Copy Pix code",
+    copyCode: "Copy code",
     codeCopied: "Code copied",
     completed: "I have completed the payment",
     cancel: "Cancel",
-    warning: "After payment, access may not be immediate because confirmation will be reviewed manually.",
+    warning: "After payment, access may not be immediate. Confirmation will be manually reviewed by the Succeedora team.",
     waitingPayment: "Waiting for payment",
     waitingConfirmation: "Waiting for confirmation",
     approved: "Approved",
@@ -1061,6 +1102,7 @@ Object.assign(I18N.en, {
     confirmedMessage: "We received your confirmation. The payment will be manually reviewed before the feature is unlocked.",
     historyTitle: "Payments",
     historyEmpty: "No Pix payment requests yet.",
+    viewDetails: "View details",
     manualBadge: "Manual confirmation",
     pixOnly: "Pix is available only for one-time purchases.",
   },
@@ -1094,6 +1136,8 @@ Object.assign(I18N.pt.auth, {
   signUpSubtitle: "Comece a criar curr\u00edculos profissionais em poucos minutos.",
   fullName: "Nome",
   createAccount: "Criar conta",
+  showPassword: "Mostrar senha",
+  hidePassword: "Esconder senha",
   resetSubtitle: "Digite seu e-mail para receber as instru\u00e7\u00f5es de recupera\u00e7\u00e3o.",
   sendCode: "Enviar instru\u00e7\u00f5es",
   sendingCode: "Preparando instru\u00e7\u00f5es...",
@@ -1103,6 +1147,7 @@ Object.assign(I18N.pt.auth.errors, {
   duplicate: "Este e-mail j\u00e1 est\u00e1 cadastrado.",
   login: "E-mail ou senha incorretos.",
   password: "Use pelo menos 8 caracteres.",
+  legal: "Voc\u00ea precisa aceitar os Termos de Uso e a Pol\u00edtica de Privacidade para continuar.",
 });
 Object.assign(I18N.pt.dashboard.nav, { profile: "Perfil" });
 Object.assign(I18N.pt.dashboard, {
@@ -1151,23 +1196,77 @@ Object.assign(I18N.pt, {
     method: "Método",
     date: "Data",
     pixKey: "Chave Pix",
+    orderId: "ID do pedido",
+    pixPayload: "Código Pix",
+    confirmedAt: "Confirmado pelo usuário",
+    approvedAt: "Aprovado em",
+    rejectedAt: "Recusado em",
+    approvedBy: "Aprovado por",
+    rejectedBy: "Recusado por",
+    rejectionReason: "Motivo da recusa",
     pixCopyPaste: "Pix Copia e Cola",
-    copyCode: "Copiar código Pix",
+    copyCode: "Copiar código",
     codeCopied: "Código copiado",
     completed: "Já realizei o pagamento",
     cancel: "Cancelar",
-    warning: "Após o pagamento, a liberação pode não ser imediata, pois a confirmação será feita manualmente.",
+    warning: "Após o pagamento, a liberação pode não ser imediata. A confirmação será feita manualmente pela equipe da Succeedora.",
     waitingPayment: "Aguardando pagamento",
     waitingConfirmation: "Aguardando confirmação",
     approved: "Aprovado",
     rejected: "Recusado",
     cancelled: "Cancelado",
-    confirmedMessage: "Recebemos sua confirmação. O pagamento será verificado manualmente antes da liberação do recurso.",
+    confirmedMessage: "Recebemos sua confirmação. O pagamento será analisado manualmente antes da liberação do recurso.",
     historyTitle: "Pagamentos",
     historyEmpty: "Nenhum pedido Pix criado ainda.",
+    viewDetails: "Ver detalhes",
     manualBadge: "Confirmação manual",
     pixOnly: "Pix está disponível apenas para compras avulsas.",
   },
+});
+
+Object.assign(I18N.en.payments, {
+  payWithCard: "Pay with card",
+  subscribeWithCard: "Subscribe with card",
+  secureStripe: "Secure payment via Stripe",
+  cardInstallmentsNote: "Installments are available by card when enabled by the payment provider.",
+  manageSubscription: "Manage subscription",
+  stripeTestMode: "Stripe test mode",
+  stripeTestNotice: "No real charge will be made in test mode.",
+  redirectingStripe: "Opening secure Stripe Checkout...",
+  stripeUnavailable: "Card payment is not available yet. Check Stripe environment variables and backend storage.",
+  cardMethod: "Card via Stripe",
+  receipt: "Receipt",
+  subscription: "Subscription",
+  historyEmpty: "No payment requests yet.",
+  successTitle: "Payment received",
+  successText: "Payment received. We are updating your access.",
+  cancelTitle: "Payment canceled",
+  cancelText: "Payment canceled. No charge was completed.",
+  paid: "Paid",
+  failed: "Failed",
+  refunded: "Refunded",
+});
+Object.assign(I18N.pt.payments, {
+  payWithCard: "Pagar com cartão",
+  subscribeWithCard: "Assinar com cartão",
+  secureStripe: "Pagamento seguro via Stripe",
+  cardInstallmentsNote: "Parcelamento disponível no cartão quando habilitado pelo provedor de pagamento.",
+  manageSubscription: "Gerenciar assinatura",
+  stripeTestMode: "Stripe em modo teste",
+  stripeTestNotice: "Nenhuma cobrança real será feita em ambiente de teste.",
+  redirectingStripe: "Abrindo Checkout seguro da Stripe...",
+  stripeUnavailable: "Pagamento com cartão ainda não está disponível. Verifique variáveis da Stripe e armazenamento backend.",
+  cardMethod: "Cartão via Stripe",
+  receipt: "Recibo",
+  subscription: "Assinatura",
+  historyEmpty: "Nenhum pagamento criado ainda.",
+  successTitle: "Pagamento recebido",
+  successText: "Pagamento recebido. Estamos atualizando seu acesso.",
+  cancelTitle: "Pagamento cancelado",
+  cancelText: "Pagamento cancelado. Nenhuma cobrança foi concluída.",
+  paid: "Pago",
+  failed: "Falhou",
+  refunded: "Reembolsado",
 });
 
 function upsertSection(sections, title, body, afterTitle = "") {
@@ -1196,7 +1295,7 @@ replaceSection(
   I18N.en.legal.terms,
   "One-time payments",
   "One-time payments",
-  "One-time payments may unlock specific features, such as watermark removal, premium PDF, premium templates, AI credits, career packs or online resume links. One-time payments unlock specific features without automatically turning the user into a subscriber. Pix payments will be accepted only for one-time purchases. Pix will not be used for recurring subscriptions or installment payments. In the initial manual Pix phase, Succeedora may show a Pix QR Code using the company CNPJ as the Pix key, and access will only be released after manual review and approval."
+  "One-time payments may unlock specific features, such as watermark removal, premium PDF, premium templates, AI credits, career packs or online resume links. One-time payments unlock specific features without automatically turning the user into a subscriber. Pix payments will be accepted only for one-time purchases. Pix will not be used for recurring subscriptions or installment payments. In the initial manual Pix phase, Succeedora may show a Pix QR Code using the company CNPJ 60.099.692/0001-07 as the Pix key, and access will only be released after manual review and approval."
 );
 upsertSection(
   I18N.en.legal.terms,
@@ -1220,7 +1319,7 @@ replaceSection(
   I18N.en.legal.privacy,
   "Pix payments",
   "Pix payments",
-  "For Pix payments, we may process information necessary to identify and confirm the payment, such as name, email, amount, date, Pix key, Pix payload, submitted receipt if requested, confirmation status and requested feature. Pix will be used only for one-time payments. In early stages, Pix confirmation may be manual before any feature is unlocked."
+  "For Pix payments, we may process information necessary to identify and confirm the payment, such as name, email, amount, date, CNPJ Pix key, Pix payload, submitted receipt if requested, confirmation status and requested feature. Pix will be used only for one-time payments. In early stages, Pix confirmation may be manual before any feature is unlocked."
 );
 replaceSection(
   I18N.en.legal.privacy,
@@ -1239,7 +1338,7 @@ replaceSection(
   I18N.pt.legal.terms,
   "Pagamentos \u00fanicos",
   "Pagamentos \u00fanicos",
-  "Pagamentos \u00fanicos podem liberar recursos espec\u00edficos, como remo\u00e7\u00e3o de marca d'\u00e1gua, PDF premium, modelos premium, cr\u00e9ditos de IA, pacotes de carreira ou link de curr\u00edculo online. Pagamentos \u00fanicos liberam recursos espec\u00edficos sem transformar automaticamente o usu\u00e1rio em assinante. Pagamentos via Pix ser\u00e3o aceitos apenas para compras avulsas e pagamentos \u00fanicos. Pix n\u00e3o ser\u00e1 usado para assinaturas recorrentes ou pagamentos parcelados. Na fase inicial de Pix manual, a Succeedora poder\u00e1 exibir QR Code Pix usando o CNPJ da empresa como chave Pix, e o acesso s\u00f3 ser\u00e1 liberado ap\u00f3s an\u00e1lise e aprova\u00e7\u00e3o manual."
+  "Pagamentos \u00fanicos podem liberar recursos espec\u00edficos, como remo\u00e7\u00e3o de marca d'\u00e1gua, PDF premium, modelos premium, cr\u00e9ditos de IA, pacotes de carreira ou link de curr\u00edculo online. Pagamentos \u00fanicos liberam recursos espec\u00edficos sem transformar automaticamente o usu\u00e1rio em assinante. Pagamentos via Pix ser\u00e3o aceitos apenas para compras avulsas e pagamentos \u00fanicos. Pix n\u00e3o ser\u00e1 usado para assinaturas recorrentes ou pagamentos parcelados. Na fase inicial de Pix manual, a Succeedora poder\u00e1 exibir QR Code Pix usando o CNPJ 60.099.692/0001-07 como chave Pix, e o acesso s\u00f3 ser\u00e1 liberado ap\u00f3s an\u00e1lise e aprova\u00e7\u00e3o manual."
 );
 upsertSection(
   I18N.pt.legal.terms,
@@ -1263,7 +1362,7 @@ replaceSection(
   I18N.pt.legal.privacy,
   "Pagamentos via Pix",
   "Pagamentos via Pix",
-  "Para pagamentos via Pix, poderemos tratar informa\u00e7\u00f5es necess\u00e1rias para identifica\u00e7\u00e3o e confirma\u00e7\u00e3o do pagamento, como nome, e-mail, valor, data, chave Pix, payload Pix, comprovante enviado se solicitado, status de confirma\u00e7\u00e3o e recurso solicitado. Pix ser\u00e1 usado apenas para pagamentos \u00fanicos. Em fases iniciais, a confirma\u00e7\u00e3o de Pix poder\u00e1 ser manual antes da libera\u00e7\u00e3o de qualquer recurso."
+  "Para pagamentos via Pix, poderemos tratar informa\u00e7\u00f5es necess\u00e1rias para identifica\u00e7\u00e3o e confirma\u00e7\u00e3o do pagamento, como nome, e-mail, valor, data, chave Pix CNPJ, payload Pix, comprovante enviado se solicitado, status de confirma\u00e7\u00e3o e recurso solicitado. Pix ser\u00e1 usado apenas para pagamentos \u00fanicos. Em fases iniciais, a confirma\u00e7\u00e3o de Pix poder\u00e1 ser manual antes da libera\u00e7\u00e3o de qualquer recurso."
 );
 replaceSection(
   I18N.pt.legal.privacy,
@@ -1281,11 +1380,11 @@ Object.assign(I18N.pt.dashboard.access, {
 
 Object.assign(I18N.en.pricing, {
   plannedPaymentMethodsTitle: "Payment methods",
-  plannedPaymentMethodsStatus: "Payments coming soon",
-  plannedPaymentMethodsText: "Payment setup is prepared visually, but real Pix and Stripe connections are not active yet.",
+  plannedPaymentMethodsStatus: "Payments",
+  plannedPaymentMethodsText: "Planned options for purchases and subscriptions when payments are activated.",
   paymentMethods: [
-    ["Pix", "Fast Pix payment. Ideal for manual releases, one-time payments or plans unlocked after confirmation."],
-    ["Card via Stripe", "Card payment via Stripe. Ideal for subscriptions, international payments and recurring billing when activated."],
+    ["Pix", "For one-time purchases with manual confirmation."],
+    ["Card via Stripe", "For subscriptions and international payments."],
   ],
   oneTimePaymentsTitle: "One-time payments",
   oneTimePaymentsText: "One-time payments unlock specific features without automatically turning the user into a subscriber.",
@@ -1309,11 +1408,11 @@ Object.assign(I18N.en.pricing, {
 
 Object.assign(I18N.pt.pricing, {
   plannedPaymentMethodsTitle: "M\u00e9todos de pagamento",
-  plannedPaymentMethodsStatus: "Pagamentos em breve",
-  plannedPaymentMethodsText: "A estrutura visual est\u00e1 preparada, mas Pix real e Stripe real ainda n\u00e3o est\u00e3o conectados.",
+  plannedPaymentMethodsStatus: "Pagamentos",
+  plannedPaymentMethodsText: "Op\u00e7\u00f5es previstas para compras e assinaturas quando os pagamentos forem ativados.",
   paymentMethods: [
-    ["Pix", "Pagamento r\u00e1pido via Pix. Ideal para libera\u00e7\u00f5es manuais, pagamentos \u00fanicos ou planos liberados ap\u00f3s confirma\u00e7\u00e3o."],
-    ["Cart\u00e3o via Stripe", "Pagamento por cart\u00e3o via Stripe. Ideal para assinaturas, pagamentos internacionais e cobran\u00e7a recorrente quando ativado."],
+    ["Pix", "Para compras avulsas com confirma\u00e7\u00e3o manual."],
+    ["Cart\u00e3o via Stripe", "Para assinaturas e pagamentos internacionais."],
   ],
   oneTimePaymentsTitle: "Pagamentos \u00fanicos",
   oneTimePaymentsText: "Pagamentos \u00fanicos liberam recursos espec\u00edficos sem transformar automaticamente o usu\u00e1rio em assinante.",
@@ -1351,24 +1450,24 @@ Object.assign(I18N.pt.settings, {
   mockPasswordMessage: "Recupera\u00e7\u00e3o de senha preparada. Configure o envio de e-mails para ativar em produ\u00e7\u00e3o.",
 });
 
-Object.assign(I18N.en.dashboard.nav, { admin: "Admin" });
-Object.assign(I18N.pt.dashboard.nav, { admin: "Admin" });
+Object.assign(I18N.en.dashboard.nav, { support: "Support", admin: "Admin" });
+Object.assign(I18N.pt.dashboard.nav, { support: "Suporte", admin: "Admin" });
 
 Object.assign(I18N.en, {
   admin: {
     title: "Admin",
     restricted: "Restricted access.",
     primaryAdmin: "Primary admin email",
-    sections: { overview: "Overview", users: "Users", payments: "Payments", pendingPix: "Pending Pix", plans: "Plans", purchases: "One-time purchases", credits: "AI Credits", settings: "Settings" },
-    metrics: { users: "Registered users", pending: "Pending payments", approved: "Approved payments", pro: "Pro plans", premium: "Premium plans", purchases: "One-time purchases", creditsSold: "AI credits sold" },
-    table: { name: "Name", email: "Email", plan: "Current plan", createdAt: "Created at", emailVerified: "Email confirmed", resumes: "Resumes", letters: "Letters", status: "Account status", actions: "Actions", id: "Order ID", user: "User", product: "Product", amount: "Amount", currency: "Currency", method: "Payment method", date: "Date", pixKey: "Pix key", unlocked: "Feature unlocked" },
-    actions: { view: "View", changePlan: "Change plan", addCredits: "Add credits", removeCredits: "Remove credits", block: "Block user", unblock: "Unblock user", approve: "Approve", reject: "Reject", details: "View details", save: "Save", cancel: "Cancel" },
-    filters: { search: "Search by name, email or product", status: "Filter by status", all: "All statuses" },
-    status: { active: "Active", blocked: "Blocked", yes: "Yes", no: "No", pending_payment: "Waiting for payment", pending_manual_confirmation: "Waiting for confirmation", approved: "Approved", rejected: "Rejected", cancelled: "Cancelled", pix: "Pix", stripe: "Card via Stripe" },
-    messages: { planUpdated: "Plan updated successfully.", paymentApproved: "Payment approved and feature unlocked.", paymentRejected: "Payment rejected.", creditsAdded: "Credits added.", creditsRemoved: "Credits removed.", userBlocked: "User blocked.", userUnblocked: "User unblocked." },
-    fields: { quantity: "Quantity", reason: "Reason", newPlan: "New plan" },
+    sections: { overview: "Overview", users: "Users", payments: "Payments", pendingPix: "Pending Pix", plans: "Plans", purchases: "One-time purchases", credits: "AI Credits", support: "Support", settings: "Settings" },
+    metrics: { users: "Registered users", free: "Free users", pending: "Pending payments", pendingPix: "Pix waiting confirmation", openSupport: "Open support tickets", approved: "Approved payments", pro: "Pro users", premium: "Premium users", purchases: "One-time purchases", creditsSold: "AI credits distributed" },
+    table: { name: "Name", email: "Email", plan: "Effective plan", subscriptionStatus: "Subscription status", planExpiresAt: "Plan validity", createdAt: "Created at", emailVerified: "Email confirmed", resumes: "Resumes", letters: "Letters", aiCredits: "AI credits", status: "Account status", actions: "Actions", id: "Order ID", user: "User", product: "Product", amount: "Amount", currency: "Currency", method: "Payment method", date: "Date", pixKey: "Pix key", unlocked: "Feature unlocked", admin: "Admin", action: "Action", oldValue: "Old value", newValue: "New value" },
+    actions: { view: "View", reply: "Reply", markInProgress: "Mark in progress", close: "Close", sendReply: "Send reply", changePlan: "Change plan", addCredits: "Add credits", removeCredits: "Remove credits", block: "Block user", unblock: "Unblock user", approve: "Approve", reject: "Reject", details: "View details", save: "Save", cancel: "Cancel" },
+    filters: { search: "Search by name, email or product", searchTickets: "Search tickets...", status: "Filter by status", category: "Filter by category", priority: "Filter by priority", all: "All statuses", allCategories: "All categories", allPriorities: "All priorities" },
+    status: { active: "Active", expired: "Expired", noExpiration: "No expiration", blocked: "Blocked", yes: "Yes", no: "No", open: "Open", in_progress: "In progress", answered: "Answered", closed: "Closed", pending_payment: "Waiting for payment", pending_manual_confirmation: "Waiting for confirmation", approved: "Approved", paid: "Paid", pending: "Pending", failed: "Failed", refunded: "Refunded", rejected: "Rejected", cancelled: "Cancelled", pix: "Pix", stripe: "Card via Stripe" },
+    messages: { planUpdated: "Plan updated successfully.", paymentApproved: "Payment approved and feature unlocked.", paymentRejected: "Payment rejected.", creditsAdded: "Credits added.", creditsRemoved: "Credits removed.", userBlocked: "User blocked.", userUnblocked: "User unblocked.", replySent: "Reply sent successfully.", ticketClosed: "Ticket closed." },
+    fields: { quantity: "Quantity", reason: "Reason", newPlan: "New plan", duration: "Duration", customDate: "Custom date" },
     rejectReasons: ["Payment not found", "Incorrect amount", "Invalid receipt", "Duplicate request", "Other reason"],
-    details: { profile: "User details", savedResumes: "Saved resumes", savedLetters: "Saved cover letters", payments: "Payments", purchases: "One-time purchases", credits: "AI Credits", noData: "No records yet." },
+    details: { profile: "User details", savedResumes: "Saved resumes", savedLetters: "Saved cover letters", payments: "Payments", purchases: "One-time purchases", credits: "AI Credits", creditHistory: "Credit history", auditLog: "Audit log", noData: "No records yet." },
     settings: { cnpj: "Pix CNPJ", pixKey: "Pix key", pixKeyType: "Pix key type", pixManual: "Pix status", stripe: "Stripe status", manual: "Manual for now", disabled: "Disabled for now" },
   },
 });
@@ -1378,17 +1477,137 @@ Object.assign(I18N.pt, {
     title: "Admin",
     restricted: "Acesso restrito.",
     primaryAdmin: "E-mail admin principal",
-    sections: { overview: "Vis\u00e3o geral", users: "Usu\u00e1rios", payments: "Pagamentos", pendingPix: "Pix pendentes", plans: "Planos", purchases: "Compras avulsas", credits: "Cr\u00e9ditos de IA", settings: "Configura\u00e7\u00f5es" },
-    metrics: { users: "Usu\u00e1rios cadastrados", pending: "Pagamentos pendentes", approved: "Pagamentos aprovados", pro: "Planos Pro", premium: "Planos Premium", purchases: "Compras avulsas", creditsSold: "Cr\u00e9ditos de IA vendidos" },
-    table: { name: "Nome", email: "E-mail", plan: "Plano atual", createdAt: "Cadastro", emailVerified: "E-mail confirmado", resumes: "Curr\u00edculos", letters: "Cartas", status: "Status da conta", actions: "A\u00e7\u00f5es", id: "ID do pedido", user: "Usu\u00e1rio", product: "Produto", amount: "Valor", currency: "Moeda", method: "M\u00e9todo de pagamento", date: "Data", pixKey: "Chave Pix", unlocked: "Recurso liberado" },
-    actions: { view: "Ver", changePlan: "Alterar plano", addCredits: "Adicionar cr\u00e9ditos", removeCredits: "Remover cr\u00e9ditos", block: "Bloquear usu\u00e1rio", unblock: "Desbloquear usu\u00e1rio", approve: "Aprovar", reject: "Recusar", details: "Ver detalhes", save: "Salvar", cancel: "Cancelar" },
-    filters: { search: "Buscar por nome, e-mail ou produto", status: "Filtrar por status", all: "Todos os status" },
-    status: { active: "Ativo", blocked: "Bloqueado", yes: "Sim", no: "N\u00e3o", pending_payment: "Aguardando pagamento", pending_manual_confirmation: "Aguardando confirma\u00e7\u00e3o", approved: "Aprovado", rejected: "Recusado", cancelled: "Cancelado", pix: "Pix", stripe: "Cart\u00e3o via Stripe" },
-    messages: { planUpdated: "Plano alterado com sucesso.", paymentApproved: "Pagamento aprovado e recurso liberado.", paymentRejected: "Pagamento recusado.", creditsAdded: "Cr\u00e9ditos adicionados.", creditsRemoved: "Cr\u00e9ditos removidos.", userBlocked: "Usu\u00e1rio bloqueado.", userUnblocked: "Usu\u00e1rio desbloqueado." },
-    fields: { quantity: "Quantidade", reason: "Motivo", newPlan: "Novo plano" },
+    sections: { overview: "Vis\u00e3o geral", users: "Usu\u00e1rios", payments: "Pagamentos", pendingPix: "Pix pendentes", plans: "Planos", purchases: "Compras avulsas", credits: "Cr\u00e9ditos de IA", support: "Suporte", settings: "Configura\u00e7\u00f5es" },
+    metrics: { users: "Usu\u00e1rios cadastrados", free: "Usu\u00e1rios Free", pending: "Pagamentos pendentes", pendingPix: "Pix aguardando confirma\u00e7\u00e3o", openSupport: "Tickets de suporte abertos", approved: "Pagamentos aprovados", pro: "Usu\u00e1rios Pro", premium: "Usu\u00e1rios Premium", purchases: "Compras avulsas", creditsSold: "Cr\u00e9ditos de IA distribu\u00eddos" },
+    table: { name: "Nome", email: "E-mail", plan: "Plano efetivo", subscriptionStatus: "Status da assinatura", planExpiresAt: "Validade do plano", createdAt: "Cadastro", emailVerified: "E-mail confirmado", resumes: "Curr\u00edculos", letters: "Cartas", aiCredits: "Cr\u00e9ditos de IA", status: "Status da conta", actions: "A\u00e7\u00f5es", id: "ID do pedido", user: "Usu\u00e1rio", product: "Produto", amount: "Valor", currency: "Moeda", method: "M\u00e9todo de pagamento", date: "Data", pixKey: "Chave Pix", unlocked: "Recurso liberado", admin: "Admin", action: "A\u00e7\u00e3o", oldValue: "Valor antigo", newValue: "Valor novo" },
+    actions: { view: "Ver", reply: "Responder", markInProgress: "Marcar em andamento", close: "Fechar", sendReply: "Enviar resposta", changePlan: "Alterar plano", addCredits: "Adicionar cr\u00e9ditos", removeCredits: "Remover cr\u00e9ditos", block: "Bloquear usu\u00e1rio", unblock: "Desbloquear usu\u00e1rio", approve: "Aprovar", reject: "Recusar", details: "Ver detalhes", save: "Salvar", cancel: "Cancelar" },
+    filters: { search: "Buscar por nome, e-mail ou produto", searchTickets: "Buscar tickets...", status: "Filtrar por status", category: "Filtrar por categoria", priority: "Filtrar por prioridade", all: "Todos os status", allCategories: "Todas as categorias", allPriorities: "Todas as prioridades" },
+    status: { active: "Ativo", expired: "Expirado", noExpiration: "Sem expira\u00e7\u00e3o", blocked: "Bloqueado", yes: "Sim", no: "N\u00e3o", open: "Aberto", in_progress: "Em andamento", answered: "Respondido", closed: "Fechado", pending_payment: "Aguardando pagamento", pending_manual_confirmation: "Aguardando confirma\u00e7\u00e3o", approved: "Aprovado", paid: "Pago", pending: "Pendente", failed: "Falhou", refunded: "Reembolsado", rejected: "Recusado", cancelled: "Cancelado", pix: "Pix", stripe: "Cart\u00e3o via Stripe" },
+    messages: { planUpdated: "Plano atualizado com sucesso.", paymentApproved: "Pagamento aprovado e recurso liberado.", paymentRejected: "Pagamento recusado.", creditsAdded: "Cr\u00e9ditos adicionados.", creditsRemoved: "Cr\u00e9ditos removidos.", userBlocked: "Usu\u00e1rio bloqueado.", userUnblocked: "Usu\u00e1rio desbloqueado.", replySent: "Resposta enviada com sucesso.", ticketClosed: "Ticket fechado." },
+    fields: { quantity: "Quantidade", reason: "Motivo", newPlan: "Novo plano", duration: "Duração", customDate: "Data personalizada" },
     rejectReasons: ["Pagamento n\u00e3o encontrado", "Valor incorreto", "Comprovante inv\u00e1lido", "Pedido duplicado", "Outro motivo"],
-    details: { profile: "Detalhes do usu\u00e1rio", savedResumes: "Curr\u00edculos salvos", savedLetters: "Cartas salvas", payments: "Pagamentos", purchases: "Compras avulsas", credits: "Cr\u00e9ditos de IA", noData: "Nenhum registro ainda." },
+    details: { profile: "Detalhes do usu\u00e1rio", savedResumes: "Curr\u00edculos salvos", savedLetters: "Cartas salvas", payments: "Pagamentos", purchases: "Compras avulsas", credits: "Cr\u00e9ditos de IA", creditHistory: "Hist\u00f3rico de cr\u00e9ditos", auditLog: "Hist\u00f3rico administrativo", noData: "Nenhum registro ainda." },
     settings: { cnpj: "CNPJ Pix", pixKey: "Chave Pix", pixKeyType: "Tipo da chave Pix", pixManual: "Status Pix", stripe: "Status Stripe", manual: "Manual por enquanto", disabled: "Desativado por enquanto" },
+  },
+});
+
+Object.assign(I18N.en, {
+  support: {
+    title: "Support",
+    heroEyebrow: "SUCCEEDORA SUPPORT",
+    heroTitle: "How can we help?",
+    intro: "Send a request, track progress and receive replies from the Succeedora team in one place.",
+    formTitle: "New support request",
+    formSubtitle: "Describe your issue clearly so we can help you as efficiently as possible.",
+    historyTitle: "Your requests",
+    historySubtitle: "Track your message history and replies from the team.",
+    send: "Send message",
+    sending: "Sending...",
+    success: "Message sent successfully. Our team will review your request.",
+    emptyTitle: "You haven\u2019t sent any requests yet.",
+    empty: "Once you send your first message, it will appear here with status updates and replies.",
+    emptyCta: "Create first request",
+    replyNotice: "You received a support reply.",
+    adminReply: "Support reply",
+    noReply: "No reply yet.",
+    you: "You",
+    team: "Succeedora Team",
+    lastUpdate: "Last update",
+    preview: "Latest message",
+    responseWindow: "Average response: up to 24h",
+    secureChannel: "Secure channel",
+    centralizedHistory: "Centralized history",
+    organizedSupport: "Organized support",
+    fields: { subject: "Subject", category: "Category", priority: "Priority", message: "Message" },
+    fieldHints: { subject: "Short summary of the issue", category: "Choose the related area", priority: "Select urgency", message: "Share as much useful detail as possible" },
+    categories: { account: "Account", resume: "Resumes", cover_letter: "Cover Letters", payment: "Payments", plans: "Plans", ai: "AI", pdf_export: "PDF & Export", technical_issue: "Technical Issue", website_issue: "Technical Issue", suggestion: "Suggestion", other: "Other" },
+    priorities: { low: "Low", medium: "Medium", high: "High" },
+    status: { open: "Open", in_progress: "In review", answered: "Replied", closed: "Resolved" },
+    placeholders: { subject: "Briefly describe what you need", message: "Share the details so we can understand the request." },
+    metrics: { open: "Open requests", lastReply: "Last reply", responseTime: "Response time", supportStatus: "Support status", none: "No activity yet", noReply: "No reply yet", upTo24h: "Up to 24h", available: "Available" },
+    helpTitle: "Quick help",
+    helpSubtitle: "Find the right path faster before sending a request.",
+    helpCards: [
+      ["file", "Account access", "Login, profile and account settings."],
+      ["payment", "Payments", "Purchases, plans and manual confirmations."],
+      ["resume", "Resumes and PDF", "Builder, templates, PDF and export issues."],
+      ["mail", "Cover Letters", "Questions about saved letters and generation."],
+      ["shield", "Plans and upgrades", "Limits, premium access and unlocked features."],
+      ["sparkles", "AI and technical support", "AI tools, site behavior and technical issues."],
+    ],
+    admin: {
+      intro: "View, prioritize and answer support tickets sent by users.",
+      searchPlaceholder: "Search tickets...",
+      userDetails: "User details",
+      ticketDetails: "Ticket details",
+      history: "Basic history",
+      replyLabel: "Support reply",
+      noTickets: "No support tickets yet.",
+      created: "Ticket created",
+      progressed: "Marked in progress",
+      answered: "Support replied",
+      closed: "Ticket closed",
+    },
+  },
+});
+
+Object.assign(I18N.pt, {
+  support: {
+    title: "Suporte",
+    heroEyebrow: "SUPORTE SUCCEEDORA",
+    heroTitle: "Como podemos ajudar?",
+    intro: "Envie uma solicitação, acompanhe o andamento e receba respostas da equipe da Succeedora em um só lugar.",
+    formTitle: "Nova solicitação de suporte",
+    formSubtitle: "Descreva sua dúvida ou problema com clareza para que possamos ajudar da melhor forma possível.",
+    historyTitle: "Suas solicitações",
+    historySubtitle: "Acompanhe o histórico das suas mensagens e as respostas da equipe.",
+    send: "Enviar mensagem",
+    sending: "Enviando...",
+    success: "Mensagem enviada com sucesso. Nossa equipe analisará sua solicitação.",
+    emptyTitle: "Você ainda não enviou nenhuma solicitação.",
+    empty: "Quando enviar sua primeira mensagem, ela aparecerá aqui com status e atualizações.",
+    emptyCta: "Criar primeira solicitação",
+    replyNotice: "Você recebeu uma resposta do suporte.",
+    adminReply: "Resposta do suporte",
+    noReply: "Ainda sem resposta.",
+    you: "Você",
+    team: "Equipe Succeedora",
+    lastUpdate: "Última atualização",
+    preview: "Última mensagem",
+    responseWindow: "Resposta média: até 24h",
+    secureChannel: "Canal seguro",
+    centralizedHistory: "Histórico centralizado",
+    organizedSupport: "Suporte organizado",
+    fields: { subject: "Assunto", category: "Categoria", priority: "Prioridade", message: "Mensagem" },
+    fieldHints: { subject: "Resumo curto do problema", category: "Escolha a área relacionada", priority: "Selecione a urgência", message: "Explique o máximo de detalhes possível" },
+    categories: { account: "Conta", resume: "Currículos", cover_letter: "Cartas de apresentação", payment: "Pagamentos", plans: "Planos", ai: "IA", pdf_export: "PDF e exportação", technical_issue: "Problema técnico", website_issue: "Problema técnico", suggestion: "Sugestão", other: "Outro" },
+    priorities: { low: "Baixa", medium: "Média", high: "Alta" },
+    status: { open: "Aberto", in_progress: "Em análise", answered: "Respondido", closed: "Resolvido" },
+    placeholders: { subject: "Descreva rapidamente o que você precisa", message: "Conte os detalhes para entendermos a solicitação." },
+    metrics: { open: "Solicitações abertas", lastReply: "Última resposta", responseTime: "Tempo de resposta", supportStatus: "Status do suporte", none: "Sem atividade ainda", noReply: "Sem resposta ainda", upTo24h: "Até 24h", available: "Disponível" },
+    helpTitle: "Ajuda rápida",
+    helpSubtitle: "Encontre o caminho certo mais rápido antes de enviar uma solicitação.",
+    helpCards: [
+      ["file", "Acesso à conta", "Login, perfil e configurações da conta."],
+      ["payment", "Pagamentos", "Compras, planos e confirmações manuais."],
+      ["resume", "Currículos e PDF", "Criador, modelos, PDF e problemas de exportação."],
+      ["mail", "Cartas de apresentação", "Dúvidas sobre cartas salvas e geração."],
+      ["shield", "Planos e upgrade", "Limites, acesso premium e recursos liberados."],
+      ["sparkles", "IA e suporte técnico", "Ferramentas de IA, comportamento do site e problemas técnicos."],
+    ],
+    admin: {
+      intro: "Visualize, priorize e responda tickets de suporte enviados pelos usuários.",
+      searchPlaceholder: "Buscar tickets...",
+      userDetails: "Dados do usuário",
+      ticketDetails: "Detalhes do ticket",
+      history: "Histórico básico",
+      replyLabel: "Resposta do suporte",
+      noTickets: "Nenhum ticket de suporte ainda.",
+      created: "Ticket criado",
+      progressed: "Marcado em andamento",
+      answered: "Suporte respondeu",
+      closed: "Ticket fechado",
+    },
   },
 });
 
@@ -1401,6 +1620,8 @@ const routes = {
   "/privacy": renderPrivacyPage,
   "/contact": renderContactPage,
   "/cookies": renderCookiesPage,
+  "/payment/success": renderPaymentSuccess,
+  "/payment/cancel": renderPaymentCancel,
   "/templates": renderPublicTemplatesPage,
   "/blog": renderBlogPage,
   "/login": renderSignIn,
@@ -1418,6 +1639,7 @@ const routes = {
   "/admin/plans": renderAdminPlans,
   "/admin/purchases": renderAdminPurchases,
   "/admin/credits": renderAdminCredits,
+  "/admin/support": renderAdminSupport,
   "/admin/settings": renderAdminSettings,
   "/dashboard": renderDashboard,
   "/dashboard/resumes": renderResumes,
@@ -1425,6 +1647,7 @@ const routes = {
   "/dashboard/cover-letters": renderCoverLetters,
   "/dashboard/templates": renderTemplatesPage,
   "/dashboard/ai": renderAiAssistant,
+  "/dashboard/support": renderSupport,
   "/dashboard/profile": renderProfile,
   "/dashboard/settings": renderAccountSettings,
   "/dashboard/billing": renderBilling,
@@ -1437,6 +1660,7 @@ const PRIVATE_ROUTES = new Set([
   "/dashboard/cover-letters",
   "/dashboard/templates",
   "/dashboard/ai",
+  "/dashboard/support",
   "/dashboard/profile",
   "/dashboard/settings",
   "/dashboard/billing",
@@ -1449,6 +1673,7 @@ const PRIVATE_ROUTES = new Set([
   "/admin/plans",
   "/admin/purchases",
   "/admin/credits",
+  "/admin/support",
   "/admin/settings",
 ]);
 
@@ -1461,6 +1686,8 @@ const NOINDEX_ROUTES = new Set([
   "/verify-email",
   "/forgot-password",
   "/reset-password",
+  "/payment/success",
+  "/payment/cancel",
   ...PRIVATE_ROUTES,
 ]);
 
@@ -2052,7 +2279,7 @@ let currentLanguage = detectInitialLanguage();
 let brandMarkId = 0;
 let selectedTemplateKey = "modern";
 let selectedDocumentFormat = getInitialDocumentFormat();
-let sidebarCollapsed = false;
+let sidebarCollapsed = true;
 let sidebarManuallySet = false;
 let sidebarAutoCollapsedForBuilder = false;
 let sidebarStateBeforeBuilder = false;
@@ -2110,8 +2337,20 @@ function preferCollapsedSidebarForBuilder() {
 
 function restoreSidebarAfterBuilder(activeKey) {
   if (activeKey === "builder" || sidebarManuallySet || !sidebarAutoCollapsedForBuilder) return;
-  sidebarCollapsed = sidebarStateBeforeBuilder;
+  sidebarCollapsed = true;
   sidebarAutoCollapsedForBuilder = false;
+}
+
+function prepareCollapsedDashboardEntry() {
+  sidebarCollapsed = true;
+  sidebarManuallySet = false;
+  sidebarAutoCollapsedForBuilder = false;
+  sidebarStateBeforeBuilder = false;
+}
+
+function routeToDashboardEntry(route = "/dashboard") {
+  prepareCollapsedDashboardEntry();
+  setRoute(route);
 }
 
 function getStoredLanguage() {
@@ -2673,16 +2912,8 @@ function upsertCoverLetter(letter) {
 }
 
 function startNewCoverLetter() {
-  if (!isPaidPlan() && loadCoverLetters().length >= 1) {
-    const labels = coverLetterLabels();
-    openAccessModal({
-      title: labels.limitTitle,
-      text: labels.limitText,
-      actions: [
-        { label: labels.viewPlans, onClick: () => setRoute("/dashboard/billing") },
-        { label: labels.actions.cancel, className: "secondary-button" },
-      ],
-    });
+  if (!canUseFeature("cover_letters_unlimited") && loadCoverLetters().length >= 1) {
+    openFeatureLockModal("cover_letters_unlimited");
     return;
   }
   currentCoverLetterId = null;
@@ -3254,9 +3485,19 @@ function brandMark() {
   `;
 }
 
+function assetPath(path) {
+  const normalized = String(path || "").replace(/^\/+/, "");
+  if (window.location.protocol === "file:") {
+    const currentPath = (window.location.pathname || "").replace(/\\/g, "/");
+    const nestedLocalePage = /\/(?:pt|en)\/index\.html$/i.test(currentPath);
+    return `${nestedLocalePage ? "../" : "./"}${normalized}`;
+  }
+  return `/${normalized}`;
+}
+
 function brandLogo(tag = "a", href = "#/", route = "/") {
   const attrs = tag === "a" ? `href="${href}" data-route="${route}" aria-label="Succeedora home"` : "";
-  return `<${tag} class="brand" ${attrs}>${brandMark()}<span class="brand-word">Succeedora</span></${tag}>`;
+  return `<${tag} class="brand" ${attrs}><span class="brand-mark" aria-hidden="true"><img class="brand-logo-image" src="${assetPath("assets/brand/succeedora-logo-premium.png")}" alt="" decoding="async" /></span><span class="brand-word">Succeedora</span></${tag}>`;
 }
 
 function localizedRoot(language = currentLanguage) {
@@ -3326,7 +3567,7 @@ function setRoute(path) {
 }
 
 function getRoute() {
-  const hash = window.location.hash.replace("#", "");
+  const hash = window.location.hash.replace("#", "").split("?")[0];
   if (hash === "/blog" || hash.startsWith("/blog/")) return hash;
   if (routes[hash]) return hash;
   const cleanBlog = pathBlogRoute();
@@ -3461,31 +3702,148 @@ function validEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeEmail(email));
 }
 
+const PLAN_TYPES = ["free", "pro", "premium"];
+const PLAN_STATUSES = ["active", "expired", "cancelled", "manual", "trial"];
+const PLAN_SOURCES = ["admin", "stripe", "pix", "manual", "system"];
+
+function normalizePlanType(value) {
+  const text = typeof value === "object" ? value?.type : value;
+  return PLAN_TYPES.includes(String(text || "").toLowerCase()) ? String(text).toLowerCase() : "free";
+}
+
+function legacyPlanType(raw = {}) {
+  if (typeof raw === "string") return normalizePlanType(raw);
+  if (!raw || typeof raw !== "object") return "free";
+  if (raw.isPremium || raw.hasPremiumAccess || raw.premiumUnlocked || raw.allFeaturesUnlocked) return "premium";
+  if (raw.isPro || raw.hasPro || raw.proUnlocked) return "pro";
+  return normalizePlanType(raw.type || raw.plan || raw.currentPlan);
+}
+
+function normalizePlanState(raw = {}, fallbackType = "free") {
+  const now = isoNow();
+  const object = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
+  const type = normalizePlanType(object.type || legacyPlanType(raw) || fallbackType);
+  const status = PLAN_STATUSES.includes(object.status) ? object.status : "active";
+  const source = PLAN_SOURCES.includes(object.source) ? object.source : (type === "free" ? "system" : "manual");
+  return {
+    type,
+    status: type === "free" ? "active" : status,
+    startedAt: object.startedAt || object.planStartedAt || (type === "free" ? "" : now),
+    expiresAt: type === "free" ? null : (object.expiresAt || object.planExpiresAt || null),
+    updatedAt: object.updatedAt || object.manualPlanUpdatedAt || now,
+    source,
+    durationLabel: object.durationLabel || object.planDurationLabel || "",
+    stripeCustomerId: String(object.stripeCustomerId || ""),
+    stripeSubscriptionId: String(object.stripeSubscriptionId || ""),
+    currentPeriodEnd: object.currentPeriodEnd || object.expiresAt || object.planExpiresAt || null,
+  };
+}
+
+function planIsExpired(planState) {
+  const plan = normalizePlanState(planState);
+  if (plan.type === "free" || !plan.expiresAt) return false;
+  const expiresAt = Date.parse(plan.expiresAt);
+  return Number.isFinite(expiresAt) && expiresAt <= Date.now();
+}
+
+function planIsActive(planState) {
+  const plan = normalizePlanState(planState);
+  return plan.type !== "free" && ["active", "manual", "trial"].includes(plan.status) && !planIsExpired(plan);
+}
+
+function freePlanState(source = "system") {
+  return {
+    type: "free",
+    status: "active",
+    startedAt: "",
+    expiresAt: null,
+    updatedAt: isoNow(),
+    source,
+    durationLabel: "",
+  };
+}
+
+function getEffectivePlan(account = currentAccount(), options = {}) {
+  const access = options.access || null;
+  const accountPlan = normalizePlanState(account?.plan || account?.currentPlan || account?.planType || account?.legacyPlan || "free");
+  const accessPlan = normalizePlanState(access?.planState || access?.plan || "free");
+  const hasAccountPlan = Boolean(account && Object.prototype.hasOwnProperty.call(account, "plan"));
+  const sourcePlan = hasAccountPlan ? accountPlan : accessPlan;
+  const effective = planIsActive(sourcePlan) ? sourcePlan : freePlanState(planIsExpired(sourcePlan) ? "system" : sourcePlan.source || "system");
+  if (options.persist && account?.id) {
+    const normalizedAccountPlan = normalizePlanState(account.plan || account.planType || "free");
+    if (normalizedAccountPlan.type !== effective.type || normalizedAccountPlan.expiresAt !== effective.expiresAt || normalizedAccountPlan.status !== effective.status) {
+      updateAccount(account.id, (current) => ({ ...current, plan: effective, manualPlanUpdatedAt: effective.updatedAt, manualPlanUpdatedBy: effective.source }));
+    }
+  }
+  return effective;
+}
+
+function planDurationOptions() {
+  return [
+    ["none", currentLanguage === "pt" ? "Sem expiração" : "No expiration"],
+    ["7d", currentLanguage === "pt" ? "7 dias" : "7 days"],
+    ["30d", currentLanguage === "pt" ? "30 dias" : "30 days"],
+    ["90d", currentLanguage === "pt" ? "90 dias" : "90 days"],
+    ["1y", currentLanguage === "pt" ? "1 ano" : "1 year"],
+    ["custom", currentLanguage === "pt" ? "Data personalizada" : "Custom date"],
+  ];
+}
+
+function planExpiresAtForDuration(duration = "none", customDate = "") {
+  if (duration === "custom" && customDate) {
+    const custom = new Date(`${customDate}T23:59:59`);
+    return Number.isNaN(custom.getTime()) ? null : custom.toISOString();
+  }
+  const days = { "7d": 7, "30d": 30, "90d": 90, "1y": 365 }[duration];
+  if (!days) return null;
+  const expires = new Date();
+  expires.setDate(expires.getDate() + days);
+  return expires.toISOString();
+}
+
+function formatPlanExpiry(value) {
+  if (!value) return "";
+  try {
+    const date = new Date(value);
+    const formatted = new Intl.DateTimeFormat(currentLanguage === "pt" ? "pt-BR" : "en-US", { dateStyle: "medium" }).format(date);
+    return currentLanguage === "pt" ? `Válido até ${formatted}` : `Valid until ${formatted}`;
+  } catch (error) {
+    return "";
+  }
+}
+
 function loadAccounts() {
   try {
     const parsed = JSON.parse(localStorage.getItem(ACCOUNTS_STORAGE_KEY) || "[]");
-    return Array.isArray(parsed) ? parsed.map((account) => ({
-      id: String(account.id || `user_${Date.now()}`),
-      email: normalizeEmail(account.email),
-      password: String(account.password || ""),
-      plan: ["free", "pro", "premium"].includes(account.plan) ? account.plan : "free",
-      status: account.status === "blocked" ? "blocked" : "active",
-      emailVerified: account.emailVerified === false ? false : true,
-      verificationCode: String(account.verificationCode || ""),
-      verificationCodeExpiresAt: account.verificationCodeExpiresAt || "",
-      verificationCodeSentAt: account.verificationCodeSentAt || "",
-      createdAt: account.createdAt || isoNow(),
-      manualPlanUpdatedAt: account.manualPlanUpdatedAt || "",
-      manualPlanUpdatedBy: normalizeEmail(account.manualPlanUpdatedBy || ""),
-      profile: {
-        fullName: String(account.profile?.fullName || account.fullName || "").trim(),
-        email: normalizeEmail(account.profile?.email || account.email),
-        phone: String(account.profile?.phone || "").trim(),
-        location: String(account.profile?.location || "").trim(),
-        title: String(account.profile?.title || "").trim(),
-        preferredLanguage: account.profile?.preferredLanguage === "pt" ? "pt" : "en",
-      },
-    })).filter((account) => account.email) : [];
+    return Array.isArray(parsed) ? parsed.map((account) => {
+      const legacyType = legacyPlanType(account);
+      const hasStructuredPlan = account.plan && typeof account.plan === "object" && !Array.isArray(account.plan);
+      const planSource = hasStructuredPlan ? account.plan : (legacyType !== "free" ? legacyType : (account.plan || account.currentPlan || account.planType || "free"));
+      const plan = normalizePlanState(planSource);
+      return {
+        id: String(account.id || `user_${Date.now()}`),
+        email: normalizeEmail(account.email),
+        password: String(account.password || ""),
+        plan,
+        status: account.status === "blocked" ? "blocked" : "active",
+        emailVerified: account.emailVerified === false ? false : true,
+        verificationCode: String(account.verificationCode || ""),
+        verificationCodeExpiresAt: account.verificationCodeExpiresAt || "",
+        verificationCodeSentAt: account.verificationCodeSentAt || "",
+        createdAt: account.createdAt || isoNow(),
+        manualPlanUpdatedAt: account.manualPlanUpdatedAt || plan.updatedAt || "",
+        manualPlanUpdatedBy: normalizeEmail(account.manualPlanUpdatedBy || ""),
+        profile: {
+          fullName: String(account.profile?.fullName || account.fullName || "").trim(),
+          email: normalizeEmail(account.profile?.email || account.email),
+          phone: String(account.profile?.phone || "").trim(),
+          location: String(account.profile?.location || "").trim(),
+          title: String(account.profile?.title || "").trim(),
+          preferredLanguage: account.profile?.preferredLanguage === "pt" ? "pt" : "en",
+        },
+      };
+    }).filter((account) => account.email) : [];
   } catch (error) {
     return [];
   }
@@ -3511,7 +3869,7 @@ function findAccountById(id) {
 
 function currentSession() {
   try {
-    const parsed = JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY) || "{}");
+    const parsed = JSON.parse(sessionStorage.getItem(SESSION_STORAGE_KEY) || localStorage.getItem(SESSION_STORAGE_KEY) || "{}");
     if (!parsed || !parsed.userId) return null;
     const account = findAccountById(parsed.userId);
     return account ? { userId: account.id, email: account.email } : null;
@@ -3570,7 +3928,17 @@ function formatPaymentDate(value) {
 }
 
 function formattedPixKey() {
-  const key = paymentConfig.pixKey;
+  return formatPixKeyValue(paymentConfig.pixKey);
+}
+
+function pixPayloadKey(value = paymentConfig.pixKey, keyType = paymentConfig.pixKeyType) {
+  const key = String(value || "").trim();
+  return ["CPF", "CNPJ", "PHONE", "TELEFONE"].includes(String(keyType || "").toUpperCase()) ? key.replace(/\D/g, "") : key;
+}
+
+function formatPixKeyValue(value = paymentConfig.pixKey) {
+  const key = String(value || "").replace(/\D/g, "");
+  if (key.length !== 14) return String(value || "");
   return `${key.slice(0, 2)}.${key.slice(2, 5)}.${key.slice(5, 8)}/${key.slice(8, 12)}-${key.slice(12)}`;
 }
 
@@ -3595,10 +3963,12 @@ function paymentStorageKey(account = currentAccount()) {
 }
 
 function normalizePaymentRequest(request) {
-  const status = ["pending_payment", "pending_manual_confirmation", "approved", "rejected", "cancelled"].includes(request.status || request.paymentStatus) ? (request.status || request.paymentStatus) : "pending_payment";
+  const knownStatuses = ["pending_payment", "pending_manual_confirmation", "approved", "rejected", "cancelled", "paid", "pending", "failed", "refunded"];
+  const status = knownStatuses.includes(request.status || request.paymentStatus) ? (request.status || request.paymentStatus) : "pending_payment";
   return {
     id: String(request.id || `pay_${Date.now().toString(36)}`),
     userId: String(request.userId || ""),
+    userName: String(request.userName || request.accountName || "").trim(),
     userEmail: normalizeEmail(request.userEmail || ""),
     productType: String(request.productType || ""),
     productName: String(request.productName || ""),
@@ -3606,10 +3976,13 @@ function normalizePaymentRequest(request) {
     currency: request.currency || paymentConfig.currency,
     paymentMethod: request.paymentMethod === "stripe" ? "stripe" : "pix",
     pixKey: String(request.pixKey || paymentConfig.pixKey),
+    pixKeyType: String(request.pixKeyType || paymentConfig.pixKeyType),
     pixPayload: String(request.pixPayload || ""),
     resumeId: String(request.resumeId || request.targetResumeId || ""),
     templateKey: String(request.templateKey || ""),
     creditAmount: Math.max(0, Number(request.creditAmount || 0)),
+    planExpiresAt: request.planExpiresAt || "",
+    planDurationDays: Math.max(0, Number(request.planDurationDays || 0)),
     status,
     paymentStatus: status,
     createdAt: request.createdAt || isoNow(),
@@ -3619,6 +3992,11 @@ function normalizePaymentRequest(request) {
     rejectedAt: request.rejectedAt || "",
     rejectedBy: normalizeEmail(request.rejectedBy || ""),
     rejectionReason: String(request.rejectionReason || ""),
+    stripeSessionId: String(request.stripeSessionId || ""),
+    stripePaymentIntentId: String(request.stripePaymentIntentId || ""),
+    stripeCustomerId: String(request.stripeCustomerId || ""),
+    stripeSubscriptionId: String(request.stripeSubscriptionId || ""),
+    receiptUrl: String(request.receiptUrl || ""),
   };
 }
 
@@ -3647,6 +4025,10 @@ function paymentStatusLabel(status) {
     pending_payment: labels.waitingPayment,
     pending_manual_confirmation: labels.waitingConfirmation,
     approved: labels.approved,
+    paid: labels.paid || labels.approved,
+    pending: labels.waitingPayment,
+    failed: labels.failed || labels.rejected,
+    refunded: labels.refunded || labels.cancelled,
     rejected: labels.rejected,
     cancelled: labels.cancelled,
   };
@@ -3654,7 +4036,9 @@ function paymentStatusLabel(status) {
 }
 
 function loadUserAccess(account) {
-  return normalizeAccessState(readJsonStorage(userScopedStorageKey(ACCESS_STORAGE_KEY, account), {}));
+  const stored = normalizeAccessState(readJsonStorage(userScopedStorageKey(ACCESS_STORAGE_KEY, account), {}));
+  const effectivePlan = getEffectivePlan(account, { access: stored });
+  return { ...stored, plan: effectivePlan.type, planState: effectivePlan };
 }
 
 function saveUserAccess(account, access) {
@@ -3663,7 +4047,7 @@ function saveUserAccess(account, access) {
 
 function loadUserPayments(account) {
   const requests = readJsonStorage(paymentStorageKey(account), []);
-  return Array.isArray(requests) ? requests.map((request) => normalizePaymentRequest({ ...request, userId: request.userId || account.id, userEmail: request.userEmail || account.email })) : [];
+  return Array.isArray(requests) ? requests.map((request) => normalizePaymentRequest({ ...request, userId: request.userId || account.id, userName: request.userName || account.profile?.fullName || account.email, userEmail: request.userEmail || account.email })) : [];
 }
 
 function saveUserPayments(account, requests) {
@@ -3686,6 +4070,11 @@ function saveAdminAuditLog(entry) {
     paymentId: String(entry.paymentId || ""),
     oldValue: entry.oldValue ?? "",
     newValue: entry.newValue ?? "",
+    oldPlan: entry.oldPlan ?? "",
+    newPlan: entry.newPlan ?? "",
+    oldExpiresAt: entry.oldExpiresAt ?? "",
+    newExpiresAt: entry.newExpiresAt ?? "",
+    reason: String(entry.reason || ""),
     createdAt: isoNow(),
   });
   writeJsonStorage(ADMIN_AUDIT_LOG_STORAGE_KEY, records.slice(0, 250));
@@ -3693,6 +4082,7 @@ function saveAdminAuditLog(entry) {
 
 function loadAdminDataset() {
   const accounts = loadAccounts();
+  const aiUsage = loadAiUsageLog();
   const users = accounts.map((account) => {
     const resumes = readJsonStorage(userScopedStorageKey(RESUMES_STORAGE_KEY, account), []);
     const letters = readJsonStorage(userScopedStorageKey(COVER_LETTERS_STORAGE_KEY, account), []);
@@ -3704,16 +4094,285 @@ function loadAdminDataset() {
       payments,
       resumes: Array.isArray(resumes) ? resumes : [],
       letters: Array.isArray(letters) ? letters : [],
+      aiUsage: aiUsage.filter((record) => record.userId === account.id || normalizeEmail(record.email) === account.email),
     };
   });
   const payments = users.flatMap((user) => user.payments).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   const oneTimePurchases = payments.filter((payment) => ["remove_watermark", "premium_pdf", "premium_template", "career_pack", "ai_credits", "online_resume_link"].includes(payment.productType));
-  return { users, payments, oneTimePurchases, auditLog: loadAdminAuditLog() };
+  return { users, payments, oneTimePurchases, aiUsage, auditLog: loadAdminAuditLog() };
+}
+
+const SUPPORT_CATEGORY_KEYS = ["account", "resume", "cover_letter", "payment", "plans", "ai", "pdf_export", "technical_issue", "website_issue", "suggestion", "other"];
+const SUPPORT_FORM_CATEGORY_KEYS = ["account", "resume", "cover_letter", "payment", "plans", "ai", "pdf_export", "technical_issue", "other"];
+const SUPPORT_PRIORITY_KEYS = ["low", "medium", "high"];
+const SUPPORT_STATUS_KEYS = ["open", "in_progress", "answered", "closed"];
+
+function supportTicketId() {
+  if (window.crypto && crypto.randomUUID) return `ticket_${crypto.randomUUID()}`;
+  return `ticket_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function normalizeSupportTicket(ticket = {}) {
+  const status = SUPPORT_STATUS_KEYS.includes(ticket.status) ? ticket.status : "open";
+  const rawCategory = ticket.category === "website_issue" ? "technical_issue" : ticket.category;
+  const category = SUPPORT_CATEGORY_KEYS.includes(rawCategory) ? rawCategory : "other";
+  const priority = SUPPORT_PRIORITY_KEYS.includes(ticket.priority) ? ticket.priority : "medium";
+  const createdAt = ticket.createdAt || isoNow();
+  const history = Array.isArray(ticket.history) ? ticket.history : [{ type: "created", status: "open", createdAt }];
+  return {
+    id: String(ticket.id || supportTicketId()),
+    userId: String(ticket.userId || ""),
+    userName: String(ticket.userName || "").trim(),
+    userEmail: normalizeEmail(ticket.userEmail || ""),
+    subject: String(ticket.subject || "").trim(),
+    category,
+    priority,
+    message: String(ticket.message || "").trim(),
+    status,
+    createdAt,
+    updatedAt: ticket.updatedAt || createdAt,
+    adminReply: String(ticket.adminReply || "").trim(),
+    adminEmail: normalizeEmail(ticket.adminEmail || ""),
+    repliedAt: ticket.repliedAt || "",
+    closedAt: ticket.closedAt || "",
+    userReadAt: ticket.userReadAt || "",
+    history,
+  };
+}
+
+function loadSupportTickets() {
+  const tickets = readJsonStorage(SUPPORT_TICKETS_STORAGE_KEY, []);
+  return Array.isArray(tickets) ? tickets.map(normalizeSupportTicket).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) : [];
+}
+
+function saveSupportTickets(tickets) {
+  return writeJsonStorage(SUPPORT_TICKETS_STORAGE_KEY, tickets.map(normalizeSupportTicket));
+}
+
+function upsertSupportTicket(ticket) {
+  const normalized = normalizeSupportTicket(ticket);
+  const tickets = loadSupportTickets();
+  const index = tickets.findIndex((item) => item.id === normalized.id);
+  if (index >= 0) tickets[index] = normalized;
+  else tickets.unshift(normalized);
+  saveSupportTickets(tickets);
+  return normalized;
+}
+
+function loadCurrentUserSupportTickets(account = currentAccount()) {
+  if (!account?.id) return [];
+  return loadSupportTickets().filter((ticket) => ticket.userId === account.id);
+}
+
+function supportCategoryLabel(category) {
+  const normalized = category === "website_issue" ? "technical_issue" : category;
+  return t().support.categories[normalized] || t().support.categories[category] || t().support.categories.other;
+}
+
+function supportPriorityLabel(priority) {
+  return t().support.priorities[priority] || t().support.priorities.medium;
+}
+
+function supportStatusLabel(status) {
+  return t().support.status[status] || t().support.status.open;
+}
+
+function supportStatusBadge(status) {
+  return `<span class="support-badge support-status-${escapeHtml(status)}">${escapeHtml(supportStatusLabel(status))}</span>`;
+}
+
+function supportPriorityBadge(priority) {
+  return `<span class="support-badge support-priority-${escapeHtml(priority)}">${escapeHtml(supportPriorityLabel(priority))}</span>`;
+}
+
+function supportMetricCards(tickets = []) {
+  const labels = t().support.metrics;
+  const openCount = tickets.filter((ticket) => ticket.status !== "closed").length;
+  const lastReply = tickets.filter((ticket) => ticket.repliedAt).sort((a, b) => new Date(b.repliedAt) - new Date(a.repliedAt))[0];
+  const items = [
+    ["mail", labels.open, String(openCount)],
+    ["check", labels.lastReply, lastReply ? formatPaymentDate(lastReply.repliedAt) : labels.noReply],
+    ["target", labels.responseTime, labels.upTo24h],
+    ["shield", labels.supportStatus, labels.available],
+  ];
+  return items.map(([iconName, label, value]) => `
+    <article class="support-metric-card">
+      <div>${icon(iconName)}</div>
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+    </article>
+  `).join("");
+}
+
+function supportHeroBadges() {
+  const labels = t().support;
+  return [labels.responseWindow, labels.secureChannel, labels.centralizedHistory, labels.organizedSupport]
+    .map((item) => `<span>${icon("check")} ${escapeHtml(item)}</span>`)
+    .join("");
+}
+
+function supportHelpCards() {
+  const labels = t().support;
+  return labels.helpCards.map(([iconName, title, description]) => `
+    <article class="support-help-card">
+      <div>${icon(iconName)}</div>
+      <strong>${escapeHtml(title)}</strong>
+      <span>${escapeHtml(description)}</span>
+    </article>
+  `).join("");
+}
+
+function supportMessageBubble(role, text, date = "") {
+  const labels = t().support;
+  const isTeam = role === "team";
+  return `
+    <article class="support-thread-message ${isTeam ? "team-message" : "user-message"}">
+      <div class="support-thread-avatar">${isTeam ? "S" : escapeHtml(profileInitials(loadProfile()).slice(0, 1) || "U")}</div>
+      <div>
+        <div class="support-thread-meta"><strong>${escapeHtml(isTeam ? labels.team : labels.you)}</strong>${date ? `<span>${escapeHtml(formatPaymentDate(date))}</span>` : ""}</div>
+        <p>${escapeHtml(text)}</p>
+      </div>
+    </article>
+  `;
+}
+
+function supportAdminThread(ticket) {
+  const support = t().support;
+  return `
+    <div class="support-ticket-thread admin-support-thread">
+      <article class="support-thread-message user-message">
+        <div class="support-thread-avatar">${escapeHtml((ticket.userName || ticket.userEmail || "U").trim().slice(0, 1).toUpperCase())}</div>
+        <div>
+          <div class="support-thread-meta"><strong>${escapeHtml(ticket.userName || support.you)}</strong><span>${escapeHtml(formatPaymentDate(ticket.createdAt))}</span></div>
+          <p>${escapeHtml(ticket.message || "-")}</p>
+        </div>
+      </article>
+      ${ticket.adminReply ? `
+        <article class="support-thread-message team-message">
+          <div class="support-thread-avatar">S</div>
+          <div>
+            <div class="support-thread-meta"><strong>${escapeHtml(support.team)}</strong><span>${escapeHtml(formatPaymentDate(ticket.repliedAt))}</span></div>
+            <p>${escapeHtml(ticket.adminReply)}</p>
+          </div>
+        </article>
+      ` : `<div class="support-reply-box"><strong>${escapeHtml(support.adminReply)}</strong><span>${escapeHtml(support.noReply)}</span></div>`}
+    </div>
+  `;
+}
+
+function sendSupportTicketCreatedEmail(ticket) {
+  // Future Resend hook: send an internal notification when a support ticket is created.
+  return { ok: false, skipped: true, ticketId: ticket?.id || "" };
+}
+
+function sendSupportReplyEmail(ticket) {
+  // Future Resend hook: notify the user by email when admin replies are enabled.
+  return { ok: false, skipped: true, ticketId: ticket?.id || "" };
+}
+
+function createSupportTicket(values) {
+  const account = currentAccount();
+  if (!account?.id) return null;
+  const profile = loadProfile();
+  const now = isoNow();
+  const ticket = normalizeSupportTicket({
+    userId: account.id,
+    userName: profile.fullName || account.profile?.fullName || account.email,
+    userEmail: account.email,
+    subject: values.subject,
+    category: values.category,
+    priority: values.priority,
+    message: values.message,
+    status: "open",
+    createdAt: now,
+    updatedAt: now,
+    history: [{ type: "created", status: "open", createdAt: now }],
+  });
+  upsertSupportTicket(ticket);
+  sendSupportTicketCreatedEmail(ticket);
+  return ticket;
+}
+
+function updateSupportTicketAsAdmin(ticketId, updater, action = "support_update") {
+  if (!isAdminAccount()) return null;
+  const admin = currentAccount();
+  const tickets = loadSupportTickets();
+  const index = tickets.findIndex((ticket) => ticket.id === ticketId);
+  if (index < 0) return null;
+  const before = tickets[index];
+  const next = normalizeSupportTicket(updater(before));
+  tickets[index] = next;
+  saveSupportTickets(tickets);
+  saveAdminAuditLog({
+    action,
+    targetUserEmail: next.userEmail,
+    paymentId: next.id,
+    oldValue: before.status,
+    newValue: next.status,
+    adminEmail: admin?.email || "",
+  });
+  return next;
+}
+
+function adminMarkSupportTicketInProgress(ticketId) {
+  const now = isoNow();
+  return updateSupportTicketAsAdmin(ticketId, (ticket) => ({
+    ...ticket,
+    status: "in_progress",
+    updatedAt: now,
+    history: [...ticket.history, { type: "in_progress", status: "in_progress", adminEmail: currentAccount()?.email || "", createdAt: now }],
+  }), "support_in_progress");
+}
+
+function adminReplySupportTicket(ticketId, reply) {
+  const now = isoNow();
+  const admin = currentAccount();
+  const updated = updateSupportTicketAsAdmin(ticketId, (ticket) => ({
+    ...ticket,
+    status: "answered",
+    adminReply: String(reply || "").trim(),
+    adminEmail: admin?.email || "",
+    repliedAt: now,
+    updatedAt: now,
+    userReadAt: "",
+    history: [...ticket.history, { type: "answered", status: "answered", adminEmail: admin?.email || "", createdAt: now }],
+  }), "support_replied");
+  if (updated) sendSupportReplyEmail(updated);
+  return updated;
+}
+
+function adminCloseSupportTicket(ticketId) {
+  const now = isoNow();
+  return updateSupportTicketAsAdmin(ticketId, (ticket) => ({
+    ...ticket,
+    status: "closed",
+    closedAt: now,
+    updatedAt: now,
+    history: [...ticket.history, { type: "closed", status: "closed", adminEmail: currentAccount()?.email || "", createdAt: now }],
+  }), "support_close");
+}
+
+function hasUnreadSupportReply(account = currentAccount()) {
+  return loadCurrentUserSupportTickets(account).some((ticket) => ticket.repliedAt && (!ticket.userReadAt || new Date(ticket.userReadAt) < new Date(ticket.repliedAt)));
+}
+
+function markSupportRepliesSeen(account = currentAccount()) {
+  if (!account?.id) return;
+  const now = isoNow();
+  const tickets = loadSupportTickets().map((ticket) => {
+    if (ticket.userId !== account.id || !ticket.repliedAt) return ticket;
+    if (ticket.userReadAt && new Date(ticket.userReadAt) >= new Date(ticket.repliedAt)) return ticket;
+    return { ...ticket, userReadAt: now };
+  });
+  saveSupportTickets(tickets);
 }
 
 function adminPaymentLabel(payment) {
   const product = PIX_ONE_TIME_PRODUCTS[payment.productType];
-  return payment.productName || product?.names?.[currentLanguage] || product?.names?.en || payment.productType || "-";
+  const planProducts = currentLanguage === "pt"
+    ? { plan_pro: "Plano Pro", plan_premium: "Plano Premium" }
+    : { plan_pro: "Pro plan", plan_premium: "Premium plan" };
+  return payment.productName || product?.names?.[currentLanguage] || product?.names?.en || planProducts[payment.productType] || payment.productType || "-";
 }
 
 function adminSetFlash(message) {
@@ -3753,9 +4412,9 @@ function crc16Pix(payload) {
   return crc.toString(16).toUpperCase().padStart(4, "0");
 }
 
-function generatePixPayload({ amount, description, orderId, merchantName = paymentConfig.merchantName, merchantCity = paymentConfig.merchantCity, pixKey = paymentConfig.pixKey }) {
+function generatePixPayload({ amount, description, orderId, merchantName = paymentConfig.merchantName, merchantCity = paymentConfig.merchantCity, pixKey = paymentConfig.pixKey, pixKeyType = paymentConfig.pixKeyType }) {
   const txid = pixSafeText(orderId, 12).replace(/\s/g, "") || "***";
-  const merchantAccount = emvField("00", "br.gov.bcb.pix") + emvField("01", pixKey);
+  const merchantAccount = emvField("00", "br.gov.bcb.pix") + emvField("01", pixPayloadKey(pixKey, pixKeyType));
   const payloadWithoutCrc = [
     emvField("00", "01"),
     emvField("26", merchantAccount),
@@ -3769,6 +4428,22 @@ function generatePixPayload({ amount, description, orderId, merchantName = payme
   ].join("");
   const crcInput = `${payloadWithoutCrc}6304`;
   return `${crcInput}${crc16Pix(crcInput)}`;
+}
+
+function generatePixPaymentCode({ amount, productName = "", description = "", orderId = "", pixKey = paymentConfig.pixKey, pixKeyType = paymentConfig.pixKeyType, merchantName = paymentConfig.merchantName, merchantCity = paymentConfig.merchantCity }) {
+  const pixPayload = generatePixPayload({
+    amount,
+    description: description || productName,
+    orderId,
+    merchantName,
+    merchantCity,
+    pixKey,
+    pixKeyType,
+  });
+  return {
+    pixPayload,
+    qrCodeSvg: qrSvg(pixPayload),
+  };
 }
 
 const QR_ECC_L = [
@@ -3791,18 +4466,17 @@ function qrGfMul(x, y) {
 }
 
 function qrGeneratorPoly(degree) {
-  let result = [1];
+  let result = new Array(degree).fill(0);
+  result[degree - 1] = 1;
   let root = 1;
   for (let i = 0; i < degree; i += 1) {
-    const next = new Array(result.length + 1).fill(0);
-    result.forEach((coef, index) => {
-      next[index] ^= qrGfMul(coef, root);
-      next[index + 1] ^= coef;
-    });
-    result = next;
+    for (let j = 0; j < result.length; j += 1) {
+      result[j] = qrGfMul(result[j], root);
+      if (j + 1 < result.length) result[j] ^= result[j + 1];
+    }
     root = qrGfMul(root, 2);
   }
-  return result.slice(0, degree);
+  return result;
 }
 
 function qrRemainder(data, degree) {
@@ -4055,11 +4729,23 @@ function updateAccount(accountId, updater) {
   return saveAccounts(accounts) ? accounts[index] : null;
 }
 
-function setSession(account) {
+function deleteAccount(accountId) {
+  const accounts = loadAccounts();
+  const nextAccounts = accounts.filter((account) => account.id !== accountId);
+  return nextAccounts.length !== accounts.length && saveAccounts(nextAccounts);
+}
+
+function setSession(account, remember = true) {
   try {
-    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ userId: account.id, email: account.email, signedInAt: isoNow() }));
+    const sessionPayload = JSON.stringify({ userId: account.id, email: account.email, signedInAt: isoNow() });
+    const primaryStorage = remember ? localStorage : sessionStorage;
+    const secondaryStorage = remember ? sessionStorage : localStorage;
+    primaryStorage.setItem(SESSION_STORAGE_KEY, sessionPayload);
+    secondaryStorage.removeItem(SESSION_STORAGE_KEY);
+    localStorage.setItem(AUTH_REMEMBER_STORAGE_KEY, remember ? "true" : "false");
     localStorage.setItem(AUTH_VERIFIED_STORAGE_KEY, account.emailVerified === false ? "false" : "true");
-    rememberAuthEmail(account.email);
+    if (remember) rememberAuthEmail(account.email);
+    else forgetAuthEmail();
     migrateLegacyDataToUser(account);
   } catch (error) {
     // Prototype auth state is local only.
@@ -4069,6 +4755,7 @@ function setSession(account) {
 function signOut() {
   try {
     localStorage.removeItem(SESSION_STORAGE_KEY);
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
     localStorage.removeItem(PENDING_ROUTE_STORAGE_KEY);
     localStorage.setItem(AUTH_VERIFIED_STORAGE_KEY, "false");
   } catch (error) {
@@ -4111,7 +4798,7 @@ function createAccount({ fullName, email, password }) {
     id: `user_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
     email: normalizedEmail,
     password: String(password || ""),
-    plan: "free",
+    plan: freePlanState(),
     status: "active",
     emailVerified: false,
     verificationCode: "",
@@ -4167,10 +4854,13 @@ function setAccountVerificationCode(accountId, code = generateVerificationCode()
 
 async function sendVerificationEmail(account, code) {
   if (!account?.email || !/^\d{6}$/.test(code || "")) return { ok: false, reason: "invalid" };
+  const controller = typeof AbortController === "undefined" ? null : new AbortController();
+  const timeout = controller ? window.setTimeout(() => controller.abort(), VERIFICATION_EMAIL_TIMEOUT_MS) : null;
   try {
     const response = await fetch("/api/auth/send-verification-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: controller?.signal,
       body: JSON.stringify({
         email: account.email,
         name: account.profile?.fullName || account.email,
@@ -4181,7 +4871,9 @@ async function sendVerificationEmail(account, code) {
     const payload = await response.json().catch(() => ({}));
     return response.ok && payload.ok !== false ? { ok: true, id: payload.id || "" } : { ok: false, reason: payload.error || "send_failed" };
   } catch (error) {
-    return { ok: false, reason: "network" };
+    return { ok: false, reason: error?.name === "AbortError" ? "timeout" : "network" };
+  } finally {
+    if (timeout) window.clearTimeout(timeout);
   }
 }
 
@@ -4257,6 +4949,14 @@ function setVerifiedUser(value) {
 function rememberAuthEmail(email) {
   try {
     localStorage.setItem(AUTH_EMAIL_STORAGE_KEY, email);
+  } catch (error) {
+    // Prototype auth state is local only.
+  }
+}
+
+function forgetAuthEmail() {
+  try {
+    localStorage.removeItem(AUTH_EMAIL_STORAGE_KEY);
   } catch (error) {
     // Prototype auth state is local only.
   }
@@ -4347,6 +5047,7 @@ function profileFirstName(profile = loadProfile()) {
 function defaultAccessState() {
   return {
     plan: "free",
+    planState: freePlanState(),
     aiCredits: 0,
     creditHistory: [],
     adminEntitlements: [],
@@ -4362,7 +5063,10 @@ function defaultAccessState() {
 
 function normalizeAccessState(raw = {}) {
   const base = defaultAccessState();
-  const plan = ["free", "pro", "premium"].includes(raw.plan) ? raw.plan : "free";
+  const legacyType = legacyPlanType(raw);
+  const planSource = legacyType !== "free" ? legacyType : (raw.planState || raw.plan || raw.currentPlan || "free");
+  const planState = normalizePlanState(planSource);
+  const plan = planState.type;
   const oneTime = { ...base.oneTime, ...(raw.oneTime && typeof raw.oneTime === "object" ? raw.oneTime : {}) };
   Object.keys(oneTime).forEach((key) => {
     oneTime[key] = Array.isArray(oneTime[key]) ? oneTime[key].map(String) : [];
@@ -4382,6 +5086,7 @@ function normalizeAccessState(raw = {}) {
   })) : [];
   return {
     plan,
+    planState,
     aiCredits: Math.max(0, Number(raw.aiCredits) || 0),
     creditHistory,
     adminEntitlements,
@@ -4392,8 +5097,13 @@ function normalizeAccessState(raw = {}) {
 function getUserAccess() {
   try {
     const account = currentAccount();
-    const access = normalizeAccessState(JSON.parse(localStorage.getItem(userScopedStorageKey(ACCESS_STORAGE_KEY, account)) || "{}"));
-    if (account?.plan && access.plan === "free") access.plan = account.plan;
+    const stored = normalizeAccessState(JSON.parse(localStorage.getItem(userScopedStorageKey(ACCESS_STORAGE_KEY, account)) || "{}"));
+    const effectivePlan = getEffectivePlan(account, { access: stored, persist: true });
+    const access = { ...stored, plan: effectivePlan.type, planState: effectivePlan };
+    const savedPlan = normalizePlanState(stored.planState || stored.plan);
+    if (account?.id && (savedPlan.type !== effectivePlan.type || savedPlan.expiresAt !== effectivePlan.expiresAt || savedPlan.status !== effectivePlan.status)) {
+      saveUserAccess(account, access);
+    }
     return access;
   } catch (error) {
     return defaultAccessState();
@@ -4406,7 +5116,8 @@ function isPaidPlan(access = getUserAccess()) {
 
 function hasOneTime(type, id, access = getUserAccess()) {
   if (!id) return false;
-  return (access.oneTime?.[type] || []).map(String).includes(String(id));
+  const values = (access.oneTime?.[type] || []).map(String);
+  return values.includes(String(id)) || values.includes("__global__");
 }
 
 function accessPlanLabel(access = getUserAccess()) {
@@ -4416,18 +5127,77 @@ function accessPlanLabel(access = getUserAccess()) {
   return copy.free;
 }
 
+function accessPlanExpiryLabel(access = getUserAccess()) {
+  return access.plan === "free" ? "" : formatPlanExpiry(access.planState?.expiresAt);
+}
+
 function currentResumeAccessId() {
   return builderDraft?.id || currentBuilderResumeId || "";
 }
 
+const FEATURE_RULES = {
+  unlimited_resumes: { plan: "pro" },
+  premium_templates: { plan: "pro", oneTime: "premiumTemplates", productType: "premium_template", target: "templateKey" },
+  watermark_free_pdf: { plan: "pro", oneTime: ["watermarkRemoval", "premiumPdf", "careerPack"], productType: "remove_watermark", target: "resumeId" },
+  cover_letters_unlimited: { plan: "pro" },
+  ai_resume_improvement: { plan: "pro", credits: true, productType: "ai_credits" },
+  ai_cover_letter: { plan: "pro", credits: true, productType: "ai_credits" },
+  ats_basic: { plan: "free" },
+  ats_advanced: { plan: "premium" },
+  resume_translation: { plan: "pro", credits: true, productType: "ai_credits" },
+  job_tailoring: { plan: "premium" },
+  online_resume_link: { plan: "premium", oneTime: ["onlineLinks", "careerPack"], productType: "online_resume_link", target: "resumeId" },
+  premium_pdf: { plan: "pro", oneTime: ["premiumPdf", "careerPack"], productType: "premium_pdf", target: "resumeId" },
+  remove_watermark: { plan: "pro", oneTime: ["watermarkRemoval", "premiumPdf", "careerPack"], productType: "remove_watermark", target: "resumeId" },
+  ai_credits: { credits: true, productType: "ai_credits" },
+  basic_edit: { plan: "free" },
+  branded_export: { plan: "free" },
+  preview: { plan: "free" },
+};
+
+const LEGACY_FEATURE_KEYS = {
+  "brand-free-export": "watermark_free_pdf",
+  "cover-letter": "ai_cover_letter",
+  "translation": "resume_translation",
+  "basic-ats": "ats_basic",
+  "job-suggestions": "ai_resume_improvement",
+  "ats-analysis": "ats_advanced",
+  "job-tailoring": "job_tailoring",
+  "advanced-career": "ats_advanced",
+  "online-link": "online_resume_link",
+  "free-template": "preview",
+  "branded-export": "branded_export",
+  "basic-edit": "basic_edit",
+};
+
+function normalizeFeatureKey(featureKey = "") {
+  return LEGACY_FEATURE_KEYS[featureKey] || featureKey;
+}
+
+function planRank(plan = "free") {
+  return { free: 0, pro: 1, premium: 2 }[plan] ?? 0;
+}
+
+function featureTargetId(rule = {}, context = {}) {
+  if (rule.target === "templateKey") return context.templateKey || context.id || "";
+  return context.resumeId || context.id || currentResumeAccessId();
+}
+
+function hasFeatureOneTime(rule = {}, context = {}, access = getUserAccess()) {
+  const types = Array.isArray(rule.oneTime) ? rule.oneTime : (rule.oneTime ? [rule.oneTime] : []);
+  if (!types.length) return false;
+  const targetId = featureTargetId(rule, context);
+  return types.some((type) => hasOneTime(type, targetId, access));
+}
+
 function canExportWithoutBranding(resumeId = currentResumeAccessId(), access = getUserAccess()) {
-  return isPaidPlan(access) || hasOneTime("watermarkRemoval", resumeId, access) || hasOneTime("premiumPdf", resumeId, access) || hasOneTime("careerPack", resumeId, access);
+  return canUseFeature("watermark_free_pdf", { resumeId, access });
 }
 
 function canUseTemplate(templateKey, access = getUserAccess()) {
   const template = RESUME_TEMPLATES.find((item) => item.key === templateKey);
   if (!template || template.access === "free") return true;
-  return isPaidPlan(access) || hasOneTime("premiumTemplates", templateKey, access);
+  return canUseFeature("premium_templates", { templateKey, access });
 }
 
 function availableTemplateKey(preferred = selectedTemplateKey) {
@@ -4459,34 +5229,239 @@ function openProTemplateModal() {
   });
 }
 
-function canUseFeature(feature, resumeId = currentResumeAccessId(), access = getUserAccess()) {
-  if (access.plan === "premium") return true;
-  if (access.plan === "pro") return !["ats-analysis", "job-tailoring", "advanced-career"].includes(feature);
-  if (feature === "brand-free-export") return canExportWithoutBranding(resumeId, access);
-  if (feature === "cover-letter" || feature === "translation" || feature === "basic-ats" || feature === "job-suggestions") return hasOneTime("careerPack", resumeId, access);
-  if (feature === "online-link") return hasOneTime("onlineLinks", resumeId, access);
-  return ["free-template", "preview", "branded-export", "basic-edit"].includes(feature);
+function canUseFeature(featureKey, context = {}, maybeAccess) {
+  const normalized = normalizeFeatureKey(featureKey);
+  if (typeof context === "string") context = { resumeId: context };
+  const access = maybeAccess || context.access || getUserAccess();
+  const rule = FEATURE_RULES[normalized];
+  if (!rule) return false;
+  if (isAdminAccount()) return true;
+  if (rule.plan && planRank(access.plan) >= planRank(rule.plan)) return true;
+  if (hasFeatureOneTime(rule, context, access)) return true;
+  if (rule.credits && Number(access.aiCredits || 0) > 0) return true;
+  return false;
+}
+
+function featureAccessCopy() {
+  return currentLanguage === "pt" ? {
+    pro: "Pro",
+    premium: "Premium",
+    oneTime: "Compra única",
+    aiCredits: "Créditos de IA",
+    locked: "Bloqueado",
+    availablePro: "Disponível no Pro",
+    availablePremium: "Disponível no Premium",
+    availableOneTime: "Disponível como compra única",
+    requiresCredits: "Requer créditos de IA",
+    unlockTitle: "Desbloqueie este recurso",
+    unlockText: "Este recurso está disponível no plano Pro, Premium ou como compra avulsa, dependendo da opção escolhida.",
+    viewPlans: "Ver planos",
+    buyOneTime: "Comprar opção avulsa",
+    buyCredits: "Comprar créditos",
+    continueFree: "Continuar grátis",
+    benefitsTitle: "O que você desbloqueia",
+    resumeLimitText: "Seu plano gratuito permite criar 1 currículo. Faça upgrade para criar mais versões.",
+    watermarkText: "PDF sem marca está disponível no Pro ou como compra única.",
+    templateText: "Este modelo está disponível no Pro ou como compra única.",
+    aiCreditsText: "Você precisa de créditos de IA para usar esta ação.",
+    aiFeatureText: "Este recurso está disponível no Pro, Premium ou com créditos de IA.",
+    atsPremiumText: "Análise ATS avançada está disponível no Premium.",
+    coverLetterText: "Cartas adicionais estão disponíveis no Pro.",
+    featureNames: {
+      unlimited_resumes: "Currículos ilimitados",
+      premium_templates: "Modelo premium",
+      watermark_free_pdf: "PDF sem marca",
+      cover_letters_unlimited: "Cartas de apresentação",
+      ai_resume_improvement: "Melhorias com IA",
+      ai_cover_letter: "Carta com IA",
+      ats_advanced: "Análise ATS avançada",
+      resume_translation: "Tradução de currículo",
+      job_tailoring: "Adaptação para vaga",
+      online_resume_link: "Link online do currículo",
+      premium_pdf: "PDF premium",
+      remove_watermark: "Remover marca d'água",
+      ai_credits: "Créditos de IA",
+    },
+  } : {
+    pro: "Pro",
+    premium: "Premium",
+    oneTime: "One-time",
+    aiCredits: "AI credits",
+    locked: "Locked",
+    availablePro: "Available with Pro",
+    availablePremium: "Available with Premium",
+    availableOneTime: "Available as one-time purchase",
+    requiresCredits: "Requires AI credits",
+    unlockTitle: "Unlock this feature",
+    unlockText: "This feature is available with Pro, Premium or as a one-time purchase, depending on the option selected.",
+    viewPlans: "View plans",
+    buyOneTime: "Buy one-time option",
+    buyCredits: "Buy credits",
+    continueFree: "Continue free",
+    benefitsTitle: "What you unlock",
+    resumeLimitText: "Your free plan allows 1 resume. Upgrade to create more versions.",
+    watermarkText: "Watermark-free PDF is available with Pro or as a one-time purchase.",
+    templateText: "This template is available with Pro or as a one-time purchase.",
+    aiCreditsText: "You need AI credits to use this action.",
+    aiFeatureText: "This feature is available with Pro, Premium or AI credits.",
+    atsPremiumText: "Advanced ATS analysis is available with Premium.",
+    coverLetterText: "Additional cover letters are available with Pro.",
+    featureNames: {
+      unlimited_resumes: "Unlimited resumes",
+      premium_templates: "Premium template",
+      watermark_free_pdf: "Watermark-free PDF",
+      cover_letters_unlimited: "Cover letters",
+      ai_resume_improvement: "AI improvements",
+      ai_cover_letter: "AI cover letter",
+      ats_advanced: "Advanced ATS analysis",
+      resume_translation: "Resume translation",
+      job_tailoring: "Job tailoring",
+      online_resume_link: "Online resume link",
+      premium_pdf: "Premium PDF",
+      remove_watermark: "Remove watermark",
+      ai_credits: "AI credits",
+    },
+  };
+}
+
+function featureRule(featureKey) {
+  return FEATURE_RULES[normalizeFeatureKey(featureKey)] || {};
+}
+
+function featureRequirementLabel(featureKey) {
+  const copy = featureAccessCopy();
+  const rule = featureRule(featureKey);
+  if (rule.credits && !rule.plan) return copy.requiresCredits;
+  if (rule.plan === "premium") return copy.availablePremium;
+  if (rule.plan === "pro") return copy.availablePro;
+  if (rule.oneTime) return copy.availableOneTime;
+  return copy.locked;
+}
+
+function lockedBadge(featureKey, extraClass = "") {
+  return `<span class="locked-badge ${extraClass}">${icon("lock")} ${escapeHtml(featureRequirementLabel(featureKey))}</span>`;
+}
+
+function lockChip(label = featureAccessCopy().locked) {
+  return `<span class="feature-lock">${icon("lock")} ${escapeHtml(label)}</span>`;
+}
+
+function featureModalText(featureKey) {
+  const copy = featureAccessCopy();
+  const normalized = normalizeFeatureKey(featureKey);
+  if (normalized === "unlimited_resumes") return copy.resumeLimitText;
+  if (normalized === "watermark_free_pdf" || normalized === "premium_pdf" || normalized === "remove_watermark") return copy.watermarkText;
+  if (normalized === "premium_templates") return copy.templateText;
+  if (normalized === "ai_credits") return copy.aiCreditsText;
+  if (normalized.startsWith("ai_") || normalized === "resume_translation") return copy.aiFeatureText;
+  if (normalized === "ats_advanced" || normalized === "job_tailoring") return copy.atsPremiumText;
+  if (normalized === "cover_letters_unlimited") return copy.coverLetterText;
+  return copy.unlockText;
+}
+
+function featureBenefits(featureKey) {
+  const copy = currentLanguage === "pt"
+    ? {
+        premium_templates: ["Modelos mais sofisticados", "Visual mais profissional", "Mais opções para vagas internacionais"],
+        watermark_free_pdf: ["PDF sem marca da Succeedora", "Arquivo mais profissional", "Opção de upgrade ou compra única"],
+        premium_pdf: ["PDF sem marca da Succeedora", "Arquivo mais profissional", "Opção de upgrade ou compra única"],
+        remove_watermark: ["PDF sem marca da Succeedora", "Arquivo mais profissional", "Opção de upgrade ou compra única"],
+        unlimited_resumes: ["Crie versões para diferentes vagas", "Organize mais candidaturas", "Mantenha históricos separados"],
+        ai_credits: ["Use ações inteligentes sob demanda", "Gere textos e sugestões", "Compre créditos sem assinatura"],
+        ai_resume_improvement: ["Melhore resumo e experiências", "Receba sugestões mais fortes", "Otimize seu perfil"],
+        ai_cover_letter: ["Gere cartas para vagas", "Use seu perfil como base", "Economize tempo na candidatura"],
+        resume_translation: ["Traduza seu currículo", "Prepare versões internacionais", "Mantenha consistência de linguagem"],
+        job_tailoring: ["Adapte para a descrição da vaga", "Priorize palavras-chave", "Aumente alinhamento com recrutadores"],
+        ats_advanced: ["Análise mais detalhada", "Sugestões avançadas", "Comparação melhor com a vaga"],
+        cover_letters_unlimited: ["Crie cartas para várias vagas", "Salve versões diferentes", "Use o gerador com IA"],
+        online_resume_link: ["Compartilhe um link profissional", "Facilite acesso ao perfil", "Use em candidaturas online"],
+      }
+    : {
+        premium_templates: ["More polished templates", "More professional presentation", "More options for global roles"],
+        watermark_free_pdf: ["PDF without Succeedora branding", "More professional file", "Upgrade or one-time unlock"],
+        premium_pdf: ["PDF without Succeedora branding", "More professional file", "Upgrade or one-time unlock"],
+        remove_watermark: ["PDF without Succeedora branding", "More professional file", "Upgrade or one-time unlock"],
+        unlimited_resumes: ["Create versions for different roles", "Organize more applications", "Keep separate histories"],
+        ai_credits: ["Use smart actions on demand", "Generate text and suggestions", "Buy credits without a subscription"],
+        ai_resume_improvement: ["Improve summaries and experience", "Get stronger suggestions", "Optimize your profile"],
+        ai_cover_letter: ["Generate letters for roles", "Use your profile as context", "Save time applying"],
+        resume_translation: ["Translate your resume", "Prepare international versions", "Keep language consistent"],
+        job_tailoring: ["Tailor to the job description", "Prioritize keywords", "Improve recruiter alignment"],
+        ats_advanced: ["More detailed analysis", "Advanced suggestions", "Better job comparison"],
+        cover_letters_unlimited: ["Create letters for multiple roles", "Save different versions", "Use AI generation"],
+        online_resume_link: ["Share a professional link", "Make your profile easier to access", "Use it in online applications"],
+      };
+  const normalized = normalizeFeatureKey(featureKey);
+  return copy[normalized] || copy.ai_credits;
+}
+
+function openFeatureLockModal(featureKey, context = {}) {
+  const copy = featureAccessCopy();
+  const normalized = normalizeFeatureKey(featureKey);
+  const rule = featureRule(normalized);
+  const featureName = context.featureName || copy.featureNames[normalized] || copy.locked;
+  const actions = [];
+  actions.push({ label: copy.viewPlans, onClick: () => setRoute("/dashboard/billing") });
+  if (rule.productType && rule.productType !== "ai_credits") {
+    actions.push({ label: copy.buyOneTime, className: "secondary-button", onClick: () => openPixPaymentModal(rule.productType, context) });
+  }
+  if (rule.productType === "ai_credits" || rule.credits) {
+    actions.push({ label: copy.buyCredits, className: "secondary-button", onClick: () => openPixPaymentModal("ai_credits", context) });
+  }
+  actions.push({ label: copy.continueFree, className: "ghost-button" });
+  openAccessModal({
+    title: copy.unlockTitle,
+    text: featureModalText(normalized),
+    featureName,
+    requirement: featureRequirementLabel(normalized),
+    benefits: featureBenefits(normalized),
+    detail: null,
+    actions,
+  });
 }
 
 function adminFindAccount(userId) {
   return loadAccounts().find((account) => account.id === userId) || null;
 }
 
-function adminUpdatePlan(userId, plan) {
-  if (!isAdminAccount() || !["free", "pro", "premium"].includes(plan)) return false;
+function adminUpdatePlan(userId, planType, options = {}) {
+  const plan = normalizePlanType(planType);
+  if (!isAdminAccount() || !PLAN_TYPES.includes(plan)) return false;
   const admin = currentAccount();
   const account = adminFindAccount(userId);
   if (!account) return false;
-  const oldPlan = account.plan;
+  const oldPlanState = normalizePlanState(account.plan);
+  const duration = options.duration || "none";
+  const now = isoNow();
+  const expiresAt = plan === "free" ? null : planExpiresAtForDuration(duration, options.customDate || "");
+  const nextPlanState = plan === "free" ? freePlanState("admin") : {
+    type: plan,
+    status: "active",
+    startedAt: now,
+    expiresAt,
+    updatedAt: now,
+    source: "admin",
+    durationLabel: planDurationOptions().find(([value]) => value === duration)?.[1] || "",
+  };
   updateAccount(userId, (current) => ({
     ...current,
-    plan,
-    manualPlanUpdatedAt: isoNow(),
+    plan: nextPlanState,
+    manualPlanUpdatedAt: now,
     manualPlanUpdatedBy: admin.email,
   }));
   const access = loadUserAccess(account);
-  saveUserAccess(account, { ...access, plan });
-  saveAdminAuditLog({ action: "plan_changed", targetUserEmail: account.email, oldValue: oldPlan, newValue: plan });
+  saveUserAccess(account, { ...access, plan, planState: nextPlanState });
+  saveAdminAuditLog({
+    action: "plan_changed",
+    targetUserEmail: account.email,
+    oldValue: oldPlanState.type,
+    newValue: plan,
+    oldPlan: oldPlanState.type,
+    newPlan: plan,
+    oldExpiresAt: oldPlanState.expiresAt || "",
+    newExpiresAt: nextPlanState.expiresAt || "",
+    reason: options.reason || "",
+  });
   adminSetFlash(t().admin.messages.planUpdated);
   return true;
 }
@@ -4501,7 +5476,7 @@ function adminUpdateCredits(userId, amount, reason = "") {
   const nextCredits = Math.max(0, Number(access.aiCredits || 0) + delta);
   const history = [...(access.creditHistory || []), { amount: delta, reason, adminEmail: admin.email, createdAt: isoNow() }];
   saveUserAccess(account, { ...access, aiCredits: nextCredits, creditHistory: history });
-  saveAdminAuditLog({ action: delta > 0 ? "credits_added" : "credits_removed", targetUserEmail: account.email, oldValue: access.aiCredits, newValue: nextCredits });
+  saveAdminAuditLog({ action: delta > 0 ? "credits_added" : "credits_removed", targetUserEmail: account.email, oldValue: access.aiCredits, newValue: nextCredits, reason });
   adminSetFlash(delta > 0 ? t().admin.messages.creditsAdded : t().admin.messages.creditsRemoved);
   return true;
 }
@@ -4547,8 +5522,25 @@ function adminGrantPaymentFeature(account, payment) {
   }
   if (payment.productType === "plan_pro" || payment.productType === "plan_premium") {
     const plan = payment.productType === "plan_premium" ? "premium" : "pro";
-    updateAccount(account.id, (current) => ({ ...current, plan, manualPlanUpdatedAt: isoNow(), manualPlanUpdatedBy: admin.email }));
+    const startedAt = isoNow();
+    let expiresAt = payment.planExpiresAt || null;
+    if (!expiresAt && payment.planDurationDays) {
+      const date = new Date();
+      date.setDate(date.getDate() + Number(payment.planDurationDays));
+      expiresAt = date.toISOString();
+    }
+    const planState = {
+      type: plan,
+      status: "active",
+      startedAt,
+      expiresAt,
+      updatedAt: startedAt,
+      source: "pix",
+      durationLabel: payment.planDurationDays ? `${payment.planDurationDays} days` : "",
+    };
+    updateAccount(account.id, (current) => ({ ...current, plan: planState, manualPlanUpdatedAt: planState.updatedAt, manualPlanUpdatedBy: admin.email }));
     nextAccess.plan = plan;
+    nextAccess.planState = planState;
   }
   nextAccess.adminEntitlements = [
     ...(nextAccess.adminEntitlements || []),
@@ -4563,19 +5555,23 @@ function adminUpdatePayment(userId, paymentId, updater) {
   const requests = loadUserPayments(account);
   const index = requests.findIndex((payment) => payment.id === paymentId);
   if (index < 0) return null;
-  const updated = normalizePaymentRequest(updater(requests[index]));
+  const previous = requests[index];
+  const updated = normalizePaymentRequest(updater(previous));
   requests[index] = updated;
   saveUserPayments(account, requests);
-  return { account, payment: updated };
+  return { account, payment: updated, previous };
 }
 
 function adminApprovePayment(userId, paymentId) {
   if (!isAdminAccount()) return false;
   const admin = currentAccount();
+  const account = adminFindAccount(userId);
+  const existing = account ? loadUserPayments(account).find((payment) => payment.id === paymentId) : null;
+  if (!account || !isPendingAdminPayment(existing)) return false;
   const result = adminUpdatePayment(userId, paymentId, (payment) => ({ ...payment, status: "approved", paymentStatus: "approved", approvedAt: isoNow(), approvedBy: admin.email }));
   if (!result) return false;
   adminGrantPaymentFeature(result.account, result.payment);
-  saveAdminAuditLog({ action: "payment_approved", targetUserEmail: result.account.email, paymentId, oldValue: "pending", newValue: "approved" });
+  saveAdminAuditLog({ action: "payment_approved", targetUserEmail: result.account.email, paymentId, oldValue: result.previous.status, newValue: "approved" });
   adminSetFlash(t().admin.messages.paymentApproved);
   return true;
 }
@@ -4583,9 +5579,13 @@ function adminApprovePayment(userId, paymentId) {
 function adminRejectPayment(userId, paymentId, reason = "") {
   if (!isAdminAccount()) return false;
   const admin = currentAccount();
-  const result = adminUpdatePayment(userId, paymentId, (payment) => ({ ...payment, status: "rejected", paymentStatus: "rejected", rejectedAt: isoNow(), rejectedBy: admin.email, rejectionReason: reason }));
+  const account = adminFindAccount(userId);
+  const existing = account ? loadUserPayments(account).find((payment) => payment.id === paymentId) : null;
+  if (!account || !isPendingAdminPayment(existing)) return false;
+  const rejectionReason = String(reason || t().admin.rejectReasons?.[0] || "Payment rejected").trim();
+  const result = adminUpdatePayment(userId, paymentId, (payment) => ({ ...payment, status: "rejected", paymentStatus: "rejected", rejectedAt: isoNow(), rejectedBy: admin.email, rejectionReason }));
   if (!result) return false;
-  saveAdminAuditLog({ action: "payment_rejected", targetUserEmail: result.account.email, paymentId, oldValue: "pending", newValue: reason || "rejected" });
+  saveAdminAuditLog({ action: "payment_rejected", targetUserEmail: result.account.email, paymentId, oldValue: result.previous.status, newValue: rejectionReason, reason: rejectionReason });
   adminSetFlash(t().admin.messages.paymentRejected);
   return true;
 }
@@ -4593,6 +5593,200 @@ function adminRejectPayment(userId, paymentId, reason = "") {
 function requiresAiCredits(action = "ai") {
   const access = getUserAccess();
   return !isPaidPlan(access) && access.aiCredits <= 0 && ["improve-summary", "rewrite-experience", "cover-letter", "translation", "job-tailoring", "job-analysis", "ats-keywords"].includes(action);
+}
+
+function aiActionFeature(action = "ai") {
+  const map = {
+    "improve-summary": "ai_resume_improvement",
+    "rewrite-experience": "ai_resume_improvement",
+    "cover-letter": "ai_cover_letter",
+    translation: "resume_translation",
+    "job-tailoring": "job_tailoring",
+    "job-analysis": "ats_advanced",
+    "ats-keywords": "ats_advanced",
+    ai: "ai_resume_improvement",
+  };
+  return map[action] || "ai_resume_improvement";
+}
+
+function aiTaskFeature(taskType = "ai") {
+  const map = {
+    generate_professional_summary: "ai_resume_improvement",
+    improve_professional_summary: "ai_resume_improvement",
+    rewrite_experience: "ai_resume_improvement",
+    suggest_skills: "ai_resume_improvement",
+    generate_cover_letter: "ai_cover_letter",
+    translate_resume: "resume_translation",
+    analyze_job_description: "ats_advanced",
+    tailor_resume_to_job: "job_tailoring",
+  };
+  return map[taskType] || "ai_resume_improvement";
+}
+
+function aiCopy() {
+  return currentLanguage === "pt" ? {
+    generateSummary: "Gerar com IA",
+    improveSummary: "Melhorar com IA",
+    improveExperience: "Melhorar descrição com IA",
+    suggestSkills: "Sugerir habilidades",
+    generateLetter: "Gerar carta com IA",
+    translateResume: "Traduzir currículo",
+    tailorJob: "Adaptar para esta vaga",
+    generating: "Gerando com IA...",
+    analyzing: "Analisando vaga...",
+    improving: "Melhorando texto...",
+    fallbackError: "Não foi possível gerar a resposta agora. Tente novamente em instantes.",
+    noCredits: "Você não tem créditos de IA suficientes para esta ação.",
+    apply: "Aplicar",
+    discard: "Descartar",
+    editBeforeApply: "Revise e edite antes de aplicar.",
+    suggestionTitle: "Sugestão da IA",
+    atsDisclaimer: "A nota ATS é uma estimativa baseada no conteúdo do currículo e na descrição da vaga.",
+    creditsUsed: "Créditos usados",
+    usageHistory: "Histórico de uso de IA",
+    action: "Ação",
+  } : {
+    generateSummary: "Generate with AI",
+    improveSummary: "Improve with AI",
+    improveExperience: "Improve description with AI",
+    suggestSkills: "Suggest skills",
+    generateLetter: "Generate letter with AI",
+    translateResume: "Translate resume",
+    tailorJob: "Tailor to this job",
+    generating: "Generating with AI...",
+    analyzing: "Analyzing job...",
+    improving: "Improving text...",
+    fallbackError: "Could not generate the response right now. Please try again shortly.",
+    noCredits: "You do not have enough AI credits for this action.",
+    apply: "Apply",
+    discard: "Discard",
+    editBeforeApply: "Review and edit before applying.",
+    suggestionTitle: "AI suggestion",
+    atsDisclaimer: "The ATS score is an estimate based on the resume content and job description.",
+    creditsUsed: "Credits used",
+    usageHistory: "AI usage history",
+    action: "Action",
+  };
+}
+
+function aiTaskCredits(taskType) {
+  return AI_TASK_CREDITS[taskType] || 1;
+}
+
+function canUseAiTask(taskType) {
+  if (isAdminAccount()) return true;
+  const access = getUserAccess();
+  const featureKey = aiTaskFeature(taskType);
+  const rule = featureRule(featureKey);
+  if (rule.plan && planRank(access.plan) >= planRank(rule.plan)) return true;
+  if (hasFeatureOneTime(rule, {}, access)) return true;
+  if (featureKey === "ats_advanced" || featureKey === "job_tailoring") return false;
+  return Boolean(rule.credits) && Number(access.aiCredits || 0) >= aiTaskCredits(taskType);
+}
+
+function consumeAiCredits(taskType) {
+  if (isAdminAccount()) return 0;
+  const account = currentAccount();
+  const credits = aiTaskCredits(taskType);
+  const access = getUserAccess();
+  if (isPaidPlan(access)) return 0;
+  saveUserAccess(account, { ...access, aiCredits: Math.max(0, Number(access.aiCredits || 0) - credits) });
+  return credits;
+}
+
+function loadAiUsageLog() {
+  const records = readJsonStorage(AI_USAGE_STORAGE_KEY, []);
+  return Array.isArray(records) ? records : [];
+}
+
+function recordAiUsage(taskType, creditsUsed = aiTaskCredits(taskType)) {
+  const account = currentAccount();
+  const records = loadAiUsageLog();
+  records.unshift({
+    id: `ai_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+    userId: account?.id || "",
+    email: normalizeEmail(account?.email || ""),
+    taskType,
+    creditsUsed: Number(creditsUsed || 0),
+    createdAt: isoNow(),
+  });
+  writeJsonStorage(AI_USAGE_STORAGE_KEY, records.slice(0, 500));
+}
+
+async function requestAiGeneration(taskType, data = {}) {
+  if (!canUseAiTask(taskType)) {
+    openFeatureLockModal(aiTaskFeature(taskType));
+    throw new Error("insufficient_credits");
+  }
+  const response = await fetch("/api/ai/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ taskType, language: currentLanguage, data }),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || !payload.success) throw new Error(payload.error || "ai_generation_failed");
+  const used = consumeAiCredits(taskType);
+  recordAiUsage(taskType, used || aiTaskCredits(taskType));
+  return payload.result || {};
+}
+
+function setButtonLoading(button, label) {
+  if (!button) return () => {};
+  const original = button.innerHTML;
+  button.disabled = true;
+  button.innerHTML = `${icon("sparkles")} ${escapeHtml(label)}`;
+  return () => {
+    button.disabled = false;
+    button.innerHTML = original;
+  };
+}
+
+function openAiSuggestionModal({ title = aiCopy().suggestionTitle, text = "", onApply }) {
+  const copy = aiCopy();
+  document.querySelectorAll(".ai-suggestion-modal").forEach((modal) => modal.remove());
+  const modal = document.createElement("div");
+  modal.className = "template-preview-modal ai-suggestion-modal";
+  modal.innerHTML = `
+    <section class="template-preview-dialog ai-suggestion-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(title)}">
+      <header class="template-preview-header">
+        <div><span class="eyebrow">Succeedora AI</span><h2>${escapeHtml(title)}</h2><p>${escapeHtml(copy.editBeforeApply)}</p></div>
+        <button class="icon-button" type="button" data-ai-suggestion-close aria-label="${escapeHtml(copy.discard)}">${icon("close")}</button>
+      </header>
+      <div class="template-preview-content">
+        <textarea class="ai-suggestion-textarea" data-ai-suggestion-text>${escapeHtml(text)}</textarea>
+      </div>
+      <footer class="template-preview-footer">
+        <button class="secondary-button" type="button" data-ai-suggestion-close>${escapeHtml(copy.discard)}</button>
+        <button class="primary-button" type="button" data-ai-suggestion-apply>${escapeHtml(copy.apply)}</button>
+      </footer>
+    </section>
+  `;
+  document.body.appendChild(modal);
+  const close = () => modal.remove();
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal || event.target.closest("[data-ai-suggestion-close]")) close();
+    if (event.target.closest("[data-ai-suggestion-apply]")) {
+      const value = modal.querySelector("[data-ai-suggestion-text]")?.value || "";
+      if (typeof onApply === "function") onApply(value);
+      close();
+    }
+  });
+}
+
+function showAiInlineMessage(message, type = "error") {
+  const existing = document.querySelector("[data-ai-inline-message]");
+  if (existing) {
+    existing.textContent = message;
+    existing.hidden = false;
+    return;
+  }
+  const target = document.querySelector(".builder-form") || document.querySelector("[data-letter-builder]") || document.querySelector(".ai-input-panel");
+  if (!target) return;
+  const note = document.createElement("p");
+  note.className = type === "error" ? "auth-error" : "settings-message";
+  note.setAttribute("data-ai-inline-message", "");
+  note.textContent = message;
+  target.prepend(note);
 }
 
 function showFormError(form, message) {
@@ -4635,6 +5829,7 @@ function validateAuthForm(form, mode) {
   if (mode === "signin") {
     const account = findAccountByEmail(email);
     if (!account || account.password !== String(form.password?.value || "")) return a.errors.login;
+    if (account.status === "blocked") return a.errors.login;
     return "";
   }
   if (mode === "forgot") return "";
@@ -4643,6 +5838,7 @@ function validateAuthForm(form, mode) {
     if (!validName(form.fullName?.value)) return a.errors.name;
     if (!strongPassword(form.password?.value)) return a.errors.password;
     if (form.password?.value !== form.confirmPassword?.value) return a.errors.confirm;
+    if (!form.acceptLegal?.checked) return a.errors.legal;
   }
   if (mode === "reset") {
     const attempts = Number(localStorage.getItem("succeedora.resetAttempts") || "0");
@@ -4731,14 +5927,20 @@ function bindAdminInteractions() {
   const applyFilters = () => {
     const query = String(document.querySelector("[data-admin-filter]")?.value || "").trim().toLowerCase();
     const status = document.querySelector("[data-admin-status-filter]")?.value || "";
+    const category = document.querySelector("[data-admin-category-filter]")?.value || "";
+    const priority = document.querySelector("[data-admin-priority-filter]")?.value || "";
     document.querySelectorAll("[data-admin-row]").forEach((row) => {
       const matchesQuery = !query || String(row.getAttribute("data-search") || "").includes(query);
       const matchesStatus = !status || row.getAttribute("data-status") === status;
-      row.hidden = !(matchesQuery && matchesStatus);
+      const matchesCategory = !category || row.getAttribute("data-category") === category;
+      const matchesPriority = !priority || row.getAttribute("data-priority") === priority;
+      row.hidden = !(matchesQuery && matchesStatus && matchesCategory && matchesPriority);
     });
   };
   document.querySelector("[data-admin-filter]")?.addEventListener("input", applyFilters);
   document.querySelector("[data-admin-status-filter]")?.addEventListener("change", applyFilters);
+  document.querySelector("[data-admin-category-filter]")?.addEventListener("change", applyFilters);
+  document.querySelector("[data-admin-priority-filter]")?.addEventListener("change", applyFilters);
   document.querySelectorAll("[data-admin-view-user]").forEach((button) => {
     button.addEventListener("click", () => openAdminUserDetails(button.getAttribute("data-admin-view-user")));
   });
@@ -4766,30 +5968,73 @@ function bindAdminInteractions() {
   document.querySelectorAll("[data-admin-view-payment]").forEach((button) => {
     button.addEventListener("click", () => openAdminPaymentDetails(button.getAttribute("data-admin-payment-user"), button.getAttribute("data-admin-view-payment")));
   });
+  document.querySelectorAll("[data-admin-view-support]").forEach((button) => {
+    button.addEventListener("click", () => openAdminSupportTicket(button.getAttribute("data-admin-view-support")));
+  });
+  document.querySelectorAll("[data-admin-support-progress]").forEach((button) => {
+    button.addEventListener("click", () => {
+      adminMarkSupportTicketInProgress(button.getAttribute("data-admin-support-progress"));
+      render();
+    });
+  });
+  document.querySelectorAll("[data-admin-support-close]").forEach((button) => {
+    button.addEventListener("click", () => {
+      adminCloseSupportTicket(button.getAttribute("data-admin-support-close"));
+      adminSetFlash(t().admin.messages.ticketClosed);
+      render();
+    });
+  });
 }
 
 function bindInteractions() {
   bindAdminInteractions();
   document.querySelectorAll("[data-auth-form]").forEach((form) => {
+    const termsCheck = form.querySelector("[data-terms-check]");
+    if (termsCheck) {
+      termsCheck.addEventListener("change", () => {
+        if (termsCheck.checked) {
+          const visibleError = form.querySelector("[data-auth-error]");
+          if (visibleError && visibleError.textContent === t().auth.errors.legal) {
+            visibleError.textContent = "";
+            visibleError.hidden = true;
+          }
+        }
+      });
+    }
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       if (form.dataset.submitting === "true") return;
-      if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-      }
       const visibleError = form.querySelector("[data-auth-error]");
       if (visibleError) {
         visibleError.textContent = "";
         visibleError.hidden = true;
       }
       const mode = form.getAttribute("data-auth-form");
+      if (mode === "signup" && !form.acceptLegal?.checked) {
+        showFormError(form, t().auth.errors.legal);
+        form.acceptLegal?.focus();
+        return;
+      }
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
       const validationError = validateAuthForm(form, mode);
       if (validationError) {
         showFormError(form, validationError);
         return;
       }
       const button = form.querySelector("[data-auth-submit]");
+      const restoreSubmitButton = () => {
+        form.dataset.submitting = "false";
+        if (!button) return;
+        button.disabled = false;
+        if (mode === "signin") button.textContent = t().auth.signInButton;
+        else if (mode === "signup") button.textContent = t().auth.signUpButton;
+        else if (mode === "forgot") button.textContent = t().auth.sendCode;
+        else if (mode === "verify") button.textContent = t().auth.verifyButton;
+        else if (mode === "reset") button.textContent = t().auth.updatePassword;
+      };
       form.dataset.submitting = "true";
       if (button) {
         button.disabled = true;
@@ -4800,12 +6045,17 @@ function bindInteractions() {
         if (mode === "signin") {
           const account = findAccountByEmail(form.email.value);
           if (account) {
-            setSession(account);
+            const remember = form.rememberUser?.checked !== false;
+            setSession(account, remember);
             if (account.emailVerified === false) {
-              await issueVerificationCode(account);
-              setRoute("/verify-email");
+              const result = await issueVerificationCode(account);
+              if (result.ok) setRoute("/verify-email");
+              else {
+                showFormError(form, result.reason === "cooldown" ? t().auth.codeHelp : t().auth.verificationSendError);
+                restoreSubmitButton();
+              }
             } else {
-              setRoute(consumeIntendedRoute());
+              routeToDashboardEntry(consumeIntendedRoute());
             }
           }
         } else if (mode === "signup") {
@@ -4815,18 +6065,16 @@ function bindInteractions() {
             password: form.password.value,
           });
           if (account) {
-            setSession(account);
-            writeJsonStorage(userScopedStorageKey(PROFILE_STORAGE_KEY, account), account.profile);
             const result = await issueVerificationCode(account);
             if (!result.ok) {
+              deleteAccount(account.id);
+              signOut();
               showFormError(form, t().auth.verificationSendError);
-              form.dataset.submitting = "false";
-              if (button) {
-                button.disabled = false;
-                button.textContent = t().auth.signUpButton;
-              }
+              restoreSubmitButton();
               return;
             }
+            setSession(account);
+            writeJsonStorage(userScopedStorageKey(PROFILE_STORAGE_KEY, account), account.profile);
             setRoute("/verify-email");
           }
         } else if (mode === "forgot") {
@@ -4835,15 +6083,11 @@ function bindInteractions() {
             message.textContent = t().auth.resetPrepared;
             message.hidden = false;
           }
-          form.dataset.submitting = "false";
-          if (button) {
-            button.disabled = false;
-            button.textContent = t().auth.sendCode;
-          }
+          restoreSubmitButton();
           return;
         } else if (mode === "verify") {
           setVerifiedUser(true);
-          setRoute(consumeIntendedRoute());
+          routeToDashboardEntry(consumeIntendedRoute());
         } else if (mode === "reset") {
           setRoute("/signin");
         }
@@ -4851,12 +6095,28 @@ function bindInteractions() {
     });
   });
 
+  document.querySelectorAll("[data-password-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const input = button.closest(".password-input-wrap")?.querySelector("input");
+      if (!input) return;
+      const isVisible = input.type === "text";
+      const nextVisible = !isVisible;
+      input.type = nextVisible ? "text" : "password";
+      const label = nextVisible ? t().auth.hidePassword : t().auth.showPassword;
+      button.setAttribute("aria-label", label);
+      button.setAttribute("aria-pressed", String(nextVisible));
+      button.setAttribute("title", label);
+      button.innerHTML = icon(nextVisible ? "eyeOff" : "eye");
+      input.focus();
+    });
+  });
+
   document.querySelectorAll("[data-new-resume]").forEach((button) => {
     button.addEventListener("click", (event) => {
-      if (!isPaidPlan() && loadResumes().length >= 1) {
+      if (!canUseFeature("unlimited_resumes") && loadResumes().length >= 1) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        openUpgradeModal("resume-limit");
+        openFeatureLockModal("unlimited_resumes");
         return;
       }
       currentBuilderResumeId = null;
@@ -4882,6 +6142,10 @@ function bindInteractions() {
     button.addEventListener("click", () => {
       const resume = findResume(button.getAttribute("data-duplicate-resume"));
       if (!resume) return;
+      if (!canUseFeature("unlimited_resumes") && loadResumes().length >= 1) {
+        openFeatureLockModal("unlimited_resumes");
+        return;
+      }
       const now = isoNow();
       upsertResume({ ...resume, id: newResumeId(), title: `${resumeLabels().copyPrefix} ${resume.title}`, createdAt: now, updatedAt: now });
       render();
@@ -4907,9 +6171,17 @@ function bindInteractions() {
   document.querySelectorAll("[data-route]").forEach((el) => {
     el.addEventListener("click", (event) => {
       event.preventDefault();
+      if (el.hasAttribute("data-ai-action")) {
+        const featureKey = aiActionFeature(el.getAttribute("data-ai-action") || "ai");
+        if (!canUseFeature(featureKey)) {
+          event.stopImmediatePropagation();
+          openFeatureLockModal(featureKey);
+          return;
+        }
+      }
       if (el.hasAttribute("data-ai-action") && requiresAiCredits(el.getAttribute("data-ai-action") || "ai")) {
         event.stopImmediatePropagation();
-        openUpgradeModal("ai");
+        openFeatureLockModal("ai_credits");
         return;
       }
       if (el.hasAttribute("data-sign-out")) {
@@ -5035,6 +6307,36 @@ function bindInteractions() {
     });
   });
 
+  document.querySelectorAll("[data-support-form]").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      const button = form.querySelector(".support-submit-button");
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = `${icon("mail")} ${escapeHtml(t().support.sending)}`;
+      }
+      createSupportTicket({
+        subject: form.subject.value,
+        category: form.category.value,
+        priority: form.priority.value,
+        message: form.message.value,
+      });
+      renderSupport(t().support.success);
+    });
+  });
+
+  document.querySelectorAll("[data-support-focus]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const form = document.querySelector("[data-support-form]");
+      form?.scrollIntoView({ behavior: "smooth", block: "center" });
+      form?.querySelector("input, select, textarea")?.focus();
+    });
+  });
+
   const navToggle = document.querySelector(".nav-toggle");
   const publicNav = document.querySelector(".public-nav");
   if (navToggle && publicNav) navToggle.addEventListener("click", () => publicNav.classList.toggle("open"));
@@ -5096,7 +6398,13 @@ function bindInteractions() {
   });
 
   document.querySelectorAll("[data-cover-letter-new]").forEach((button) => {
-    button.addEventListener("click", startNewCoverLetter);
+    button.addEventListener("click", () => {
+      if (!canUseFeature("cover_letters_unlimited") && loadCoverLetters().length >= 1) {
+        openFeatureLockModal("cover_letters_unlimited");
+        return;
+      }
+      startNewCoverLetter();
+    });
   });
 
   function refreshCoverLetterPreview(markUnsaved = true) {
@@ -5145,7 +6453,7 @@ function bindInteractions() {
   });
 
   document.querySelectorAll("[data-cover-letter-generate]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
       const labels = coverLetterLabels();
       const draft = updateCoverLetterDraftFromForm();
       if (!draft.jobDescription && !draft.targetRole && !draft.company && !draft.strengths && !draft.experience) {
@@ -5156,9 +6464,25 @@ function bindInteractions() {
         }
         return;
       }
-      draft.body = generateCoverLetterBody(draft);
+      if (!canUseAiTask("generate_cover_letter")) {
+        openFeatureLockModal("ai_cover_letter");
+        return;
+      }
+      const restore = setButtonLoading(button, aiCopy().generating);
+      try {
+        const result = await requestAiGeneration("generate_cover_letter", {
+          letter: draft,
+          resume: draft.resumeId ? findResume(draft.resumeId) : selectedAiResume(),
+        });
+        draft.body = result.body || generateCoverLetterBody(draft);
+      } catch (error) {
+        if (error.message === "insufficient_credits") return;
+        draft.body = generateCoverLetterBody(draft);
+        coverLetterSaveMessage = aiCopy().fallbackError;
+      } finally {
+        restore();
+      }
       coverLetterDraft = draft;
-      coverLetterSaveMessage = "";
       routes["/dashboard/cover-letters"]();
     });
   });
@@ -5173,6 +6497,10 @@ function bindInteractions() {
           message.textContent = labels.validationSave;
           message.hidden = false;
         }
+        return;
+      }
+      if (!currentCoverLetterId && !canUseFeature("cover_letters_unlimited") && loadCoverLetters().length >= 1) {
+        openFeatureLockModal("cover_letters_unlimited");
         return;
       }
       const saved = upsertCoverLetter({ ...draft, id: currentCoverLetterId || draft.id });
@@ -5199,16 +6527,8 @@ function bindInteractions() {
     button.addEventListener("click", () => {
       const source = findCoverLetter(button.getAttribute("data-cover-letter-duplicate"));
       if (!source) return;
-      if (!isPaidPlan() && loadCoverLetters().length >= 1) {
-        const labels = coverLetterLabels();
-        openAccessModal({
-          title: labels.limitTitle,
-          text: labels.limitText,
-          actions: [
-            { label: labels.viewPlans, onClick: () => setRoute("/dashboard/billing") },
-            { label: labels.actions.cancel, className: "secondary-button" },
-          ],
-        });
+      if (!canUseFeature("cover_letters_unlimited") && loadCoverLetters().length >= 1) {
+        openFeatureLockModal("cover_letters_unlimited");
         return;
       }
       const now = isoNow();
@@ -5300,7 +6620,7 @@ function bindInteractions() {
     button.addEventListener("click", () => {
       const template = button.getAttribute("data-resume-template");
       if (!canUseTemplate(template)) {
-        openUpgradeModal("template");
+        openFeatureLockModal("premium_templates", { templateKey: template });
         return;
       }
       selectedTemplateKey = template;
@@ -5343,11 +6663,11 @@ function bindInteractions() {
         return;
       }
       if (!canUseTemplate(templateKey)) {
-        openUpgradeModal("template");
+        openFeatureLockModal("premium_templates", { templateKey });
         return;
       }
-      if (!pendingTemplateChangeDraft && !isPaidPlan() && loadResumes().length >= 1) {
-        openUpgradeModal("resume-limit");
+      if (!pendingTemplateChangeDraft && !canUseFeature("unlimited_resumes") && loadResumes().length >= 1) {
+        openFeatureLockModal("unlimited_resumes");
         return;
       }
       useTemplateForBuilder(templateKey);
@@ -5419,11 +6739,30 @@ function bindInteractions() {
   });
 
   document.querySelectorAll("[data-watermark-option]").forEach((button) => {
-    button.addEventListener("click", () => openPixPaymentModal("remove_watermark"));
+    button.addEventListener("click", () => {
+      const resumeId = loadResumes()[0]?.id || currentResumeAccessId();
+      if (canUseFeature("remove_watermark", { resumeId })) {
+        setRoute("/dashboard/resumes");
+        return;
+      }
+      openFeatureLockModal("remove_watermark", { resumeId });
+    });
   });
 
   document.querySelectorAll("[data-one-time-purchase], [data-buy-credits]").forEach((button) => {
     button.addEventListener("click", () => openPixPaymentModal(button.getAttribute("data-pix-product") || "premium_pdf"));
+  });
+
+  document.querySelectorAll("[data-stripe-checkout]").forEach((button) => {
+    button.addEventListener("click", () => startStripeCheckout(button.getAttribute("data-stripe-checkout") || "premium_pdf", {}, button));
+  });
+
+  document.querySelectorAll("[data-stripe-portal]").forEach((button) => {
+    button.addEventListener("click", () => openStripeCustomerPortal(button));
+  });
+
+  document.querySelectorAll("[data-payment-details]").forEach((button) => {
+    button.addEventListener("click", () => openPaymentDetailsModal(button.getAttribute("data-payment-details")));
   });
 
   document.querySelectorAll("[data-plan-placeholder]").forEach((button) => {
@@ -5432,16 +6771,95 @@ function bindInteractions() {
 
   document.querySelectorAll("[data-ai-action]").forEach((button) => {
     button.addEventListener("click", (event) => {
+      const featureKey = aiActionFeature(button.getAttribute("data-ai-action") || "ai");
+      if (!canUseFeature(featureKey)) {
+        event.preventDefault();
+        event.stopPropagation();
+        openFeatureLockModal(featureKey);
+        return;
+      }
       if (requiresAiCredits(button.getAttribute("data-ai-action") || "ai")) {
         event.preventDefault();
         event.stopPropagation();
-        openUpgradeModal("ai");
+        openFeatureLockModal("ai_credits");
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-ai-builder-task]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const taskType = button.getAttribute("data-ai-builder-task") || "";
+      if (!canUseAiTask(taskType)) {
+        openFeatureLockModal(aiTaskFeature(taskType));
+        return;
+      }
+      const copy = aiCopy();
+      const restore = setButtonLoading(button, taskType === "rewrite_experience" ? copy.improving : copy.generating);
+      const resume = collectBuilderResume();
+      const setField = (name, value) => {
+        const field = document.querySelector(`[data-resume-field="${name}"]`);
+        if (!field) return;
+        field.value = value;
+        field.dispatchEvent(new Event("input", { bubbles: true }));
+      };
+      try {
+        const result = await requestAiGeneration(taskType, { resume });
+        if (taskType === "generate_professional_summary" || taskType === "improve_professional_summary") {
+          const fallback = ruleBasedSummary(resume);
+          openAiSuggestionModal({
+            title: taskType === "generate_professional_summary" ? copy.generateSummary : copy.improveSummary,
+            text: result.summary || fallback,
+            onApply: (value) => setField("summary", value),
+          });
+        } else if (taskType === "rewrite_experience") {
+          const bullets = result.bullets?.length ? result.bullets : ruleBasedExperienceBullets(resume);
+          openAiSuggestionModal({
+            title: copy.improveExperience,
+            text: bullets.join("\n"),
+            onApply: (value) => setField("experience", value),
+          });
+        } else if (taskType === "suggest_skills") {
+          const skills = result.skills?.length ? result.skills : ruleBasedSkillSuggestions(resume);
+          openAiSuggestionModal({
+            title: copy.suggestSkills,
+            text: skills.join(", "),
+            onApply: (value) => setField("skills", value),
+          });
+        } else if (taskType === "translate_resume") {
+          const translated = result.resume && Object.keys(result.resume).length ? result.resume : resume;
+          openAiSuggestionModal({
+            title: copy.translateResume,
+            text: JSON.stringify(translated, null, 2),
+            onApply: (value) => {
+              try {
+                builderDraft = normalizeResume({ ...resume, ...JSON.parse(value) });
+                routes["/dashboard/builder"]();
+              } catch (error) {
+                showAiInlineMessage(copy.fallbackError);
+              }
+            },
+          });
+        }
+      } catch (error) {
+        if (error.message !== "insufficient_credits") {
+          if (taskType === "generate_professional_summary" || taskType === "improve_professional_summary") {
+            openAiSuggestionModal({ title: copy.suggestionTitle, text: ruleBasedSummary(resume), onApply: (value) => setField("summary", value) });
+          } else if (taskType === "rewrite_experience") {
+            openAiSuggestionModal({ title: copy.suggestionTitle, text: ruleBasedExperienceBullets(resume).join("\n"), onApply: (value) => setField("experience", value) });
+          } else if (taskType === "suggest_skills") {
+            openAiSuggestionModal({ title: copy.suggestionTitle, text: ruleBasedSkillSuggestions(resume).join(", "), onApply: (value) => setField("skills", value) });
+          } else {
+            showAiInlineMessage(copy.fallbackError);
+          }
+        }
+      } finally {
+        restore();
       }
     });
   });
 
   document.querySelectorAll("[data-ai-form]").forEach((form) => {
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const getValue = (name) => form.querySelector(`[data-ai-field="${name}"]`)?.value.trim() || "";
       const nextState = {
@@ -5463,12 +6881,68 @@ function bindInteractions() {
         render();
         return;
       }
+      if (!canUseAiTask("analyze_job_description")) {
+        openFeatureLockModal("ats_advanced");
+        aiAssistantState = { ...aiAssistantState, ...nextState, error: aiCopy().noCredits };
+        render();
+        return;
+      }
       aiAssistantState = { ...nextState, result: { state: "loading" } };
       render();
-      window.setTimeout(() => {
-        aiAssistantState = { ...nextState, result: analyzeResumeForJob(resume, nextState), error: "" };
+      try {
+        const result = await requestAiGeneration("analyze_job_description", { resume, job: nextState });
+        aiAssistantState = { ...nextState, result: aiAnalysisResult(result, resume, nextState), error: "" };
         render();
-      }, 350);
+      } catch (error) {
+        aiAssistantState = {
+          ...nextState,
+          result: error.message === "insufficient_credits" ? null : analyzeResumeForJob(resume, nextState),
+          error: error.message === "insufficient_credits" ? aiCopy().noCredits : aiCopy().fallbackError,
+        };
+        render();
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-ai-tailor-job]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const form = button.closest("form");
+      const getValue = (name) => form?.querySelector(`[data-ai-field="${name}"]`)?.value.trim() || "";
+      const values = {
+        resumeId: getValue("resumeId"),
+        jobTitle: getValue("jobTitle"),
+        company: getValue("company"),
+        jobDescription: getValue("jobDescription"),
+      };
+      const resume = findResume(values.resumeId);
+      if (!resume || !values.jobDescription) {
+        aiAssistantState = { ...aiAssistantState, ...values, error: !resume ? t().ai.selectResumeError : t().ai.jobDescriptionError };
+        render();
+        return;
+      }
+      if (!canUseFeature("job_tailoring", { resumeId: resume.id })) {
+        openFeatureLockModal("job_tailoring", { resumeId: resume.id });
+        return;
+      }
+      if (!canUseAiTask("tailor_resume_to_job")) {
+        openFeatureLockModal("job_tailoring", { resumeId: resume.id });
+        return;
+      }
+      const restore = setButtonLoading(button, aiCopy().improving);
+      try {
+        const result = await requestAiGeneration("tailor_resume_to_job", { resume, job: values });
+        const text = [
+          result.summary ? `${t().builder.labels.summary}\n${result.summary}` : "",
+          result.experienceBullets?.length ? `${t().builder.labels.achievements}\n${result.experienceBullets.join("\n")}` : "",
+          result.keywords?.length ? `${t().ai.missingKeywords}\n${result.keywords.join(", ")}` : "",
+          result.suggestions?.length ? `${t().ai.suggestionsTitle}\n${result.suggestions.join("\n")}` : "",
+        ].filter(Boolean).join("\n\n");
+        openAiSuggestionModal({ title: aiCopy().tailorJob, text: text || aiCopy().fallbackError });
+      } catch (error) {
+        if (error.message !== "insufficient_credits") showAiInlineMessage(aiCopy().fallbackError);
+      } finally {
+        restore();
+      }
     });
   });
 
@@ -5615,9 +7089,10 @@ function closeAccessModal() {
   document.querySelector(".access-modal")?.remove();
 }
 
-function openAccessModal({ title, text, detail = "", actions = [] }) {
+function openAccessModal({ title, text, detail = "", featureName = "", requirement = "", benefits = [], actions = [] }) {
   const root = document.body || document.getElementById("app");
-  const paymentDetail = detail || t().dashboard.access.paymentDetail || "";
+  const paymentDetail = detail === null ? "" : (detail || t().dashboard.access.paymentDetail || "");
+  const accessCopy = featureAccessCopy();
   closeAccessModal();
   const modal = document.createElement("div");
   modal.className = "template-preview-modal access-modal";
@@ -5625,7 +7100,14 @@ function openAccessModal({ title, text, detail = "", actions = [] }) {
     <div class="template-preview-backdrop" data-access-close></div>
     <section class="template-preview-dialog access-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(title)}">
       <header class="template-preview-header">
-        <div><span class="eyebrow">Succeedora</span><h2>${escapeHtml(title)}</h2><p>${escapeHtml(text)}</p>${paymentDetail ? `<p class="access-payment-detail">${escapeHtml(paymentDetail)}</p>` : ""}</div>
+        <div>
+          <span class="eyebrow">Succeedora</span>
+          <h2>${escapeHtml(title)}</h2>
+          ${featureName ? `<div class="access-feature-row"><strong>${escapeHtml(featureName)}</strong>${requirement ? `<span class="locked-badge">${icon("lock")} ${escapeHtml(requirement)}</span>` : ""}</div>` : ""}
+          <p>${escapeHtml(text)}</p>
+          ${benefits.length ? `<div class="access-benefits-wrap"><strong>${escapeHtml(accessCopy.benefitsTitle)}</strong><ul class="access-benefits">${benefits.map((benefit) => `<li>${escapeHtml(benefit)}</li>`).join("")}</ul></div>` : ""}
+          ${paymentDetail ? `<p class="access-payment-detail">${escapeHtml(paymentDetail)}</p>` : ""}
+        </div>
         <button class="icon-button" type="button" data-access-close aria-label="${t().dashboard.close}">${icon("close")}</button>
       </header>
       <footer class="template-preview-footer access-actions">
@@ -5645,15 +7127,15 @@ function openAccessModal({ title, text, detail = "", actions = [] }) {
 }
 
 function openUpgradeModal(kind = "default") {
-  const access = t().dashboard.access;
-  openAccessModal({
-    title: access.unlockTitle,
-    text: access.unlockText,
-    detail: access.paymentDetail,
-    actions: [
-      { label: access.gotIt || access.continueFree },
-    ],
-  });
+  const map = {
+    ai: "ai_credits",
+    template: "premium_templates",
+    "resume-limit": "unlimited_resumes",
+    "cover-letter": "cover_letters_unlimited",
+    "watermark": "watermark_free_pdf",
+    "ats": "ats_advanced",
+  };
+  openFeatureLockModal(map[kind] || "premium_templates");
 }
 
 function openPaymentComingSoonModal() {
@@ -5668,22 +7150,25 @@ function openPaymentComingSoonModal() {
   });
 }
 
-function createPixPaymentRequest(productType) {
+function createPixPaymentRequest(productType, context = {}) {
   const product = localizedPixProduct(productType);
-  if (!product || !paymentConfig.pixEnabled) return null;
   const account = currentAccount();
+  if (!product || !paymentConfig.pixEnabled || !account?.id) return null;
   const id = `pix_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
-  const pixPayload = generatePixPayload({
+  const pixPayment = generatePixPaymentCode({
     amount: product.amount,
+    productName: product.productName,
     description: product.description,
     orderId: id.replace(/^pix_/, "").slice(0, 12),
     merchantName: paymentConfig.merchantName,
     merchantCity: paymentConfig.merchantCity,
     pixKey: paymentConfig.pixKey,
+    pixKeyType: paymentConfig.pixKeyType,
   });
   return upsertPaymentRequest({
     id,
     userId: account?.id || "",
+    userName: account?.profile?.fullName || account?.email || "",
     userEmail: account?.email || getAuthEmail(),
     productType,
     productName: product.productName,
@@ -5691,7 +7176,11 @@ function createPixPaymentRequest(productType) {
     currency: product.currency,
     paymentMethod: "pix",
     pixKey: paymentConfig.pixKey,
-    pixPayload,
+    pixKeyType: paymentConfig.pixKeyType,
+    pixPayload: pixPayment.pixPayload,
+    resumeId: context.resumeId || currentResumeAccessId(),
+    templateKey: context.templateKey || "",
+    creditAmount: productType === "ai_credits" ? 10 : 0,
     status: "pending_payment",
     createdAt: isoNow(),
     confirmedByUserAt: "",
@@ -5714,13 +7203,121 @@ function copyTextToClipboard(text) {
   return Promise.resolve();
 }
 
-function openPixPaymentModal(productType) {
+function stripeMessage(message, type = "error") {
+  const existing = document.querySelector("[data-stripe-message]");
+  if (existing) existing.remove();
+  const target = document.querySelector(".billing-summary") || document.querySelector(".monetization") || document.querySelector("#app");
+  if (!target) return;
+  const note = document.createElement("p");
+  note.className = type === "error" ? "auth-error" : "settings-message";
+  note.setAttribute("data-stripe-message", "");
+  note.textContent = message;
+  target.appendChild(note);
+}
+
+async function startStripeCheckout(productType, context = {}, button = null) {
   const labels = t().payments;
-  const request = createPixPaymentRequest(productType);
+  if (!isLoggedIn()) {
+    rememberIntendedRoute("/dashboard/billing");
+    setRoute("/signin");
+    return;
+  }
+  const account = currentAccount();
+  const originalText = button?.textContent || "";
+  if (button) {
+    button.disabled = true;
+    button.textContent = labels.redirectingStripe;
+  }
+  try {
+    const response = await fetch("/api/stripe/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: account.id,
+        userEmail: account.email,
+        productType,
+        productId: context.productId || "",
+        resumeId: context.resumeId || currentResumeAccessId(),
+        templateId: context.templateId || selectedTemplateKey || "",
+        quantity: context.quantity || 1,
+        successUrl: `${window.location.origin}${window.location.pathname}#/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${window.location.origin}${window.location.pathname}#/payment/cancel`,
+      }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.success || !payload.checkoutUrl) throw new Error(payload.error || "stripe_checkout_failed");
+    const product = localizedPixProduct(productType);
+    const planLabels = currentLanguage === "pt" ? { plan_pro: "Plano Pro", plan_premium: "Plano Premium" } : { plan_pro: "Pro plan", plan_premium: "Premium plan" };
+    upsertPaymentRequest({
+      id: payload.sessionId || `stripe_${Date.now().toString(36)}`,
+      userId: account.id,
+      userName: account.profile?.fullName || account.email,
+      userEmail: account.email,
+      productType,
+      productName: product?.productName || planLabels[productType] || productType,
+      amount: product?.amount || 0,
+      currency: paymentConfig.currency,
+      paymentMethod: "stripe",
+      status: "pending",
+      stripeSessionId: payload.sessionId || "",
+      resumeId: context.resumeId || currentResumeAccessId(),
+      templateKey: context.templateId || selectedTemplateKey || "",
+      creditAmount: productType === "ai_credits" ? 10 : 0,
+      createdAt: isoNow(),
+    });
+    window.location.assign(payload.checkoutUrl);
+  } catch (error) {
+    stripeMessage(labels.stripeUnavailable);
+    if (button) {
+      button.disabled = false;
+      button.textContent = originalText;
+    }
+  }
+}
+
+async function openStripeCustomerPortal(button = null) {
+  const labels = t().payments;
+  const account = currentAccount();
+  if (!account) {
+    setRoute("/signin");
+    return;
+  }
+  const originalText = button?.textContent || "";
+  if (button) {
+    button.disabled = true;
+    button.textContent = labels.redirectingStripe;
+  }
+  try {
+    const response = await fetch("/api/stripe/create-customer-portal-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: account.id, returnUrl: `${window.location.origin}${window.location.pathname}#/dashboard/billing` }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.success || !payload.portalUrl) throw new Error(payload.error || "stripe_portal_failed");
+    window.location.assign(payload.portalUrl);
+  } catch (error) {
+    stripeMessage(labels.stripeUnavailable);
+    if (button) {
+      button.disabled = false;
+      button.textContent = originalText;
+    }
+  }
+}
+
+function openPixPaymentModal(productType, context = {}) {
+  const labels = t().payments;
+  if (!isLoggedIn()) {
+    rememberIntendedRoute("/dashboard/billing");
+    setRoute("/signin");
+    return;
+  }
+  const request = createPixPaymentRequest(productType, context);
   if (!request) {
     openPaymentComingSoonModal();
     return;
   }
+  const qrCodeSvg = qrSvg(request.pixPayload);
   closeAccessModal();
   const root = document.body || document.getElementById("app");
   const modal = document.createElement("div");
@@ -5737,13 +7334,14 @@ function openPixPaymentModal(productType) {
         <button class="icon-button" type="button" data-access-close aria-label="${t().dashboard.close}">${icon("close")}</button>
       </header>
       <div class="pix-payment-body">
-        <div class="pix-qr-card">${qrSvg(request.pixPayload)}</div>
+        <div class="pix-qr-card">${qrCodeSvg}</div>
         <div class="pix-payment-details">
           <dl>
+            <div><dt>${escapeHtml(labels.orderId)}</dt><dd><code>${escapeHtml(request.id)}</code></dd></div>
             <div><dt>${escapeHtml(labels.product)}</dt><dd>${escapeHtml(request.productName)}</dd></div>
             <div><dt>${escapeHtml(labels.amount)}</dt><dd>${escapeHtml(formatCurrencyBRL(request.amount))}</dd></div>
             <div><dt>${escapeHtml(labels.status)}</dt><dd data-pix-status>${escapeHtml(paymentStatusLabel(request.status))}</dd></div>
-            <div><dt>${escapeHtml(labels.pixKey)}</dt><dd>${escapeHtml(`${paymentConfig.pixKeyType} ${formattedPixKey()}`)}</dd></div>
+            <div><dt>${escapeHtml(labels.pixKey)}</dt><dd>${escapeHtml(`${request.pixKeyType || paymentConfig.pixKeyType} ${formatPixKeyValue(request.pixKey || paymentConfig.pixKey)}`)}</dd></div>
           </dl>
           <label class="pix-copy-field">
             <span>${escapeHtml(labels.pixCopyPaste)}</span>
@@ -5828,7 +7426,7 @@ function openWatermarkRemovalModal({ resumeId = currentResumeAccessId(), button 
   `;
   root.appendChild(modal);
   modal.querySelectorAll("[data-access-close]").forEach((item) => item.addEventListener("click", closeAccessModal));
-  modal.querySelector("[data-watermark-paid]")?.addEventListener("click", () => openPixPaymentModal("remove_watermark"));
+  modal.querySelector("[data-watermark-paid]")?.addEventListener("click", () => openPixPaymentModal("remove_watermark", { resumeId }));
   modal.querySelector("[data-watermark-free]")?.addEventListener("click", () => {
     closeAccessModal();
     if (exportMode === "data") exportResumeDataPdf(resumeId, button, { forceBranded: true, skipPrompt: true });
@@ -5899,11 +7497,11 @@ function openTemplatePreview(templateKey, context = "public") {
         return;
       }
       if (!canUseTemplate(selectedTemplateKey)) {
-        openUpgradeModal("template");
+        openFeatureLockModal("premium_templates", { templateKey: selectedTemplateKey });
         return;
       }
-      if (!pendingTemplateChangeDraft && !isPaidPlan() && loadResumes().length >= 1) {
-        openUpgradeModal("resume-limit");
+      if (!pendingTemplateChangeDraft && !canUseFeature("unlimited_resumes") && loadResumes().length >= 1) {
+        openFeatureLockModal("unlimited_resumes");
         return;
       }
       modal.remove();
@@ -6614,6 +8212,8 @@ function renderHome() {
   const copy = t();
   const p = copy.public;
   const seo = localizedSeo("home");
+  const trustIcons = ["shield", "globe", "download"];
+  const heroProductChips = currentLanguage === "pt" ? ["ATS", "Keywords", "Resumo", "Carta"] : ["ATS", "Keywords", "Summary", "Cover Letter"];
   mount(`
     <div class="public-shell home-shell">
       ${publicHeader()}
@@ -6627,9 +8227,13 @@ function renderHome() {
               <a class="primary-button" href="#/signup" data-route="/signup">${p.primaryCta} ${icon("arrow")}</a>
               <a class="secondary-button" href="#templates">${p.secondaryCta}</a>
             </div>
-            <div class="trust-row">${p.trust.map((item) => `<span>${item}</span>`).join("")}</div>
+            <div class="trust-row">${p.trust.map((item, index) => `<span>${icon(trustIcons[index] || "check")}${item}</span>`).join("")}</div>
           </div>
           <div class="hero-visual" aria-label="${p.secondaryCta}">
+            <div class="hero-visual-glow" aria-hidden="true"></div>
+            <div class="hero-product-chips" aria-hidden="true">
+              ${heroProductChips.map((item) => `<span>${item}</span>`).join("")}
+            </div>
             <div class="editor-panel">
               <div class="panel-top"><span></span><span></span><span></span></div>
               <div class="editor-grid">
@@ -6654,7 +8258,6 @@ function renderHome() {
                   <div class="resume-lines resume-line-live"></div>
                   <div class="resume-lines resume-line-live short-shift"></div>
                   <div class="resume-section resume-section-improved delay"></div>
-                  <div class="resume-pill-row"><span></span><span></span><span></span></div>
                 </div>
               </div>
             </div>
@@ -6801,7 +8404,8 @@ function planKeyForIndex(index) {
 }
 
 function currentPlanText(access = getUserAccess()) {
-  return `${t().pricing.currentPlanLabel}: ${accessPlanLabel(access)}`;
+  const expiry = accessPlanExpiryLabel(access);
+  return `${t().pricing.currentPlanLabel}: ${accessPlanLabel(access)}${expiry ? ` · ${expiry}` : ""}`;
 }
 
 function pricingActionButton(planKey, featured, mode, isCurrent) {
@@ -6815,6 +8419,9 @@ function pricingActionButton(planKey, featured, mode, isCurrent) {
   if (planKey === "free" && mode === "public") {
     return `<a class="secondary-button full" href="#/signup" data-route="/signup">${copy.pricing.choose}</a>`;
   }
+  if (["pro", "premium"].includes(planKey) && stripeConfig.subscriptionsEnabled) {
+    return `<button class="${featured ? "primary-button" : "secondary-button"} full" type="button" data-stripe-checkout="${planKey === "premium" ? "plan_premium" : "plan_pro"}">${copy.payments.subscribeWithCard}</button>`;
+  }
   return `<button class="${featured ? "primary-button" : "secondary-button"} full" type="button" data-plan-placeholder>${copy.pricing.comingSoon}</button>`;
 }
 
@@ -6826,7 +8433,7 @@ function pricingCard(name, price, items, featured, badge = "", index = 0, mode =
   const showCurrentState = mode !== "home" && mode !== "public" && isCurrent;
   const label = showCurrentState ? copy.pricing.currentPlanLabel : badge;
   const paymentLabel = mode === "home" ? `<span class="payment-soon-label">${copy.pricing.paymentComingSoon}</span>` : "";
-  const paymentNote = planKey === "free" || mode === "home" || mode === "public" ? "" : `<p class="planned-payment-note">${copy.pricing.planPaymentNote}</p>`;
+  const paymentNote = planKey === "free" || mode === "home" || mode === "public" ? "" : `<p class="planned-payment-note">${copy.payments.secureStripe}${stripeConfig.installmentsEnabled ? ` ${copy.payments.cardInstallmentsNote}` : ""}</p>`;
   return `
     <article class="price-card ${mode === "home" ? "homepage-price-card" : ""} ${featured ? "featured" : ""} ${showCurrentState ? "current-plan-card" : ""}" data-plan="${planKey}">
       <div class="plan-card-head">
@@ -6844,6 +8451,8 @@ function pricingCard(name, price, items, featured, badge = "", index = 0, mode =
 
 function purchaseCard(name, price, label, items, featured = false, cta = "", productType = "premium_pdf") {
   const copy = t();
+  const buttonLabel = cta || copy.payments.title;
+  const stripeButton = stripeConfig.oneTimePaymentsEnabled ? `<button class="${featured ? "primary-button" : "secondary-button"} full" type="button" data-stripe-checkout="${productType}">${escapeHtml(copy.payments.payWithCard)}</button>` : "";
   return `
     <article class="price-card purchase-card ${featured ? "featured" : ""}">
       ${label ? `<div class="popular subtle">${label}</div>` : ""}
@@ -6851,14 +8460,19 @@ function purchaseCard(name, price, label, items, featured = false, cta = "", pro
       <h3>${name}</h3>
       <div class="price"><strong>${price}</strong></div>
       <p class="planned-payment-note">${copy.pricing.oneTimePaymentNote}</p>
+      <p class="planned-payment-note stripe-note">${copy.payments.secureStripe}${stripeConfig.installmentsEnabled ? ` ${copy.payments.cardInstallmentsNote}` : ""}</p>
       <ul>${items.map((item) => `<li>${icon("check")} ${item}</li>`).join("")}</ul>
-      <button class="${featured ? "primary-button" : "secondary-button"} full" type="button" data-one-time-purchase data-pix-product="${productType}">${copy.pricing.comingSoon}</button>
+      <div class="payment-action-stack">
+        <button class="${featured ? "secondary-button" : "ghost-button"} full" type="button" data-one-time-purchase data-pix-product="${productType}">${escapeHtml(buttonLabel)}</button>
+        ${stripeButton}
+      </div>
     </article>
   `;
 }
 
 function creditCard(name, price, badge, items, featured = false) {
   const copy = t();
+  const stripeButton = stripeConfig.oneTimePaymentsEnabled ? `<button class="${featured ? "primary-button" : "secondary-button"} full" type="button" data-stripe-checkout="ai_credits">${escapeHtml(copy.payments.payWithCard)}</button>` : "";
   return `
     <article class="price-card credit-card ${featured ? "featured" : ""}">
       ${badge ? `<div class="popular">${badge}</div>` : ""}
@@ -6866,8 +8480,12 @@ function creditCard(name, price, badge, items, featured = false) {
       <h3>${name}</h3>
       <div class="price"><strong>${price}</strong></div>
       <p class="planned-payment-note">${copy.pricing.creditPaymentNote}</p>
+      <p class="planned-payment-note stripe-note">${copy.payments.secureStripe}${stripeConfig.installmentsEnabled ? ` ${copy.payments.cardInstallmentsNote}` : ""}</p>
       <ul>${items.map((item) => `<li>${icon("sparkles")} ${item}</li>`).join("")}</ul>
-      <button class="${featured ? "primary-button" : "secondary-button"} full" type="button" data-buy-credits data-pix-product="ai_credits">${copy.pricing.comingSoon}</button>
+      <div class="payment-action-stack">
+        <button class="${featured ? "secondary-button" : "ghost-button"} full" type="button" data-buy-credits data-pix-product="ai_credits">${escapeHtml(copy.payments.title)}</button>
+        ${stripeButton}
+      </div>
     </article>
   `;
 }
@@ -6900,16 +8518,18 @@ function pricingComparisonTable() {
   `;
 }
 
-function plannedPaymentMethodsSection() {
+function settingsPaymentMethodsSection() {
   const pricing = t().pricing;
   return `
-    <section class="monetization-block planned-payments-card">
-      <div class="section-heading">
-        <span class="eyebrow">${pricing.plannedPaymentMethodsStatus}</span>
-        <h2>${pricing.plannedPaymentMethodsTitle}</h2>
-        <p>${pricing.plannedPaymentMethodsText}</p>
+    <section class="settings-card settings-payment-methods-card">
+      <div class="settings-card-head">
+        <div>
+          <span class="eyebrow">${pricing.plannedPaymentMethodsStatus}</span>
+          <h2>${pricing.plannedPaymentMethodsTitle}</h2>
+          <p>${pricing.plannedPaymentMethodsText}</p>
+        </div>
       </div>
-      <div class="payment-method-grid">
+      <div class="payment-method-grid settings-payment-method-grid">
         ${pricing.paymentMethods.map(([name, description], index) => `
           <article class="payment-method-card">
             <div class="payment-method-icon">${index === 0 ? "Pix" : icon("card")}</div>
@@ -6948,7 +8568,7 @@ function paymentHistorySection() {
   return `
     <section class="settings-card payment-history-card">
       <div class="settings-card-head">
-        <div><span class="eyebrow">Pix</span><h2>${labels.historyTitle}</h2></div>
+        <div><span class="eyebrow">Pix / Stripe</span><h2>${labels.historyTitle}</h2></div>
       </div>
       ${requests.length ? `
         <div class="payment-history-list">
@@ -6960,9 +8580,10 @@ function paymentHistorySection() {
               </div>
               <div>
                 <span>${escapeHtml(formatCurrencyBRL(request.amount))}</span>
-                <small>${escapeHtml(labels.method)}: Pix</small>
+                <small>${escapeHtml(labels.method)}: ${escapeHtml(request.paymentMethod === "stripe" ? labels.cardMethod : "Pix")}</small>
               </div>
               <em class="payment-status status-${escapeHtml(request.status)}">${escapeHtml(paymentStatusLabel(request.status))}</em>
+              <button class="secondary-button small" type="button" data-payment-details="${escapeHtml(request.id)}">${escapeHtml(labels.viewDetails)}</button>
             </article>
           `).join("")}
         </div>
@@ -6971,23 +8592,130 @@ function paymentHistorySection() {
   `;
 }
 
+function paymentDetailList(payment, { admin = false } = {}) {
+  const labels = t().payments;
+  const pixKeyLabel = `${payment.pixKeyType || paymentConfig.pixKeyType} ${formatPixKeyValue(payment.pixKey || paymentConfig.pixKey)}`;
+  const rows = [
+    [labels.orderId, `<code>${escapeHtml(payment.id)}</code>`],
+    [labels.product, escapeHtml(payment.productName || adminPaymentLabel(payment))],
+    [labels.amount, escapeHtml(formatCurrencyBRL(payment.amount))],
+    [labels.method, payment.paymentMethod === "stripe" ? escapeHtml(labels.cardMethod) : "Pix"],
+    [labels.status, `<span class="payment-status status-${escapeHtml(payment.status)}">${escapeHtml(paymentStatusLabel(payment.status))}</span>`],
+    [labels.date, escapeHtml(formatPaymentDate(payment.createdAt))],
+  ];
+  if (payment.paymentMethod !== "stripe") rows.splice(5, 0, [labels.pixKey, escapeHtml(pixKeyLabel)]);
+  if (payment.confirmedByUserAt) rows.push([labels.confirmedAt, escapeHtml(formatPaymentDate(payment.confirmedByUserAt))]);
+  if (payment.approvedAt) rows.push([labels.approvedAt, escapeHtml(formatPaymentDate(payment.approvedAt))]);
+  if (payment.approvedBy) rows.push([labels.approvedBy, escapeHtml(payment.approvedBy)]);
+  if (payment.rejectedAt) rows.push([labels.rejectedAt, escapeHtml(formatPaymentDate(payment.rejectedAt))]);
+  if (payment.rejectedBy) rows.push([labels.rejectedBy, escapeHtml(payment.rejectedBy)]);
+  if (payment.rejectionReason) rows.push([labels.rejectionReason, escapeHtml(payment.rejectionReason)]);
+  if (payment.stripeSessionId) rows.push(["Stripe Session", `<code>${escapeHtml(payment.stripeSessionId)}</code>`]);
+  if (payment.stripePaymentIntentId) rows.push(["Stripe PaymentIntent", `<code>${escapeHtml(payment.stripePaymentIntentId)}</code>`]);
+  if (payment.stripeSubscriptionId) rows.push([labels.subscription, `<code>${escapeHtml(payment.stripeSubscriptionId)}</code>`]);
+  if (payment.receiptUrl) rows.push([labels.receipt, `<a href="${escapeHtml(payment.receiptUrl)}" target="_blank" rel="noopener">${escapeHtml(labels.receipt)}</a>`]);
+  if (admin && payment.pixPayload) rows.push([labels.pixPayload, `<code>${escapeHtml(payment.pixPayload)}</code>`]);
+  return `
+    <dl class="payment-detail-list">
+      ${rows.map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${value}</dd></div>`).join("")}
+    </dl>
+  `;
+}
+
+function openPaymentDetailsModal(paymentId) {
+  const labels = t().payments;
+  const payment = loadPaymentRequests().find((request) => request.id === paymentId);
+  if (!payment) return;
+  closeAccessModal();
+  const modal = document.createElement("div");
+  modal.className = "template-preview-modal access-modal payment-detail-modal";
+  modal.innerHTML = `
+    <div class="template-preview-backdrop" data-access-close></div>
+    <section class="template-preview-dialog payment-detail-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(labels.viewDetails)}">
+      <header class="template-preview-header">
+        <div>
+          <span class="eyebrow">${escapeHtml(labels.historyTitle)}</span>
+          <h2>${escapeHtml(payment.productName || labels.title)}</h2>
+        </div>
+        <button class="icon-button" type="button" data-access-close aria-label="${t().dashboard.close}">${icon("close")}</button>
+      </header>
+      <div class="template-preview-content payment-detail-content">
+        ${paymentDetailList(payment)}
+        <label class="pix-copy-field">
+          <span>${escapeHtml(labels.pixCopyPaste)}</span>
+          <textarea readonly data-pix-code>${escapeHtml(payment.pixPayload || "")}</textarea>
+        </label>
+      </div>
+      <footer class="template-preview-footer access-actions">
+        <button class="secondary-button" type="button" data-pix-copy>${escapeHtml(labels.copyCode)}</button>
+        <button class="ghost-button" type="button" data-access-close>${escapeHtml(labels.cancel)}</button>
+      </footer>
+    </section>
+  `;
+  document.body.appendChild(modal);
+  modal.querySelectorAll("[data-access-close]").forEach((item) => item.addEventListener("click", () => closeAccessModal()));
+  modal.querySelector("[data-pix-copy]")?.addEventListener("click", async (event) => {
+    await copyTextToClipboard(payment.pixPayload || "");
+    event.currentTarget.textContent = labels.codeCopied;
+  });
+}
+
 function monetizationSections(mode = "public") {
   const copy = t();
   const pricing = copy.pricing;
   const pageClass = mode === "dashboard" ? "dashboard-monetization" : "public-monetization";
   const planCards = `<div class="pricing-grid">${pricing.plans.map((plan, index) => pricingCard(plan[0], plan[1], plan[2], index === 1, index === 1 ? pricing.bestForMost : "", index, mode)).join("")}</div>`;
   if (mode === "public") {
+    const monthlyNote = currentLanguage === "pt"
+      ? "Assinatura para quem quer acesso recorrente a modelos, exportação, cartas e ferramentas de IA."
+      : "Subscription access for users who want recurring templates, exports, cover letters and AI tools.";
+    const productTypes = ["remove_watermark", "premium_pdf", "career_pack", "premium_template", "online_resume_link"];
+    const oneTimeCards = `<div class="option-grid public-one-time-grid">${pricing.oneTimeOptions.map((option, index) => purchaseCard(option[0], option[1], option[2], option[3], index === 2, index === 0 ? pricing.watermark.button : pricing.purchaseCtas[index - 1], productTypes[index] || "premium_pdf")).join("")}</div>`;
+    const creditCards = `<div class="credits-grid public-credit-grid">${pricing.creditPackages.map((pack, index) => creditCard(pack[0], pack[1], index === 1 ? pricing.bestValue : index === 2 ? pricing.multipleApplications : pack[2], pack[3], index === 1)).join("")}</div>`;
     return `
-      <div class="monetization ${pageClass}">
-        <section class="monetization-block pricing-overview-block">
-          <div class="section-heading">
-            <span class="eyebrow">${pricing.monthlyTitle}</span>
-            <h2>${pricing.monthlySubtitle}</h2>
+      <div class="monetization ${pageClass} premium-pricing-layout">
+        <section class="monetization-block public-pricing-block one-time-pricing-block">
+          <div class="pricing-section-head">
+            <div>
+              <span class="eyebrow">${pricing.oneTime}</span>
+              <h2>${pricing.oneTimeTitle}</h2>
+              <p>${pricing.oneTimeSubtitle}</p>
+            </div>
+            <div class="pricing-mode-card">
+              <span>${pricing.payOnce}</span>
+              <strong>${pricing.noSubscription}</strong>
+            </div>
+          </div>
+          ${oneTimeCards}
+        </section>
+
+        <section class="monetization-block credits-band public-credit-band">
+          <div class="credits-copy">
+            <span class="eyebrow">${pricing.creditsTitle}</span>
+            <h2>${pricing.creditsSubtitle}</h2>
+            <div class="credit-uses">
+              <strong>${pricing.creditsUsageTitle}</strong>
+              <div>${pricing.creditUses.slice(0, 5).map((use) => `<span>${use}</span>`).join("")}</div>
+            </div>
+          </div>
+          ${creditCards}
+        </section>
+
+        <section class="monetization-block pricing-overview-block monthly-pricing-block">
+          <div class="pricing-section-head">
+            <div>
+              <span class="eyebrow">${pricing.monthlyTitle}</span>
+              <h2>${pricing.monthlySubtitle}</h2>
+              <p>${monthlyNote}</p>
+            </div>
+            <div class="pricing-mode-card subscription">
+              <span>${pricing.monthlyTitle}</span>
+              <strong>${pricing.bestForMost}</strong>
+            </div>
           </div>
           ${planCards}
         </section>
         ${pricingComparisonTable()}
-        ${plannedPaymentMethodsSection()}
         ${pricingFaqAccordion()}
       </div>
     `;
@@ -7008,8 +8736,6 @@ function monetizationSections(mode = "public") {
         ${planCards}
         ${pricingComparisonTable()}
       </section>
-
-      ${plannedPaymentMethodsSection()}
 
       <section class="monetization-block pricing-tab-panel" data-pricing-panel="one-time">
         <div class="section-heading">
@@ -7039,6 +8765,9 @@ function monetizationSections(mode = "public") {
 function renderPricingPage() {
   const copy = t();
   const seo = localizedSeo("pricing");
+  const pricingIntro = currentLanguage === "pt"
+    ? "Escolha entre começar grátis, pagar uma vez por um recurso avulso ou assinar para usar tudo com mais frequência."
+    : "Start free, pay once for a specific upgrade, or subscribe when you want continuous access to the full career toolkit.";
   mount(`
     <div class="public-shell">
       ${publicHeader()}
@@ -7046,7 +8775,12 @@ function renderPricingPage() {
         <section class="pricing-hero">
           <span class="eyebrow">${copy.nav.pricing}</span>
           <h1>${copy.pricing.pricingPageTitle}</h1>
-          <p>${copy.pricing.monthlySubtitle}</p>
+          <p>${pricingIntro}</p>
+          <div class="pricing-hero-pills">
+            <span>${copy.pricing.oneTimeTitle}</span>
+            <span>${copy.pricing.creditsTitle}</span>
+            <span>${copy.pricing.monthlyTitle}</span>
+          </div>
         </section>
         ${monetizationSections("public")}
       </main>
@@ -7058,6 +8792,42 @@ function renderPricingPage() {
     ogTitle: seo.title,
     ogDescription: seo.description,
   });
+}
+
+function renderPaymentStatePage(kind) {
+  const copy = t();
+  const labels = copy.payments;
+  const success = kind === "success";
+  mount(`
+    <div class="public-shell">
+      ${publicHeader()}
+      <main class="pricing-page">
+        <section class="pricing-hero payment-result-hero">
+          <span class="eyebrow">${escapeHtml(labels.secureStripe)}</span>
+          <h1>${escapeHtml(success ? labels.successTitle : labels.cancelTitle)}</h1>
+          <p>${escapeHtml(success ? labels.successText : labels.cancelText)}</p>
+          <div class="section-actions">
+            <a class="primary-button" href="#/dashboard/billing" data-route="/dashboard/billing">${escapeHtml(copy.dashboard.billing)}</a>
+            <a class="secondary-button" href="#/pricing" data-route="/pricing">${escapeHtml(copy.nav.pricing)}</a>
+          </div>
+        </section>
+      </main>
+      <footer class="site-footer">${brandLogo("div")}<p>${copy.public.footer}</p>${legalFooterLinks()}</footer>
+    </div>
+  `, {
+    title: success ? `${labels.successTitle} — Succeedora` : `${labels.cancelTitle} — Succeedora`,
+    description: success ? labels.successText : labels.cancelText,
+    canonical: seoUrl(success ? "/payment/success" : "/payment/cancel"),
+    noindex: true,
+  });
+}
+
+function renderPaymentSuccess() {
+  renderPaymentStatePage("success");
+}
+
+function renderPaymentCancel() {
+  renderPaymentStatePage("cancel");
 }
 
 function legalFooterLinks() {
@@ -7514,9 +9284,41 @@ function renderResetPassword() {
   `);
 }
 
+function authPasswordField({ label, name, autocomplete, placeholder, forgotHtml = "" }) {
+  const a = t().auth;
+  return `
+    <label class="auth-password-label">
+      <span class="password-label-row"><span>${label}</span>${forgotHtml}</span>
+      <span class="password-input-wrap">
+        <input type="password" name="${name}" autocomplete="${autocomplete}" placeholder="${placeholder}" required />
+        <button class="password-toggle" type="button" data-password-toggle aria-label="${a.showPassword}" aria-pressed="false" title="${a.showPassword}">${icon("eye")}</button>
+      </span>
+    </label>
+  `;
+}
+
 function authLayout(type) {
   const a = t().auth;
   const isSignIn = type === "signin";
+  const forgotHtml = isSignIn ? `<a class="forgot-inline" href="#/forgot-password" data-route="/forgot-password">${a.forgotPassword}</a>` : "";
+  const rememberLabel = currentLanguage === "pt" ? "Lembrar de mim" : "Remember me";
+  const rememberedEmail = (() => {
+    try {
+      return localStorage.getItem(AUTH_EMAIL_STORAGE_KEY) || "";
+    } catch (error) {
+      return "";
+    }
+  })();
+  const rememberChecked = (() => {
+    try {
+      return localStorage.getItem(AUTH_REMEMBER_STORAGE_KEY) !== "false";
+    } catch (error) {
+      return true;
+    }
+  })();
+  const legalAcceptance = currentLanguage === "pt"
+    ? `Li e aceito os <a href="#/terms" data-route="/terms">Termos de Uso</a> e a <a href="#/privacy" data-route="/privacy">Pol\u00edtica de Privacidade</a>.`
+    : `I have read and accept the <a href="#/terms" data-route="/terms">Terms of Use</a> and <a href="#/privacy" data-route="/privacy">Privacy Policy</a>.`;
   mount(`
     <main class="auth-shell">
       <section class="auth-visual">
@@ -7525,15 +9327,17 @@ function authLayout(type) {
         <div class="auth-preview"><div class="resume-preview mini light"><div class="resume-head"></div><div class="resume-title"></div><div class="resume-lines"></div><div class="resume-lines short"></div><div class="resume-section"></div><div class="resume-lines"></div><div class="resume-section"></div><div class="resume-pill-row"><span></span><span></span><span></span></div></div></div>
       </section>
       <section class="auth-card">
-        <div class="auth-card-top"><div class="auth-card-brand">${brandLogo("div")}</div>${languageSwitch(true)}</div>
+        <div class="auth-card-top"><div class="auth-card-brand">${brandLogo("div")}</div></div>
         <span class="eyebrow auth-eyebrow">${isSignIn ? a.signInEyebrow : a.signUpEyebrow}</span>
         <h2>${isSignIn ? a.signInTitle : a.signUpTitle}</h2>
         <p class="auth-subtitle">${isSignIn ? a.signInSubtitle : a.signUpSubtitle}</p>
         <form class="auth-form" data-auth-form="${type}">
           ${isSignIn ? "" : `<label>${a.fullName}<input type="text" name="fullName" autocomplete="name" placeholder="${a.fullNamePlaceholder}" required /></label>`}
-          <label>${a.email}<input type="email" name="email" autocomplete="email" inputmode="email" placeholder="${a.emailPlaceholder}" required /></label>
-          <label><span class="password-label-row"><span>${a.password}</span>${isSignIn ? `<a class="forgot-inline" href="#/forgot-password" data-route="/forgot-password">${a.forgotPassword}</a>` : ""}</span><input type="password" name="password" autocomplete="${isSignIn ? "current-password" : "new-password"}" placeholder="${a.passwordPlaceholder}" required /></label>
-          ${isSignIn ? "" : `<label>${a.confirmPassword}<input type="password" name="confirmPassword" autocomplete="new-password" placeholder="${a.confirmPassword}" required /></label>`}
+          <label>${a.email}<input type="email" name="email" autocomplete="email" inputmode="email" placeholder="${a.emailPlaceholder}" value="${isSignIn ? escapeHtml(rememberedEmail) : ""}" required /></label>
+          ${authPasswordField({ label: a.password, name: "password", autocomplete: isSignIn ? "current-password" : "new-password", placeholder: a.passwordPlaceholder, forgotHtml })}
+          ${isSignIn ? `<label class="legal-check remember-check"><input type="checkbox" name="rememberUser" ${rememberChecked ? "checked" : ""} /><span>${rememberLabel}</span></label>` : ""}
+          ${isSignIn ? "" : authPasswordField({ label: a.confirmPassword, name: "confirmPassword", autocomplete: "new-password", placeholder: a.confirmPassword })}
+          ${isSignIn ? "" : `<label class="legal-check auth-legal-check"><input type="checkbox" name="acceptLegal" required data-terms-check /><span>${legalAcceptance}</span></label>`}
           <p class="auth-error" data-auth-error hidden></p>
           <button class="primary-button full" type="submit" data-auth-submit>${isSignIn ? a.signInButton : a.signUpButton}</button>
         </form>
@@ -7560,6 +9364,7 @@ function adminRouteFor(key) {
     plans: "/admin/plans",
     purchases: "/admin/purchases",
     credits: "/admin/credits",
+    support: "/admin/support",
     settings: "/admin/settings",
   };
   return map[key] || "/admin";
@@ -7567,7 +9372,7 @@ function adminRouteFor(key) {
 
 function adminSectionNav(activeKey) {
   const labels = t().admin.sections;
-  const items = [["overview", "layout"], ["users", "file"], ["payments", "card"], ["pendingPix", "target"], ["plans", "shield"], ["purchases", "download"], ["credits", "sparkles"], ["settings", "settings"]];
+  const items = [["overview", "layout"], ["users", "file"], ["payments", "card"], ["pendingPix", "target"], ["plans", "shield"], ["purchases", "download"], ["credits", "sparkles"], ["support", "headset"], ["settings", "settings"]];
   return items.map(([key, iconName]) => `<a class="${activeKey === key ? "active" : ""}" href="#${adminRouteFor(key)}" data-route="${adminRouteFor(key)}">${icon(iconName)} <span>${labels[key]}</span></a>`).join("");
 }
 
@@ -7590,6 +9395,7 @@ function adminShell(activeKey, content) {
   const labels = t().admin;
   const profile = loadProfile();
   const flash = adminTakeFlash();
+  const searchPlaceholder = activeKey === "support" ? t().support.admin.searchPlaceholder : labels.filters.search;
   mount(`
     <div class="app-shell admin-shell">
       <aside class="sidebar admin-sidebar">
@@ -7604,8 +9410,8 @@ function adminShell(activeKey, content) {
         <header class="dashboard-topbar">
           <button class="icon-button sidebar-toggle" aria-label="${t().dashboard.openSidebar}">${icon("menu")}</button>
           <div><span class="eyebrow">Succeedora</span><h1>${labels.sections[activeKey] || labels.title}</h1></div>
-          <label class="dashboard-search">${icon("file")}<input type="search" placeholder="${labels.filters.search}" data-admin-filter /></label>
-          <div class="topbar-actions">${languageSwitch(true)}${themeToggle()}<button class="user-menu" type="button" data-route="/dashboard"><span>${escapeHtml(profileInitials(profile))}</span>${escapeHtml(profileFirstName(profile))}</button></div>
+          <label class="dashboard-search">${icon("file")}<input type="search" placeholder="${escapeHtml(searchPlaceholder)}" data-admin-filter /></label>
+          <div class="topbar-actions"><div class="nav-preferences dashboard-preferences">${languageSwitch(true)}${themeToggle()}</div><button class="user-menu" type="button" data-route="/dashboard"><span>${escapeHtml(profileInitials(profile))}</span>${escapeHtml(profileFirstName(profile))}</button></div>
         </header>
         <main class="dashboard-content admin-content">
           ${flash ? `<p class="settings-message admin-flash">${escapeHtml(flash)}</p>` : ""}
@@ -7632,15 +9438,35 @@ function adminFormatMoney(amount, currency = "BRL") {
   return new Intl.NumberFormat(currentLanguage === "pt" ? "pt-BR" : "en-US", { style: "currency", currency: currency || "BRL" }).format((Number(amount) || 0) / 100);
 }
 
+function isPendingAdminPayment(payment) {
+  return ["pending_payment", "pending_manual_confirmation"].includes(payment?.status);
+}
+
+function adminPlanStatusLabel(planState) {
+  const labels = t().admin.status;
+  const plan = normalizePlanState(planState);
+  if (planIsExpired(plan)) return labels.expired;
+  return labels[plan.status] || plan.status || labels.active;
+}
+
+function adminPlanExpiryText(planState) {
+  const plan = normalizePlanState(planState);
+  if (plan.type === "free") return "-";
+  return plan.expiresAt ? formatPlanExpiry(plan.expiresAt) : t().admin.status.noExpiration;
+}
+
 function adminStats(dataset = loadAdminDataset()) {
   const pendingStatuses = ["pending_payment", "pending_manual_confirmation"];
   const creditTotal = dataset.users.reduce((sum, user) => sum + (user.access.creditHistory || []).filter((item) => Number(item.amount) > 0).reduce((inner, item) => inner + Number(item.amount || 0), 0), 0);
   return {
     users: dataset.users.length,
+    free: dataset.users.filter((user) => getEffectivePlan(user.account, { access: user.access }).type === "free").length,
     pending: dataset.payments.filter((payment) => pendingStatuses.includes(payment.status)).length,
+    pendingPix: dataset.payments.filter((payment) => payment.paymentMethod === "pix" && pendingStatuses.includes(payment.status)).length,
+    openSupport: loadSupportTickets().filter((ticket) => ticket.status !== "closed").length,
     approved: dataset.payments.filter((payment) => payment.status === "approved").length,
-    pro: dataset.users.filter((user) => user.access.plan === "pro" || user.account.plan === "pro").length,
-    premium: dataset.users.filter((user) => user.access.plan === "premium" || user.account.plan === "premium").length,
+    pro: dataset.users.filter((user) => getEffectivePlan(user.account, { access: user.access }).type === "pro").length,
+    premium: dataset.users.filter((user) => getEffectivePlan(user.account, { access: user.access }).type === "premium").length,
     purchases: dataset.oneTimePurchases.length,
     creditsSold: creditTotal,
   };
@@ -7649,23 +9475,27 @@ function adminStats(dataset = loadAdminDataset()) {
 function adminMetricCards(dataset) {
   const labels = t().admin.metrics;
   const stats = adminStats(dataset);
-  const items = [["users", labels.users], ["pending", labels.pending], ["approved", labels.approved], ["pro", labels.pro], ["premium", labels.premium], ["purchases", labels.purchases], ["creditsSold", labels.creditsSold]];
-  return `<div class="admin-metric-grid">${items.map(([key, label]) => `<article class="admin-metric-card"><span>${escapeHtml(label)}</span><strong>${stats[key]}</strong></article>`).join("")}</div>`;
+  const items = [["users", labels.users], ["free", labels.free], ["pro", labels.pro], ["premium", labels.premium], ["pending", labels.pending], ["pendingPix", labels.pendingPix], ["openSupport", labels.openSupport], ["creditsSold", labels.creditsSold]];
+  return `<div class="admin-metric-grid">${items.map(([key, label], index) => `<article class="admin-metric-card ${index === 0 ? "featured" : ""}"><span>${escapeHtml(label)}</span><strong>${stats[key]}</strong></article>`).join("")}</div>`;
 }
 
 function adminUserRow(user) {
   const a = t().admin;
   const account = user.account;
-  const plan = user.access.plan || account.plan;
+  const effectivePlan = getEffectivePlan(account, { access: user.access });
+  const plan = effectivePlan.type;
   return `
-    <tr data-admin-row data-search="${escapeHtml(`${account.profile.fullName} ${account.email} ${plan}`.toLowerCase())}" data-status="${escapeHtml(account.status)}">
+    <tr data-admin-row data-search="${escapeHtml(`${account.profile.fullName} ${account.email} ${plan} ${account.status}`.toLowerCase())}" data-status="${escapeHtml(account.status)}">
       <td><strong>${escapeHtml(account.profile.fullName || "-")}</strong></td>
       <td>${escapeHtml(account.email)}</td>
       <td>${adminStatusBadge(plan, "plan")}</td>
-      <td>${escapeHtml(formatPaymentDate(account.createdAt))}</td>
+      <td>${escapeHtml(adminPlanStatusLabel(effectivePlan))}</td>
+      <td>${escapeHtml(adminPlanExpiryText(effectivePlan))}</td>
       <td>${account.emailVerified ? a.status.yes : a.status.no}</td>
       <td>${user.resumes.length}</td>
       <td>${user.letters.length}</td>
+      <td>${Number(user.access.aiCredits || 0)}</td>
+      <td>${escapeHtml(formatPaymentDate(account.createdAt))}</td>
       <td>${adminStatusBadge(account.status)}</td>
       <td class="admin-action-cell">
         <button class="secondary-button small" type="button" data-admin-view-user="${escapeHtml(account.id)}">${a.actions.view}</button>
@@ -7683,8 +9513,77 @@ function adminUsersTable(users) {
   return `
     <div class="admin-table-wrap">
       <table class="admin-table">
-        <thead><tr><th>${h.name}</th><th>${h.email}</th><th>${h.plan}</th><th>${h.createdAt}</th><th>${h.emailVerified}</th><th>${h.resumes}</th><th>${h.letters}</th><th>${h.status}</th><th>${h.actions}</th></tr></thead>
-        <tbody>${users.map(adminUserRow).join("") || `<tr><td colspan="9">${t().admin.details.noData}</td></tr>`}</tbody>
+        <thead><tr><th>${h.name}</th><th>${h.email}</th><th>${h.plan}</th><th>${h.subscriptionStatus}</th><th>${h.planExpiresAt}</th><th>${h.emailVerified}</th><th>${h.resumes}</th><th>${h.letters}</th><th>${h.aiCredits}</th><th>${h.createdAt}</th><th>${h.status}</th><th>${h.actions}</th></tr></thead>
+        <tbody>${users.map(adminUserRow).join("") || `<tr><td colspan="12">${t().admin.details.noData}</td></tr>`}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function adminAiUsageTable(records = []) {
+  const copy = aiCopy();
+  const sorted = [...records].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 80);
+  return `
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead><tr><th>${t().admin.table.email}</th><th>${copy.action}</th><th>${copy.creditsUsed}</th><th>${t().admin.table.date}</th></tr></thead>
+        <tbody>${sorted.map((record) => `
+          <tr data-admin-row data-search="${escapeHtml(`${record.email} ${record.taskType}`.toLowerCase())}">
+            <td>${escapeHtml(record.email || "-")}</td>
+            <td>${escapeHtml(record.taskType || "-")}</td>
+            <td>${Number(record.creditsUsed || 0)}</td>
+            <td>${escapeHtml(formatPaymentDate(record.createdAt))}</td>
+          </tr>
+        `).join("") || `<tr><td colspan="4">${t().admin.details.noData}</td></tr>`}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function adminCreditHistoryTable(users = []) {
+  const labels = t().admin;
+  const records = users.flatMap((user) => (user.access.creditHistory || []).map((item) => ({
+    ...item,
+    userName: user.account.profile.fullName || user.account.email,
+    userEmail: user.account.email,
+  }))).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 100);
+  return `
+    <div class="admin-table-wrap">
+      <table class="admin-table admin-compact-table">
+        <thead><tr><th>${labels.table.user}</th><th>${labels.table.email}</th><th>${labels.table.aiCredits}</th><th>${labels.fields.reason}</th><th>${labels.table.admin}</th><th>${labels.table.date}</th></tr></thead>
+        <tbody>${records.map((record) => `
+          <tr data-admin-row data-search="${escapeHtml(`${record.userName} ${record.userEmail} ${record.reason} ${record.adminEmail}`.toLowerCase())}">
+            <td>${escapeHtml(record.userName || "-")}</td>
+            <td>${escapeHtml(record.userEmail || "-")}</td>
+            <td><strong>${Number(record.amount || 0) > 0 ? "+" : ""}${Number(record.amount || 0)}</strong></td>
+            <td>${escapeHtml(record.reason || "-")}</td>
+            <td>${escapeHtml(record.adminEmail || "-")}</td>
+            <td>${escapeHtml(formatPaymentDate(record.createdAt))}</td>
+          </tr>
+        `).join("") || `<tr><td colspan="6">${labels.details.noData}</td></tr>`}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function adminAuditTable(records = []) {
+  const labels = t().admin;
+  const sorted = [...records].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 100);
+  return `
+    <div class="admin-table-wrap">
+      <table class="admin-table admin-compact-table">
+        <thead><tr><th>${labels.table.admin}</th><th>${labels.table.action}</th><th>${labels.table.email}</th><th>${labels.table.oldValue}</th><th>${labels.table.newValue}</th><th>${labels.fields.reason}</th><th>${labels.table.date}</th></tr></thead>
+        <tbody>${sorted.map((record) => `
+          <tr data-admin-row data-search="${escapeHtml(`${record.adminEmail} ${record.action} ${record.targetUserEmail} ${record.paymentId} ${record.reason}`.toLowerCase())}">
+            <td>${escapeHtml(record.adminEmail || "-")}</td>
+            <td><code>${escapeHtml(record.action || "-")}</code></td>
+            <td>${escapeHtml(record.targetUserEmail || record.paymentId || "-")}</td>
+            <td>${escapeHtml(String(record.oldValue ?? "-"))}</td>
+            <td>${escapeHtml(String(record.newValue ?? "-"))}</td>
+            <td>${escapeHtml(record.reason || "-")}</td>
+            <td>${escapeHtml(formatPaymentDate(record.createdAt))}</td>
+          </tr>
+        `).join("") || `<tr><td colspan="7">${labels.details.noData}</td></tr>`}</tbody>
       </table>
     </div>
   `;
@@ -7693,7 +9592,7 @@ function adminUsersTable(users) {
 function adminPaymentRow(payment, options = {}) {
   const h = t().admin.table;
   const a = t().admin;
-  const pending = ["pending_payment", "pending_manual_confirmation"].includes(payment.status);
+  const pending = isPendingAdminPayment(payment);
   return `
     <tr data-admin-row data-search="${escapeHtml(`${payment.id} ${payment.accountName} ${payment.accountEmail} ${adminPaymentLabel(payment)} ${payment.status}`.toLowerCase())}" data-status="${escapeHtml(payment.status)}">
       <td><code>${escapeHtml(payment.id)}</code></td>
@@ -7705,10 +9604,12 @@ function adminPaymentRow(payment, options = {}) {
       <td>${escapeHtml(a.status[payment.paymentMethod] || payment.paymentMethod)}</td>
       <td>${adminStatusBadge(payment.status, "payment")}</td>
       <td>${escapeHtml(formatPaymentDate(payment.createdAt))}</td>
-      ${options.showPixKey ? `<td>${escapeHtml(payment.pixKey || "-")}</td>` : ""}
-      ${options.showUnlocked ? `<td>${payment.status === "approved" ? a.status.yes : a.status.no}</td>` : ""}
+      <td>${payment.stripeSessionId ? `<code>${escapeHtml(payment.stripeSessionId)}</code>` : "-"}</td>
+      <td>${payment.stripeSubscriptionId ? `<code>${escapeHtml(payment.stripeSubscriptionId)}</code>` : "-"}</td>
+      ${options.showPixKey ? `<td>${escapeHtml(payment.pixKey ? `${payment.pixKeyType || paymentConfig.pixKeyType} ${formatPixKeyValue(payment.pixKey)}` : "-")}</td>` : ""}
+      ${options.showUnlocked ? `<td>${["approved", "paid"].includes(payment.status) ? a.status.yes : a.status.no}</td>` : ""}
       <td class="admin-action-cell">
-        ${pending ? `<button class="primary-button small" type="button" data-admin-approve-payment="${escapeHtml(payment.id)}" data-admin-payment-user="${escapeHtml(payment.accountId)}">${a.actions.approve}</button><button class="ghost-button small" type="button" data-admin-reject-payment="${escapeHtml(payment.id)}" data-admin-payment-user="${escapeHtml(payment.accountId)}">${a.actions.reject}</button>` : ""}
+        ${pending && payment.paymentMethod === "pix" ? `<button class="primary-button small" type="button" data-admin-approve-payment="${escapeHtml(payment.id)}" data-admin-payment-user="${escapeHtml(payment.accountId)}">${a.actions.approve}</button><button class="ghost-button small" type="button" data-admin-reject-payment="${escapeHtml(payment.id)}" data-admin-payment-user="${escapeHtml(payment.accountId)}">${a.actions.reject}</button>` : ""}
         <button class="secondary-button small" type="button" data-admin-view-payment="${escapeHtml(payment.id)}" data-admin-payment-user="${escapeHtml(payment.accountId)}">${a.actions.details}</button>
       </td>
     </tr>
@@ -7717,18 +9618,155 @@ function adminPaymentRow(payment, options = {}) {
 
 function adminPaymentsTable(payments, options = {}) {
   const h = t().admin.table;
-  const extraColumns = (options.showPixKey ? 1 : 0) + (options.showUnlocked ? 1 : 0);
+  const extraColumns = 2 + (options.showPixKey ? 1 : 0) + (options.showUnlocked ? 1 : 0);
   return `
     <div class="admin-filter-row">
       <select data-admin-status-filter aria-label="${t().admin.filters.status}">
         <option value="">${t().admin.filters.all}</option>
-        ${["pending_payment", "pending_manual_confirmation", "approved", "rejected", "cancelled"].map((status) => `<option value="${status}">${t().admin.status[status]}</option>`).join("")}
+        ${["pending_payment", "pending_manual_confirmation", "approved", "paid", "pending", "failed", "refunded", "rejected", "cancelled"].map((status) => `<option value="${status}">${t().admin.status[status]}</option>`).join("")}
       </select>
     </div>
     <div class="admin-table-wrap">
       <table class="admin-table">
-        <thead><tr><th>${h.id}</th><th>${h.user}</th><th>${h.email}</th><th>${h.product}</th><th>${h.amount}</th><th>${h.currency}</th><th>${h.method}</th><th>${h.status}</th><th>${h.date}</th>${options.showPixKey ? `<th>${h.pixKey}</th>` : ""}${options.showUnlocked ? `<th>${h.unlocked}</th>` : ""}<th>${h.actions}</th></tr></thead>
+        <thead><tr><th>${h.id}</th><th>${h.user}</th><th>${h.email}</th><th>${h.product}</th><th>${h.amount}</th><th>${h.currency}</th><th>${h.method}</th><th>${h.status}</th><th>${h.date}</th><th>stripeSessionId</th><th>stripeSubscriptionId</th>${options.showPixKey ? `<th>${h.pixKey}</th>` : ""}${options.showUnlocked ? `<th>${h.unlocked}</th>` : ""}<th>${h.actions}</th></tr></thead>
         <tbody>${payments.map((payment) => adminPaymentRow(payment, options)).join("") || `<tr><td colspan="${10 + extraColumns}">${t().admin.details.noData}</td></tr>`}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function supportSelectOptions(map, keys, selected = "") {
+  return keys.map((key) => `<option value="${escapeHtml(key)}" ${selected === key ? "selected" : ""}>${escapeHtml(map[key])}</option>`).join("");
+}
+
+function supportHistoryLabel(entry = {}) {
+  const labels = t().support.admin;
+  const typeMap = {
+    created: labels.created,
+    in_progress: labels.progressed,
+    answered: labels.answered,
+    closed: labels.closed,
+  };
+  return typeMap[entry.type] || supportStatusLabel(entry.status);
+}
+
+function supportTicketCard(ticket) {
+  const labels = t().support;
+  const latestText = ticket.adminReply || ticket.message;
+  const latestDate = ticket.repliedAt || ticket.updatedAt || ticket.createdAt;
+  return `
+    <article class="support-ticket-card">
+      <div class="support-ticket-head">
+        <div>
+          <span class="eyebrow">${escapeHtml(supportCategoryLabel(ticket.category))}</span>
+          <h3>${escapeHtml(ticket.subject)}</h3>
+          <small>${escapeHtml(labels.lastUpdate)}: ${escapeHtml(formatPaymentDate(ticket.updatedAt || ticket.createdAt))}</small>
+        </div>
+        <div class="support-ticket-badges">
+          ${supportStatusBadge(ticket.status)}
+          ${supportPriorityBadge(ticket.priority)}
+        </div>
+      </div>
+      <div class="support-ticket-preview">
+        <span>${escapeHtml(labels.preview)}</span>
+        <p>${escapeHtml(latestText)}</p>
+        <small>${escapeHtml(formatPaymentDate(latestDate))}</small>
+      </div>
+      <div class="support-ticket-thread">
+        ${supportMessageBubble("user", ticket.message, ticket.createdAt)}
+        ${ticket.adminReply ? supportMessageBubble("team", ticket.adminReply, ticket.repliedAt) : `<div class="support-reply-box"><strong>${escapeHtml(labels.adminReply)}</strong><span>${escapeHtml(labels.noReply)}</span></div>`}
+      </div>
+    </article>
+  `;
+}
+
+function renderSupport(successMessage = "") {
+  const labels = t().support;
+  const account = currentAccount();
+  const tickets = loadCurrentUserSupportTickets(account);
+  const hasUnread = hasUnreadSupportReply(account);
+  dashboardShell("support", `
+    <main class="dashboard-content support-page">
+      <section class="support-hero-card">
+        <div>
+          <span class="eyebrow">${escapeHtml(labels.heroEyebrow)}</span>
+          <h2>${escapeHtml(labels.heroTitle)}</h2>
+          <p>${escapeHtml(labels.intro)}</p>
+          <div class="support-hero-badges">${supportHeroBadges()}</div>
+        </div>
+        ${hasUnread ? `<div class="support-alert">${icon("mail")} <span>${escapeHtml(labels.replyNotice)}</span></div>` : ""}
+      </section>
+      <section class="support-metric-grid">${supportMetricCards(tickets)}</section>
+      ${successMessage ? `<p class="settings-message">${escapeHtml(successMessage)}</p>` : ""}
+      <section class="support-layout">
+        <form class="settings-card support-form-card" data-support-form>
+          <div class="settings-card-head"><div><span class="eyebrow">${escapeHtml(labels.title)}</span><h2>${escapeHtml(labels.formTitle)}</h2><p>${escapeHtml(labels.formSubtitle)}</p></div></div>
+          <div class="support-form-grid">
+            <label>${escapeHtml(labels.fields.subject)}<input name="subject" maxlength="120" placeholder="${escapeHtml(labels.placeholders.subject)}" required /><small>${escapeHtml(labels.fieldHints.subject)}</small></label>
+            <label>${escapeHtml(labels.fields.category)}<select name="category" required>${supportSelectOptions(labels.categories, SUPPORT_FORM_CATEGORY_KEYS)}</select><small>${escapeHtml(labels.fieldHints.category)}</small></label>
+            <label>${escapeHtml(labels.fields.priority)}<select name="priority" required>${supportSelectOptions(labels.priorities, SUPPORT_PRIORITY_KEYS, "medium")}</select><small>${escapeHtml(labels.fieldHints.priority)}</small></label>
+            <label class="support-message-field">${escapeHtml(labels.fields.message)}<textarea name="message" rows="7" maxlength="1800" placeholder="${escapeHtml(labels.placeholders.message)}" required></textarea><small>${escapeHtml(labels.fieldHints.message)}</small></label>
+          </div>
+          <button class="primary-button support-submit-button" type="submit">${icon("mail")} ${escapeHtml(labels.send)}</button>
+        </form>
+        <section class="settings-card support-history-card">
+          <div class="settings-card-head"><div><span class="eyebrow">${escapeHtml(labels.title)}</span><h2>${escapeHtml(labels.historyTitle)}</h2><p>${escapeHtml(labels.historySubtitle)}</p></div></div>
+          <div class="support-ticket-list">
+            ${tickets.length ? tickets.map(supportTicketCard).join("") : `<div class="support-empty-state">${icon("mail")}<h3>${escapeHtml(labels.emptyTitle)}</h3><p>${escapeHtml(labels.empty)}</p><button class="secondary-button small" type="button" data-support-focus>${escapeHtml(labels.emptyCta)}</button></div>`}
+          </div>
+        </section>
+      </section>
+      <section class="support-help-section">
+        <div class="section-row-heading"><div><h2>${escapeHtml(labels.helpTitle)}</h2><p>${escapeHtml(labels.helpSubtitle)}</p></div></div>
+        <div class="support-help-grid">${supportHelpCards()}</div>
+      </section>
+    </main>
+  `);
+  if (hasUnread) markSupportRepliesSeen(account);
+}
+
+function adminSupportTicketRow(ticket) {
+  const a = t().admin;
+  return `
+    <tr data-admin-row data-search="${escapeHtml(`${ticket.userName} ${ticket.userEmail} ${ticket.subject} ${supportCategoryLabel(ticket.category)} ${supportPriorityLabel(ticket.priority)} ${supportStatusLabel(ticket.status)}`.toLowerCase())}" data-status="${escapeHtml(ticket.status)}" data-category="${escapeHtml(ticket.category)}" data-priority="${escapeHtml(ticket.priority)}">
+      <td>${escapeHtml(ticket.userName || "-")}</td>
+      <td>${escapeHtml(ticket.userEmail || "-")}</td>
+      <td><strong>${escapeHtml(ticket.subject || "-")}</strong></td>
+      <td>${escapeHtml(supportCategoryLabel(ticket.category))}</td>
+      <td>${supportPriorityBadge(ticket.priority)}</td>
+      <td>${supportStatusBadge(ticket.status)}</td>
+      <td>${escapeHtml(formatPaymentDate(ticket.createdAt))}</td>
+      <td class="admin-action-cell">
+        <button class="secondary-button small" type="button" data-admin-view-support="${escapeHtml(ticket.id)}">${a.actions.view}</button>
+        <button class="secondary-button small" type="button" data-admin-view-support="${escapeHtml(ticket.id)}">${a.actions.reply}</button>
+        ${ticket.status !== "closed" ? `<button class="ghost-button small" type="button" data-admin-support-progress="${escapeHtml(ticket.id)}">${a.actions.markInProgress}</button><button class="ghost-button small danger-link" type="button" data-admin-support-close="${escapeHtml(ticket.id)}">${a.actions.close}</button>` : ""}
+      </td>
+    </tr>
+  `;
+}
+
+function adminSupportTable(tickets) {
+  const labels = t().admin;
+  const support = t().support;
+  return `
+    <div class="admin-filter-row support-admin-filters">
+      <select data-admin-status-filter aria-label="${escapeHtml(labels.filters.status)}">
+        <option value="">${escapeHtml(labels.filters.all)}</option>
+        ${SUPPORT_STATUS_KEYS.map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(supportStatusLabel(status))}</option>`).join("")}
+      </select>
+      <select data-admin-category-filter aria-label="${escapeHtml(labels.filters.category)}">
+        <option value="">${escapeHtml(labels.filters.allCategories)}</option>
+        ${supportSelectOptions(support.categories, SUPPORT_FORM_CATEGORY_KEYS)}
+      </select>
+      <select data-admin-priority-filter aria-label="${escapeHtml(labels.filters.priority)}">
+        <option value="">${escapeHtml(labels.filters.allPriorities)}</option>
+        ${supportSelectOptions(support.priorities, SUPPORT_PRIORITY_KEYS)}
+      </select>
+    </div>
+    <div class="admin-table-wrap">
+      <table class="admin-table support-admin-table">
+        <thead><tr><th>${labels.table.user}</th><th>${labels.table.email}</th><th>${support.fields.subject}</th><th>${support.fields.category}</th><th>${support.fields.priority}</th><th>${labels.table.status}</th><th>${labels.table.date}</th><th>${labels.table.actions}</th></tr></thead>
+        <tbody>${tickets.map(adminSupportTicketRow).join("") || `<tr><td colspan="8">${escapeHtml(support.admin.noTickets)}</td></tr>`}</tbody>
       </table>
     </div>
   `;
@@ -7763,7 +9801,7 @@ function renderAdminPendingPix() {
 
 function renderAdminPlans() {
   const dataset = loadAdminDataset();
-  const planUsers = dataset.users.filter((user) => ["pro", "premium"].includes(user.access.plan || user.account.plan));
+  const planUsers = dataset.users.filter((user) => ["pro", "premium"].includes(getEffectivePlan(user.account, { access: user.access }).type));
   adminShell("plans", `<section class="settings-card admin-panel">${adminUsersTable(planUsers)}</section>`);
 }
 
@@ -7774,11 +9812,37 @@ function renderAdminPurchases() {
 
 function renderAdminCredits() {
   const dataset = loadAdminDataset();
-  adminShell("credits", `<section class="settings-card admin-panel">${adminUsersTable(dataset.users)}</section>`);
+  adminShell("credits", `
+    <section class="settings-card admin-panel">
+      <div class="settings-card-head"><div><span class="eyebrow">${t().admin.sections.credits}</span><h2>${t().admin.sections.users}</h2></div></div>
+      ${adminUsersTable(dataset.users)}
+    </section>
+    <section class="settings-card admin-panel">
+      <div class="settings-card-head"><div><span class="eyebrow">${t().admin.sections.credits}</span><h2>${t().admin.details.creditHistory}</h2></div></div>
+      ${adminCreditHistoryTable(dataset.users)}
+    </section>
+    <section class="settings-card admin-panel">
+      <div class="settings-card-head"><div><span class="eyebrow">Succeedora AI</span><h2>${aiCopy().usageHistory}</h2></div></div>
+      ${adminAiUsageTable(dataset.aiUsage)}
+    </section>
+  `);
+}
+
+function renderAdminSupport() {
+  const tickets = loadSupportTickets();
+  adminShell("support", `
+    <section class="settings-card admin-panel support-admin-panel">
+      <div class="settings-card-head">
+        <div><span class="eyebrow">Succeedora</span><h2>${escapeHtml(t().admin.sections.support)}</h2><p>${escapeHtml(t().support.admin.intro)}</p></div>
+      </div>
+      ${adminSupportTable(tickets)}
+    </section>
+  `);
 }
 
 function renderAdminSettings() {
   const labels = t().admin;
+  const dataset = loadAdminDataset();
   adminShell("settings", `
     <section class="settings-card admin-settings-grid">
       <article><span>${labels.primaryAdmin}</span><strong>${escapeHtml(ADMIN_EMAILS[0])}</strong></article>
@@ -7786,7 +9850,11 @@ function renderAdminSettings() {
       <article><span>${labels.settings.pixKey}</span><strong>${escapeHtml(paymentConfig.pixKey)}</strong></article>
       <article><span>${labels.settings.pixKeyType}</span><strong>${escapeHtml(paymentConfig.pixKeyType)}</strong></article>
       <article><span>${labels.settings.pixManual}</span><strong>${labels.settings.manual}</strong></article>
-      <article><span>${labels.settings.stripe}</span><strong>${labels.settings.disabled}</strong></article>
+      <article><span>${labels.settings.stripe}</span><strong>${stripeConfig.enabled ? `${labels.status.active} (${stripeConfig.mode})` : labels.settings.disabled}</strong></article>
+    </section>
+    <section class="settings-card admin-panel">
+      <div class="settings-card-head"><div><span class="eyebrow">${labels.title}</span><h2>${labels.details.auditLog}</h2></div></div>
+      ${adminAuditTable(dataset.auditLog)}
     </section>
   `);
 }
@@ -7820,9 +9888,16 @@ function openAdminPlanModal(userId) {
     <form class="admin-form" data-admin-plan-form="${escapeHtml(userId)}">
       <label>${labels.fields.newPlan}
         <select name="plan">
-          ${["free", "pro", "premium"].map((plan) => `<option value="${plan}" ${user.access.plan === plan ? "selected" : ""}>${adminPlanLabel(plan)}</option>`).join("")}
+          ${["free", "pro", "premium"].map((plan) => `<option value="${plan}" ${getEffectivePlan(user.account, { access: user.access }).type === plan ? "selected" : ""}>${adminPlanLabel(plan)}</option>`).join("")}
         </select>
       </label>
+      <label>${labels.fields.duration || "Duration"}
+        <select name="duration">
+          ${planDurationOptions().map(([value, label]) => `<option value="${value}" ${value === "30d" ? "selected" : ""}>${escapeHtml(label)}</option>`).join("")}
+        </select>
+      </label>
+      <label>${labels.fields.customDate || "Custom date"}<input type="date" name="customDate" /></label>
+      <label>${labels.fields.reason}<input type="text" name="reason" placeholder="${labels.fields.reason}" /></label>
       <div class="admin-dialog-actions">
         <button class="secondary-button" type="button" data-admin-modal-close>${labels.actions.cancel}</button>
         <button class="primary-button" type="submit">${labels.actions.save}</button>
@@ -7831,7 +9906,11 @@ function openAdminPlanModal(userId) {
   `);
   modal.querySelector("[data-admin-plan-form]")?.addEventListener("submit", (event) => {
     event.preventDefault();
-    adminUpdatePlan(userId, event.currentTarget.plan.value);
+    adminUpdatePlan(userId, event.currentTarget.plan.value, {
+      duration: event.currentTarget.duration.value,
+      customDate: event.currentTarget.customDate.value,
+      reason: event.currentTarget.reason.value,
+    });
     modal.remove();
     render();
   });
@@ -7890,17 +9969,21 @@ function openAdminUserDetails(userId) {
   if (!user) return;
   const labels = t().admin;
   const account = user.account;
+  const effectivePlan = getEffectivePlan(account, { access: user.access });
   const payments = user.payments.map((payment) => `<article><strong>${escapeHtml(adminPaymentLabel(payment))}</strong><span>${adminStatusBadge(payment.status, "payment")} ${escapeHtml(adminFormatMoney(payment.amount, payment.currency))}</span></article>`);
   const resumes = user.resumes.map((resume) => `<article><strong>${escapeHtml(resume.title || resume.name || "-")}</strong><span>${escapeHtml(formatPaymentDate(resume.updatedAt || resume.createdAt))}</span></article>`);
   const letters = user.letters.map((letter) => `<article><strong>${escapeHtml(letter.title || letter.role || "-")}</strong><span>${escapeHtml(formatPaymentDate(letter.updatedAt || letter.createdAt))}</span></article>`);
   const purchases = user.payments.filter((payment) => ["remove_watermark", "premium_pdf", "premium_template", "career_pack", "ai_credits", "online_resume_link"].includes(payment.productType)).map((payment) => `<article><strong>${escapeHtml(adminPaymentLabel(payment))}</strong><span>${adminStatusBadge(payment.status, "payment")}</span></article>`);
+  const aiUsage = user.aiUsage.map((record) => `<article><strong>${escapeHtml(record.taskType)}</strong><span>${Number(record.creditsUsed || 0)} ${escapeHtml(aiCopy().creditsUsed)} · ${escapeHtml(formatPaymentDate(record.createdAt))}</span></article>`);
   openAdminDialog(labels.details.profile, `
     <div class="admin-detail-grid">
       <section class="admin-detail-section">
         <h3>${escapeHtml(account.profile.fullName || account.email)}</h3>
         <dl>
           <div><dt>${labels.table.email}</dt><dd>${escapeHtml(account.email)}</dd></div>
-          <div><dt>${labels.table.plan}</dt><dd>${adminStatusBadge(user.access.plan || account.plan, "plan")}</dd></div>
+          <div><dt>${labels.table.plan}</dt><dd>${adminStatusBadge(effectivePlan.type, "plan")}</dd></div>
+          <div><dt>${labels.table.subscriptionStatus}</dt><dd>${escapeHtml(adminPlanStatusLabel(effectivePlan))}</dd></div>
+          <div><dt>${labels.table.planExpiresAt}</dt><dd>${escapeHtml(adminPlanExpiryText(effectivePlan))}</dd></div>
           <div><dt>${labels.table.emailVerified}</dt><dd>${account.emailVerified ? labels.status.yes : labels.status.no}</dd></div>
           <div><dt>${labels.table.createdAt}</dt><dd>${escapeHtml(formatPaymentDate(account.createdAt))}</dd></div>
           <div><dt>${labels.details.credits}</dt><dd>${Number(user.access.aiCredits || 0)}</dd></div>
@@ -7910,6 +9993,7 @@ function openAdminUserDetails(userId) {
       ${adminSimpleList(labels.details.savedLetters, letters)}
       ${adminSimpleList(labels.details.payments, payments)}
       ${adminSimpleList(labels.details.purchases, purchases)}
+      ${adminSimpleList(aiCopy().usageHistory, aiUsage)}
     </div>
   `);
 }
@@ -7925,15 +10009,82 @@ function openAdminPaymentDetails(userId, paymentId) {
         <div><dt>${labels.table.id}</dt><dd><code>${escapeHtml(payment.id)}</code></dd></div>
         <div><dt>${labels.table.user}</dt><dd>${escapeHtml(user.account.profile.fullName || "-")}</dd></div>
         <div><dt>${labels.table.email}</dt><dd>${escapeHtml(user.account.email)}</dd></div>
-        <div><dt>${labels.table.product}</dt><dd>${escapeHtml(adminPaymentLabel(payment))}</dd></div>
-        <div><dt>${labels.table.amount}</dt><dd>${escapeHtml(adminFormatMoney(payment.amount, payment.currency))}</dd></div>
-        <div><dt>${labels.table.method}</dt><dd>${escapeHtml(labels.status[payment.paymentMethod] || payment.paymentMethod)}</dd></div>
-        <div><dt>${labels.table.status}</dt><dd>${adminStatusBadge(payment.status, "payment")}</dd></div>
-        <div><dt>${labels.table.pixKey}</dt><dd>${escapeHtml(payment.pixKey || "-")}</dd></div>
-        <div><dt>${labels.table.date}</dt><dd>${escapeHtml(formatPaymentDate(payment.createdAt))}</dd></div>
       </dl>
+      ${paymentDetailList(payment, { admin: true })}
     </section>
   `);
+}
+
+function openAdminSupportTicket(ticketId) {
+  const ticket = loadSupportTickets().find((item) => item.id === ticketId);
+  if (!ticket || !isAdminAccount()) return;
+  const labels = t().admin;
+  const support = t().support;
+  const history = ticket.history.map((entry) => `
+    <article>
+      <strong>${escapeHtml(supportHistoryLabel(entry))}</strong>
+      <span>${escapeHtml(formatPaymentDate(entry.createdAt))}${entry.adminEmail ? ` · ${escapeHtml(entry.adminEmail)}` : ""}</span>
+    </article>
+  `);
+  const modal = openAdminDialog(ticket.subject || support.admin.ticketDetails, `
+    <div class="admin-detail-grid support-ticket-detail-grid">
+      <section class="admin-detail-section">
+        <h3>${escapeHtml(support.admin.userDetails)}</h3>
+        <dl>
+          <div><dt>${labels.table.user}</dt><dd>${escapeHtml(ticket.userName || "-")}</dd></div>
+          <div><dt>${labels.table.email}</dt><dd>${escapeHtml(ticket.userEmail || "-")}</dd></div>
+          <div><dt>${support.fields.priority}</dt><dd>${supportPriorityBadge(ticket.priority)}</dd></div>
+          <div><dt>${labels.table.status}</dt><dd>${supportStatusBadge(ticket.status)}</dd></div>
+          <div><dt>${labels.table.date}</dt><dd>${escapeHtml(formatPaymentDate(ticket.createdAt))}</dd></div>
+          <div><dt>${currentLanguage === "pt" ? "Atualizado em" : "Updated at"}</dt><dd>${escapeHtml(formatPaymentDate(ticket.updatedAt))}</dd></div>
+          ${ticket.repliedAt ? `<div><dt>${currentLanguage === "pt" ? "Respondido em" : "Replied at"}</dt><dd>${escapeHtml(formatPaymentDate(ticket.repliedAt))}</dd></div>` : ""}
+          ${ticket.closedAt ? `<div><dt>${currentLanguage === "pt" ? "Fechado em" : "Closed at"}</dt><dd>${escapeHtml(formatPaymentDate(ticket.closedAt))}</dd></div>` : ""}
+        </dl>
+      </section>
+      <section class="admin-detail-section">
+        <h3>${escapeHtml(support.admin.ticketDetails)}</h3>
+        <dl>
+          <div><dt>${support.fields.subject}</dt><dd>${escapeHtml(ticket.subject || "-")}</dd></div>
+          <div><dt>${support.fields.category}</dt><dd>${escapeHtml(supportCategoryLabel(ticket.category))}</dd></div>
+        </dl>
+        ${supportAdminThread(ticket)}
+      </section>
+      ${adminSimpleList(support.admin.history, history)}
+    </div>
+    ${ticket.status !== "closed" ? `
+      <form class="admin-form support-reply-form" data-admin-support-reply="${escapeHtml(ticket.id)}">
+        <label>${escapeHtml(support.admin.replyLabel)}
+          <textarea name="reply" rows="5" required>${escapeHtml(ticket.adminReply || "")}</textarea>
+        </label>
+        <div class="admin-dialog-actions">
+          <button class="secondary-button" type="button" data-admin-modal-close>${labels.actions.cancel}</button>
+          <button class="ghost-button" type="button" data-modal-support-progress="${escapeHtml(ticket.id)}">${labels.actions.markInProgress}</button>
+          <button class="ghost-button danger-link" type="button" data-modal-support-close="${escapeHtml(ticket.id)}">${labels.actions.close}</button>
+          <button class="primary-button" type="submit">${labels.actions.sendReply}</button>
+        </div>
+      </form>
+    ` : ""}
+  `);
+  modal.querySelector("[data-admin-support-reply]")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const reply = event.currentTarget.reply.value.trim();
+    if (!reply) return;
+    adminReplySupportTicket(ticketId, reply);
+    adminSetFlash(labels.messages.replySent);
+    modal.remove();
+    render();
+  });
+  modal.querySelector("[data-modal-support-progress]")?.addEventListener("click", () => {
+    adminMarkSupportTicketInProgress(ticketId);
+    modal.remove();
+    render();
+  });
+  modal.querySelector("[data-modal-support-close]")?.addEventListener("click", () => {
+    adminCloseSupportTicket(ticketId);
+    adminSetFlash(labels.messages.ticketClosed);
+    modal.remove();
+    render();
+  });
 }
 
 function dashboardShell(activeKey, content) {
@@ -7942,7 +10093,9 @@ function dashboardShell(activeKey, content) {
   const profile = loadProfile();
   const access = getUserAccess();
   const planLabel = accessPlanLabel(access);
-  const nav = [["/dashboard", "layout", "dashboard"], ["/dashboard/resumes", "file", "resumes"], ["/dashboard/builder", "pen", "builder"], ["/dashboard/cover-letters", "mail", "coverLetters"], ["/dashboard/templates", "shield", "templates"], ["/dashboard/ai", "sparkles", "ai"], ["/dashboard/profile", "file", "profile"], ["/dashboard/billing", "card", "billing"], ["/dashboard/settings", "settings", "settings"]];
+  const planExpiryLabel = accessPlanExpiryLabel(access);
+  const showSidebarUpgrade = !isPaidPlan(access);
+  const nav = [["/dashboard", "layout", "dashboard"], ["/dashboard/resumes", "file", "resumes"], ["/dashboard/builder", "pen", "builder"], ["/dashboard/cover-letters", "mail", "coverLetters"], ["/dashboard/templates", "shield", "templates"], ["/dashboard/ai", "sparkles", "ai"], ["/dashboard/support", "headset", "support"], ["/dashboard/profile", "file", "profile"], ["/dashboard/billing", "card", "billing"], ["/dashboard/settings", "settings", "settings"]];
   if (isAdminAccount()) nav.push(["/admin", "settings", "admin"]);
   const mobileNav = nav.slice(0, 5);
   mount(`
@@ -7951,9 +10104,8 @@ function dashboardShell(activeKey, content) {
         <div class="sidebar-head">${brandLogo("a", "#/dashboard", "/dashboard")}<div class="sidebar-head-actions"><button class="icon-button sidebar-collapse-button" type="button" data-sidebar-collapse aria-label="${sidebarCollapsed ? d.expandSidebar : d.collapseSidebar}" title="${sidebarCollapsed ? d.expandSidebar : d.collapseSidebar}" aria-expanded="${!sidebarCollapsed}">${icon("menu")}</button><button class="icon-button sidebar-toggle" aria-label="${d.closeSidebar}">${icon("close")}</button></div></div>
         <nav class="side-nav">${nav.map(([path, iconName, key]) => `<a class="${activeKey === key ? "active" : ""}" href="#${path}" data-route="${path}" title="${d.nav[key]}">${icon(iconName)} <span>${d.nav[key]}</span></a>`).join("")}</nav>
         <div class="sidebar-footer">
-          <div class="sidebar-upgrade"><span>${d.proPlan}</span><strong>${d.unlock}</strong><button class="primary-button small" data-route="/dashboard/billing">${d.upgrade}</button></div>
+          ${showSidebarUpgrade ? `<div class="sidebar-upgrade"><span>${d.proPlan}</span><strong>${d.unlock}</strong><button class="primary-button small" data-route="/dashboard/billing">${d.upgrade}</button></div>` : ""}
           <button class="sidebar-link-button" data-route="/" title="${d.backToWebsite}">${icon("arrow")} <span>${d.backToWebsite}</span></button>
-          <button class="sidebar-link-button danger" data-route="/" data-sign-out title="${d.signOut}">${icon("close")} <span>${d.signOut}</span></button>
         </div>
       </aside>
       <div class="dashboard-main">
@@ -7962,14 +10114,17 @@ function dashboardShell(activeKey, content) {
           <div><span class="eyebrow">${d.workspace}</span><h1>${d.nav[activeKey]}</h1></div>
           <label class="dashboard-search">${icon("file")}<input type="search" placeholder="${d.searchPlaceholder}" /></label>
           <div class="topbar-actions">
-            ${languageSwitch(true)}
-            ${themeToggle()}
-            <button class="icon-button ai-quick-toggle" type="button" data-route="/dashboard/ai" aria-label="${d.openAiQuick}" title="${d.openAiQuick}">${icon("sparkles")}</button>
+            <div class="nav-preferences dashboard-preferences">
+              ${languageSwitch(true)}
+              ${themeToggle()}
+              <button class="icon-button ai-quick-toggle" type="button" data-route="/dashboard/ai" aria-label="${d.openAiQuick}" title="${d.openAiQuick}">${icon("sparkles")}</button>
+            </div>
             <div class="user-menu-wrap">
               <button class="user-menu" type="button" data-user-menu><span>${escapeHtml(profileInitials(profile))}</span>${escapeHtml(profileFirstName(profile))}</button>
               <div class="user-dropdown">
-                <div class="user-dropdown-head"><strong>${escapeHtml(profile.fullName)}</strong><small>${escapeHtml(profile.email)}</small><span>${d.currentPlan}: ${escapeHtml(planLabel)}</span></div>
+                <div class="user-dropdown-head"><strong>${escapeHtml(profile.fullName)}</strong><small>${escapeHtml(profile.email)}</small><span>${d.currentPlan}: ${escapeHtml(planExpiryLabel ? `${planLabel} · ${planExpiryLabel}` : planLabel)}</span></div>
                 <button type="button" data-route="/dashboard/profile">${icon("file")} ${d.nav.profile}</button>
+                <button type="button" data-route="/dashboard/support">${icon("headset")} ${d.nav.support}</button>
                 <button type="button" data-route="/dashboard/settings">${icon("settings")} ${d.nav.settings}</button>
                 <button type="button" data-route="/dashboard/billing">${icon("card")} ${d.billing}</button>
                 ${isAdminAccount() ? `<button type="button" data-route="/admin">${icon("settings")} ${d.nav.admin}</button>` : ""}
@@ -7992,60 +10147,320 @@ function renderDashboard() {
   const h = t().dashboard.home;
   const accessCopy = t().dashboard.access;
   const access = getUserAccess();
+  const profile = loadProfile();
+  const hasSupportReply = hasUnreadSupportReply();
   const resumes = loadResumes();
   const primaryResume = resumes[0];
   const completion = primaryResume ? primaryResume.completion : 0;
   const nextAction = primaryResume ? nextResumeAction(primaryResume) : h.completionText;
+  const planLabel = accessPlanLabel(access);
+  const planExpiryLabel = accessPlanExpiryLabel(access);
+  const primaryTemplate = primaryResume ? getTemplateByKey(primaryResume.selectedTemplate) : null;
+  const dashboardHomeLabels = currentLanguage === "pt" ? {
+    workspaceEyebrow: "Succeedora Workspace",
+    heroText: "Um centro global para transformar curr\u00edculos, cartas e candidaturas em ativos profissionais de alto impacto.",
+    progressTitle: "Painel do curr\u00edculo",
+    currentResumeTitle: "Curr\u00edculo atual",
+    resumePreview: "Preview do curr\u00edculo",
+    ready: "Curr\u00edculo pronto",
+    availablePdf: "PDF dispon\u00edvel",
+    export: "Exporta\u00e7\u00e3o",
+    pdfStatus: "Status do PDF",
+    brandFreePdf: "PDF sem marca",
+    brandedPdf: "PDF com marca",
+    awaitingResume: "Aguardando curr\u00edculo",
+    complete: "completo",
+    activeTemplate: "Modelo ativo",
+    nextAction: "Pr\u00f3ximo passo",
+    currentStatus: "Status",
+    progress: "Progresso",
+    plan: "Plano",
+    template: "Modelo",
+    format: "Formato",
+    updated: "Atualizado",
+    notStarted: "Ainda n\u00e3o iniciado",
+    readyToExport: "Pronto para exportar",
+    inProgress: "Em evolu\u00e7\u00e3o",
+    atsReady: "Compat\u00edvel com ATS",
+    recommendation: "Recomendado",
+    startRecommendation: "Comece com um modelo e finalize as se\u00e7\u00f5es essenciais.",
+    exportRecommendation: "Seu curr\u00edculo est\u00e1 pronto para exporta\u00e7\u00e3o.",
+    executiveEyebrow: "Vis\u00e3o executiva",
+    executivePanel: "Resumo estrat\u00e9gico",
+    tertiaryActions: "A\u00e7\u00f5es adicionais",
+    planDetails: "Detalhes do plano",
+    planBenefits: "Benef\u00edcios do plano",
+    billingCenter: "Ver plano",
+    included: "Inclu\u00eddo",
+    proBadge: "Pro",
+    premiumBadge: "Premium",
+    startFirst: "Crie primeiro",
+    aiIncluded: "IA inclu\u00edda",
+    activePlan: "ativo",
+    aiChips: ["Resumo", "Carta", "ATS", "Tradu\u00e7\u00e3o"],
+    aiSignals: ["Revis\u00e3o de texto", "Palavras-chave inteligentes", "Carta personalizada"],
+    upgradeItems: ["Modelos premium", "PDF sem marca", "Mais IA"],
+    upgradeBenefits: ["Modelos premium", "PDF sem marca", "M\u00faltiplas vers\u00f5es"],
+    proActiveTitle: "Plano Pro ativo",
+    proActiveText: "Seu workspace j\u00e1 inclui modelos premium, PDF sem marca e recursos de IA para candidaturas profissionais.",
+    premiumActiveTitle: "Plano Premium ativo",
+    premiumActiveText: "Voc\u00ea tem acesso ao conjunto mais avan\u00e7ado da Succeedora para curr\u00edculos, IA e candidaturas.",
+    proBenefits: ["Modelos premium", "PDF sem marca", "Cartas e IA"],
+    premiumBenefits: ["Tudo do Pro", "ATS avan\u00e7ado", "Adapta\u00e7\u00e3o para vagas"],
+    nextStepDescriptions: [
+      "Refine o texto principal com uma recomenda\u00e7\u00e3o mais forte.",
+      "Alinhe experi\u00eancias e palavras-chave com a vaga desejada.",
+      "Gere uma carta consistente com seu curr\u00edculo.",
+      "Prepare uma vers\u00e3o internacional do seu perfil.",
+      "Exporte um PDF pronto para enviar.",
+    ],
+  } : {
+    workspaceEyebrow: "Succeedora Workspace",
+    heroText: "A global command center for turning resumes, cover letters and applications into high-impact career assets.",
+    progressTitle: "Resume panel",
+    currentResumeTitle: "Current resume",
+    resumePreview: "Resume preview",
+    ready: "Resume ready",
+    availablePdf: "PDF available",
+    export: "Export",
+    pdfStatus: "PDF status",
+    brandFreePdf: "Brand-free PDF",
+    brandedPdf: "Branded PDF",
+    awaitingResume: "Awaiting resume",
+    complete: "complete",
+    activeTemplate: "Active template",
+    nextAction: "Next move",
+    currentStatus: "Status",
+    progress: "Progress",
+    plan: "Plan",
+    template: "Template",
+    format: "Format",
+    updated: "Updated",
+    notStarted: "Not started yet",
+    readyToExport: "Ready to export",
+    inProgress: "In progress",
+    atsReady: "ATS-compatible",
+    recommendation: "Recommended",
+    startRecommendation: "Start with a template and complete the essential sections.",
+    exportRecommendation: "Your resume is ready for export.",
+    executiveEyebrow: "Executive view",
+    executivePanel: "Strategic brief",
+    tertiaryActions: "Additional actions",
+    planDetails: "Plan details",
+    planBenefits: "Plan benefits",
+    billingCenter: "View plan",
+    included: "Included",
+    proBadge: "Pro",
+    premiumBadge: "Premium",
+    startFirst: "Create first",
+    aiIncluded: "AI included",
+    activePlan: "active",
+    aiChips: ["Summary", "Letter", "ATS", "Translate"],
+    aiSignals: ["Writing review", "Smart keywords", "Custom letter"],
+    upgradeItems: ["Premium templates", "No branding", "More AI"],
+    upgradeBenefits: ["Premium templates", "No-brand PDF", "Multiple versions"],
+    proActiveTitle: "Pro plan active",
+    proActiveText: "Your workspace already includes premium templates, brand-free PDF and AI tools for professional applications.",
+    premiumActiveTitle: "Premium plan active",
+    premiumActiveText: "You have Succeedora's most advanced toolkit for resumes, AI and job applications.",
+    proBenefits: ["Premium templates", "Brand-free PDF", "Letters and AI"],
+    premiumBenefits: ["Everything in Pro", "Advanced ATS", "Job tailoring"],
+    nextStepDescriptions: [
+      "Refine your core profile with a stronger recommendation.",
+      "Align experience and keywords with a target role.",
+      "Create a letter that matches your resume.",
+      "Prepare an international version of your profile.",
+      "Export a PDF ready to send.",
+    ],
+  };
+  const dashboardTemplate = primaryTemplate || getTemplateByKey(selectedTemplateKey || "modern");
+  const dashboardFormat = primaryResume ? primaryResume.documentFormat : defaultDocumentFormat();
+  const documentFormatLabel = dashboardFormat === "letter" ? "US Letter" : "A4";
+  const updatedLabel = primaryResume ? formatResumeDate(primaryResume.updatedAt) : dashboardHomeLabels.notStarted;
+  const resumeTitle = primaryResume ? primaryResume.title : h.mainResume;
+  const statusLabel = completion >= 100 ? dashboardHomeLabels.readyToExport : primaryResume ? dashboardHomeLabels.inProgress : dashboardHomeLabels.notStarted;
+  const recommendationText = completion >= 100 ? dashboardHomeLabels.exportRecommendation : primaryResume ? nextAction : dashboardHomeLabels.startRecommendation;
+  const cleanPdfAvailable = primaryResume ? canExportWithoutBranding(primaryResume.id, access) : isPaidPlan(access);
+  const aiToolsLocked = !canUseFeature("ai_resume_improvement", { access });
+  const exportStatusLabel = primaryResume ? (cleanPdfAvailable ? dashboardHomeLabels.brandFreePdf : dashboardHomeLabels.brandedPdf) : dashboardHomeLabels.awaitingResume;
+  const heroSecondaryActions = isPaidPlan(access)
+    ? [
+        { iconName: "shield", label: dashboardHomeLabels.planDetails, attrs: `data-route="/dashboard/billing"` },
+        { iconName: "sparkles", label: dashboardHomeLabels.aiIncluded, attrs: `data-route="/dashboard/ai"` },
+        { iconName: "download", label: dashboardHomeLabels.brandFreePdf, attrs: `data-route="/dashboard/resumes"` },
+      ]
+    : [
+        { iconName: "shield", label: t().dashboard.upgrade, attrs: `data-route="/dashboard/billing"` },
+        { iconName: "sparkles", label: accessCopy.buyCredits, attrs: `data-route="/dashboard/billing"` },
+        { iconName: "download", label: accessCopy.removeWatermark, attrs: `type="button" data-watermark-option` },
+      ];
+  const resumeChecklist = primaryResume ? [
+    nextAction,
+    `${dashboardHomeLabels.template}: ${dashboardTemplate.name}`,
+    `${dashboardHomeLabels.pdfStatus}: ${exportStatusLabel}`,
+  ] : h.missing.slice(0, 3);
+  const resumeMetadata = [
+    `${dashboardHomeLabels.updated}: ${updatedLabel}`,
+    `${dashboardHomeLabels.template}: ${dashboardTemplate.name}`,
+    `${dashboardHomeLabels.format}: ${documentFormatLabel}`,
+  ];
+  const planCard = access.plan === "premium"
+    ? {
+        className: "is-active-plan is-premium-plan",
+        eyebrow: `${planLabel} ${dashboardHomeLabels.activePlan}`,
+        title: dashboardHomeLabels.premiumActiveTitle,
+        text: dashboardHomeLabels.premiumActiveText,
+        benefits: dashboardHomeLabels.premiumBenefits,
+        chips: [dashboardHomeLabels.included, dashboardHomeLabels.brandFreePdf, dashboardHomeLabels.aiIncluded],
+        cta: dashboardHomeLabels.billingCenter,
+      }
+    : access.plan === "pro"
+      ? {
+          className: "is-active-plan is-pro-plan",
+          eyebrow: `${planLabel} ${dashboardHomeLabels.activePlan}`,
+          title: dashboardHomeLabels.proActiveTitle,
+          text: dashboardHomeLabels.proActiveText,
+          benefits: dashboardHomeLabels.proBenefits,
+          chips: [dashboardHomeLabels.included, dashboardHomeLabels.brandFreePdf, dashboardHomeLabels.aiIncluded],
+          cta: dashboardHomeLabels.billingCenter,
+        }
+      : {
+          className: "is-upgrade-plan",
+          eyebrow: t().dashboard.upgrade,
+          title: h.upgradeTitle,
+          text: h.upgradeText,
+          benefits: dashboardHomeLabels.upgradeBenefits,
+          chips: dashboardHomeLabels.upgradeItems,
+          cta: h.viewPlans,
+        };
+  const nextStepActions = [
+    { iconName: "sparkles", title: h.tasks[0], description: dashboardHomeLabels.nextStepDescriptions[0], featureKey: "ai_resume_improvement", attrs: `data-route="/dashboard/ai" data-ai-action="improve-summary"` },
+    { iconName: "target", title: h.tasks[1], description: dashboardHomeLabels.nextStepDescriptions[1], featureKey: "job_tailoring", attrs: `data-route="/dashboard/ai" data-ai-action="job-tailoring"` },
+    { iconName: "mail", title: h.tasks[2], description: dashboardHomeLabels.nextStepDescriptions[2], featureKey: "ai_cover_letter", attrs: `data-route="/dashboard/cover-letters" data-ai-action="cover-letter"` },
+    { iconName: "globe", title: h.tasks[3], description: dashboardHomeLabels.nextStepDescriptions[3], featureKey: "resume_translation", attrs: `data-route="/dashboard/ai" data-ai-action="translation"` },
+    { iconName: "download", title: h.tasks[4], description: dashboardHomeLabels.nextStepDescriptions[4], featureKey: "", badgeOverride: primaryResume ? exportStatusLabel : dashboardHomeLabels.startFirst, attrs: primaryResume ? `data-pdf-export-resume="${primaryResume.id}"` : `data-new-resume data-route="/dashboard/builder"` },
+  ].map((item) => {
+    const locked = item.featureKey ? !canUseFeature(item.featureKey, primaryResume ? { resumeId: primaryResume.id } : {}) : false;
+    return {
+      ...item,
+      locked,
+      badge: item.badgeOverride || (locked ? featureRequirementLabel(item.featureKey) : dashboardHomeLabels.included),
+    };
+  });
+  const currentResumeActions = primaryResume ? `
+    <div class="resume-current-actions">
+      <button class="secondary-button small" type="button" data-edit-resume="${primaryResume.id}" data-route="/dashboard/builder">${h.resumeActions[0]}</button>
+      <button class="ghost-button small" type="button" data-preview-resume="${primaryResume.id}">${h.resumeActions[1]}</button>
+      <button class="ghost-button small" type="button" data-pdf-export-resume="${primaryResume.id}">${h.resumeActions[2]}</button>
+    </div>
+  ` : `<button class="primary-button full" type="button" data-new-resume data-route="/dashboard/builder">${h.createResume}</button>`;
   dashboardShell("dashboard", `
     <main class="dashboard-content workspace-home">
-      <section class="workspace-hero">
-        <div>
-          <span class="eyebrow">Succeedora</span>
-          <h2>${h.title}</h2>
-          <p>${h.text}</p>
-          <div class="plan-strip">
-            <span>${accessCopy.currentPlan.replace(t().dashboard.free, accessPlanLabel(access))}</span>
-            <button class="secondary-button small" data-route="/dashboard/billing">${t().dashboard.upgrade}</button>
-            <button class="secondary-button small" data-route="/dashboard/billing">${accessCopy.buyCredits}</button>
-            <button class="secondary-button small" type="button" data-watermark-option>${accessCopy.removeWatermark}</button>
+      ${hasSupportReply ? `<section class="support-alert dashboard-support-alert"><div>${icon("mail")}<span>${escapeHtml(t().support.replyNotice)}</span></div><button class="secondary-button small" type="button" data-route="/dashboard/support">${escapeHtml(t().support.title)}</button></section>` : ""}
+      <section class="workspace-hero dashboard-executive-hero">
+        <div class="workspace-hero-glow" aria-hidden="true"></div>
+        <div class="workspace-hero-main">
+          <div class="workspace-hero-copy">
+            <div class="hero-kicker-row">
+              <span class="eyebrow">${dashboardHomeLabels.workspaceEyebrow}</span>
+            </div>
+            <h2>${h.title}</h2>
+            <p>${dashboardHomeLabels.heroText}</p>
           </div>
-          <div class="quick-actions">
-            <button class="primary-button" data-new-resume data-route="/dashboard/builder">${icon("pen")} ${h.createResume}</button>
-            <button class="secondary-button" data-route="/dashboard/ai" data-ai-action="ai">${icon("sparkles")} ${h.improveAi}</button>
-            <button class="secondary-button" data-route="/dashboard/cover-letters">${icon("mail")} ${h.createLetter}</button>
+          <div class="hero-action-stack">
+            <div class="quick-actions hero-primary-actions">
+              <button class="primary-button" data-new-resume data-route="/dashboard/builder">${icon("pen")} ${h.createResume}</button>
+              <button class="secondary-button" data-route="/dashboard/ai" data-ai-action="ai">${icon("sparkles")} ${h.improveAi}</button>
+              <button class="secondary-button" data-route="/dashboard/cover-letters">${icon("mail")} ${h.createLetter}</button>
+            </div>
+            <div class="plan-strip hero-commerce-actions hero-secondary-actions">
+              <span class="hero-action-label">${dashboardHomeLabels.tertiaryActions}</span>
+              ${heroSecondaryActions.map((item) => `<button class="hero-chip" ${item.attrs}>${icon(item.iconName)} ${escapeHtml(item.label)}</button>`).join("")}
+            </div>
           </div>
         </div>
-        <article class="main-resume-card">
-          <span>${primaryResume ? primaryResume.title : h.mainResume}</span>
-          <strong>${completion}%</strong>
-          <div class="progress"><span style="width:${completion}%"></span></div>
-          <p>${nextAction}</p>
+        <article class="main-resume-card executive-resume-panel">
+          <div class="progress-card-orbit" aria-hidden="true"></div>
+          <div class="main-resume-card-top">
+            <div>
+              <span>${dashboardHomeLabels.executiveEyebrow}</span>
+              <strong>${dashboardHomeLabels.executivePanel}</strong>
+            </div>
+            <div class="executive-progress-number">
+              <em data-dashboard-progress-number>${completion}%</em>
+              <small>${dashboardHomeLabels.progress}</small>
+            </div>
+          </div>
+          <div class="progress-card-status executive-status-row">
+            <small>${dashboardHomeLabels.currentStatus}</small>
+            <strong>${escapeHtml(statusLabel)}</strong>
+          </div>
+          <div class="progress"><span data-dashboard-progress style="width:${completion}%"></span></div>
+          <div class="executive-next-action">
+            <small>${dashboardHomeLabels.nextAction}</small>
+            <strong>${escapeHtml(recommendationText)}</strong>
+          </div>
+          <div class="progress-metrics executive-meta-grid">
+            <span><small>${dashboardHomeLabels.updated}</small><strong>${escapeHtml(updatedLabel)}</strong></span>
+            <span><small>${dashboardHomeLabels.plan}</small><strong>${escapeHtml(planExpiryLabel ? `${planLabel} · ${planExpiryLabel}` : planLabel)}</strong></span>
+            <span><small>${dashboardHomeLabels.template}</small><strong>${escapeHtml(dashboardTemplate.name)}</strong></span>
+            <span><small>${dashboardHomeLabels.format}</small><strong>${escapeHtml(documentFormatLabel)}</strong></span>
+          </div>
         </article>
       </section>
 
       <section class="workspace-grid">
         <article class="dash-card resume-status-card">
-          <div class="card-head"><h3>${primaryResume ? primaryResume.title : h.mainResume}</h3><span>${completion}%</span></div>
-          <p>${nextAction}</p>
-          <ul class="task-list">${(primaryResume ? [nextResumeAction(primaryResume)] : h.missing).map((item, index) => `<li>${icon(index === 3 ? "download" : "check")} ${item}</li>`).join("")}</ul>
-          <button class="primary-button full" ${primaryResume ? `data-edit-resume="${primaryResume.id}"` : "data-new-resume"} data-route="/dashboard/builder">${primaryResume ? h.resumeActions[0] : h.createResume}</button>
+          <div class="dash-card-topline">
+            <div class="feature-icon">${icon("file")}</div>
+            <span>${completion}% ${dashboardHomeLabels.complete}</span>
+          </div>
+          <div class="dashboard-card-title-row">
+            <h3>${escapeHtml(primaryResume ? resumeTitle : dashboardHomeLabels.currentResumeTitle)}</h3>
+            <span>${escapeHtml(statusLabel)}</span>
+          </div>
+          <p>${escapeHtml(recommendationText)}</p>
+          <div class="resume-preview-panel">
+            <div class="resume-preview-head"><span>${escapeHtml(dashboardTemplate.name)}</span><strong>${escapeHtml(documentFormatLabel)}</strong></div>
+            <div class="resume-preview-body" aria-label="${escapeHtml(dashboardHomeLabels.resumePreview)}">
+              <span></span><span></span><span></span><span></span>
+            </div>
+            <div class="resume-preview-foot"><span>${escapeHtml(exportStatusLabel)}</span><strong>${completion}%</strong></div>
+          </div>
+          <div class="resume-status-panel">
+            <div class="resume-status-meter"><span style="width:${completion}%"></span></div>
+            <div class="resume-status-meta">${resumeMetadata.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>
+          </div>
+          <ul class="task-list">${resumeChecklist.map((item, index) => `<li>${icon(index === 0 && completion < 100 ? "target" : "check")} ${escapeHtml(item)}</li>`).join("")}</ul>
+          <div class="card-bottom-action">${currentResumeActions}</div>
         </article>
 
-        <article class="dash-card ai-tools-card">
-          <div class="feature-icon">${icon("sparkles")}</div>
+        <article class="dash-card ai-tools-card ${aiToolsLocked ? "locked-feature" : ""}">
+          <div class="ai-card-orb" aria-hidden="true"></div>
+          <div class="dash-card-topline">
+            <div class="feature-icon">${icon("sparkles")}</div>
+            <span>${aiToolsLocked ? `${icon("lock")} ${featureRequirementLabel("ai_resume_improvement")}` : "AI"}</span>
+          </div>
           <h3>${h.aiTitle}</h3>
           <p>${h.aiText}</p>
+          <div class="ai-signal-list">${dashboardHomeLabels.aiSignals.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>
+          <div class="mini-chip-row">${dashboardHomeLabels.aiChips.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>
           <div class="card-actions">
-            <button class="primary-button small" data-route="/dashboard/ai" data-ai-action="ai">${h.openAi}</button>
+            <button class="primary-button small ${aiToolsLocked ? "locked-action" : ""}" data-route="/dashboard/ai" data-ai-action="improve-summary">${aiToolsLocked ? `${icon("lock")} ` : ""}${h.openAi}</button>
             <button class="secondary-button small" data-route="/dashboard/billing">${h.buyCredits}</button>
           </div>
         </article>
 
-        <article class="dash-card upgrade-card workspace-upgrade">
-          <span class="eyebrow">${t().dashboard.upgrade}</span>
-          <h3>${h.upgradeTitle}</h3>
-          <p>${h.upgradeText}</p>
-          <button class="primary-button full" data-route="/dashboard/billing">${h.viewPlans}</button>
+        <article class="dash-card upgrade-card workspace-upgrade plan-status-card ${planCard.className}">
+          <div class="dash-card-topline">
+            <span class="eyebrow">${escapeHtml(planCard.eyebrow)}</span>
+            <div class="feature-icon">${icon("shield")}</div>
+          </div>
+          <h3>${escapeHtml(planCard.title)}</h3>
+          <p>${escapeHtml(planCard.text)}</p>
+          <ul class="upgrade-benefit-list">${planCard.benefits.map((item) => `<li>${icon("check")} ${escapeHtml(item)}</li>`).join("")}</ul>
+          <div class="mini-chip-row">${planCard.chips.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>
+          <div class="card-bottom-action"><button class="primary-button full" data-route="/dashboard/billing">${escapeHtml(planCard.cta)}</button></div>
         </article>
       </section>
 
@@ -8056,7 +10471,7 @@ function renderDashboard() {
 
       <section class="dashboard-section">
         <div class="section-row-heading"><h2>${h.nextSteps}</h2></div>
-        <div class="next-step-grid">${h.tasks.map((task, index) => `<article class="next-step-card"><div class="feature-icon">${icon(index === 0 ? "sparkles" : index === 1 ? "target" : index === 2 ? "mail" : index === 3 ? "globe" : "download")}</div><h3>${task}</h3></article>`).join("")}</div>
+        <div class="next-step-grid">${nextStepActions.map((item, index) => `<button class="next-step-card next-step-action-card ${item.locked ? "locked-feature locked-action" : ""}" type="button" style="--step-delay:${index * 70}ms" ${item.attrs}><div class="feature-icon">${icon(item.iconName)}</div><span>${item.locked ? `${icon("lock")} ` : ""}${escapeHtml(item.badge)}</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.description)}</p></button>`).join("")}</div>
       </section>
 
       ${resumes.length ? "" : `<section class="empty-resume-state">
@@ -8069,12 +10484,23 @@ function renderDashboard() {
 }
 
 function resumeCard(resume, actions) {
-  const template = getTemplateByKey(resume.selectedTemplate);
+  const template = getTemplateByKey(resume.selectedTemplate) || getTemplateByKey("modern");
+  const labels = currentLanguage === "pt"
+    ? { ready: "Pronto", progress: "Em evolu\u00e7\u00e3o", updated: "\u00daltima edi\u00e7\u00e3o" }
+    : { ready: "Ready", progress: "In progress", updated: "Last edited" };
+  const formatLabel = resume.documentFormat === "letter" ? "US Letter" : "A4";
+  const statusLabel = resume.completion >= 100 ? labels.ready : labels.progress;
   return `
     <article class="recent-resume-card">
-      <div class="resume-card-top">${icon("file")}<span>${resume.completion}%</span></div>
-      <h3>${escapeHtml(resume.title)}</h3>
-      <p>${formatResumeDate(resume.updatedAt)}</p>
+      <div class="recent-resume-preview">
+        <div class="resume-card-top">${icon("file")}<span>${resume.completion}%</span></div>
+        <div class="recent-preview-lines"><span></span><span></span><span></span></div>
+      </div>
+      <div class="recent-resume-copy">
+        <h3>${escapeHtml(resume.title)}</h3>
+        <p>${escapeHtml(labels.updated)}: ${escapeHtml(formatResumeDate(resume.updatedAt))}</p>
+      </div>
+      <div class="recent-resume-status">${escapeHtml(statusLabel)} - ${escapeHtml(formatLabel)}</div>
       <div class="resume-meta"><span>${template.name} · ${resume.documentFormat === "letter" ? "US Letter" : "A4"}</span><div class="progress"><span style="width:${resume.completion}%"></span></div></div>
       <div class="resume-actions">
         <button class="secondary-button small" data-edit-resume="${resume.id}" data-route="/dashboard/builder">${actions[0]}</button>
@@ -8206,6 +10632,7 @@ function renderBuilderTemplateSelection() {
               <div class="template-card-topline">
                 <span class="template-badge">${template.category}</span>
                 <span class="template-badge ${template.access === "free" ? "free" : "pro"}">${template.access === "free" ? copy.dashboard.free : copy.dashboard.pro}</span>
+                ${locked ? lockedBadge("premium_templates") : ""}
               </div>
               ${templateCardPreviewMarkup(template.key)}
               <div class="builder-template-meta">
@@ -8214,7 +10641,7 @@ function renderBuilderTemplateSelection() {
               </div>
               <div class="template-actions">
                 <button class="ghost-button small" type="button" data-template-preview="${template.key}" data-preview-context="dashboard">${copy.dashboard.previewTemplate}</button>
-                <button class="primary-button small" type="button" data-use-template="${template.key}" data-template-destination="builder">${copy.dashboard.useTemplate}</button>
+                <button class="primary-button small ${locked ? "locked-action" : ""}" type="button" data-use-template="${template.key}" data-template-destination="builder">${locked ? `${icon("lock")} ${featureAccessCopy().locked}` : copy.dashboard.useTemplate}</button>
               </div>
             </article>
           `;
@@ -8241,7 +10668,7 @@ function templateSelectorButton(template) {
   return `
     <button class="template-choice ${template.key === selectedTemplateKey ? "active" : ""} ${locked ? "locked" : ""}" type="button" data-resume-template="${template.key}" aria-pressed="${template.key === selectedTemplateKey}">
       <span>${template.name}</span>
-      ${isPro ? `<em>${t().dashboard.pro}</em>` : ""}
+      ${locked ? `<em>${icon("lock")} ${featureAccessCopy().pro}</em>` : isPro ? `<em>${t().dashboard.pro}</em>` : ""}
     </button>
   `;
 }
@@ -8343,13 +10770,26 @@ Used analytics and customer feedback to prioritize roadmap decisions.</textarea>
 
 function builderSectionPanel(title, index) {
   const b = t().builder;
+  const ai = aiCopy();
   const resume = ensureBuilderDraft();
   const personal = resume.personal || {};
   const experience = resume.workExperience?.[0] || {};
   const education = resume.education?.[0] || {};
   const value = (item) => escapeHtml(item || "");
   const listValue = (items) => escapeHtml((items || []).join("\n"));
-  const aiButton = index === 1 ? b.generateWithAi : index === 2 ? b.improveDescription : index === 4 ? b.suggestSkills : "";
+  const aiButtonMarkup = (taskType, label, iconName = "sparkles", className = "secondary-button") => {
+    const locked = !canUseAiTask(taskType);
+    return `<button class="${className} small ${locked ? "locked-action" : ""}" type="button" data-ai-builder-task="${taskType}">${icon(locked ? "lock" : iconName)} ${label}</button>`;
+  };
+  const aiActions = index === 1
+    ? `<div class="ai-action-row">${aiButtonMarkup("generate_professional_summary", ai.generateSummary)}${aiButtonMarkup("improve_professional_summary", ai.improveSummary, "sparkles", "ghost-button")}</div>`
+    : index === 2
+      ? aiButtonMarkup("rewrite_experience", ai.improveExperience)
+      : index === 4
+        ? aiButtonMarkup("suggest_skills", ai.suggestSkills)
+        : index === 9
+          ? `<div class="ai-action-row">${aiButtonMarkup("translate_resume", ai.translateResume, "globe")}</div>`
+          : "";
   const status = index < 5 ? b.required : b.optional;
   const helper = index === 1 ? b.helpers.summary : index === 2 ? b.helpers.experience : index === 4 ? b.helpers.skills : index === 8 ? b.helpers.links : "";
   let content = "";
@@ -8385,7 +10825,7 @@ function builderSectionPanel(title, index) {
 
   return `
     <section class="form-section builder-card builder-panel" id="builder-section-${index}" data-builder-panel="${index}" ${index === activeBuilderSectionIndex ? "" : "hidden"}>
-      <div class="form-section-head"><div><span class="section-status">${status}</span><h2>${title}</h2>${helper ? `<p>${helper}</p>` : ""}</div>${aiButton ? `<button class="secondary-button small" type="button" data-ai-action="${index === 2 ? "rewrite-experience" : "improve-summary"}">${icon("sparkles")} ${aiButton}</button>` : ""}</div>
+      <div class="form-section-head"><div><span class="section-status">${status}</span><h2>${title}</h2>${helper ? `<p>${helper}</p>` : ""}</div>${aiActions}</div>
       ${content}
       ${actions}
     </section>
@@ -8458,6 +10898,8 @@ function renderAiAssistant() {
     ? result.suggestions.map((suggestion) => aiSuggestionCard(suggestion, selectedResume?.id)).join("")
     : `<div class="ai-empty-panel">${icon("sparkles")}<p>${result ? a.noSuggestions : a.start}</p></div>`;
   const hasAnalysis = result && !isLoading;
+  const atsLocked = !canUseFeature("ats_advanced", selectedResume ? { resumeId: selectedResume.id } : {});
+  const tailorLocked = !canUseFeature("job_tailoring", selectedResume ? { resumeId: selectedResume.id } : {});
   const keywordPanel = hasAnalysis ? `
     <section class="ai-keyword-grid">
       ${aiKeywordCard(a.foundKeywords, result.foundKeywords)}
@@ -8487,7 +10929,10 @@ function renderAiAssistant() {
           </div>
           <label>${a.label}<textarea data-ai-field="jobDescription" placeholder="${a.placeholder}">${escapeHtml(aiAssistantState.jobDescription)}</textarea></label>
           <p class="ai-form-error" data-ai-error ${aiAssistantState.error ? "" : "hidden"}>${escapeHtml(aiAssistantState.error)}</p>
-          <button class="primary-button full" type="submit">${icon("target")} ${isLoading ? a.analyzing : a.button}</button>
+          <div class="ai-form-actions">
+            <button class="primary-button full ${atsLocked ? "locked-action" : ""}" type="submit">${icon(atsLocked ? "lock" : "target")} ${isLoading ? a.analyzing : a.button}</button>
+            <button class="secondary-button full ${tailorLocked ? "locked-action" : ""}" type="button" data-ai-tailor-job>${icon(tailorLocked ? "lock" : "sparkles")} ${aiCopy().tailorJob}</button>
+          </div>
         </form>
       </section>
       <section class="ai-results">
@@ -8496,9 +10941,10 @@ function renderAiAssistant() {
           <strong>${isLoading ? "..." : `${score}%`}</strong>
           <em>${isLoading ? a.analyzing : scoreLabel}</em>
           <div class="progress"><span style="width:${isLoading ? 18 : score}%"></span></div>
+          <p class="ats-disclaimer">${escapeHtml(aiCopy().atsDisclaimer)}</p>
         </article>
         <section class="ai-suggestions-panel">
-          <div class="ai-section-head"><h3>${a.suggestionsTitle}</h3>${!isPaidPlan() ? `<span>${a.actions.pro}</span>` : ""}</div>
+          <div class="ai-section-head"><h3>${a.suggestionsTitle}</h3>${atsLocked ? lockedBadge("ats_advanced") : ""}</div>
           <div class="ai-suggestion-grid">${isLoading ? `<div class="ai-empty-panel">${icon("sparkles")}<p>${a.analyzing}</p></div>` : suggestionCards}</div>
         </section>
       </section>
@@ -8526,7 +10972,7 @@ function aiSuggestionCard(suggestion, resumeId) {
       <p>${escapeHtml(suggestion.text)}</p>
       <footer>
         ${locked
-          ? `<button class="secondary-button small" type="button" data-route="/dashboard/billing">${t().dashboard.access.viewPlans}</button>`
+          ? `<button class="secondary-button small locked-action" type="button" data-route="/dashboard/billing">${icon("lock")} ${t().dashboard.access.viewPlans}</button>`
           : `<button class="ghost-button small" type="button" data-ai-copy="${escapeHtml(suggestion.text)}">${a.actions.copy}</button>
             <button class="secondary-button small" type="button" data-ai-edit-resume="${resumeId || ""}" data-ai-section="${suggestion.section || "summary"}">${a.actions.edit}</button>
             <button class="primary-button small" type="button" data-ai-edit-resume="${resumeId || ""}" data-ai-section="${suggestion.section || "summary"}">${a.actions.apply}</button>`}
@@ -8586,6 +11032,36 @@ function extractJobKeywords(jobText, resume = null) {
   const skillHits = (resume?.skills || []).filter((skill) => normalizeAiText(jobText).includes(normalizeAiText(skill)));
   const counted = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([word]) => word);
   return [...new Set([...skillHits, ...counted])].slice(0, 14).map((keyword) => keyword.length <= 4 ? keyword.toUpperCase() : keyword.replace(/\b\w/g, (letter) => letter.toUpperCase()));
+}
+
+function ruleBasedSummary(resume) {
+  const role = resume.personal?.title || resume.workExperience?.[0]?.role || (currentLanguage === "pt" ? "profissional" : "professional");
+  const skills = (resume.skills || []).slice(0, 4).join(", ");
+  const experience = (resume.workExperience?.[0]?.achievements || [])[0] || "";
+  if (currentLanguage === "pt") {
+    return `${role} com experiência em ${skills || "projetos profissionais"}, foco em resultados mensuráveis e comunicação clara. ${experience ? `Destaque para ${experience.replace(/\.$/, "")}.` : "Atuação orientada a melhoria contínua, colaboração e entrega de valor."}`;
+  }
+  return `${role} with experience in ${skills || "professional projects"}, focused on measurable outcomes and clear communication. ${experience ? `Known for ${experience.replace(/\.$/, "")}.` : "Brings a practical approach to continuous improvement, collaboration, and value delivery."}`;
+}
+
+function ruleBasedExperienceBullets(resume) {
+  const experience = resume.workExperience?.[0] || {};
+  const bullets = (experience.achievements || []).filter(Boolean);
+  if (bullets.length) {
+    return bullets.map((item) => item.replace(/^[-â€¢]\s*/, "").replace(/^(worked|responsible)/i, currentLanguage === "pt" ? "Atuei" : "Led"));
+  }
+  return currentLanguage === "pt"
+    ? ["Liderei [iniciativa] para melhorar [resultado] em [percentual].", "Colaborei com equipes multidisciplinares para entregar [projeto] com foco em [impacto]."]
+    : ["Led [initiative] to improve [result] by [percentage].", "Collaborated with cross-functional teams to deliver [project] with focus on [impact]."];
+}
+
+function ruleBasedSkillSuggestions(resume, jobText = "") {
+  const existing = resume.skills || [];
+  const keywords = extractJobKeywords(jobText || resumeSearchText(resume), resume);
+  const defaults = currentLanguage === "pt"
+    ? ["Comunicação", "Análise de dados", "Gestão de prioridades", "Resolução de problemas", "Colaboração"]
+    : ["Communication", "Data analysis", "Prioritization", "Problem solving", "Collaboration"];
+  return [...new Set([...existing, ...keywords, ...defaults])].slice(0, 12);
 }
 
 function selectedAiResume() {
@@ -8661,6 +11137,30 @@ function analyzeResumeForJob(resume, values) {
     experienceMatch,
     experienceNote: experienceMatch >= 65 ? a.scoreLabels[2] : a.suggestions.measurable,
     suggestions: visibleSuggestions,
+  };
+}
+
+function aiAnalysisResult(result, resume, values) {
+  const a = t().ai;
+  const fallback = analyzeResumeForJob(resume, values);
+  const matched = Array.isArray(result.matchedKeywords) ? result.matchedKeywords : fallback.foundKeywords;
+  const missing = Array.isArray(result.missingKeywords) ? result.missingKeywords : fallback.missingKeywords;
+  const suggestions = Array.isArray(result.suggestions) && result.suggestions.length
+    ? result.suggestions.map((text, index) => ({
+        category: index === 0 ? a.categories.summary : index === 1 ? a.categories.keywords : a.categories.experience,
+        text,
+        section: index === 1 ? "skills" : "summary",
+      }))
+    : fallback.suggestions;
+  return {
+    score: Math.max(0, Math.min(100, Number(result.score) || fallback.score)),
+    foundKeywords: matched,
+    missingKeywords: missing,
+    skillsMatch: fallback.skillsMatch,
+    skillsMatched: fallback.skillsMatched,
+    experienceMatch: fallback.experienceMatch,
+    experienceNote: result.explanation || fallback.experienceNote,
+    suggestions,
   };
 }
 
@@ -8756,6 +11256,7 @@ function renderSettings() {
           <label>${s.themeTitle}<select data-theme-choice>${themeOptions.map(([value, label]) => `<option value="${value}" ${selectedTheme === value ? "selected" : ""}>${label}</option>`).join("")}</select></label>
         </div>
       </section>
+      ${settingsPaymentMethodsSection()}
       <section class="settings-grid">
         <article class="settings-card security-settings-card">
           <div class="settings-card-head"><div><span class="eyebrow">${s.securityTitle}</span><h2>${s.securityTitle}</h2></div></div>
@@ -8783,6 +11284,8 @@ function renderAccountSettings() {
   const copy = t();
   const s = copy.settings;
   const profile = loadProfile();
+  const access = getUserAccess();
+  const planText = accessPlanExpiryLabel(access) ? `${accessPlanLabel(access)} · ${accessPlanExpiryLabel(access)}` : accessPlanLabel(access);
   const themeOptions = ["light", "dark", "system"].map((value) => [value, s.themeOptions[value]]);
   dashboardShell("settings", `
     <main class="settings-page settings-page-premium">
@@ -8791,7 +11294,7 @@ function renderAccountSettings() {
         <div>
           <span class="eyebrow">Succeedora</span>
           <h2>${escapeHtml(profile.fullName)}</h2>
-          <p>${escapeHtml(profile.email)} &middot; ${copy.dashboard.currentPlan}: ${escapeHtml(accessPlanLabel())}</p>
+          <p>${escapeHtml(profile.email)} &middot; ${copy.dashboard.currentPlan}: ${escapeHtml(planText)}</p>
         </div>
       </section>
       <section class="settings-grid">
@@ -8804,12 +11307,13 @@ function renderAccountSettings() {
           <label>${s.languageTitle}<select data-settings-language><option value="pt" ${currentLanguage === "pt" ? "selected" : ""}>${s.languageOptions.pt}</option><option value="en" ${currentLanguage === "en" ? "selected" : ""}>${s.languageOptions.en}</option></select></label>
         </article>
       </section>
+      ${settingsPaymentMethodsSection()}
       <section class="settings-grid">
         <article class="settings-card account-settings-card">
           <div class="settings-card-head"><div><span class="eyebrow">${s.accountTitle}</span><h2>${s.accountTitle}</h2></div></div>
           <div class="settings-status-list">
             <span>${icon("check")} ${escapeHtml(profile.email)}</span>
-            <span>${icon("card")} ${copy.dashboard.currentPlan}: ${escapeHtml(accessPlanLabel())}</span>
+            <span>${icon("card")} ${copy.dashboard.currentPlan}: ${escapeHtml(planText)}</span>
           </div>
           <p>${s.accountText}</p>
           <div class="section-actions">
@@ -8837,6 +11341,7 @@ function renderCoverLetters() {
   const c = coverLetterLabels();
   const letters = loadCoverLetters();
   const resumes = loadResumes();
+  const coverLetterLimitLocked = !canUseFeature("cover_letters_unlimited") && letters.length >= 1;
   const draft = normalizeCoverLetter(coverLetterDraft || createBlankCoverLetter({ id: currentCoverLetterId || undefined }));
   const builder = `
     <section class="cover-letter-builder-page" data-letter-builder>
@@ -8878,7 +11383,7 @@ function renderCoverLetters() {
         </div>
         <div class="letter-editor-head">
           <label>${c.fields.body}</label>
-          <button class="secondary-button small" type="button" data-cover-letter-generate>${icon("sparkles")} ${c.actions.generate}</button>
+          <button class="secondary-button small ${!canUseAiTask("generate_cover_letter") ? "locked-action" : ""}" type="button" data-cover-letter-generate>${icon(canUseAiTask("generate_cover_letter") ? "sparkles" : "lock")} ${aiCopy().generateLetter}</button>
         </div>
         <textarea class="cover-letter-body-editor" data-letter-field="body">${escapeHtml(draft.body)}</textarea>
         <p class="settings-message" data-cover-letter-message ${coverLetterSaveMessage ? "" : "hidden"}>${escapeHtml(coverLetterSaveMessage)}</p>
@@ -8920,7 +11425,7 @@ function renderCoverLetters() {
   ` : `<section class="empty-state premium-empty">${icon("mail")}<h2>${c.emptyTitle}</h2><p>${c.emptyText}</p><button class="primary-button" type="button" data-cover-letter-new>${c.dashboardNew}</button></section>`;
   dashboardShell("coverLetters", `
     <main class="dashboard-content">
-      <div class="page-actions"><p>${c.intro}</p><button class="primary-button" type="button" data-cover-letter-new>${icon("mail")} ${c.dashboardNew}</button></div>
+      <div class="page-actions"><p>${c.intro}</p><button class="primary-button ${coverLetterLimitLocked ? "locked-action" : ""}" type="button" data-cover-letter-new>${icon(coverLetterLimitLocked ? "lock" : "mail")} ${c.dashboardNew}</button></div>
       ${coverLetterBuilderOpen ? builder : library}
     </main>
   `);
@@ -8933,11 +11438,14 @@ function renderTemplatesPage() {
   dashboardShell("templates", `
     <main class="dashboard-content">
       <div class="template-filter-row">${copy.dashboard.templateFilters.map((filter, index) => `<button class="${index === 0 ? "active" : ""}" type="button" data-template-filter="${filterKeys[index]}">${filter}</button>`).join("")}</div>
-      <div class="template-grid dashboard-templates">${templates.map((template, index) => `
-        <article class="template-card dashboard-template-card template-${template.key} ${canUseTemplate(template.key) ? "" : "locked-feature"}" data-template-category="${template.key}" data-template-access="${template.access}">
+      <div class="template-grid dashboard-templates">${templates.map((template, index) => {
+        const locked = !canUseTemplate(template.key);
+        return `
+        <article class="template-card dashboard-template-card template-${template.key} ${locked ? "locked-feature" : ""}" data-template-category="${template.key}" data-template-access="${template.access}">
           <div class="template-card-topline">
             <span class="template-badge">${template.category}</span>
             <span class="template-badge ${template.access === "free" ? "free" : "pro"}">${template.access === "free" ? copy.dashboard.free : copy.dashboard.pro}</span>
+            ${locked ? lockedBadge("premium_templates") : ""}
           </div>
           ${templateCardPreviewMarkup(template.key)}
           <h3>${template.name}</h3>
@@ -8945,10 +11453,11 @@ function renderTemplatesPage() {
           <p class="template-best"><strong>${copy.dashboard.bestFor}:</strong> ${template.bestForText}</p>
           <div class="template-actions">
             <button class="ghost-button small" type="button" data-template-preview="${template.key}" data-preview-context="dashboard">${copy.dashboard.previewTemplate}</button>
-            <button class="secondary-button small" type="button" data-use-template="${template.key}" data-template-destination="builder">${copy.dashboard.useTemplate}</button>
+            <button class="secondary-button small ${locked ? "locked-action" : ""}" type="button" data-use-template="${template.key}" data-template-destination="builder">${locked ? `${icon("lock")} ${featureAccessCopy().locked}` : copy.dashboard.useTemplate}</button>
           </div>
         </article>
-      `).join("")}</div>
+      `;
+      }).join("")}</div>
     </main>
   `);
 }
@@ -8956,6 +11465,9 @@ function renderTemplatesPage() {
 function renderBilling() {
   const access = getUserAccess();
   const labels = t().dashboard.access;
+  const stripeLabels = t().payments;
+  const canManageStripe = access.planState?.source === "stripe" && access.planState?.stripeSubscriptionId;
+  const stripeTestNotice = stripeConfig.mode === "test" && isAdminAccount() ? `<p class="planned-payment-note">${stripeLabels.stripeTestMode}: ${stripeLabels.stripeTestNotice}</p>` : "";
   dashboardShell("billing", `
     <main class="dashboard-content billing-page">
       <section class="billing-summary settings-card">
@@ -8963,15 +11475,18 @@ function renderBilling() {
           <span class="eyebrow">${t().dashboard.billing}</span>
           <h2>${currentPlanText(access)}</h2>
           <p>${labels.aiCredits}: ${access.aiCredits}</p>
+          ${stripeTestNotice}
         </div>
         <div class="billing-actions">
           <button class="primary-button small" type="button" data-pricing-jump="monthly">${t().dashboard.upgrade}</button>
           <button class="secondary-button small" type="button" data-pricing-jump="credits">${labels.buyCredits}</button>
           <button class="secondary-button small" type="button" data-pricing-jump="one-time">${labels.removeWatermark}</button>
+          ${canManageStripe ? `<button class="secondary-button small" type="button" data-stripe-portal>${stripeLabels.manageSubscription}</button>` : ""}
         </div>
       </section>
-      ${paymentHistorySection()}
+      ${settingsPaymentMethodsSection()}
       ${monetizationSections("dashboard")}
+      ${paymentHistorySection()}
     </main>
   `);
 }
