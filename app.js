@@ -3462,6 +3462,10 @@ function icon(name, cls = "") {
   return `<svg class="icon ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${iconPaths[name] || iconPaths.file}"></path></svg>`;
 }
 
+function brazilFlagIcon() {
+  return `<span class="br-flag-icon" aria-hidden="true"></span>`;
+}
+
 function brandMark() {
   const gradientId = `brandGradient-${brandMarkId += 1}`;
   const glowId = `brandGlow-${brandMarkId}`;
@@ -8607,8 +8611,8 @@ function pricingCard(name, price, items, featured, badge = "", index = 0, mode =
 
 function purchaseCard(name, price, label, items, featured = false, cta = "", productType = "premium_pdf") {
   const copy = t();
-  const buttonLabel = cta || copy.payments.title;
-  const stripeButton = stripeConfig.oneTimePaymentsEnabled ? `<button class="${featured ? "primary-button" : "secondary-button"} full" type="button" data-stripe-checkout="${productType}">${escapeHtml(copy.payments.payWithCard)}</button>` : "";
+  const pixButtonLabel = currentLanguage === "pt" ? "Pix Brasil" : "Brazil Pix";
+  const stripeButton = stripeConfig.oneTimePaymentsEnabled ? `<button class="${featured ? "primary-button" : "secondary-button"} full payment-option-button stripe-option" type="button" data-stripe-checkout="${productType}">${icon("card")} <span>${escapeHtml(copy.payments.payWithCard)}</span></button>` : "";
   return `
     <article class="price-card purchase-card ${featured ? "featured" : ""}">
       ${label ? `<div class="popular subtle">${label}</div>` : ""}
@@ -8619,7 +8623,7 @@ function purchaseCard(name, price, label, items, featured = false, cta = "", pro
       <p class="planned-payment-note stripe-note">${copy.payments.secureStripe}${stripeConfig.installmentsEnabled ? ` ${copy.payments.cardInstallmentsNote}` : ""}</p>
       <ul>${items.map((item) => `<li>${icon("check")} ${item}</li>`).join("")}</ul>
       <div class="payment-action-stack">
-        <button class="${featured ? "secondary-button" : "ghost-button"} full" type="button" data-one-time-purchase data-pix-product="${productType}">${escapeHtml(buttonLabel)}</button>
+        <button class="${featured ? "secondary-button" : "ghost-button"} full payment-option-button pix-option" type="button" data-one-time-purchase data-pix-product="${productType}">${brazilFlagIcon()} <span>${escapeHtml(pixButtonLabel)}</span></button>
         ${stripeButton}
       </div>
     </article>
@@ -8628,7 +8632,8 @@ function purchaseCard(name, price, label, items, featured = false, cta = "", pro
 
 function creditCard(name, price, badge, items, featured = false, productType = "ai_credits_starter") {
   const copy = t();
-  const stripeButton = stripeConfig.oneTimePaymentsEnabled ? `<button class="${featured ? "primary-button" : "secondary-button"} full" type="button" data-stripe-checkout="${productType}">${escapeHtml(copy.payments.payWithCard)}</button>` : "";
+  const pixButtonLabel = currentLanguage === "pt" ? "Pix Brasil" : "Brazil Pix";
+  const stripeButton = stripeConfig.oneTimePaymentsEnabled ? `<button class="${featured ? "primary-button" : "secondary-button"} full payment-option-button stripe-option" type="button" data-stripe-checkout="${productType}">${icon("card")} <span>${escapeHtml(copy.payments.payWithCard)}</span></button>` : "";
   return `
     <article class="price-card credit-card ${featured ? "featured" : ""}">
       ${badge ? `<div class="popular">${badge}</div>` : ""}
@@ -8639,7 +8644,7 @@ function creditCard(name, price, badge, items, featured = false, productType = "
       <p class="planned-payment-note stripe-note">${copy.payments.secureStripe}${stripeConfig.installmentsEnabled ? ` ${copy.payments.cardInstallmentsNote}` : ""}</p>
       <ul>${items.map((item) => `<li>${icon("sparkles")} ${item}</li>`).join("")}</ul>
       <div class="payment-action-stack">
-        <button class="${featured ? "secondary-button" : "ghost-button"} full" type="button" data-buy-credits data-pix-product="ai_credits">${escapeHtml(copy.payments.title)}</button>
+        <button class="${featured ? "secondary-button" : "ghost-button"} full payment-option-button pix-option" type="button" data-buy-credits data-pix-product="ai_credits">${brazilFlagIcon()} <span>${escapeHtml(pixButtonLabel)}</span></button>
         ${stripeButton}
       </div>
     </article>

@@ -2860,6 +2860,49 @@ body:has(.home-shell)::-webkit-scrollbar {
   gap: 8px;
 }
 
+.payment-option-button {
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.payment-option-button .icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.br-flag-icon {
+  position: relative;
+  display: inline-flex;
+  width: 22px;
+  height: 15px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 3px;
+  background: #159447;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.br-flag-icon::before {
+  content: "";
+  position: absolute;
+  inset: 3px 6px;
+  background: #f7d342;
+  transform: rotate(45deg);
+}
+
+.br-flag-icon::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #194a9f;
+}
+
 .stripe-note {
   color: var(--muted);
 }
