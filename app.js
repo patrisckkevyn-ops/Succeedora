@@ -11654,7 +11654,6 @@ function renderBilling() {
           ${canManageStripe ? `<button class="secondary-button small" type="button" data-stripe-portal>${stripeLabels.manageSubscription}</button>` : ""}
         </div>
       </section>
-      ${settingsPaymentMethodsSection()}
       ${monetizationSections("dashboard")}
       ${paymentHistorySection()}
     </main>
