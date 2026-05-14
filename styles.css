@@ -14759,7 +14759,7 @@ select:focus-visible {
   .home-shell .editor-form {
     min-height: 0;
     padding: 14px;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .home-shell .ai-improve-button {
@@ -15243,7 +15243,44 @@ select:focus-visible {
   }
 
   .home-shell .editor-panel {
-    height: 316px;
+    height: 344px;
+  }
+
+  .home-shell .editor-form {
+    padding: 12px;
+    overflow: visible;
+  }
+
+  .home-shell .field-line {
+    height: 10px;
+    margin-bottom: 7px;
+  }
+
+  .home-shell .editor-form button {
+    min-height: 34px;
+    margin-top: 5px;
+    font-size: 13px;
+  }
+
+  .home-shell .suggestion-card {
+    margin-top: 9px;
+    padding: 10px;
+  }
+
+  .home-shell .suggestion-card strong {
+    font-size: 15px;
+    line-height: 1.15;
+  }
+
+  .home-shell .suggestion-card p {
+    margin-top: 7px;
+    font-size: 11.5px;
+    line-height: 1.34;
+  }
+
+  .home-shell .ai-message-rotator {
+    height: 20px;
+    margin-top: 6px;
   }
 
   .home-shell .hero-value-card {
