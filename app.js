@@ -3463,7 +3463,7 @@ function icon(name, cls = "") {
 }
 
 function brazilFlagIcon() {
-  return `<span class="br-flag-icon" aria-hidden="true"></span>`;
+  return `<svg class="br-flag-icon" viewBox="0 0 32 22" aria-hidden="true" focusable="false"><rect x="1" y="1" width="30" height="20" rx="4" fill="#159447"></rect><path d="M16 4.2 27 11 16 17.8 5 11 16 4.2Z" fill="#f7d342"></path><circle cx="16" cy="11" r="5" fill="#194a9f"></circle><path d="M11.7 9.7c3.2-.6 6.4-.2 9.2 1.3" fill="none" stroke="#fff" stroke-width="1.25" stroke-linecap="round"></path><rect x="1" y="1" width="30" height="20" rx="4" fill="none" stroke="rgba(0,0,0,.14)"></rect></svg>`;
 }
 
 function brandMark() {
@@ -8832,7 +8832,6 @@ function monetizationSections(mode = "public") {
       : "Subscription access for users who want recurring templates, exports, cover letters and AI tools.";
     const productTypes = ["remove_watermark", "premium_pdf", "career_pack", "premium_template", "online_resume_link"];
     const oneTimeCards = `<div class="option-grid public-one-time-grid">${pricing.oneTimeOptions.map((option, index) => purchaseCard(option[0], option[1], option[2], option[3], index === 2, index === 0 ? pricing.watermark.button : pricing.purchaseCtas[index - 1], productTypes[index] || "premium_pdf")).join("")}</div>`;
-    const creditCards = `<div class="credits-grid public-credit-grid">${pricing.creditPackages.map((pack, index) => creditCard(pack[0], pack[1], index === 1 ? pricing.bestValue : index === 2 ? pricing.multipleApplications : pack[2], pack[3], index === 1, AI_CREDIT_STRIPE_PRODUCTS[index] || "ai_credits_starter")).join("")}</div>`;
     return `
       <div class="monetization ${pageClass} premium-pricing-layout">
         <section class="monetization-block public-pricing-block one-time-pricing-block">
@@ -8848,18 +8847,6 @@ function monetizationSections(mode = "public") {
             </div>
           </div>
           ${oneTimeCards}
-        </section>
-
-        <section class="monetization-block credits-band public-credit-band">
-          <div class="credits-copy">
-            <span class="eyebrow">${pricing.creditsTitle}</span>
-            <h2>${pricing.creditsSubtitle}</h2>
-            <div class="credit-uses">
-              <strong>${pricing.creditsUsageTitle}</strong>
-              <div>${pricing.creditUses.slice(0, 5).map((use) => `<span>${use}</span>`).join("")}</div>
-            </div>
-          </div>
-          ${creditCards}
         </section>
 
         <section class="monetization-block pricing-overview-block monthly-pricing-block">
