@@ -5,6 +5,12 @@ const MAX_TEXT_CHARS = 14000;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX_REQUESTS = 20;
 const rateLimitBuckets = new Map();
+const {
+  aiTaskCreditCost,
+  reserveAiCreditsForTask,
+  refundAiCreditsForTask,
+  getAiCreditState,
+} = require("../_lib/succeedora-store");
 
 const TASKS = {
   generate_professional_summary: {
@@ -198,6 +204,14 @@ function checkRateLimit(req) {
   return bucket.count <= RATE_LIMIT_MAX_REQUESTS;
 }
 
+function userFromBody(body = {}) {
+  const user = body.user && typeof body.user === "object" ? body.user : {};
+  return {
+    userId: String(body.userId || user.id || user.userId || "").trim(),
+    userEmail: String(body.userEmail || user.email || user.userEmail || "").trim().toLowerCase(),
+  };
+}
+
 function extractOutputText(payload) {
   if (typeof payload.output_text === "string") return payload.output_text;
   const chunks = [];
@@ -293,9 +307,33 @@ module.exports = async function handler(req, res) {
   const task = TASKS[taskType];
   const language = body.language === "en" ? "en" : "pt";
   const data = sanitize(body.data || body.payload || {});
+  const user = userFromBody(body);
   if (!task) return json(res, 400, { success: false, error: "unsupported_task" });
+  if (!user.userId || !user.userEmail) return json(res, 401, { success: false, error: "auth_required" });
   if (textSize(data) > MAX_TEXT_CHARS) return json(res, 413, { success: false, error: "payload_too_large" });
   if (containsPromptInjection(data)) return json(res, 400, { success: false, error: "unsafe_input" });
+
+  const creditCost = aiTaskCreditCost(taskType);
+  let reservation;
+  try {
+    reservation = await reserveAiCreditsForTask(user, taskType);
+  } catch (error) {
+    return json(res, 503, {
+      success: false,
+      error: "server_persistent_store_not_configured",
+      creditsRequired: creditCost,
+      creditsBalance: 0,
+    });
+  }
+  if (!reservation.applied) {
+    const state = await getAiCreditState(user).catch(() => ({ credits: { balance: 0 } }));
+    return json(res, reservation.reason === "server_persistent_store_not_configured" ? 503 : 402, {
+      success: false,
+      error: reservation.reason || "insufficient_credits",
+      creditsRequired: creditCost,
+      creditsBalance: state.credits?.balance || 0,
+    });
+  }
 
   const input = {
     taskType,
@@ -332,22 +370,29 @@ module.exports = async function handler(req, res) {
 
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
+      await refundAiCreditsForTask(user, taskType, creditCost, "openai_error");
       const debug = body.debug === true;
       return json(res, response.status || 502, {
         success: false,
         error: "openai_error",
+        creditsUsed: 0,
+        creditsRefunded: creditCost,
         ...(debug ? { details: payload?.error?.message || payload?.error || payload } : {}),
       });
     }
 
     const outputText = extractOutputText(payload);
     const parsed = JSON.parse(outputText || "{}");
+    const state = await getAiCreditState(user).catch(() => ({ credits: reservation.credits || { balance: 0 } }));
     return json(res, 200, {
       success: true,
       result: normalizeResult(taskType, parsed),
       model,
+      creditsUsed: creditCost,
+      creditsBalance: state.credits?.balance || 0,
     });
   } catch (error) {
-    return json(res, 502, { success: false, error: "ai_generation_failed" });
+    await refundAiCreditsForTask(user, taskType, creditCost, "ai_generation_failed").catch(() => null);
+    return json(res, 502, { success: false, error: "ai_generation_failed", creditsUsed: 0, creditsRefunded: creditCost });
   }
 };

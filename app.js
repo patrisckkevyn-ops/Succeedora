@@ -18,6 +18,7 @@ const PAYMENT_REQUESTS_STORAGE_KEY = "succeedora.paymentRequests";
 const CURRENCY_STORAGE_KEY = "succeedora.currency";
 const ADMIN_AUDIT_LOG_STORAGE_KEY = "succeedora.adminAuditLog";
 const AI_USAGE_STORAGE_KEY = "succeedora.aiUsage";
+const ONBOARDING_GUIDE_STORAGE_KEY = "succeedora.onboardingGuide";
 const SUPPORT_TICKETS_STORAGE_KEY = "succeedora_support_tickets";
 const SITE_ORIGIN = "https://succeedora.com";
 const TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
@@ -99,16 +100,16 @@ const AI_TASK_CREDITS = {
   suggest_skills: 1,
   improve_project_description: 1,
   generate_cover_letter: 2,
-  improve_cover_letter: 2,
+  improve_cover_letter: 1,
   tailor_cover_letter_to_job: 2,
-  formal_cover_letter: 2,
-  direct_cover_letter: 2,
-  confident_cover_letter: 2,
+  formal_cover_letter: 1,
+  direct_cover_letter: 1,
+  confident_cover_letter: 1,
   analyze_resume_ats: 2,
   analyze_job_description: 2,
-  ats_keyword_suggestions: 2,
-  suggest_ats_keywords: 2,
-  assistant_chat: 2,
+  ats_keyword_suggestions: 1,
+  suggest_ats_keywords: 1,
+  assistant_chat: 1,
   translate_resume: 3,
   tailor_resume_to_job: 4,
   recommend_resume_template: 1,
@@ -478,10 +479,10 @@ const I18N = {
         buyOneTime: "Buy one-time option",
         continueFree: "Continue free",
         aiRequired: "You need AI credits to use this action.",
-        downloadWatermarkTitle: "Download without watermark",
-        downloadWatermarkText: "Your free plan includes Succeedora branding on the PDF. You can remove the watermark from this resume with a one-time payment and make the file more professional for final applications.",
-        downloadFree: "Download free with watermark",
-        removeWatermarkPrice: "Remove watermark — $2",
+        downloadWatermarkTitle: "Remove watermark",
+        downloadWatermarkText: "Download this resume without Succeedora branding with a one-time payment or by upgrading to Pro.",
+        downloadFree: "Continue with watermark",
+        removeWatermarkPrice: "Remove watermark",
         watermarkOfferTitle: "Watermark-free PDF",
         watermarkRecommended: "Recommended",
         watermarkOneTime: "One-time payment for this resume",
@@ -906,10 +907,10 @@ const I18N = {
         buyOneTime: "Comprar opção avulsa",
         continueFree: "Continuar grátis",
         aiRequired: "Você precisa de créditos de IA para usar esta ação.",
-        downloadWatermarkTitle: "Baixar sem marca d'água",
-        downloadWatermarkText: "Seu plano gratuito inclui a marca da Succeedora no PDF. Você pode remover a marca d'água deste currículo com um pagamento único e deixar o arquivo mais profissional para envio.",
-        downloadFree: "Baixar grátis com marca",
-        removeWatermarkPrice: "Remover marca — R$ 7,90",
+        downloadWatermarkTitle: "Remova a marca d'\u00e1gua",
+        downloadWatermarkText: "Baixe este curr\u00edculo sem a marca da Succeedora com um pagamento \u00fanico ou fazendo upgrade para Pro.",
+        downloadFree: "Continuar com marca",
+        removeWatermarkPrice: "Remover marca d'\u00e1gua",
         watermarkOfferTitle: "PDF sem marca d'água",
         watermarkRecommended: "Recomendado",
         watermarkOneTime: "Pagamento único para este currículo",
@@ -1633,7 +1634,7 @@ Object.assign(I18N.en, {
     actions: { view: "View", reply: "Reply", markInProgress: "Mark in progress", close: "Close", sendReply: "Send reply", changePlan: "Change plan", addCredits: "Add credits", removeCredits: "Remove credits", block: "Block user", unblock: "Unblock user", approve: "Approve", reject: "Reject", details: "View details", save: "Save", cancel: "Cancel" },
     filters: { search: "Search by name, email or product", searchTickets: "Search tickets...", status: "Filter by status", category: "Filter by category", priority: "Filter by priority", all: "All statuses", allCategories: "All categories", allPriorities: "All priorities" },
     status: { active: "Active", expired: "Expired", noExpiration: "No expiration", blocked: "Blocked", yes: "Yes", no: "No", open: "Open", in_progress: "In progress", answered: "Answered", closed: "Closed", pending_payment: "Waiting for payment", pending_manual_confirmation: "Payment under review", approved: "Approved", paid: "Paid", pending: "Pending", failed: "Failed", refunded: "Refunded", rejected: "Rejected", cancelled: "Cancelled", pix: "Pix", stripe: "Card via Stripe" },
-    messages: { planUpdated: "Plan updated successfully.", paymentApproved: "Payment approved and feature unlocked.", paymentRejected: "Payment rejected.", creditsAdded: "Credits added.", creditsRemoved: "Credits removed.", userBlocked: "User blocked.", userUnblocked: "User unblocked.", replySent: "Reply sent successfully.", ticketClosed: "Ticket closed." },
+    messages: { planUpdated: "Plan updated successfully.", planDowngraded: "Plan updated to Free. Paid features were locked.", paymentApproved: "Payment approved and feature unlocked.", paymentRejected: "Payment rejected.", creditsAdded: "Credits added.", creditsRemoved: "Credits removed.", userBlocked: "User blocked.", userUnblocked: "User unblocked.", replySent: "Reply sent successfully.", ticketClosed: "Ticket closed." },
     fields: { quantity: "Quantity", reason: "Reason", newPlan: "New plan", duration: "Duration", customDate: "Custom date" },
     rejectReasons: ["Payment not found", "Incorrect amount", "Invalid receipt", "Duplicate request", "Other reason"],
     details: { profile: "User details", savedResumes: "Saved resumes", savedLetters: "Saved cover letters", payments: "Payments", purchases: "One-time purchases", credits: "AI Credits", creditHistory: "Credit history", auditLog: "Audit log", noData: "No records yet." },
@@ -1652,7 +1653,7 @@ Object.assign(I18N.pt, {
     actions: { view: "Ver", reply: "Responder", markInProgress: "Marcar em andamento", close: "Fechar", sendReply: "Enviar resposta", changePlan: "Alterar plano", addCredits: "Adicionar cr\u00e9ditos", removeCredits: "Remover cr\u00e9ditos", block: "Bloquear usu\u00e1rio", unblock: "Desbloquear usu\u00e1rio", approve: "Aprovar", reject: "Recusar", details: "Ver detalhes", save: "Salvar", cancel: "Cancelar" },
     filters: { search: "Buscar por nome, e-mail ou produto", searchTickets: "Buscar tickets...", status: "Filtrar por status", category: "Filtrar por categoria", priority: "Filtrar por prioridade", all: "Todos os status", allCategories: "Todas as categorias", allPriorities: "Todas as prioridades" },
     status: { active: "Ativo", expired: "Expirado", noExpiration: "Sem expira\u00e7\u00e3o", blocked: "Bloqueado", yes: "Sim", no: "N\u00e3o", open: "Aberto", in_progress: "Em andamento", answered: "Respondido", closed: "Fechado", pending_payment: "Aguardando pagamento", pending_manual_confirmation: "Em an\u00e1lise", approved: "Aprovado", paid: "Pago", pending: "Pendente", failed: "Falhou", refunded: "Reembolsado", rejected: "Recusado", cancelled: "Cancelado", pix: "Pix", stripe: "Cart\u00e3o via Stripe" },
-    messages: { planUpdated: "Plano atualizado com sucesso.", paymentApproved: "Pagamento aprovado e recurso liberado.", paymentRejected: "Pagamento recusado.", creditsAdded: "Cr\u00e9ditos adicionados.", creditsRemoved: "Cr\u00e9ditos removidos.", userBlocked: "Usu\u00e1rio bloqueado.", userUnblocked: "Usu\u00e1rio desbloqueado.", replySent: "Resposta enviada com sucesso.", ticketClosed: "Ticket fechado." },
+    messages: { planUpdated: "Plano atualizado com sucesso.", planDowngraded: "Plano atualizado para Gratuito. Recursos pagos foram bloqueados.", paymentApproved: "Pagamento aprovado e recurso liberado.", paymentRejected: "Pagamento recusado.", creditsAdded: "Cr\u00e9ditos adicionados.", creditsRemoved: "Cr\u00e9ditos removidos.", userBlocked: "Usu\u00e1rio bloqueado.", userUnblocked: "Usu\u00e1rio desbloqueado.", replySent: "Resposta enviada com sucesso.", ticketClosed: "Ticket fechado." },
     fields: { quantity: "Quantidade", reason: "Motivo", newPlan: "Novo plano", duration: "Duração", customDate: "Data personalizada" },
     rejectReasons: ["Pagamento n\u00e3o encontrado", "Valor incorreto", "Comprovante inv\u00e1lido", "Pedido duplicado", "Outro motivo"],
     details: { profile: "Detalhes do usu\u00e1rio", savedResumes: "Curr\u00edculos salvos", savedLetters: "Cartas salvas", payments: "Pagamentos", purchases: "Compras avulsas", credits: "Cr\u00e9ditos de IA", creditHistory: "Hist\u00f3rico de cr\u00e9ditos", auditLog: "Hist\u00f3rico administrativo", noData: "Nenhum registro ainda." },
@@ -4560,6 +4561,7 @@ function fitResumeDocumentToPreviewPage(shell, format = selectedDocumentFormat) 
 }
 
 function updateResumePreviewScales(root = document) {
+  applyBuilderPreviewBranding(root);
   root.querySelectorAll(".resume-document-shell").forEach((shell) => {
     const format = shell.getAttribute("data-document-format-current") || selectedDocumentFormat;
     const pageHeight = pageHeightForFormat(format);
@@ -5655,6 +5657,7 @@ function mount(html, seo = {}) {
   updateDocumentLanguage(seo);
   document.getElementById("app").innerHTML = html;
   bindInteractions();
+  if (PRIVATE_ROUTES.has(getRoute()) && isLoggedIn()) syncAiCredits();
   initTurnstileWidgets(document.getElementById("app"));
   scheduleResumePreviewScales(document.getElementById("app"));
   window.scrollTo({ top: 0, behavior: "auto" });
@@ -5680,15 +5683,15 @@ function normalizePlanType(value) {
 function legacyPlanType(raw = {}) {
   if (typeof raw === "string") return normalizePlanType(raw);
   if (!raw || typeof raw !== "object") return "free";
-  if (raw.isPremium || raw.hasPremiumAccess || raw.premiumUnlocked || raw.allFeaturesUnlocked) return "premium";
-  if (raw.isPro || raw.hasPro || raw.proUnlocked) return "pro";
   return normalizePlanType(raw.type || raw.plan || raw.currentPlan);
 }
 
 function normalizePlanState(raw = {}, fallbackType = "free") {
   const now = isoNow();
   const object = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
-  const type = normalizePlanType(object.type || legacyPlanType(raw) || fallbackType);
+  const type = typeof raw === "string"
+    ? normalizePlanType(raw)
+    : normalizePlanType(object.type || object.plan || object.currentPlan || object.planType || fallbackType);
   const status = PLAN_STATUSES.includes(object.status) ? object.status : "active";
   const source = PLAN_SOURCES.includes(object.source) ? object.source : (type === "free" ? "system" : "manual");
   return {
@@ -5731,7 +5734,7 @@ function freePlanState(source = "system") {
 
 function getEffectivePlan(account = currentAccount(), options = {}) {
   const access = options.access || null;
-  const accountPlan = normalizePlanState(account?.plan || account?.currentPlan || account?.planType || account?.legacyPlan || "free");
+  const accountPlan = normalizePlanState(account?.plan || account?.currentPlan || account?.planType || "free");
   const accessPlan = normalizePlanState(access?.planState || access?.plan || "free");
   const hasAccountPlan = Boolean(account && Object.prototype.hasOwnProperty.call(account, "plan"));
   const sourcePlan = hasAccountPlan ? accountPlan : accessPlan;
@@ -5783,9 +5786,8 @@ function loadAccounts() {
   try {
     const parsed = JSON.parse(localStorage.getItem(ACCOUNTS_STORAGE_KEY) || "[]");
     return Array.isArray(parsed) ? parsed.map((account) => {
-      const legacyType = legacyPlanType(account);
       const hasStructuredPlan = account.plan && typeof account.plan === "object" && !Array.isArray(account.plan);
-      const planSource = hasStructuredPlan ? account.plan : (legacyType !== "free" ? legacyType : (account.plan || account.currentPlan || account.planType || "free"));
+      const planSource = hasStructuredPlan ? account.plan : (account.plan || account.currentPlan || account.planType || "free");
       const plan = normalizePlanState(planSource);
       return {
         id: String(account.id || `user_${Date.now()}`),
@@ -7313,8 +7315,7 @@ function defaultAccessState() {
 
 function normalizeAccessState(raw = {}) {
   const base = defaultAccessState();
-  const legacyType = legacyPlanType(raw);
-  const planSource = legacyType !== "free" ? legacyType : (raw.planState || raw.plan || raw.currentPlan || "free");
+  const planSource = raw.planState || raw.plan || raw.currentPlan || "free";
   const planState = normalizePlanState(planSource);
   const plan = planState.type;
   const oneTime = { ...base.oneTime, ...(raw.oneTime && typeof raw.oneTime === "object" ? raw.oneTime : {}) };
@@ -7360,8 +7361,15 @@ function getUserAccess() {
   }
 }
 
+function effectiveAccessState(access = getUserAccess(), account = currentAccount()) {
+  const normalized = normalizeAccessState(access);
+  const effectivePlan = getEffectivePlan(account, { access: normalized, persist: Boolean(account?.id) });
+  return { ...normalized, plan: effectivePlan.type, planState: effectivePlan };
+}
+
 function isPaidPlan(access = getUserAccess()) {
-  return access.plan === "pro" || access.plan === "premium";
+  const effective = effectiveAccessState(access);
+  return effective.plan === "pro" || effective.plan === "premium";
 }
 
 function hasOneTime(type, id, access = getUserAccess()) {
@@ -7371,14 +7379,16 @@ function hasOneTime(type, id, access = getUserAccess()) {
 }
 
 function accessPlanLabel(access = getUserAccess()) {
+  const effective = effectiveAccessState(access);
   const copy = t().dashboard;
-  if (access.plan === "premium") return copy.premium;
-  if (access.plan === "pro") return copy.pro;
+  if (effective.plan === "premium") return copy.premium;
+  if (effective.plan === "pro") return copy.pro;
   return copy.free;
 }
 
 function accessPlanExpiryLabel(access = getUserAccess()) {
-  return access.plan === "free" ? "" : formatPlanExpiry(access.planState?.expiresAt);
+  const effective = effectiveAccessState(access);
+  return effective.plan === "free" ? "" : formatPlanExpiry(effective.planState?.expiresAt);
 }
 
 function currentResumeAccessId() {
@@ -7445,14 +7455,62 @@ function canExportWithoutBranding(resumeId = currentResumeAccessId(), access = g
   return canUseFeature("watermark_free_pdf", { resumeId, access });
 }
 
+function succeedoraWatermarkText() {
+  return "Created with Succeedora";
+}
+
+function createResumeBrandWatermark(className = "resume-brand-watermark") {
+  const watermark = document.createElement("div");
+  watermark.className = className;
+  watermark.setAttribute("aria-hidden", "true");
+
+  const diagonal = document.createElement("span");
+  diagonal.className = `${className}-diagonal`;
+  diagonal.textContent = succeedoraWatermarkText();
+
+  const seal = document.createElement("span");
+  seal.className = `${className}-seal`;
+  seal.textContent = `${succeedoraWatermarkText()} \u2022 succeedora.com`;
+
+  watermark.append(diagonal, seal);
+  return watermark;
+}
+
+function setResumePreviewBranding(documentNode, branded) {
+  if (!documentNode) return;
+  documentNode.querySelectorAll(":scope > .resume-brand-watermark").forEach((item) => item.remove());
+  documentNode.classList.toggle("has-brand-watermark", Boolean(branded));
+  if (branded) documentNode.prepend(createResumeBrandWatermark());
+}
+
+function applyBuilderPreviewBranding(root = document) {
+  const branded = isLoggedIn() && !canExportWithoutBranding(currentResumeAccessId());
+  const frames = [];
+  if (root?.matches?.(".builder-preview-frame")) frames.push(root);
+  root.querySelectorAll?.(".builder-preview-frame").forEach((frame) => frames.push(frame));
+  frames.forEach((frame) => {
+    frame.querySelectorAll(".resume-document").forEach((documentNode) => {
+      setResumePreviewBranding(documentNode, branded);
+    });
+  });
+}
+
+function applyResumePreviewBranding(root = document, resumeId = currentResumeAccessId()) {
+  const branded = isLoggedIn() && !canExportWithoutBranding(resumeId);
+  root.querySelectorAll(".resume-preview-content .resume-document").forEach((documentNode) => {
+    setResumePreviewBranding(documentNode, branded);
+  });
+}
+
 function canUseTemplate(templateKey, access = getUserAccess()) {
+  const effectiveAccess = effectiveAccessState(access);
   const template = getTemplateByKey(templateKey);
   if (!template || !isTemplateActive(template)) return false;
   if (template.access === "free") return true;
   if (isAdminAccount()) return true;
-  if (hasOneTime("premiumTemplates", templateKey, access)) return true;
-  if (template.access === "premium") return planRank(access.plan) >= planRank("premium");
-  return planRank(access.plan) >= planRank("pro");
+  if (hasOneTime("premiumTemplates", templateKey, effectiveAccess)) return true;
+  if (template.access === "premium") return planRank(effectiveAccess.plan) >= planRank("premium");
+  return planRank(effectiveAccess.plan) >= planRank("pro");
 }
 
 function templateAccessLabel(template = {}) {
@@ -7502,7 +7560,7 @@ function openProTemplateModal() {
 function canUseFeature(featureKey, context = {}, maybeAccess) {
   const normalized = normalizeFeatureKey(featureKey);
   if (typeof context === "string") context = { resumeId: context };
-  const access = maybeAccess || context.access || getUserAccess();
+  const access = effectiveAccessState(maybeAccess || context.access || getUserAccess(), context.account || currentAccount());
   const rule = FEATURE_RULES[normalized];
   if (!rule) return false;
   if (isAdminAccount()) return true;
@@ -7714,7 +7772,15 @@ function adminUpdatePlan(userId, planType, options = {}) {
   const duration = options.duration || "none";
   const now = isoNow();
   const expiresAt = plan === "free" ? null : planExpiresAtForDuration(duration, options.customDate || "");
-  const nextPlanState = plan === "free" ? freePlanState("admin") : {
+  const nextPlanState = plan === "free" ? {
+    type: "free",
+    status: "active",
+    startedAt: now,
+    expiresAt: null,
+    updatedAt: now,
+    source: "admin",
+    durationLabel: "",
+  } : {
     type: plan,
     status: "active",
     startedAt: now,
@@ -7726,6 +7792,19 @@ function adminUpdatePlan(userId, planType, options = {}) {
   updateAccount(userId, (current) => ({
     ...current,
     plan: nextPlanState,
+    currentPlan: undefined,
+    planType: undefined,
+    legacyPlan: undefined,
+    isPro: undefined,
+    isPremium: undefined,
+    hasPro: undefined,
+    hasPremiumAccess: undefined,
+    hasProAccess: undefined,
+    premiumUnlocked: undefined,
+    proUnlocked: undefined,
+    allFeaturesUnlocked: undefined,
+    unlockedAll: undefined,
+    subscriptionActive: undefined,
     manualPlanUpdatedAt: now,
     manualPlanUpdatedBy: admin.email,
   }));
@@ -7742,23 +7821,51 @@ function adminUpdatePlan(userId, planType, options = {}) {
     newExpiresAt: nextPlanState.expiresAt || "",
     reason: options.reason || "",
   });
-  adminSetFlash(t().admin.messages.planUpdated);
+  adminSetFlash(plan === "free"
+    ? (t().admin.messages.planDowngraded || "Plano atualizado para Gratuito. Recursos pagos foram bloqueados.")
+    : t().admin.messages.planUpdated);
   return true;
 }
 
-function adminUpdateCredits(userId, amount, reason = "") {
+async function adminUpdateCredits(userId, amount, reason = "") {
   if (!isAdminAccount()) return false;
   const account = adminFindAccount(userId);
   const admin = currentAccount();
   const delta = Number(amount) || 0;
   if (!account || delta === 0) return false;
-  const access = loadUserAccess(account);
-  const nextCredits = Math.max(0, Number(access.aiCredits || 0) + delta);
-  const history = [...(access.creditHistory || []), { amount: delta, reason, adminEmail: admin.email, createdAt: isoNow() }];
-  saveUserAccess(account, { ...access, aiCredits: nextCredits, creditHistory: history });
-  saveAdminAuditLog({ action: delta > 0 ? "credits_added" : "credits_removed", targetUserEmail: account.email, oldValue: access.aiCredits, newValue: nextCredits, reason });
-  adminSetFlash(delta > 0 ? t().admin.messages.creditsAdded : t().admin.messages.creditsRemoved);
-  return true;
+  try {
+    const response = await fetch("/api/admin/ai-credits", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        adminEmail: admin.email,
+        userId: account.id,
+        userEmail: account.email,
+        amount: delta,
+        reason,
+      }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.success) throw new Error(payload.error || "admin_credit_update_failed");
+    const access = loadUserAccess(account);
+    const credits = payload.aiCredits || {};
+    const balance = Math.max(0, Number(credits.balance || 0));
+    const history = Array.isArray(payload.transactions)
+      ? payload.transactions.map((item) => ({
+        amount: Number(item.amount || 0),
+        reason: item.reason || item.taskType || item.productType || "",
+        adminEmail: normalizeEmail(item.adminEmail || item.userEmail || ""),
+        createdAt: item.createdAt || isoNow(),
+      }))
+      : access.creditHistory;
+    saveUserAccess(account, { ...access, aiCredits: balance, creditHistory: history });
+    saveAdminAuditLog({ action: delta > 0 ? "credits_added" : "credits_removed", targetUserEmail: account.email, oldValue: access.aiCredits, newValue: balance, reason });
+    adminSetFlash(delta > 0 ? t().admin.messages.creditsAdded : t().admin.messages.creditsRemoved);
+    return true;
+  } catch (error) {
+    adminSetFlash(currentLanguage === "pt" ? "N\u00e3o foi poss\u00edvel atualizar os cr\u00e9ditos no servidor." : "Could not update credits on the server.");
+    return false;
+  }
 }
 
 function adminSetUserStatus(userId, status) {
@@ -7792,14 +7899,6 @@ function adminGrantPaymentFeature(account, payment) {
   if (payment.productType === "premium_template") oneTime.premiumTemplates = adminAddUnique(oneTime.premiumTemplates, targetId);
   if (payment.productType === "career_pack") oneTime.careerPack = adminAddUnique(oneTime.careerPack, targetId);
   if (payment.productType === "online_resume_link") oneTime.onlineLinks = adminAddUnique(oneTime.onlineLinks, targetId);
-  if (AI_CREDIT_PRODUCT_TYPES.includes(payment.productType)) {
-    const credits = adminPaymentCredits(payment);
-    nextAccess = {
-      ...nextAccess,
-      aiCredits: Math.max(0, Number(nextAccess.aiCredits || 0) + credits),
-      creditHistory: [...(nextAccess.creditHistory || []), { amount: credits, reason: payment.id, adminEmail: admin.email, createdAt: isoNow() }],
-    };
-  }
   if (payment.productType === "plan_pro" || payment.productType === "plan_premium") {
     const plan = payment.productType === "plan_premium" ? "premium" : "pro";
     const startedAt = isoNow();
@@ -7871,8 +7970,7 @@ function adminRejectPayment(userId, paymentId, reason = "") {
 }
 
 function requiresAiCredits(action = "ai") {
-  const access = getUserAccess();
-  return !isPaidPlan(access) && access.aiCredits <= 0 && ["improve-summary", "rewrite-experience", "cover-letter", "translation", "job-tailoring", "job-analysis", "ats-keywords"].includes(action);
+  return false;
 }
 
 function aiActionFeature(action = "ai") {
@@ -7978,6 +8076,19 @@ function aiCopy() {
 
 function aiErrorMessage(error) {
   const code = typeof error === "string" ? error : error?.message || "";
+  if (["openai_error", "ai_generation_failed"].includes(code)) {
+    return currentLanguage === "pt"
+      ? "N\u00e3o foi poss\u00edvel gerar a resposta agora. Seus cr\u00e9ditos n\u00e3o foram consumidos."
+      : "Could not generate the response right now. Your credits were not used.";
+  }
+  if (code === "auth_required") {
+    return currentLanguage === "pt" ? "Entre na sua conta para usar recursos de IA." : "Sign in to use AI features.";
+  }
+  if (code === "server_persistent_store_not_configured") {
+    return currentLanguage === "pt"
+      ? "O sistema de cr\u00e9ditos est\u00e1 indispon\u00edvel agora. Tente novamente em instantes."
+      : "The credit system is unavailable right now. Please try again shortly.";
+  }
   const messages = currentLanguage === "pt" ? {
     missing_openai_api_key: "IA sem chave configurada. Adicione OPENAI_API_KEY nas variáveis de ambiente da Vercel e faça um novo deploy.",
     openai_error: "A OpenAI recusou a chamada. Verifique se a chave, o modelo OPENAI_MODEL e a cobrança da conta estão ativos.",
@@ -8006,25 +8117,105 @@ function aiTaskCredits(taskType) {
   return AI_TASK_CREDITS[taskType] || 1;
 }
 
-function canUseAiTask(taskType) {
-  if (isAdminAccount()) return true;
-  const access = getUserAccess();
-  const featureKey = aiTaskFeature(taskType);
-  const rule = featureRule(featureKey);
-  if (rule.plan && planRank(access.plan) >= planRank(rule.plan)) return true;
-  if (hasFeatureOneTime(rule, {}, access)) return true;
-  if (featureKey === "ats_advanced" || featureKey === "job_tailoring") return false;
-  return Boolean(rule.credits) && Number(access.aiCredits || 0) >= aiTaskCredits(taskType);
+function aiCreditWord(amount = 1) {
+  const singular = Number(amount) === 1;
+  if (currentLanguage === "pt") return singular ? "cr\u00e9dito" : "cr\u00e9ditos";
+  return singular ? "credit" : "credits";
 }
 
-function consumeAiCredits(taskType) {
-  if (isAdminAccount()) return 0;
-  const account = currentAccount();
+function aiCostLabel(taskType) {
   const credits = aiTaskCredits(taskType);
+  return `${credits} ${aiCreditWord(credits)}`;
+}
+
+function aiActionLabel(label, taskType) {
+  return `${label} \u2014 ${aiCostLabel(taskType)}`;
+}
+
+function aiCreditBalanceBadge() {
+  const label = currentLanguage === "pt" ? "Cr\u00e9ditos de IA" : "AI credits";
+  return `<span class="ai-credit-balance-note">${label}: <span data-ai-credit-balance>${Number(getUserAccess().aiCredits || 0)}</span></span>`;
+}
+
+function canUseAiTask(taskType) {
+  return isLoggedIn();
+}
+
+function updateLocalAiCreditBalance(balance, transactions = null) {
+  const account = currentAccount();
+  if (!account) return;
+  const normalizedBalance = Math.max(0, Number(balance || 0));
   const access = getUserAccess();
-  if (isPaidPlan(access)) return 0;
-  saveUserAccess(account, { ...access, aiCredits: Math.max(0, Number(access.aiCredits || 0) - credits) });
-  return credits;
+  const nextAccess = { ...access, aiCredits: normalizedBalance };
+  if (Array.isArray(transactions)) {
+    nextAccess.creditHistory = transactions.map((item) => ({
+      amount: Number(item.amount || 0),
+      reason: item.reason || item.taskType || item.productType || "",
+      adminEmail: normalizeEmail(item.adminEmail || item.userEmail || ""),
+      createdAt: item.createdAt || isoNow(),
+    }));
+  }
+  saveUserAccess(account, nextAccess);
+  document.querySelectorAll("[data-ai-credit-balance]").forEach((node) => {
+    node.textContent = String(normalizedBalance);
+  });
+}
+
+async function syncAiCredits(options = {}) {
+  const account = currentAccount();
+  if (!account?.id || !account?.email) return null;
+  try {
+    const response = await fetch(`/api/ai/credits?userId=${encodeURIComponent(account.id)}&userEmail=${encodeURIComponent(account.email)}`);
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.success) throw new Error(payload.error || "ai_credit_sync_failed");
+    updateLocalAiCreditBalance(Number(payload.aiCredits?.balance || 0), payload.transactions || []);
+    if (options.rerender) render();
+    return payload;
+  } catch (error) {
+    return null;
+  }
+}
+
+function openInsufficientCreditsModal(details = {}) {
+  const balance = Math.max(0, Number(details.balance || 0));
+  const required = Math.max(1, Number(details.required || 1));
+  const copy = currentLanguage === "pt" ? {
+    title: "Cr\u00e9ditos de IA insuficientes",
+    text: "Voc\u00ea precisa de cr\u00e9ditos de IA para usar esta a\u00e7\u00e3o. Compre um pacote de cr\u00e9ditos ou fa\u00e7a upgrade para continuar.",
+    balance: "Saldo atual",
+    required: "Cr\u00e9ditos necess\u00e1rios",
+    buy: "Comprar cr\u00e9ditos",
+    plans: "Ver planos",
+    cancel: "Cancelar",
+    best: "Melhor custo-benef\u00edcio",
+    many: "Para v\u00e1rias candidaturas",
+  } : {
+    title: "Not enough AI credits",
+    text: "You need AI credits to use this action. Buy a credit pack or upgrade to continue.",
+    balance: "Current balance",
+    required: "Credits needed",
+    buy: "Buy credits",
+    plans: "View plans",
+    cancel: "Cancel",
+    best: "Best value",
+    many: "For several applications",
+  };
+  openAccessModal({
+    title: copy.title,
+    text: copy.text,
+    featureName: `${copy.balance}: ${balance}`,
+    requirement: `${copy.required}: ${required}`,
+    benefits: [
+      `Starter - ${AI_CREDIT_PRODUCT_AMOUNTS.ai_credits_starter} ${aiCreditWord(AI_CREDIT_PRODUCT_AMOUNTS.ai_credits_starter)}`,
+      `Growth - ${AI_CREDIT_PRODUCT_AMOUNTS.ai_credits_growth} ${aiCreditWord(AI_CREDIT_PRODUCT_AMOUNTS.ai_credits_growth)} - ${copy.best}`,
+      `Power - ${AI_CREDIT_PRODUCT_AMOUNTS.ai_credits_power} ${aiCreditWord(AI_CREDIT_PRODUCT_AMOUNTS.ai_credits_power)} - ${copy.many}`,
+    ],
+    actions: [
+      { label: copy.buy, className: "primary-button", onClick: () => { setRoute("/dashboard/billing"); window.setTimeout(() => document.querySelector('[data-pricing-jump="credits"]')?.click(), 80); } },
+      { label: copy.plans, className: "secondary-button", onClick: () => { setRoute("/dashboard/billing"); window.setTimeout(() => document.querySelector('[data-pricing-jump="monthly"]')?.click(), 80); } },
+      { label: copy.cancel, className: "ghost-button" },
+    ],
+  });
 }
 
 function loadAiUsageLog() {
@@ -8050,8 +8241,9 @@ function recordAiUsage(taskType, creditsUsed = aiTaskCredits(taskType), status =
 
 async function requestAiGeneration(taskType, data = {}) {
   if (!canUseAiTask(taskType)) {
-    openFeatureLockModal(aiTaskFeature(taskType));
-    throw new Error("insufficient_credits");
+    rememberIntendedRoute(getRoute());
+    setRoute("/signin");
+    throw new Error("auth_required");
   }
   let response;
   try {
@@ -8075,10 +8267,17 @@ async function requestAiGeneration(taskType, data = {}) {
   const payload = await response.json().catch(() => ({}));
   if (!response.ok || !payload.success) {
     recordAiUsage(taskType, 0, "error", payload.error || "ai_generation_failed");
+    if (payload.error === "insufficient_credits") {
+      openInsufficientCreditsModal({
+        balance: payload.creditsBalance,
+        required: payload.creditsRequired || aiTaskCredits(taskType),
+      });
+      updateLocalAiCreditBalance(payload.creditsBalance || 0);
+    }
     throw new Error(payload.error || "ai_generation_failed");
   }
-  const used = consumeAiCredits(taskType);
-  recordAiUsage(taskType, used || aiTaskCredits(taskType), "success");
+  if (Number.isFinite(Number(payload.creditsBalance))) updateLocalAiCreditBalance(Number(payload.creditsBalance));
+  recordAiUsage(taskType, Number(payload.creditsUsed || aiTaskCredits(taskType)), "success");
   return payload.result || {};
 }
 
@@ -8662,19 +8861,6 @@ function bindInteractions() {
   document.querySelectorAll("[data-route]").forEach((el) => {
     el.addEventListener("click", (event) => {
       event.preventDefault();
-      if (el.hasAttribute("data-ai-action")) {
-        const featureKey = aiActionFeature(el.getAttribute("data-ai-action") || "ai");
-        if (!canUseFeature(featureKey)) {
-          event.stopImmediatePropagation();
-          openFeatureLockModal(featureKey);
-          return;
-        }
-      }
-      if (el.hasAttribute("data-ai-action") && requiresAiCredits(el.getAttribute("data-ai-action") || "ai")) {
-        event.stopImmediatePropagation();
-        openFeatureLockModal("ai_credits");
-        return;
-      }
       if (el.hasAttribute("data-sign-out")) {
         signOut();
         setRoute("/");
@@ -9463,23 +9649,21 @@ function bindInteractions() {
     });
   });
 
+  document.querySelectorAll("[data-quick-guide]").forEach((button) => {
+    button.addEventListener("click", () => openOnboardingGuide({ markSeen: false }));
+  });
+
   document.querySelectorAll("[data-plan-placeholder]").forEach((button) => {
     button.addEventListener("click", () => openPaymentComingSoonModal());
   });
 
   document.querySelectorAll("[data-ai-action]").forEach((button) => {
     button.addEventListener("click", (event) => {
-      const featureKey = aiActionFeature(button.getAttribute("data-ai-action") || "ai");
-      if (!canUseFeature(featureKey)) {
+      if (!isLoggedIn()) {
         event.preventDefault();
         event.stopPropagation();
-        openFeatureLockModal(featureKey);
-        return;
-      }
-      if (requiresAiCredits(button.getAttribute("data-ai-action") || "ai")) {
-        event.preventDefault();
-        event.stopPropagation();
-        openFeatureLockModal("ai_credits");
+        rememberIntendedRoute(button.getAttribute("data-route") || getRoute());
+        setRoute("/signin");
       }
     });
   });
@@ -9639,10 +9823,6 @@ function bindInteractions() {
       if (!resume || !values.jobDescription) {
         aiAssistantState = { ...aiAssistantState, ...values, error: !resume ? t().ai.selectResumeError : t().ai.jobDescriptionError };
         render();
-        return;
-      }
-      if (!canUseFeature("job_tailoring", { resumeId: resume.id })) {
-        openFeatureLockModal("job_tailoring", { resumeId: resume.id });
         return;
       }
       if (!canUseAiTask("tailor_resume_to_job")) {
@@ -9908,6 +10088,113 @@ function openAccessModal({ title, text, detail = "", featureName = "", requireme
       if (action.close !== false) closeAccessModal();
     });
   });
+}
+
+function onboardingGuideCopy() {
+  return currentLanguage === "pt" ? {
+    link: "Guia r\u00e1pido",
+    title: "Bem-vindo \u00e0 Succeedora",
+    text: "Crie seu curr\u00edculo profissional em poucos passos e use as ferramentas da Succeedora para melhorar sua candidatura.",
+    steps: [
+      ["layout", "Escolha um modelo", "Selecione um curr\u00edculo gratuito, Pro ou Premium conforme seu objetivo."],
+      ["pen", "Preencha suas informa\u00e7\u00f5es", "Adicione dados pessoais, experi\u00eancia, forma\u00e7\u00e3o, habilidades e projetos."],
+      ["sparkles", "Melhore com IA", "Use a IA para gerar resumo, melhorar experi\u00eancias, sugerir habilidades e criar cartas."],
+      ["download", "Baixe seu PDF", "Exporte seu curr\u00edculo em PDF quando estiver pronto."],
+    ],
+    start: "Come\u00e7ar curr\u00edculo",
+    templates: "Ver modelos",
+    skip: "Pular guia",
+    close: "Fechar guia",
+  } : {
+    link: "Quick guide",
+    title: "Welcome to Succeedora",
+    text: "Create your professional resume in a few steps and use Succeedora tools to improve your application.",
+    steps: [
+      ["layout", "Choose a template", "Select a free, Pro or Premium resume based on your goal."],
+      ["pen", "Fill in your information", "Add personal details, experience, education, skills and projects."],
+      ["sparkles", "Improve with AI", "Use AI to generate summaries, improve experience, suggest skills and create letters."],
+      ["download", "Download your PDF", "Export your resume as a PDF when it is ready."],
+    ],
+    start: "Start resume",
+    templates: "View templates",
+    skip: "Skip guide",
+    close: "Close guide",
+  };
+}
+
+function onboardingGuideSeen() {
+  try {
+    return localStorage.getItem(userScopedStorageKey(ONBOARDING_GUIDE_STORAGE_KEY)) === "seen";
+  } catch (error) {
+    return true;
+  }
+}
+
+function markOnboardingGuideSeen() {
+  try {
+    localStorage.setItem(userScopedStorageKey(ONBOARDING_GUIDE_STORAGE_KEY), "seen");
+  } catch (error) {
+    // Best effort only.
+  }
+}
+
+function openOnboardingGuide(options = {}) {
+  const copy = onboardingGuideCopy();
+  document.querySelector(".onboarding-guide-modal")?.remove();
+  if (options.markSeen !== false) markOnboardingGuideSeen();
+  const modal = document.createElement("div");
+  modal.className = "template-preview-modal onboarding-guide-modal";
+  modal.innerHTML = `
+    <div class="template-preview-backdrop" data-guide-close></div>
+    <section class="template-preview-dialog onboarding-guide-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(copy.title)}">
+      <header class="template-preview-header onboarding-guide-header">
+        <div>
+          <span class="eyebrow">Succeedora</span>
+          <h2>${escapeHtml(copy.title)}</h2>
+          <p>${escapeHtml(copy.text)}</p>
+        </div>
+        <button class="icon-button" type="button" data-guide-close aria-label="${escapeHtml(copy.close)}">${icon("close")}</button>
+      </header>
+      <div class="onboarding-guide-steps">
+        ${copy.steps.map(([iconName, title, text], index) => `
+          <article class="onboarding-guide-step">
+            <span class="onboarding-guide-step-icon">${icon(iconName)}</span>
+            <div>
+              <small>${index + 1}</small>
+              <h3>${escapeHtml(title)}</h3>
+              <p>${escapeHtml(text)}</p>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+      <footer class="template-preview-footer onboarding-guide-actions">
+        <button class="primary-button" type="button" data-guide-start>${escapeHtml(copy.start)}</button>
+        <button class="secondary-button" type="button" data-guide-templates>${escapeHtml(copy.templates)}</button>
+        <button class="ghost-button" type="button" data-guide-close>${escapeHtml(copy.skip)}</button>
+      </footer>
+    </section>
+  `;
+  document.body.appendChild(modal);
+  const close = () => {
+    markOnboardingGuideSeen();
+    modal.remove();
+  };
+  modal.querySelectorAll("[data-guide-close]").forEach((button) => button.addEventListener("click", close));
+  modal.querySelector("[data-guide-start]")?.addEventListener("click", () => {
+    close();
+    setRoute("/dashboard/builder");
+  });
+  modal.querySelector("[data-guide-templates]")?.addEventListener("click", () => {
+    close();
+    setRoute("/dashboard/templates");
+  });
+}
+
+function maybeOpenOnboardingGuide(activeKey = "") {
+  if (!isLoggedIn() || isAdminAccount() || activeKey === "admin" || onboardingGuideSeen()) return;
+  window.setTimeout(() => {
+    if (!document.querySelector(".onboarding-guide-modal") && !onboardingGuideSeen()) openOnboardingGuide();
+  }, 350);
 }
 
 function openUpgradeModal(kind = "default") {
@@ -10201,12 +10488,7 @@ function applyStripeCheckoutEntitlement(session) {
     if (productType === "career_pack") oneTime.careerPack = adminAddUnique(oneTime.careerPack, targetId);
     if (productType === "online_resume_link") oneTime.onlineLinks = adminAddUnique(oneTime.onlineLinks, targetId);
     if (AI_CREDIT_PRODUCT_TYPES.includes(productType)) {
-      const credits = Math.max(1, Number(metadata.creditsAmount || 10));
-      nextAccess = {
-        ...nextAccess,
-        aiCredits: Math.max(0, Number(nextAccess.aiCredits || 0) + credits),
-        creditHistory: [...(nextAccess.creditHistory || []), { amount: credits, reason: session.id, adminEmail: "stripe", createdAt: isoNow() }],
-      };
+      syncAiCredits();
     }
   }
 
@@ -10540,11 +10822,11 @@ function openWatermarkRemovalModal({ resumeId = currentResumeAccessId(), button 
           <strong>${escapeHtml(access.watermarkOfferTitle || access.removeWatermarkPrice)}</strong>
           <small>${escapeHtml(access.watermarkOneTime || "")}</small>
         </div>
-        <button class="primary-button watermark-paid-cta" type="button" data-watermark-paid>${icon("sparkles")} ${escapeHtml(access.removeWatermarkPrice)}</button>
       </div>
       <div class="watermark-actions">
-        <button class="secondary-button" type="button" data-watermark-free>${icon("download")} ${escapeHtml(access.downloadFree)}</button>
-        <button class="ghost-button" type="button" data-watermark-plans>${escapeHtml(access.viewPlans)}</button>
+        <button class="primary-button watermark-paid-cta" type="button" data-watermark-paid>${icon("sparkles")} ${escapeHtml(access.removeWatermarkPrice)}</button>
+        <button class="secondary-button" type="button" data-watermark-plans>${escapeHtml(access.viewPlans)}</button>
+        <button class="ghost-button" type="button" data-watermark-free>${icon("download")} ${escapeHtml(access.downloadFree)}</button>
       </div>
     </section>
   `;
@@ -10584,6 +10866,7 @@ function openTemplatePreview(templateKey, context = "public") {
     </section>
   `;
   root.appendChild(modal);
+  if (context === "builder") setResumePreviewBranding(modal.querySelector(".resume-document"), isLoggedIn() && !canExportWithoutBranding(currentResumeAccessId()));
   scheduleResumePreviewScales(modal);
   modal.querySelectorAll("[data-modal-close]").forEach((button) => button.addEventListener("click", () => modal.remove()));
   modal.addEventListener("keydown", (event) => {
@@ -10647,6 +10930,7 @@ function openResumePreview(resumeId) {
     </section>
   `;
   root.appendChild(modal);
+  applyResumePreviewBranding(modal, resumeId);
   scheduleResumePreviewScales(modal);
   modal.querySelectorAll("[data-modal-close]").forEach((button) => button.addEventListener("click", () => modal.remove()));
   modal.addEventListener("keydown", (event) => {
@@ -11447,12 +11731,7 @@ function prepareResumeForPdf(source, options = {}) {
   clone.querySelectorAll("section").forEach((section) => {
     if (!sectionHasContent(section)) section.remove();
   });
-  if (!options.brandFree) {
-    const footer = document.createElement("footer");
-    footer.className = "pdf-brand-footer";
-    footer.textContent = "Created with Succeedora";
-    clone.appendChild(footer);
-  }
+  if (!options.brandFree) addPdfBrandWatermark(clone);
   return clone;
 }
 
@@ -11534,12 +11813,6 @@ function createResumePdfFitDocument({ template, format, resume, source, brandFre
   documentNode.querySelectorAll("section").forEach((section) => {
     if (!sectionHasContent(section)) section.remove();
   });
-  if (!brandFree) {
-    const footer = document.createElement("footer");
-    footer.className = "pdf-brand-footer";
-    footer.textContent = "Created with Succeedora";
-    documentNode.appendChild(footer);
-  }
   return documentNode;
 }
 
@@ -11590,12 +11863,19 @@ function fitPdfDocumentToPage(documentNode, format) {
   return scale;
 }
 
-function createPdfExportStage(format) {
+function addPdfBrandWatermark(page) {
+  if (!page || page.querySelector(":scope > .pdf-brand-watermark")) return;
+  page.classList.add("has-brand-watermark");
+  page.prepend(createResumeBrandWatermark("pdf-brand-watermark"));
+}
+
+function createPdfExportStage(format, options = {}) {
   const normalizedFormat = normalizeDocumentFormat(format);
   const stage = document.createElement("div");
   stage.className = `pdf-export-stage pdf-export-${normalizedFormat}`;
   stage.setAttribute("aria-hidden", "true");
   stage.setAttribute("data-pdf-format", normalizedFormat);
+  if (options.branded) stage.dataset.pdfBranded = "true";
   applyPdfPageVariables(stage, normalizedFormat);
   return stage;
 }
@@ -11612,6 +11892,7 @@ function createPdfExportPage(stage, sourceDocument, format) {
 
   const documentNode = sourceDocument.cloneNode(false);
   documentNode.innerHTML = "";
+  if (stage?.dataset?.pdfBranded === "true") addPdfBrandWatermark(documentNode);
   content.appendChild(documentNode);
   page.appendChild(content);
   stage.appendChild(page);
@@ -11770,12 +12051,13 @@ function resumePdfPageBlocks(sourceDocument) {
 
 function buildResumePdfExport({ template, format, resume, source, brandFree }) {
   const normalizedFormat = normalizeDocumentFormat(format);
-  const stage = createPdfExportStage(normalizedFormat);
+  const stage = createPdfExportStage(normalizedFormat, { branded: !brandFree });
   stage.classList.add("pdf-fit-export-stage");
   document.body.appendChild(stage);
 
   const sourceDocument = createResumePdfFitDocument({ template, format: normalizedFormat, resume, source, brandFree });
   if (!sourceDocument) throw new Error("Resume document unavailable");
+  if (!brandFree) addPdfBrandWatermark(sourceDocument);
 
   const page = document.createElement("div");
   page.className = `pdf-export-page pdf-fit-export-page ${documentFormatClass(normalizedFormat)}`;
@@ -12241,7 +12523,7 @@ function pricingActionButton(planKey, featured, mode, isCurrent) {
     return `<button class="secondary-button full" type="button" disabled>${copy.pricing.currentPlanLabel}</button>`;
   }
   if (mode === "home") {
-    return `<button class="${featured ? "primary-button" : "secondary-button"} full" type="button" disabled>${copy.pricing.comingSoon}</button>`;
+    return `<a class="${featured ? "primary-button" : "secondary-button"} full" href="#/signup" data-route="/signup">${copy.pricing.choose}</a>`;
   }
   if (planKey === "free" && mode === "public") {
     return `<a class="secondary-button full" href="#/signup" data-route="/signup">${copy.pricing.choose}</a>`;
@@ -12259,7 +12541,6 @@ function pricingCard(name, price, items, featured, badge = "", index = 0, mode =
   const isCurrent = access.plan === planKey;
   const showCurrentState = mode !== "home" && mode !== "public" && isCurrent;
   const label = showCurrentState ? copy.pricing.currentPlanLabel : badge;
-  const paymentLabel = mode === "home" ? `<span class="payment-soon-label">${copy.pricing.paymentComingSoon}</span>` : "";
   const paymentNote = planKey === "free" || mode === "home" || mode === "public" ? "" : `<p class="planned-payment-note">${copy.payments.secureStripe}${stripeConfig.installmentsEnabled ? ` ${copy.payments.cardInstallmentsNote}` : ""}</p>`;
   return `
     <article class="price-card ${mode === "home" ? "homepage-price-card" : ""} ${featured ? "featured" : ""} ${showCurrentState ? "current-plan-card" : ""}" data-plan="${planKey}">
@@ -12268,7 +12549,6 @@ function pricingCard(name, price, items, featured, badge = "", index = 0, mode =
         <h3>${name}</h3>
         <div class="price"><strong>${price}</strong><span>${copy.pricing.perMonth}</span></div>
       </div>
-      ${paymentLabel}
       ${paymentNote}
       <ul>${items.map((item) => `<li>${icon("check")} ${item}</li>`).join("")}</ul>
       ${pricingActionButton(planKey, featured, mode, showCurrentState)}
@@ -14001,10 +14281,10 @@ function openAdminCreditsModal(userId, mode = "add") {
       </div>
     </form>
   `);
-  modal.querySelector("[data-admin-credit-form]")?.addEventListener("submit", (event) => {
+  modal.querySelector("[data-admin-credit-form]")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const quantity = Math.max(1, Number(event.currentTarget.quantity.value || 0));
-    adminUpdateCredits(userId, mode === "remove" ? -quantity : quantity, event.currentTarget.reason.value);
+    await adminUpdateCredits(userId, mode === "remove" ? -quantity : quantity, event.currentTarget.reason.value);
     modal.remove();
     render();
   });
@@ -14170,6 +14450,9 @@ function dashboardShell(activeKey, content) {
   if (isAdminAccount()) nav.push(["/admin", "settings", "admin"]);
   const mobileNav = nav.slice(0, 5);
   const isBuilderEditor = activeKey === "builder" && !String(content || "").includes("builder-template-selection");
+  const guideLink = activeKey === "admin" || getRoute().startsWith("/admin")
+    ? ""
+    : `<button class="dashboard-guide-link" type="button" data-quick-guide>${icon("file")} ${onboardingGuideCopy().link}</button>`;
   mount(`
     <div class="app-shell ${sidebarCollapsed ? "sidebar-collapsed" : ""} ${isBuilderEditor ? "builder-workspace" : ""}">
       <aside class="sidebar">
@@ -14186,6 +14469,7 @@ function dashboardShell(activeKey, content) {
           <div><span class="eyebrow">${d.workspace}</span><h1>${d.nav[activeKey]}</h1></div>
           <label class="dashboard-search">${icon("file")}<input type="search" placeholder="${d.searchPlaceholder}" /></label>
           <div class="topbar-actions">
+            ${guideLink}
             <div class="nav-preferences dashboard-preferences">
               ${languageSwitch(true)}
               ${themeToggle()}
@@ -14200,7 +14484,6 @@ function dashboardShell(activeKey, content) {
                 <button type="button" data-route="/dashboard/settings">${icon("settings")} ${d.nav.settings}</button>
                 <button type="button" data-route="/dashboard/billing">${icon("card")} ${d.billing}</button>
                 ${isAdminAccount() ? `<button type="button" data-route="/admin">${icon("settings")} ${d.nav.admin}</button>` : ""}
-                <button type="button" data-route="/">${icon("arrow")} ${d.backToWebsite}</button>
                 <button type="button" data-route="/" data-sign-out>${icon("close")} ${d.signOut}</button>
               </div>
             </div>
@@ -14213,6 +14496,7 @@ function dashboardShell(activeKey, content) {
       </div>
     </div>
   `);
+  maybeOpenOnboardingGuide(activeKey);
 }
 
 function renderDashboard() {
@@ -14353,7 +14637,7 @@ function renderDashboard() {
   const statusLabel = completion >= 100 ? dashboardHomeLabels.readyToExport : primaryResume ? dashboardHomeLabels.inProgress : dashboardHomeLabels.notStarted;
   const recommendationText = completion >= 100 ? dashboardHomeLabels.exportRecommendation : primaryResume ? nextAction : dashboardHomeLabels.startRecommendation;
   const cleanPdfAvailable = primaryResume ? canExportWithoutBranding(primaryResume.id, access) : isPaidPlan(access);
-  const aiToolsLocked = !canUseFeature("ai_resume_improvement", { access });
+  const aiToolsLocked = !isLoggedIn();
   const exportStatusLabel = primaryResume ? (cleanPdfAvailable ? dashboardHomeLabels.brandFreePdf : dashboardHomeLabels.brandedPdf) : dashboardHomeLabels.awaitingResume;
   const heroSecondaryActions = isPaidPlan(access)
     ? [
@@ -14412,7 +14696,7 @@ function renderDashboard() {
     { iconName: "globe", title: h.tasks[3], description: dashboardHomeLabels.nextStepDescriptions[3], featureKey: "resume_translation", attrs: `data-route="/dashboard/ai" data-ai-action="translation"` },
     { iconName: "download", title: h.tasks[4], description: dashboardHomeLabels.nextStepDescriptions[4], featureKey: "", badgeOverride: primaryResume ? exportStatusLabel : dashboardHomeLabels.startFirst, attrs: primaryResume ? `data-pdf-export-resume="${primaryResume.id}"` : `data-new-resume data-route="/dashboard/builder"` },
   ].map((item) => {
-    const locked = item.featureKey ? !canUseFeature(item.featureKey, primaryResume ? { resumeId: primaryResume.id } : {}) : false;
+    const locked = item.featureKey ? !isLoggedIn() : false;
     return {
       ...item,
       locked,
@@ -14882,18 +15166,18 @@ function builderSectionPanel(title, index) {
   const listValue = (items) => escapeHtml((items || []).join("\n"));
   const aiButtonMarkup = (taskType, label, iconName = "sparkles", className = "secondary-button") => {
     const locked = !canUseAiTask(taskType);
-    return `<button class="${className} small ${locked ? "locked-action" : ""}" type="button" data-ai-builder-task="${taskType}">${icon(locked ? "lock" : iconName)} ${label}</button>`;
+    return `<button class="${className} small ${locked ? "locked-action" : ""}" type="button" data-ai-builder-task="${taskType}">${icon(locked ? "lock" : iconName)} ${aiActionLabel(label, taskType)}</button>`;
   };
   const aiActions = index === 1
-    ? `<div class="ai-action-row">${aiButtonMarkup("generate_professional_summary", ai.generateSummary)}${aiButtonMarkup("improve_professional_summary", ai.improveSummary, "sparkles", "ghost-button")}</div>`
+    ? `<div class="ai-action-row">${aiButtonMarkup("generate_professional_summary", ai.generateSummary)}${aiButtonMarkup("improve_professional_summary", ai.improveSummary, "sparkles", "ghost-button")}${aiCreditBalanceBadge()}</div>`
     : index === 2
-      ? aiButtonMarkup("rewrite_experience", ai.improveExperience)
+      ? `<div class="ai-action-row">${aiButtonMarkup("rewrite_experience", ai.improveExperience)}${aiCreditBalanceBadge()}</div>`
       : index === 4
-        ? aiButtonMarkup("suggest_skills", ai.suggestSkills)
+        ? `<div class="ai-action-row">${aiButtonMarkup("suggest_skills", ai.suggestSkills)}${aiCreditBalanceBadge()}</div>`
         : index === 7
-          ? aiButtonMarkup("improve_project_description", ai.improveProject)
+          ? `<div class="ai-action-row">${aiButtonMarkup("improve_project_description", ai.improveProject)}${aiCreditBalanceBadge()}</div>`
         : index === 9
-          ? `<div class="ai-action-row">${aiButtonMarkup("translate_resume", ai.translateResume, "globe")}</div>`
+          ? `<div class="ai-action-row">${aiButtonMarkup("translate_resume", ai.translateResume, "globe")}${aiCreditBalanceBadge()}</div>`
           : "";
   const status = index < 5 ? b.required : b.optional;
   const helper = index === 1 ? b.helpers.summary : index === 2 ? b.helpers.experience : index === 4 ? b.helpers.skills : index === 8 ? b.helpers.links : "";
@@ -16198,8 +16482,8 @@ function renderAiAssistant() {
     ? result.suggestions.map((suggestion) => aiSuggestionCard(suggestion, selectedResume?.id)).join("")
     : `<div class="ai-empty-panel">${icon("sparkles")}<p>${result ? a.noSuggestions : a.start}</p></div>`;
   const hasAnalysis = result && !isLoading;
-  const atsLocked = !canUseFeature("ats_advanced", selectedResume ? { resumeId: selectedResume.id } : {});
-  const tailorLocked = !canUseFeature("job_tailoring", selectedResume ? { resumeId: selectedResume.id } : {});
+  const atsLocked = !isLoggedIn();
+  const tailorLocked = !isLoggedIn();
   const keywordPanel = hasAnalysis ? `
     <section class="ai-keyword-grid">
       ${aiKeywordCard(a.foundKeywords, result.foundKeywords)}
@@ -16230,8 +16514,9 @@ function renderAiAssistant() {
           <label>${a.label}<textarea data-ai-field="jobDescription" placeholder="${a.placeholder}">${escapeHtml(aiAssistantState.jobDescription)}</textarea></label>
           <p class="ai-form-error" data-ai-error ${aiAssistantState.error ? "" : "hidden"}>${escapeHtml(aiAssistantState.error)}</p>
           <div class="ai-form-actions">
-            <button class="primary-button full ${atsLocked ? "locked-action" : ""}" type="submit">${icon(atsLocked ? "lock" : "target")} ${isLoading ? a.analyzing : a.button}</button>
-            <button class="secondary-button full ${tailorLocked ? "locked-action" : ""}" type="button" data-ai-tailor-job>${icon(tailorLocked ? "lock" : "sparkles")} ${aiCopy().tailorJob}</button>
+            <button class="primary-button full ${atsLocked ? "locked-action" : ""}" type="submit">${icon(atsLocked ? "lock" : "target")} ${isLoading ? a.analyzing : aiActionLabel(a.button, "analyze_job_description")}</button>
+            <button class="secondary-button full ${tailorLocked ? "locked-action" : ""}" type="button" data-ai-tailor-job>${icon(tailorLocked ? "lock" : "sparkles")} ${aiActionLabel(aiCopy().tailorJob, "tailor_resume_to_job")}</button>
+            ${aiCreditBalanceBadge()}
           </div>
         </form>
       </section>
@@ -16610,7 +16895,7 @@ function renderProfile() {
             <div class="profile-plan-meta">
               <span>${icon("check")} ${s.planStatusActive}</span>
               <span>${icon("file")} ${s.planValidity}: ${escapeHtml(planExpiry || s.noExpiration)}</span>
-              <span>${icon("sparkles")} ${s.aiCredits}: ${Number(access.aiCredits || 0)}</span>
+              <span>${icon("sparkles")} ${s.aiCredits}: <span data-ai-credit-balance>${Number(access.aiCredits || 0)}</span></span>
             </div>
             <div class="profile-benefit-list">${planBenefits.map((benefit) => `<span>${icon("check")} ${escapeHtml(benefit)}</span>`).join("")}</div>
             <button class="primary-button small full" type="button" data-route="/dashboard/billing">${access.plan === "free" ? icon("sparkles") : icon("card")} ${escapeHtml(planButtonLabel)}</button>
@@ -16748,6 +17033,10 @@ function renderCoverLetters() {
   const resumes = loadResumes();
   const coverLetterLimitLocked = !canUseFeature("cover_letters_unlimited") && letters.length >= 1;
   const draft = normalizeCoverLetter(coverLetterDraft || createBlankCoverLetter({ id: currentCoverLetterId || undefined }));
+  const aiButton = (taskType, label, iconName = "sparkles", className = "ghost-button", attrs = `data-cover-letter-ai="${taskType}"`) => {
+    const locked = !canUseAiTask(taskType);
+    return `<button class="${className} small ${locked ? "locked-action" : ""}" type="button" ${attrs}>${icon(locked ? "lock" : iconName)} ${aiActionLabel(label, taskType)}</button>`;
+  };
   const builder = `
     <section class="cover-letter-builder-page" data-letter-builder>
       <div class="cover-letter-builder-topbar">
@@ -16791,12 +17080,13 @@ function renderCoverLetters() {
         <div class="letter-editor-head">
           <label>${c.fields.body}</label>
           <div class="ai-action-row">
-            <button class="secondary-button small ${!canUseAiTask("generate_cover_letter") ? "locked-action" : ""}" type="button" data-cover-letter-generate>${icon(canUseAiTask("generate_cover_letter") ? "sparkles" : "lock")} ${aiCopy().generateLetter}</button>
-            <button class="ghost-button small ${!canUseAiTask("improve_cover_letter") ? "locked-action" : ""}" type="button" data-cover-letter-ai="improve_cover_letter">${icon(canUseAiTask("improve_cover_letter") ? "sparkles" : "lock")} ${aiCopy().improveLetter}</button>
-            <button class="ghost-button small ${!canUseAiTask("tailor_cover_letter_to_job") ? "locked-action" : ""}" type="button" data-cover-letter-ai="tailor_cover_letter_to_job">${icon(canUseAiTask("tailor_cover_letter_to_job") ? "target" : "lock")} ${aiCopy().tailorLetter}</button>
-            <button class="ghost-button small ${!canUseAiTask("formal_cover_letter") ? "locked-action" : ""}" type="button" data-cover-letter-ai="formal_cover_letter">${icon(canUseAiTask("formal_cover_letter") ? "pen" : "lock")} ${aiCopy().formalLetter}</button>
-            <button class="ghost-button small ${!canUseAiTask("direct_cover_letter") ? "locked-action" : ""}" type="button" data-cover-letter-ai="direct_cover_letter">${icon(canUseAiTask("direct_cover_letter") ? "pen" : "lock")} ${aiCopy().directLetter}</button>
-            <button class="ghost-button small ${!canUseAiTask("confident_cover_letter") ? "locked-action" : ""}" type="button" data-cover-letter-ai="confident_cover_letter">${icon(canUseAiTask("confident_cover_letter") ? "pen" : "lock")} ${aiCopy().confidentLetter}</button>
+            ${aiButton("generate_cover_letter", aiCopy().generateLetter, "sparkles", "secondary-button", "data-cover-letter-generate")}
+            ${aiButton("improve_cover_letter", aiCopy().improveLetter)}
+            ${aiButton("tailor_cover_letter_to_job", aiCopy().tailorLetter, "target")}
+            ${aiButton("formal_cover_letter", aiCopy().formalLetter, "pen")}
+            ${aiButton("direct_cover_letter", aiCopy().directLetter, "pen")}
+            ${aiButton("confident_cover_letter", aiCopy().confidentLetter, "pen")}
+            ${aiCreditBalanceBadge()}
           </div>
         </div>
         <textarea class="cover-letter-body-editor" data-letter-field="body">${escapeHtml(draft.body)}</textarea>
@@ -16911,7 +17201,7 @@ function renderBilling() {
         <div>
           <span class="eyebrow">${t().dashboard.billing}</span>
           <h2>${currentPlanText(access)}</h2>
-          <p>${labels.aiCredits}: ${access.aiCredits}</p>
+          <p>${labels.aiCredits}: <span data-ai-credit-balance>${access.aiCredits}</span></p>
           ${stripeTestNotice}
         </div>
         <div class="billing-actions">
