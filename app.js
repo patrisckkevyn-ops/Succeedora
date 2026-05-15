@@ -19,6 +19,7 @@ const ADMIN_AUDIT_LOG_STORAGE_KEY = "succeedora.adminAuditLog";
 const AI_USAGE_STORAGE_KEY = "succeedora.aiUsage";
 const SUPPORT_TICKETS_STORAGE_KEY = "succeedora_support_tickets";
 const SITE_ORIGIN = "https://succeedora.com";
+const TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 const ADMIN_EMAILS = ["patrisckkevyn@gmail.com"];
 const VERIFICATION_CODE_TTL_MS = 10 * 60 * 1000;
 const VERIFICATION_RESEND_COOLDOWN_MS = 60 * 1000;
@@ -1661,10 +1662,10 @@ Object.assign(I18N.en, {
     formTitle: "New support request",
     formSubtitle: "Describe your issue clearly so we can help you as efficiently as possible.",
     historyTitle: "Your requests",
-    historySubtitle: "Track your message history and replies from the team.",
+    historySubtitle: "Track your support conversations and reply when the team responds.",
     send: "Send message",
     sending: "Sending...",
-    success: "Message sent successfully. Our team will review your request.",
+    success: "Request sent. Please wait for support to reply.",
     emptyTitle: "You haven\u2019t sent any requests yet.",
     empty: "Once you send your first message, it will appear here with status updates and replies.",
     emptyCta: "Create first request",
@@ -1672,9 +1673,21 @@ Object.assign(I18N.en, {
     adminReply: "Support reply",
     noReply: "No reply yet.",
     you: "You",
-    team: "Succeedora Team",
+    team: "Succeedora Support",
     lastUpdate: "Last update",
     preview: "Latest message",
+    lastMessageBy: "Last message by",
+    waitingSupportReply: "Waiting for support reply",
+    supportReplied: "Support replied",
+    waitingNotice: "Your message has been sent. Please wait for support to reply before continuing the conversation.",
+    closedNotice: "This request has been closed. If you need more help, please create a new request.",
+    replyPlaceholder: "Type your reply...",
+    replyButton: "Send reply",
+    replySuccess: "Reply sent. Please wait for support to respond.",
+    userCanReply: "You can reply",
+    waitingBadge: "Waiting for support",
+    expandConversation: "Open conversation",
+    collapseConversation: "Close conversation",
     responseWindow: "Average response: up to 24h",
     secureChannel: "Secure channel",
     centralizedHistory: "Centralized history",
@@ -1683,7 +1696,7 @@ Object.assign(I18N.en, {
     fieldHints: { subject: "Short summary of the issue", category: "Choose the related area", priority: "Select urgency", message: "Share as much useful detail as possible" },
     categories: { account: "Account", resume: "Resumes", cover_letter: "Cover Letters", payment: "Payments", plans: "Plans", ai: "AI", pdf_export: "PDF & Export", technical_issue: "Technical Issue", website_issue: "Technical Issue", suggestion: "Suggestion", other: "Other" },
     priorities: { low: "Low", medium: "Medium", high: "High" },
-    status: { open: "Open", in_progress: "In review", answered: "Replied", closed: "Resolved" },
+    status: { open: "Open", waiting_support: "Waiting for support", support_replied: "Replied", in_progress: "Waiting for support", answered: "Replied", closed: "Closed" },
     placeholders: { subject: "Briefly describe what you need", message: "Share the details so we can understand the request." },
     metrics: { open: "Open requests", lastReply: "Last reply", responseTime: "Response time", supportStatus: "Support status", none: "No activity yet", noReply: "No reply yet", upTo24h: "Up to 24h", available: "Available" },
     helpTitle: "Quick help",
@@ -1707,6 +1720,7 @@ Object.assign(I18N.en, {
       created: "Ticket created",
       progressed: "Marked in progress",
       answered: "Support replied",
+      userReply: "User replied",
       closed: "Ticket closed",
     },
   },
@@ -1739,11 +1753,26 @@ Object.assign(I18N.pt, {
     secureChannel: "Canal seguro",
     centralizedHistory: "Histórico centralizado",
     organizedSupport: "Suporte organizado",
+    historySubtitle: "Acompanhe suas conversas com o suporte e responda quando a equipe retornar.",
+    success: "Solicita\u00e7\u00e3o enviada. Aguarde a resposta do suporte.",
+    team: "Suporte Succeedora",
+    lastMessageBy: "\u00daltima mensagem por",
+    waitingSupportReply: "Aguardando resposta do suporte",
+    supportReplied: "Resposta recebida",
+    waitingNotice: "Sua mensagem foi enviada. Aguarde a resposta do suporte para continuar a conversa.",
+    closedNotice: "Esta solicita\u00e7\u00e3o foi encerrada. Se precisar de mais ajuda, crie uma nova solicita\u00e7\u00e3o.",
+    replyPlaceholder: "Digite sua resposta...",
+    replyButton: "Enviar resposta",
+    replySuccess: "Resposta enviada. Aguarde o retorno do suporte.",
+    userCanReply: "Voc\u00ea pode responder",
+    waitingBadge: "Aguardando suporte",
+    expandConversation: "Abrir conversa",
+    collapseConversation: "Fechar conversa",
     fields: { subject: "Assunto", category: "Categoria", priority: "Prioridade", message: "Mensagem" },
     fieldHints: { subject: "Resumo curto do problema", category: "Escolha a área relacionada", priority: "Selecione a urgência", message: "Explique o máximo de detalhes possível" },
     categories: { account: "Conta", resume: "Currículos", cover_letter: "Cartas de apresentação", payment: "Pagamentos", plans: "Planos", ai: "IA", pdf_export: "PDF e exportação", technical_issue: "Problema técnico", website_issue: "Problema técnico", suggestion: "Sugestão", other: "Outro" },
     priorities: { low: "Baixa", medium: "Média", high: "Alta" },
-    status: { open: "Aberto", in_progress: "Em análise", answered: "Respondido", closed: "Resolvido" },
+    status: { open: "Aberto", waiting_support: "Aguardando suporte", support_replied: "Respondido", in_progress: "Aguardando suporte", answered: "Respondido", closed: "Fechado" },
     placeholders: { subject: "Descreva rapidamente o que você precisa", message: "Conte os detalhes para entendermos a solicitação." },
     metrics: { open: "Solicitações abertas", lastReply: "Última resposta", responseTime: "Tempo de resposta", supportStatus: "Status do suporte", none: "Sem atividade ainda", noReply: "Sem resposta ainda", upTo24h: "Até 24h", available: "Disponível" },
     helpTitle: "Ajuda rápida",
@@ -1767,8 +1796,23 @@ Object.assign(I18N.pt, {
       created: "Ticket criado",
       progressed: "Marcado em andamento",
       answered: "Suporte respondeu",
+      userReply: "Usuário respondeu",
       closed: "Ticket fechado",
     },
+  },
+});
+
+Object.assign(I18N.en, {
+  security: {
+    verificationTitle: "Security verification",
+    verificationError: "Could not confirm the security verification. Please try again.",
+  },
+});
+
+Object.assign(I18N.pt, {
+  security: {
+    verificationTitle: "Verifica\u00e7\u00e3o de seguran\u00e7a",
+    verificationError: "N\u00e3o foi poss\u00edvel confirmar a verifica\u00e7\u00e3o de seguran\u00e7a. Tente novamente.",
   },
 });
 
@@ -2836,6 +2880,165 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+let turnstileConfigPromise = null;
+let turnstileScriptPromise = null;
+
+function canUseServerlessApi() {
+  return window.location.protocol === "http:" || window.location.protocol === "https:";
+}
+
+function turnstileAction(action = "form") {
+  return String(action || "form").replace(/[^a-z0-9_-]/gi, "_").slice(0, 32) || "form";
+}
+
+function TurnstileWidget(action = "form") {
+  const labels = t().security;
+  return `
+    <div class="turnstile-widget" data-turnstile-widget data-turnstile-action="${escapeHtml(turnstileAction(action))}" data-turnstile-state="pending">
+      <span>${escapeHtml(labels.verificationTitle)}</span>
+      <div class="turnstile-widget-box" data-turnstile-container></div>
+      <input type="hidden" name="cf-turnstile-response" data-turnstile-token />
+    </div>
+  `;
+}
+
+async function loadTurnstileConfig() {
+  if (turnstileConfigPromise) return turnstileConfigPromise;
+  if (!canUseServerlessApi()) return { enabled: false, required: false, siteKey: "", localBypass: true };
+  turnstileConfigPromise = fetch("/api/turnstile/config", { headers: { Accept: "application/json" } })
+    .then((response) => response.ok ? response.json() : null)
+    .then((payload) => ({
+      enabled: Boolean(payload?.enabled && payload?.siteKey),
+      required: Boolean(payload?.required),
+      siteKey: String(payload?.siteKey || ""),
+    }))
+    .catch(() => ({ enabled: false, required: false, siteKey: "" }));
+  return turnstileConfigPromise;
+}
+
+function loadTurnstileScript() {
+  if (window.turnstile) return Promise.resolve(window.turnstile);
+  if (turnstileScriptPromise) return turnstileScriptPromise;
+  turnstileScriptPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = TURNSTILE_SCRIPT_URL;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => window.turnstile ? resolve(window.turnstile) : reject(new Error("turnstile_unavailable"));
+    script.onerror = () => reject(new Error("turnstile_load_failed"));
+    document.head.appendChild(script);
+  });
+  return turnstileScriptPromise;
+}
+
+async function initTurnstileWidgets(root = document) {
+  const widgets = Array.from(root.querySelectorAll("[data-turnstile-widget]")).filter((widget) => !widget.dataset.turnstileRendered);
+  if (!widgets.length) return;
+  const config = await loadTurnstileConfig();
+  if (!config.enabled) {
+    widgets.forEach((widget) => {
+      widget.dataset.turnstileState = config.required ? "blocked" : "bypass";
+      if (!config.required) widget.hidden = true;
+    });
+    return;
+  }
+  try {
+    const turnstile = await loadTurnstileScript();
+    widgets.forEach((widget) => {
+      const container = widget.querySelector("[data-turnstile-container]");
+      const tokenInput = widget.querySelector("[data-turnstile-token]");
+      if (!container || !tokenInput || widget.dataset.turnstileRendered) return;
+      const widgetId = turnstile.render(container, {
+        sitekey: config.siteKey,
+        action: turnstileAction(widget.dataset.turnstileAction),
+        theme: resolvedTheme() === "dark" ? "dark" : "light",
+        callback: (token) => {
+          tokenInput.value = token || "";
+          widget.dataset.turnstileState = "ready";
+        },
+        "expired-callback": () => {
+          tokenInput.value = "";
+          widget.dataset.turnstileState = "expired";
+        },
+        "error-callback": () => {
+          tokenInput.value = "";
+          widget.dataset.turnstileState = "error";
+        },
+      });
+      widget.dataset.turnstileId = String(widgetId);
+      widget.dataset.turnstileRendered = "true";
+      widget.dataset.turnstileState = "rendered";
+    });
+  } catch (error) {
+    widgets.forEach((widget) => {
+      widget.dataset.turnstileState = "error";
+    });
+  }
+}
+
+function resetTurnstileWidget(form) {
+  const widget = form?.querySelector("[data-turnstile-widget]");
+  const tokenInput = widget?.querySelector("[data-turnstile-token]");
+  if (tokenInput) tokenInput.value = "";
+  const widgetId = widget?.dataset.turnstileId;
+  if (window.turnstile && widgetId) {
+    try {
+      window.turnstile.reset(widgetId);
+    } catch (error) {
+      // The widget may already be reset or unavailable.
+    }
+  }
+}
+
+async function getTurnstileTokenForForm(form) {
+  const widget = form?.querySelector("[data-turnstile-widget]");
+  if (!widget) return { ok: true, token: "", bypass: true };
+  const config = await loadTurnstileConfig();
+  if (!config.enabled) {
+    if (!config.required) return { ok: true, token: "", bypass: true };
+    showFormError(form, t().security.verificationError);
+    return { ok: false, token: "", bypass: false };
+  }
+  const tokenInput = widget.querySelector("[data-turnstile-token]");
+  let token = String(tokenInput?.value || "").trim();
+  if (!token && window.turnstile && widget.dataset.turnstileId) {
+    try {
+      token = String(window.turnstile.getResponse(widget.dataset.turnstileId) || "").trim();
+    } catch (error) {
+      token = "";
+    }
+  }
+  if (!token) {
+    showFormError(form, t().security.verificationError);
+    resetTurnstileWidget(form);
+    return { ok: false, token: "", bypass: false };
+  }
+  return { ok: true, token, bypass: false };
+}
+
+async function verifyTurnstileForForm(form, action = "form") {
+  const tokenResult = await getTurnstileTokenForForm(form);
+  if (!tokenResult.ok) return false;
+  if (tokenResult.bypass || !tokenResult.token || !canUseServerlessApi()) return true;
+  try {
+    const response = await fetch("/api/turnstile/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: tokenResult.token, action: turnstileAction(action) }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (response.ok && payload.ok) {
+      resetTurnstileWidget(form);
+      return true;
+    }
+  } catch (error) {
+    // Surface a friendly security error below.
+  }
+  showFormError(form, t().security.verificationError);
+  resetTurnstileWidget(form);
+  return false;
 }
 
 function defaultDocumentFormat() {
@@ -5445,6 +5648,7 @@ function mount(html, seo = {}) {
   updateDocumentLanguage(seo);
   document.getElementById("app").innerHTML = html;
   bindInteractions();
+  initTurnstileWidgets(document.getElementById("app"));
   scheduleResumePreviewScales(document.getElementById("app"));
   window.scrollTo({ top: 0, behavior: "auto" });
 }
@@ -5932,20 +6136,75 @@ function loadAdminDataset() {
 const SUPPORT_CATEGORY_KEYS = ["account", "resume", "cover_letter", "payment", "plans", "ai", "pdf_export", "technical_issue", "website_issue", "suggestion", "other"];
 const SUPPORT_FORM_CATEGORY_KEYS = ["account", "resume", "cover_letter", "payment", "plans", "ai", "pdf_export", "technical_issue", "other"];
 const SUPPORT_PRIORITY_KEYS = ["low", "medium", "high"];
-const SUPPORT_STATUS_KEYS = ["open", "in_progress", "answered", "closed"];
+const SUPPORT_STATUS_KEYS = ["open", "waiting_support", "support_replied", "closed"];
+let supportExpandedTicketId = "";
 
 function supportTicketId() {
   if (window.crypto && crypto.randomUUID) return `ticket_${crypto.randomUUID()}`;
   return `ticket_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function supportMessageId() {
+  if (window.crypto && crypto.randomUUID) return `support_msg_${crypto.randomUUID()}`;
+  return `support_msg_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function normalizeSupportStatus(status, lastMessageBy = "") {
+  if (status === "closed") return "closed";
+  if (status === "answered" || status === "support_replied") return "support_replied";
+  if (status === "in_progress" || status === "waiting_support") return "waiting_support";
+  if (status === "open") return lastMessageBy === "support" ? "support_replied" : "waiting_support";
+  return lastMessageBy === "support" ? "support_replied" : "waiting_support";
+}
+
+function normalizeSupportMessages(ticket = {}, createdAt = isoNow()) {
+  const rawMessages = Array.isArray(ticket.messages) ? ticket.messages : [];
+  const messages = rawMessages.map((message) => {
+    const sender = message.sender === "support" || message.sender === "admin" || message.sender === "team" ? "support" : "user";
+    return {
+      id: String(message.id || supportMessageId()),
+      sender,
+      senderName: String(message.senderName || (sender === "support" ? t().support.team : ticket.userName || ticket.userEmail || t().support.you)).trim(),
+      message: String(message.message || message.text || "").trim(),
+      createdAt: message.createdAt || createdAt,
+    };
+  }).filter((message) => message.message);
+  if (!messages.length && String(ticket.message || "").trim()) {
+    messages.push({
+      id: supportMessageId(),
+      sender: "user",
+      senderName: String(ticket.userName || ticket.userEmail || t().support.you).trim(),
+      message: String(ticket.message || "").trim(),
+      createdAt,
+    });
+  }
+  if (String(ticket.adminReply || "").trim()) {
+    const repliedAt = ticket.repliedAt || ticket.updatedAt || createdAt;
+    const hasReply = messages.some((message) => message.sender === "support" && message.message === String(ticket.adminReply || "").trim() && message.createdAt === repliedAt);
+    if (!hasReply) {
+      messages.push({
+        id: supportMessageId(),
+        sender: "support",
+        senderName: t().support.team,
+        message: String(ticket.adminReply || "").trim(),
+        createdAt: repliedAt,
+      });
+    }
+  }
+  return messages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+}
+
 function normalizeSupportTicket(ticket = {}) {
-  const status = SUPPORT_STATUS_KEYS.includes(ticket.status) ? ticket.status : "open";
   const rawCategory = ticket.category === "website_issue" ? "technical_issue" : ticket.category;
   const category = SUPPORT_CATEGORY_KEYS.includes(rawCategory) ? rawCategory : "other";
   const priority = SUPPORT_PRIORITY_KEYS.includes(ticket.priority) ? ticket.priority : "medium";
   const createdAt = ticket.createdAt || isoNow();
   const history = Array.isArray(ticket.history) ? ticket.history : [{ type: "created", status: "open", createdAt }];
+  const messages = normalizeSupportMessages(ticket, createdAt);
+  const lastMessage = messages[messages.length - 1] || null;
+  const lastMessageBy = ticket.lastMessageBy === "support" || ticket.lastMessageBy === "user" ? ticket.lastMessageBy : (lastMessage?.sender || "user");
+  const lastMessageAt = ticket.lastMessageAt || lastMessage?.createdAt || ticket.repliedAt || ticket.updatedAt || createdAt;
+  const status = normalizeSupportStatus(ticket.status, lastMessageBy);
   return {
     id: String(ticket.id || supportTicketId()),
     userId: String(ticket.userId || ""),
@@ -5958,6 +6217,9 @@ function normalizeSupportTicket(ticket = {}) {
     status,
     createdAt,
     updatedAt: ticket.updatedAt || createdAt,
+    lastMessageAt,
+    lastMessageBy,
+    messages,
     adminReply: String(ticket.adminReply || "").trim(),
     adminEmail: normalizeEmail(ticket.adminEmail || ""),
     repliedAt: ticket.repliedAt || "",
@@ -6015,10 +6277,12 @@ function supportPriorityBadge(priority) {
 function supportMetricCards(tickets = []) {
   const labels = t().support.metrics;
   const openCount = tickets.filter((ticket) => ticket.status !== "closed").length;
-  const lastReply = tickets.filter((ticket) => ticket.repliedAt).sort((a, b) => new Date(b.repliedAt) - new Date(a.repliedAt))[0];
+  const lastReply = tickets
+    .filter((ticket) => ticket.lastMessageBy === "support" && ticket.lastMessageAt)
+    .sort((a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt))[0];
   const items = [
     ["mail", labels.open, String(openCount)],
-    ["check", labels.lastReply, lastReply ? formatPaymentDate(lastReply.repliedAt) : labels.noReply],
+    ["check", labels.lastReply, lastReply ? formatPaymentDate(lastReply.lastMessageAt) : labels.noReply],
     ["target", labels.responseTime, labels.upTo24h],
     ["shield", labels.supportStatus, labels.available],
   ];
@@ -6049,40 +6313,47 @@ function supportHelpCards() {
   `).join("");
 }
 
-function supportMessageBubble(role, text, date = "") {
+function supportMessageBubble(role, text, date = "", senderName = "") {
   const labels = t().support;
-  const isTeam = role === "team";
+  const isTeam = role === "team" || role === "support";
+  const displayName = senderName || (isTeam ? labels.team : labels.you);
+  const userInitial = String(displayName || profileInitials(loadProfile()) || "U").trim().slice(0, 1).toUpperCase();
   return `
     <article class="support-thread-message ${isTeam ? "team-message" : "user-message"}">
-      <div class="support-thread-avatar">${isTeam ? "S" : escapeHtml(profileInitials(loadProfile()).slice(0, 1) || "U")}</div>
+      <div class="support-thread-avatar">${isTeam ? "S" : escapeHtml(userInitial || "U")}</div>
       <div>
-        <div class="support-thread-meta"><strong>${escapeHtml(isTeam ? labels.team : labels.you)}</strong>${date ? `<span>${escapeHtml(formatPaymentDate(date))}</span>` : ""}</div>
+        <div class="support-thread-meta"><strong>${escapeHtml(displayName)}</strong>${date ? `<span>${escapeHtml(formatPaymentDate(date))}</span>` : ""}</div>
         <p>${escapeHtml(text)}</p>
       </div>
     </article>
   `;
 }
 
+function supportTicketMessages(ticket) {
+  return (ticket.messages?.length ? ticket.messages : normalizeSupportTicket(ticket).messages).map((message) => supportMessageBubble(message.sender, message.message, message.createdAt, message.senderName)).join("");
+}
+
+function supportTicketLastMessage(ticket) {
+  const messages = ticket.messages?.length ? ticket.messages : normalizeSupportTicket(ticket).messages;
+  return messages[messages.length - 1] || { sender: ticket.lastMessageBy || "user", message: ticket.message || "", createdAt: ticket.updatedAt || ticket.createdAt };
+}
+
+function supportConversationState(ticket) {
+  const labels = t().support;
+  if (ticket.status === "closed") {
+    return { label: labels.status.closed, notice: labels.closedNotice, canReply: false, badge: labels.status.closed };
+  }
+  if (ticket.lastMessageBy === "support") {
+    return { label: labels.supportReplied, notice: "", canReply: true, badge: labels.userCanReply };
+  }
+  return { label: labels.waitingSupportReply, notice: labels.waitingNotice, canReply: false, badge: labels.waitingBadge };
+}
+
 function supportAdminThread(ticket) {
   const support = t().support;
   return `
     <div class="support-ticket-thread admin-support-thread">
-      <article class="support-thread-message user-message">
-        <div class="support-thread-avatar">${escapeHtml((ticket.userName || ticket.userEmail || "U").trim().slice(0, 1).toUpperCase())}</div>
-        <div>
-          <div class="support-thread-meta"><strong>${escapeHtml(ticket.userName || support.you)}</strong><span>${escapeHtml(formatPaymentDate(ticket.createdAt))}</span></div>
-          <p>${escapeHtml(ticket.message || "-")}</p>
-        </div>
-      </article>
-      ${ticket.adminReply ? `
-        <article class="support-thread-message team-message">
-          <div class="support-thread-avatar">S</div>
-          <div>
-            <div class="support-thread-meta"><strong>${escapeHtml(support.team)}</strong><span>${escapeHtml(formatPaymentDate(ticket.repliedAt))}</span></div>
-            <p>${escapeHtml(ticket.adminReply)}</p>
-          </div>
-        </article>
-      ` : `<div class="support-reply-box"><strong>${escapeHtml(support.adminReply)}</strong><span>${escapeHtml(support.noReply)}</span></div>`}
+      ${ticket.messages?.length ? ticket.messages.map((message) => supportMessageBubble(message.sender, message.message, message.createdAt, message.sender === "user" ? ticket.userName || ticket.userEmail || support.you : message.senderName)).join("") : `<div class="support-reply-box"><strong>${escapeHtml(support.adminReply)}</strong><span>${escapeHtml(support.noReply)}</span></div>`}
     </div>
   `;
 }
@@ -6102,6 +6373,7 @@ function createSupportTicket(values) {
   if (!account?.id) return null;
   const profile = loadProfile();
   const now = isoNow();
+  const firstMessage = String(values.message || "").trim();
   const ticket = normalizeSupportTicket({
     userId: account.id,
     userName: profile.fullName || account.profile?.fullName || account.email,
@@ -6109,15 +6381,57 @@ function createSupportTicket(values) {
     subject: values.subject,
     category: values.category,
     priority: values.priority,
-    message: values.message,
-    status: "open",
+    message: firstMessage,
+    status: "waiting_support",
     createdAt: now,
     updatedAt: now,
-    history: [{ type: "created", status: "open", createdAt: now }],
+    lastMessageAt: now,
+    lastMessageBy: "user",
+    messages: [{
+      id: supportMessageId(),
+      sender: "user",
+      senderName: profile.fullName || account.profile?.fullName || account.email,
+      message: firstMessage,
+      createdAt: now,
+    }],
+    history: [{ type: "created", status: "waiting_support", createdAt: now }],
   });
   upsertSupportTicket(ticket);
   sendSupportTicketCreatedEmail(ticket);
   return ticket;
+}
+
+function replySupportTicketAsUser(ticketId, reply) {
+  const account = currentAccount();
+  if (!account?.id) return null;
+  const text = String(reply || "").trim();
+  if (!text) return null;
+  const tickets = loadSupportTickets();
+  const index = tickets.findIndex((ticket) => ticket.id === ticketId && ticket.userId === account.id);
+  if (index < 0) return null;
+  const ticket = tickets[index];
+  if (ticket.status === "closed" || ticket.lastMessageBy === "user") return null;
+  const profile = loadProfile();
+  const now = isoNow();
+  const next = normalizeSupportTicket({
+    ...ticket,
+    status: "waiting_support",
+    updatedAt: now,
+    lastMessageAt: now,
+    lastMessageBy: "user",
+    userReadAt: ticket.userReadAt || now,
+    messages: [...ticket.messages, {
+      id: supportMessageId(),
+      sender: "user",
+      senderName: profile.fullName || account.email,
+      message: text,
+      createdAt: now,
+    }],
+    history: [...ticket.history, { type: "user_reply", status: "waiting_support", createdAt: now }],
+  });
+  tickets[index] = next;
+  saveSupportTickets(tickets);
+  return next;
 }
 
 function updateSupportTicketAsAdmin(ticketId, updater, action = "support_update") {
@@ -6145,24 +6459,34 @@ function adminMarkSupportTicketInProgress(ticketId) {
   const now = isoNow();
   return updateSupportTicketAsAdmin(ticketId, (ticket) => ({
     ...ticket,
-    status: "in_progress",
+    status: "waiting_support",
     updatedAt: now,
-    history: [...ticket.history, { type: "in_progress", status: "in_progress", adminEmail: currentAccount()?.email || "", createdAt: now }],
+    history: [...ticket.history, { type: "in_progress", status: "waiting_support", adminEmail: currentAccount()?.email || "", createdAt: now }],
   }), "support_in_progress");
 }
 
 function adminReplySupportTicket(ticketId, reply) {
   const now = isoNow();
   const admin = currentAccount();
+  const text = String(reply || "").trim();
   const updated = updateSupportTicketAsAdmin(ticketId, (ticket) => ({
     ...ticket,
-    status: "answered",
-    adminReply: String(reply || "").trim(),
+    status: "support_replied",
+    adminReply: text,
     adminEmail: admin?.email || "",
     repliedAt: now,
     updatedAt: now,
+    lastMessageAt: now,
+    lastMessageBy: "support",
     userReadAt: "",
-    history: [...ticket.history, { type: "answered", status: "answered", adminEmail: admin?.email || "", createdAt: now }],
+    messages: [...ticket.messages, {
+      id: supportMessageId(),
+      sender: "support",
+      senderName: t().support.team,
+      message: text,
+      createdAt: now,
+    }],
+    history: [...ticket.history, { type: "answered", status: "support_replied", adminEmail: admin?.email || "", createdAt: now }],
   }), "support_replied");
   if (updated) sendSupportReplyEmail(updated);
   return updated;
@@ -6180,15 +6504,15 @@ function adminCloseSupportTicket(ticketId) {
 }
 
 function hasUnreadSupportReply(account = currentAccount()) {
-  return loadCurrentUserSupportTickets(account).some((ticket) => ticket.repliedAt && (!ticket.userReadAt || new Date(ticket.userReadAt) < new Date(ticket.repliedAt)));
+  return loadCurrentUserSupportTickets(account).some((ticket) => ticket.lastMessageBy === "support" && ticket.lastMessageAt && (!ticket.userReadAt || new Date(ticket.userReadAt) < new Date(ticket.lastMessageAt)));
 }
 
 function markSupportRepliesSeen(account = currentAccount()) {
   if (!account?.id) return;
   const now = isoNow();
   const tickets = loadSupportTickets().map((ticket) => {
-    if (ticket.userId !== account.id || !ticket.repliedAt) return ticket;
-    if (ticket.userReadAt && new Date(ticket.userReadAt) >= new Date(ticket.repliedAt)) return ticket;
+    if (ticket.userId !== account.id || ticket.lastMessageBy !== "support" || !ticket.lastMessageAt) return ticket;
+    if (ticket.userReadAt && new Date(ticket.userReadAt) >= new Date(ticket.lastMessageAt)) return ticket;
     return { ...ticket, userReadAt: now };
   });
   saveSupportTickets(tickets);
@@ -7954,7 +8278,7 @@ function bindInteractions() {
         }
       });
     }
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
       if (form.dataset.submitting === "true") return;
       const visibleError = form.querySelector("[data-auth-error]");
@@ -7993,6 +8317,13 @@ function bindInteractions() {
         button.disabled = true;
         const loadingLabels = { signin: t().auth.signingIn, signup: t().auth.creatingAccount, forgot: t().auth.sendingCode, verify: t().auth.confirming, reset: t().auth.updatingPassword };
         button.textContent = loadingLabels[mode] || button.textContent;
+      }
+      if (["signin", "signup", "forgot", "reset"].includes(mode)) {
+        const passedSecurityCheck = await verifyTurnstileForForm(form, mode);
+        if (!passedSecurityCheck) {
+          restoreSubmitButton();
+          return;
+        }
       }
       window.setTimeout(async () => {
         if (mode === "signin") {
@@ -8391,8 +8722,83 @@ function bindInteractions() {
     });
   });
 
+  document.querySelectorAll("[data-contact-form]").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const labels = currentLanguage === "pt"
+        ? { send: "Enviar contato", sending: "Enviando...", success: "Mensagem enviada. Obrigado pelo contato.", error: "N\u00e3o foi poss\u00edvel enviar sua mensagem agora. Tente novamente." }
+        : { send: "Send message", sending: "Sending...", success: "Message sent. Thanks for contacting us.", error: "We could not send your message right now. Please try again." };
+      const error = form.querySelector("[data-auth-error]");
+      const message = form.querySelector("[data-contact-message]");
+      const button = form.querySelector("[data-contact-submit]");
+      if (error) {
+        error.textContent = "";
+        error.hidden = true;
+      }
+      if (message) message.hidden = true;
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      if (button) {
+        button.disabled = true;
+        button.textContent = labels.sending;
+      }
+      const tokenResult = await getTurnstileTokenForForm(form);
+      if (!tokenResult.ok) {
+        if (button) {
+          button.disabled = false;
+          button.textContent = labels.send;
+        }
+        return;
+      }
+      if (!canUseServerlessApi()) {
+        if (message) {
+          message.textContent = labels.success;
+          message.hidden = false;
+        }
+        form.reset();
+        resetTurnstileWidget(form);
+        if (button) {
+          button.disabled = false;
+          button.textContent = labels.send;
+        }
+        return;
+      }
+      try {
+        const response = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: form.name.value,
+            email: form.email.value,
+            subject: form.subject.value,
+            message: form.message.value,
+            turnstileToken: tokenResult.token,
+          }),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || payload.ok === false) throw new Error(payload.error || "contact_failed");
+        if (message) {
+          message.textContent = labels.success;
+          message.classList.remove("error");
+          message.hidden = false;
+        }
+        form.reset();
+      } catch (error) {
+        showFormError(form, error.message === "turnstile_failed" ? t().security.verificationError : labels.error);
+      } finally {
+        resetTurnstileWidget(form);
+        if (button) {
+          button.disabled = false;
+          button.textContent = labels.send;
+        }
+      }
+    });
+  });
+
   document.querySelectorAll("[data-support-form]").forEach((form) => {
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
       if (!form.checkValidity()) {
         form.reportValidity();
@@ -8403,13 +8809,41 @@ function bindInteractions() {
         button.disabled = true;
         button.innerHTML = `${icon("mail")} ${escapeHtml(t().support.sending)}`;
       }
-      createSupportTicket({
+      const passedSecurityCheck = await verifyTurnstileForForm(form, "support_request");
+      if (!passedSecurityCheck) {
+        if (button) {
+          button.disabled = false;
+          button.innerHTML = `${icon("mail")} ${escapeHtml(t().support.send)}`;
+        }
+        return;
+      }
+      const ticket = createSupportTicket({
         subject: form.subject.value,
         category: form.category.value,
         priority: form.priority.value,
         message: form.message.value,
       });
+      supportExpandedTicketId = ticket?.id || "";
       renderSupport(t().support.success);
+    });
+  });
+
+  document.querySelectorAll("[data-support-conversation]").forEach((conversation) => {
+    conversation.addEventListener("toggle", () => {
+      if (conversation.open) supportExpandedTicketId = conversation.getAttribute("data-support-conversation") || "";
+      else if (supportExpandedTicketId === conversation.getAttribute("data-support-conversation")) supportExpandedTicketId = "";
+    });
+  });
+
+  document.querySelectorAll("[data-support-reply]").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const ticketId = form.getAttribute("data-support-reply") || "";
+      const reply = form.reply.value.trim();
+      if (!reply) return;
+      const ticket = replySupportTicketAsUser(ticketId, reply);
+      supportExpandedTicketId = ticket?.id || ticketId;
+      renderSupport(t().support.replySuccess);
     });
   });
 
@@ -12275,6 +12709,41 @@ function renderContactPage() {
   const supportNote = currentLanguage === "pt"
     ? "Para dúvidas sobre conta, currículos, cartas, pagamentos ou privacidade, entre em contato pelo e-mail informado."
     : "For questions about account, resumes, letters, payments or privacy, contact us using the email provided.";
+  const contactLabels = currentLanguage === "pt"
+    ? {
+        formTitle: "Enviar mensagem",
+        name: "Nome",
+        email: "E-mail",
+        subject: "Assunto",
+        message: "Mensagem",
+        send: "Enviar contato",
+        sending: "Enviando...",
+        success: "Mensagem enviada. Obrigado pelo contato.",
+        error: "N\u00e3o foi poss\u00edvel enviar sua mensagem agora. Tente novamente.",
+        placeholders: {
+          name: "Seu nome",
+          email: "voce@exemplo.com",
+          subject: "Como podemos ajudar?",
+          message: "Conte os detalhes da sua solicita\u00e7\u00e3o.",
+        },
+      }
+    : {
+        formTitle: "Send a message",
+        name: "Name",
+        email: "Email",
+        subject: "Subject",
+        message: "Message",
+        send: "Send message",
+        sending: "Sending...",
+        success: "Message sent. Thanks for contacting us.",
+        error: "We could not send your message right now. Please try again.",
+        placeholders: {
+          name: "Your name",
+          email: "you@example.com",
+          subject: "How can we help?",
+          message: "Share the details of your request.",
+        },
+      };
   const sections = currentLanguage === "pt"
     ? [
         ["Suporte", supportNote],
@@ -12294,7 +12763,20 @@ function renderContactPage() {
           <p>${intro}</p>
           <a class="primary-button" href="mailto:contato@succeedora.com">contato@succeedora.com</a>
         </section>
-        <section class="legal-card">${sections.map(([heading, text]) => `<article><h2>${heading}</h2><p>${text}</p></article>`).join("")}</section>
+        <section class="legal-card contact-layout">
+          <form class="contact-form" data-contact-form>
+            <h2>${escapeHtml(contactLabels.formTitle)}</h2>
+            <label>${escapeHtml(contactLabels.name)}<input name="name" autocomplete="name" placeholder="${escapeHtml(contactLabels.placeholders.name)}" required /></label>
+            <label>${escapeHtml(contactLabels.email)}<input name="email" type="email" autocomplete="email" placeholder="${escapeHtml(contactLabels.placeholders.email)}" required /></label>
+            <label>${escapeHtml(contactLabels.subject)}<input name="subject" minlength="3" placeholder="${escapeHtml(contactLabels.placeholders.subject)}" required /></label>
+            <label>${escapeHtml(contactLabels.message)}<textarea name="message" rows="6" minlength="10" maxlength="1800" placeholder="${escapeHtml(contactLabels.placeholders.message)}" required></textarea></label>
+            ${TurnstileWidget("public_contact")}
+            <p class="auth-error" data-auth-error hidden></p>
+            <p class="settings-message" data-contact-message hidden></p>
+            <button class="primary-button full" type="submit" data-contact-submit>${escapeHtml(contactLabels.send)}</button>
+          </form>
+          <div class="contact-info-list">${sections.map(([heading, text]) => `<article><h2>${heading}</h2><p>${text}</p></article>`).join("")}</div>
+        </section>
       </main>
       <footer class="site-footer">${brandLogo("div")}<p>${copy.public.footer}</p>${legalFooterLinks()}</footer>
     </div>
@@ -12652,6 +13134,7 @@ function renderForgotPassword() {
       <p class="auth-subtitle">${a.resetSubtitle}</p>
       <form class="auth-form" data-auth-form="forgot">
         <label>${a.email}<input type="email" name="email" autocomplete="email" inputmode="email" placeholder="${a.emailPlaceholder}" required /></label>
+        ${TurnstileWidget("forgot_password")}
         <p class="auth-error" data-auth-error hidden></p>
         <p class="settings-message auth-success" data-auth-message hidden></p>
         <button class="primary-button full" type="submit" data-auth-submit>${a.sendCode}</button>
@@ -12673,6 +13156,7 @@ function renderResetPassword() {
         <label>${a.verificationCode}<input class="code-input" type="text" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" required /></label>
         <label>${a.newPassword}<input type="password" name="password" autocomplete="new-password" placeholder="${a.passwordPlaceholder}" required /></label>
         <label>${a.confirmPassword}<input type="password" name="confirmPassword" autocomplete="new-password" placeholder="${a.confirmPassword}" required /></label>
+        ${TurnstileWidget("reset_password")}
         <p class="auth-error" data-auth-error hidden></p>
         <button class="primary-button full" type="submit" data-auth-submit>${a.updatePassword}</button>
         <button class="secondary-button full" type="button" data-resend-code>${a.resendCode}</button>
@@ -12742,6 +13226,7 @@ function authLayout(type) {
           ${isSignIn ? `<label class="legal-check remember-check"><input type="checkbox" name="rememberUser" ${rememberChecked ? "checked" : ""} /><span>${rememberLabel}</span></label>` : ""}
           ${isSignIn ? "" : authPasswordField({ label: a.confirmPassword, name: "confirmPassword", autocomplete: "new-password", placeholder: a.confirmPassword })}
           ${isSignIn ? "" : `<label class="legal-check auth-legal-check"><input type="checkbox" name="acceptLegal" required data-terms-check /><span>${legalAcceptance}</span></label>`}
+          ${TurnstileWidget(isSignIn ? "login" : "signup")}
           <p class="auth-error" data-auth-error hidden></p>
           <button class="primary-button full" type="submit" data-auth-submit>${isSignIn ? a.signInButton : a.signUpButton}</button>
         </form>
@@ -13064,6 +13549,7 @@ function supportHistoryLabel(entry = {}) {
     created: labels.created,
     in_progress: labels.progressed,
     answered: labels.answered,
+    user_reply: labels.userReply,
     closed: labels.closed,
   };
   return typeMap[entry.type] || supportStatusLabel(entry.status);
@@ -13071,31 +13557,55 @@ function supportHistoryLabel(entry = {}) {
 
 function supportTicketCard(ticket) {
   const labels = t().support;
-  const latestText = ticket.adminReply || ticket.message;
-  const latestDate = ticket.repliedAt || ticket.updatedAt || ticket.createdAt;
+  const latestMessage = supportTicketLastMessage(ticket);
+  const state = supportConversationState(ticket);
+  const isUnread = ticket.lastMessageBy === "support" && (!ticket.userReadAt || new Date(ticket.userReadAt) < new Date(ticket.lastMessageAt || latestMessage.createdAt));
+  const open = supportExpandedTicketId === ticket.id;
+  const latestSender = latestMessage.sender === "support" ? labels.team : labels.you;
+  const latestDate = ticket.lastMessageAt || latestMessage.createdAt || ticket.updatedAt || ticket.createdAt;
+  const canReply = state.canReply;
   return `
-    <article class="support-ticket-card">
-      <div class="support-ticket-head">
-        <div>
-          <span class="eyebrow">${escapeHtml(supportCategoryLabel(ticket.category))}</span>
-          <h3>${escapeHtml(ticket.subject)}</h3>
-          <small>${escapeHtml(labels.lastUpdate)}: ${escapeHtml(formatPaymentDate(ticket.updatedAt || ticket.createdAt))}</small>
+    <details class="support-ticket-card support-conversation-card ${isUnread ? "has-new-reply" : ""}" ${open ? "open" : ""} data-support-conversation="${escapeHtml(ticket.id)}">
+      <summary class="support-conversation-summary">
+        <div class="support-conversation-main">
+          <div class="support-ticket-head">
+            <div>
+              <span class="eyebrow">${escapeHtml(supportCategoryLabel(ticket.category))}</span>
+              <h3>${escapeHtml(ticket.subject)}</h3>
+            </div>
+            <span class="support-expand-indicator" aria-hidden="true">${icon("arrow")}</span>
+          </div>
+          <p>${escapeHtml(latestMessage.message || labels.noReply)}</p>
+          <div class="support-conversation-meta">
+            <small>${escapeHtml(labels.lastUpdate)}: ${escapeHtml(formatPaymentDate(latestDate))}</small>
+            <small>${escapeHtml(labels.lastMessageBy)}: ${escapeHtml(latestSender)}</small>
+          </div>
         </div>
         <div class="support-ticket-badges">
           ${supportStatusBadge(ticket.status)}
           ${supportPriorityBadge(ticket.priority)}
+          <span class="support-badge support-action-badge">${escapeHtml(state.badge)}</span>
         </div>
+      </summary>
+      <div class="support-conversation-panel">
+        <div class="support-conversation-status">
+          <strong>${escapeHtml(state.label)}</strong>
+          ${state.notice ? `<span>${escapeHtml(state.notice)}</span>` : ""}
+        </div>
+        <div class="support-ticket-thread">
+          ${supportTicketMessages(ticket)}
+        </div>
+        ${canReply ? `
+          <form class="support-chat-reply-form" data-support-reply="${escapeHtml(ticket.id)}">
+            <label>
+              <span>${escapeHtml(labels.replyButton)}</span>
+              <textarea name="reply" rows="4" maxlength="1800" placeholder="${escapeHtml(labels.replyPlaceholder)}" required></textarea>
+            </label>
+            <button class="primary-button small" type="submit">${icon("mail")} ${escapeHtml(labels.replyButton)}</button>
+          </form>
+        ` : ""}
       </div>
-      <div class="support-ticket-preview">
-        <span>${escapeHtml(labels.preview)}</span>
-        <p>${escapeHtml(latestText)}</p>
-        <small>${escapeHtml(formatPaymentDate(latestDate))}</small>
-      </div>
-      <div class="support-ticket-thread">
-        ${supportMessageBubble("user", ticket.message, ticket.createdAt)}
-        ${ticket.adminReply ? supportMessageBubble("team", ticket.adminReply, ticket.repliedAt) : `<div class="support-reply-box"><strong>${escapeHtml(labels.adminReply)}</strong><span>${escapeHtml(labels.noReply)}</span></div>`}
-      </div>
-    </article>
+    </details>
   `;
 }
 
@@ -13126,6 +13636,8 @@ function renderSupport(successMessage = "") {
             <label>${escapeHtml(labels.fields.priority)}<select name="priority" required>${supportSelectOptions(labels.priorities, SUPPORT_PRIORITY_KEYS, "medium")}</select><small>${escapeHtml(labels.fieldHints.priority)}</small></label>
             <label class="support-message-field">${escapeHtml(labels.fields.message)}<textarea name="message" rows="7" maxlength="1800" placeholder="${escapeHtml(labels.placeholders.message)}" required></textarea><small>${escapeHtml(labels.fieldHints.message)}</small></label>
           </div>
+          ${TurnstileWidget("support_request")}
+          <p class="auth-error" data-auth-error hidden></p>
           <button class="primary-button support-submit-button" type="submit">${icon("mail")} ${escapeHtml(labels.send)}</button>
         </form>
         <section class="settings-card support-history-card">
@@ -13473,7 +13985,7 @@ function openAdminSupportTicket(ticketId) {
     ${ticket.status !== "closed" ? `
       <form class="admin-form support-reply-form" data-admin-support-reply="${escapeHtml(ticket.id)}">
         <label>${escapeHtml(support.admin.replyLabel)}
-          <textarea name="reply" rows="5" required>${escapeHtml(ticket.adminReply || "")}</textarea>
+          <textarea name="reply" rows="5" required placeholder="${escapeHtml(support.replyPlaceholder)}"></textarea>
         </label>
         <div class="admin-dialog-actions">
           <button class="secondary-button" type="button" data-admin-modal-close>${labels.actions.cancel}</button>
