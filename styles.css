@@ -4127,6 +4127,12 @@ body:has(.home-shell)::-webkit-scrollbar {
   color: #f4f8ff;
 }
 
+:root[data-theme="dark"] .google-auth-button {
+  border-color: rgba(163, 183, 220, 0.2);
+  color: #f4f8ff;
+  background: rgba(18, 31, 59, 0.88);
+}
+
 :root[data-theme="dark"] .editor-panel,
 :root[data-theme="dark"] .editor-form,
 :root[data-theme="dark"] .suggestion-card,
@@ -5314,6 +5320,62 @@ body,
   flex: 1;
   height: 1px;
   background: var(--line);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.google-auth-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 50px;
+  padding: 0 18px;
+  border: 1px solid rgba(191, 211, 242, 0.84);
+  border-radius: 16px;
+  color: #172033;
+  background:
+    linear-gradient(180deg, #ffffff, #f8fbff);
+  box-shadow: 0 14px 32px rgba(18, 60, 145, 0.08);
+  cursor: pointer;
+  font-weight: 900;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.google-auth-button:hover {
+  border-color: rgba(31, 105, 213, 0.28);
+  box-shadow: 0 18px 42px rgba(18, 60, 145, 0.12);
+  transform: translateY(-1px);
+}
+
+.google-auth-button:disabled {
+  cursor: progress;
+  opacity: 0.78;
+  transform: none;
+}
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
 }
 
 .auth-form,

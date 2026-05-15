@@ -7,6 +7,7 @@ const AUTH_VERIFIED_STORAGE_KEY = "succeedora.authVerified";
 const AUTH_EMAIL_STORAGE_KEY = "succeedora.authEmail";
 const AUTH_PASSWORD_STORAGE_KEY = "succeedora.authPassword";
 const AUTH_REMEMBER_STORAGE_KEY = "succeedora.rememberUser";
+const GOOGLE_OAUTH_RESULT_STORAGE_KEY = "succeedora.googleOAuthResult";
 const PROFILE_STORAGE_KEY = "succeedora.profile";
 const ACCESS_STORAGE_KEY = "succeedora.access";
 const ACCOUNTS_STORAGE_KEY = "succeedora.accounts";
@@ -1067,6 +1068,9 @@ Object.assign(I18N.pt.ai, {
 Object.assign(I18N.en.auth, {
   signInSubtitle: "Access your resumes, cover letters and career tools.",
   signUpSubtitle: "Start creating professional resumes in minutes.",
+  googleSigningIn: "Signing in with Google...",
+  googleError: "Could not sign in with Google. Please try again.",
+  googleLinked: "Google account linked successfully.",
   fullName: "Name",
   signInButton: "Sign in",
   signUpButton: "Create account",
@@ -1241,6 +1245,9 @@ Object.assign(I18N.pt.auth, {
   signUpTitle: "Crie sua conta",
   signInSubtitle: "Acesse seus curr\u00edculos, cartas e ferramentas de carreira.",
   signUpSubtitle: "Comece a criar curr\u00edculos profissionais em poucos minutos.",
+  googleSigningIn: "Entrando com Google...",
+  googleError: "N\u00e3o foi poss\u00edvel entrar com Google. Tente novamente.",
+  googleLinked: "Conta Google vinculada com sucesso.",
   fullName: "Nome",
   createAccount: "Criar conta",
   showPassword: "Mostrar senha",
@@ -1832,6 +1839,7 @@ const routes = {
   "/login": renderSignIn,
   "/signin": renderSignIn,
   "/signup": renderSignUp,
+  "/auth/google/callback": renderGoogleOAuthCallback,
   "/verify-email": renderVerifyEmail,
   "/forgot-password": renderForgotPassword,
   "/reset-password": renderForgotPassword,
@@ -1888,6 +1896,7 @@ const NOINDEX_ROUTES = new Set([
   "/login",
   "/signin",
   "/signup",
+  "/auth/google/callback",
   "/verify-email",
   "/forgot-password",
   "/reset-password",
@@ -5784,6 +5793,10 @@ function loadAccounts() {
         id: String(account.id || `user_${Date.now()}`),
         email: normalizeEmail(account.email),
         password: String(account.password || ""),
+        provider: String(account.provider || account.authProvider || "").trim(),
+        googleId: String(account.googleId || account.googleSub || "").trim(),
+        googlePicture: String(account.googlePicture || account.picture || account.profile?.picture || "").trim(),
+        authProviders: Array.isArray(account.authProviders) ? account.authProviders.map(String).filter(Boolean) : [],
         plan,
         status: account.status === "blocked" ? "blocked" : "active",
         emailVerified: account.emailVerified === false ? false : true,
@@ -5799,6 +5812,7 @@ function loadAccounts() {
           phone: String(account.profile?.phone || "").trim(),
           location: String(account.profile?.location || "").trim(),
           title: String(account.profile?.title || "").trim(),
+          picture: String(account.profile?.picture || account.googlePicture || account.picture || "").trim(),
           preferredLanguage: account.profile?.preferredLanguage === "pt" ? "pt" : "en",
         },
       };
@@ -6942,16 +6956,21 @@ function consumeIntendedRoute() {
   return route || "/dashboard";
 }
 
-function createAccount({ fullName, email, password }) {
+function createAccount({ fullName, email, password, provider = "password", googleId = "", googlePicture = "", emailVerified = false } = {}) {
   const normalizedEmail = normalizeEmail(email);
   if (findAccountByEmail(normalizedEmail)) return null;
+  const providers = provider === "google" ? ["google"] : ["password"];
   const account = {
     id: `user_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
     email: normalizedEmail,
     password: String(password || ""),
+    provider,
+    googleId: String(googleId || "").trim(),
+    googlePicture: String(googlePicture || "").trim(),
+    authProviders: providers,
     plan: freePlanState(),
     status: "active",
-    emailVerified: false,
+    emailVerified: emailVerified === true,
     verificationCode: "",
     verificationCodeExpiresAt: "",
     verificationCodeSentAt: "",
@@ -6964,12 +6983,73 @@ function createAccount({ fullName, email, password }) {
       phone: "",
       location: t().builder.values.location,
       title: t().builder.values.professionalTitle,
+      picture: String(googlePicture || "").trim(),
       preferredLanguage: currentLanguage,
     },
   };
   const accounts = loadAccounts();
   accounts.push(account);
   return saveAccounts(accounts) ? account : null;
+}
+
+function googleProfileFromPayload(payload = {}) {
+  const profile = payload.profile && typeof payload.profile === "object" ? payload.profile : {};
+  const email = normalizeEmail(profile.email);
+  const googleId = String(profile.googleId || profile.sub || "").trim();
+  if (!email || !googleId) return null;
+  return {
+    googleId,
+    email,
+    name: String(profile.name || email.split("@")[0] || "").trim(),
+    picture: String(profile.picture || "").trim(),
+    emailVerified: profile.emailVerified === true || profile.email_verified === true,
+  };
+}
+
+function linkGoogleAccount(accountId, profile) {
+  return updateAccount(accountId, (account) => {
+    const authProviders = new Set(Array.isArray(account.authProviders) ? account.authProviders : []);
+    authProviders.add("google");
+    if (account.password) authProviders.add("password");
+    const fullName = account.profile?.fullName || profile.name || account.email;
+    return {
+      ...account,
+      provider: account.provider || "google",
+      googleId: profile.googleId,
+      googlePicture: profile.picture || account.googlePicture || "",
+      authProviders: Array.from(authProviders),
+      emailVerified: profile.emailVerified ? true : account.emailVerified !== false,
+      profile: {
+        ...account.profile,
+        fullName,
+        email: account.email,
+        picture: account.profile?.picture || profile.picture || "",
+      },
+    };
+  });
+}
+
+function completeGoogleOAuth(payload = {}) {
+  const profile = googleProfileFromPayload(payload);
+  if (!profile) return { ok: false, reason: "invalid_profile" };
+  const existing = findAccountByEmail(profile.email);
+  let account = existing ? linkGoogleAccount(existing.id, profile) : createAccount({
+    fullName: profile.name || profile.email,
+    email: profile.email,
+    password: "",
+    provider: "google",
+    googleId: profile.googleId,
+    googlePicture: profile.picture,
+    emailVerified: profile.emailVerified,
+  });
+  if (!account) return { ok: false, reason: "storage" };
+  if (account.status === "blocked") return { ok: false, reason: "blocked" };
+  setSession(account, true);
+  const storedProfile = readJsonStorage(userScopedStorageKey(PROFILE_STORAGE_KEY, account), null);
+  if (!storedProfile || !Object.keys(storedProfile || {}).length) {
+    writeJsonStorage(userScopedStorageKey(PROFILE_STORAGE_KEY, account), account.profile);
+  }
+  return { ok: true, account, linkedExisting: Boolean(existing) };
 }
 
 function generateVerificationCode() {
@@ -8265,6 +8345,15 @@ function bindAdminInteractions() {
 
 function bindInteractions() {
   bindAdminInteractions();
+  document.querySelectorAll("[data-google-auth]").forEach((button) => {
+    button.addEventListener("click", () => {
+      button.disabled = true;
+      button.innerHTML = `${googleIcon()} <span>${escapeHtml(t().auth.googleSigningIn || "Signing in with Google...")}</span>`;
+      const returnTo = encodeURIComponent(intendedRoute() || "/dashboard");
+      window.location.href = `/api/auth/google/start?lang=${encodeURIComponent(currentLanguage)}&returnTo=${returnTo}`;
+    });
+  });
+
   document.querySelectorAll("[data-auth-form]").forEach((form) => {
     const termsCheck = form.querySelector("[data-terms-check]");
     if (termsCheck) {
@@ -13178,6 +13267,57 @@ function authPasswordField({ label, name, autocomplete, placeholder, forgotHtml 
   `;
 }
 
+function googleIcon() {
+  return `<svg class="google-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#4285F4" d="M21.6 12.23c0-.74-.07-1.45-.19-2.14H12v4.05h5.38a4.6 4.6 0 0 1-2 3.02v2.51h3.24c1.9-1.75 2.98-4.33 2.98-7.44Z"/><path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.43l-3.24-2.51c-.9.6-2.04.96-3.38.96-2.6 0-4.8-1.75-5.59-4.11H3.07v2.59A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.41 13.91a6.01 6.01 0 0 1 0-3.82V7.5H3.07a10 10 0 0 0 0 9l3.34-2.59Z"/><path fill="#EA4335" d="M12 5.98c1.47 0 2.78.51 3.82 1.5l2.87-2.87A9.63 9.63 0 0 0 12 2a10 10 0 0 0-8.93 5.5l3.34 2.59C7.21 7.73 9.4 5.98 12 5.98Z"/></svg>`;
+}
+
+function googleAuthButton(context = "signin") {
+  const a = t().auth;
+  return `<button class="google-auth-button" type="button" data-google-auth="${escapeHtml(context)}">${googleIcon()} <span>${escapeHtml(a.google || "Continue with Google")}</span></button>`;
+}
+
+function renderGoogleOAuthCallback() {
+  const a = t().auth;
+  let payload = null;
+  try {
+    payload = JSON.parse(localStorage.getItem(GOOGLE_OAUTH_RESULT_STORAGE_KEY) || "{}");
+    localStorage.removeItem(GOOGLE_OAUTH_RESULT_STORAGE_KEY);
+  } catch (error) {
+    payload = null;
+  }
+  if (payload?.language === "pt" || payload?.language === "en") {
+    setLanguagePreference(payload.language);
+  }
+  if (!payload?.ok) {
+    authShell(`
+      <section class="auth-card">
+        <div class="auth-card-top"><div class="auth-card-brand">${brandLogo("div")}</div></div>
+        <span class="eyebrow auth-eyebrow">${escapeHtml(a.signInEyebrow)}</span>
+        <h2>${escapeHtml(a.signInTitle)}</h2>
+        <p class="auth-error">${escapeHtml(a.googleError || "Could not sign in with Google. Please try again.")}</p>
+        ${googleAuthButton("signin")}
+        <p class="switch-auth"><a href="#/signin" data-route="/signin">${escapeHtml(a.backToLogin || a.signInLink)}</a></p>
+      </section>
+    `);
+    return;
+  }
+  const result = completeGoogleOAuth(payload);
+  if (!result.ok) {
+    authShell(`
+      <section class="auth-card">
+        <div class="auth-card-top"><div class="auth-card-brand">${brandLogo("div")}</div></div>
+        <span class="eyebrow auth-eyebrow">${escapeHtml(a.signInEyebrow)}</span>
+        <h2>${escapeHtml(a.signInTitle)}</h2>
+        <p class="auth-error">${escapeHtml(a.googleError || "Could not sign in with Google. Please try again.")}</p>
+        ${googleAuthButton("signin")}
+        <p class="switch-auth"><a href="#/signin" data-route="/signin">${escapeHtml(a.backToLogin || a.signInLink)}</a></p>
+      </section>
+    `);
+    return;
+  }
+  routeToDashboardEntry(payload.returnTo || consumeIntendedRoute());
+}
+
 function authLayout(type) {
   const a = t().auth;
   const isSignIn = type === "signin";
@@ -13219,6 +13359,8 @@ function authLayout(type) {
         <span class="eyebrow auth-eyebrow">${isSignIn ? a.signInEyebrow : a.signUpEyebrow}</span>
         <h2>${isSignIn ? a.signInTitle : a.signUpTitle}</h2>
         <p class="auth-subtitle">${isSignIn ? a.signInSubtitle : a.signUpSubtitle}</p>
+        ${googleAuthButton(type)}
+        <div class="auth-divider"><span>${escapeHtml(a.or || (currentLanguage === "pt" ? "ou" : "or"))}</span></div>
         <form class="auth-form" data-auth-form="${type}">
           ${isSignIn ? "" : `<label>${a.fullName}<input type="text" name="fullName" autocomplete="name" placeholder="${a.fullNamePlaceholder}" required /></label>`}
           <label>${a.email}<input type="email" name="email" autocomplete="email" inputmode="email" placeholder="${a.emailPlaceholder}" value="${isSignIn ? escapeHtml(rememberedEmail) : ""}" required /></label>
