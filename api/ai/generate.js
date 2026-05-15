@@ -321,7 +321,12 @@ module.exports = async function handler(req, res) {
 
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
-      return json(res, response.status || 502, { success: false, error: "openai_error" });
+      const debug = body.debug === true;
+      return json(res, response.status || 502, {
+        success: false,
+        error: "openai_error",
+        ...(debug ? { details: payload?.error?.message || payload?.error || payload } : {}),
+      });
     }
 
     const outputText = extractOutputText(payload);
