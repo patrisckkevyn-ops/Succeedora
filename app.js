@@ -7674,7 +7674,7 @@ function featureRule(featureKey) {
 function featureRequirementLabel(featureKey) {
   const copy = featureAccessCopy();
   const rule = featureRule(featureKey);
-  if (rule.credits && !rule.plan) return copy.requiresCredits;
+  if (rule.credits) return copy.requiresCredits;
   if (rule.plan === "premium") return copy.availablePremium;
   if (rule.plan === "pro") return copy.availablePro;
   if (rule.oneTime) return copy.availableOneTime;
@@ -7981,7 +7981,21 @@ function adminRejectPayment(userId, paymentId, reason = "") {
 }
 
 function requiresAiCredits(action = "ai") {
-  return false;
+  return Boolean(aiActionTask(action));
+}
+
+function aiActionTask(action = "ai") {
+  const map = {
+    "improve-summary": "generate_professional_summary",
+    "rewrite-experience": "rewrite_experience",
+    "cover-letter": "generate_cover_letter",
+    translation: "translate_resume",
+    "job-tailoring": "tailor_resume_to_job",
+    "job-analysis": "analyze_job_description",
+    "ats-keywords": "suggest_ats_keywords",
+    ai: "generate_professional_summary",
+  };
+  return map[action] || "";
 }
 
 function aiActionFeature(action = "ai") {
@@ -8149,7 +8163,21 @@ function aiCreditBalanceBadge() {
 }
 
 function canUseAiTask(taskType) {
-  return isLoggedIn();
+  return isLoggedIn() && Number(getUserAccess().aiCredits || 0) >= aiTaskCredits(taskType);
+}
+
+function openAiTaskAccessModal(taskType, featureKey = aiTaskFeature(taskType), context = {}) {
+  if (!isLoggedIn()) {
+    rememberIntendedRoute(getRoute());
+    setRoute("/signin");
+    return;
+  }
+  const balance = Number(getUserAccess().aiCredits || 0);
+  if (balance < aiTaskCredits(taskType)) {
+    openInsufficientCreditsModal({ balance, required: aiTaskCredits(taskType) });
+    return;
+  }
+  openFeatureLockModal(featureKey, context);
 }
 
 function updateLocalAiCreditBalance(balance, transactions = null) {
@@ -8252,9 +8280,16 @@ function recordAiUsage(taskType, creditsUsed = aiTaskCredits(taskType), status =
 
 async function requestAiGeneration(taskType, data = {}) {
   if (!canUseAiTask(taskType)) {
-    rememberIntendedRoute(getRoute());
-    setRoute("/signin");
-    throw new Error("auth_required");
+    if (!isLoggedIn()) {
+      rememberIntendedRoute(getRoute());
+      setRoute("/signin");
+      throw new Error("auth_required");
+    }
+    openInsufficientCreditsModal({
+      balance: Number(getUserAccess().aiCredits || 0),
+      required: aiTaskCredits(taskType),
+    });
+    throw new Error("insufficient_credits");
   }
   let response;
   try {
@@ -9266,7 +9301,7 @@ function bindInteractions() {
         return;
       }
       if (!canUseAiTask("generate_cover_letter")) {
-        openFeatureLockModal("ai_cover_letter");
+        openAiTaskAccessModal("generate_cover_letter", "ai_cover_letter");
         return;
       }
       const restore = setButtonLoading(button, aiCopy().generating);
@@ -9275,10 +9310,13 @@ function bindInteractions() {
           letter: draft,
           resume: draft.resumeId ? findResume(draft.resumeId) : selectedAiResume(),
         });
-        draft.body = result.body || generateCoverLetterBody(draft);
+        if (!result.body) {
+          coverLetterSaveMessage = aiCopy().fallbackError;
+          return;
+        }
+        draft.body = result.body;
       } catch (error) {
         if (error.message === "insufficient_credits") return;
-        draft.body = generateCoverLetterBody(draft);
         coverLetterSaveMessage = aiErrorMessage(error);
       } finally {
         restore();
@@ -9308,7 +9346,7 @@ function bindInteractions() {
         return;
       }
       if (!canUseAiTask(taskType)) {
-        openFeatureLockModal("ai_cover_letter");
+        openAiTaskAccessModal(taskType, "ai_cover_letter");
         return;
       }
       const restore = setButtonLoading(button, taskType === "tailor_cover_letter_to_job" ? aiCopy().analyzing : aiCopy().improving);
@@ -9317,7 +9355,11 @@ function bindInteractions() {
           letter: draft,
           resume: draft.resumeId ? findResume(draft.resumeId) : selectedAiResume(),
         });
-        draft.body = result.body || draft.body;
+        if (!result.body) {
+          coverLetterSaveMessage = aiCopy().fallbackError;
+          return;
+        }
+        draft.body = result.body;
         coverLetterSaveMessage = result.suggestions?.length ? result.suggestions.join(" ") : "";
       } catch (error) {
         if (error.message !== "insufficient_credits") coverLetterSaveMessage = aiErrorMessage(error);
@@ -9675,6 +9717,13 @@ function bindInteractions() {
         event.stopPropagation();
         rememberIntendedRoute(button.getAttribute("data-route") || getRoute());
         setRoute("/signin");
+        return;
+      }
+      const taskType = aiActionTask(button.getAttribute("data-ai-action") || "ai");
+      if (taskType && !canUseAiTask(taskType)) {
+        event.preventDefault();
+        event.stopPropagation();
+        openAiTaskAccessModal(taskType, aiActionFeature(button.getAttribute("data-ai-action") || "ai"));
       }
     });
   });
@@ -9683,7 +9732,7 @@ function bindInteractions() {
     button.addEventListener("click", async () => {
       const taskType = button.getAttribute("data-ai-builder-task") || "";
       if (!canUseAiTask(taskType)) {
-        openFeatureLockModal(aiTaskFeature(taskType));
+        openAiTaskAccessModal(taskType, aiTaskFeature(taskType));
         return;
       }
       const copy = aiCopy();
@@ -9706,14 +9755,21 @@ function bindInteractions() {
       try {
         const result = await requestAiGeneration(taskType, { resume });
         if (taskType === "generate_professional_summary" || taskType === "improve_professional_summary") {
-          const fallback = ruleBasedSummary(resume);
+          if (!result.summary) {
+            showAiInlineMessage(copy.fallbackError);
+            return;
+          }
           openAiSuggestionModal({
             title: taskType === "generate_professional_summary" ? copy.generateSummary : copy.improveSummary,
-            text: result.summary || fallback,
+            text: result.summary,
             onApply: (value) => setField("summary", value),
           });
         } else if (taskType === "rewrite_experience") {
-          const bullets = result.bullets?.length ? result.bullets : ruleBasedExperienceBullets(resume);
+          const bullets = result.bullets || [];
+          if (!bullets.length) {
+            showAiInlineMessage(copy.fallbackError);
+            return;
+          }
           openAiSuggestionModal({
             title: copy.improveExperience,
             text: bullets.join("\n"),
@@ -9726,21 +9782,33 @@ function bindInteractions() {
             ...(result.tools || []),
             ...(result.atsKeywords || []),
           ];
-          const skills = result.skills?.length ? result.skills : groupedSkills.length ? groupedSkills : ruleBasedSkillSuggestions(resume);
+          const skills = result.skills?.length ? result.skills : groupedSkills;
+          if (!skills.length) {
+            showAiInlineMessage(copy.fallbackError);
+            return;
+          }
           openAiSuggestionModal({
             title: copy.suggestSkills,
             text: skills.join(", "),
             onApply: (value) => setField("skills", value),
           });
         } else if (taskType === "improve_project_description") {
-          const projectText = result.description || result.suggestions?.join("\n") || normalizeTextList(resume.projects).join("\n");
+          const projectText = result.description || result.suggestions?.join("\n") || "";
+          if (!projectText) {
+            showAiInlineMessage(copy.fallbackError);
+            return;
+          }
           openAiSuggestionModal({
             title: copy.improveProject,
             text: projectText,
             onApply: (value) => setField("projects", value),
           });
         } else if (taskType === "translate_resume") {
-          const translated = result.resume && Object.keys(result.resume).length ? result.resume : resume;
+          const translated = result.resume && Object.keys(result.resume).length ? result.resume : null;
+          if (!translated) {
+            showAiInlineMessage(copy.fallbackError);
+            return;
+          }
           openAiSuggestionModal({
             title: copy.translateResume,
             text: JSON.stringify(translated, null, 2),
@@ -9756,17 +9824,7 @@ function bindInteractions() {
         }
       } catch (error) {
         if (error.message !== "insufficient_credits") {
-          if (taskType === "generate_professional_summary" || taskType === "improve_professional_summary") {
-            openAiSuggestionModal({ title: copy.suggestionTitle, text: ruleBasedSummary(resume), onApply: (value) => setField("summary", value) });
-          } else if (taskType === "rewrite_experience") {
-            openAiSuggestionModal({ title: copy.suggestionTitle, text: ruleBasedExperienceBullets(resume).join("\n"), onApply: (value) => setField("experience", value) });
-          } else if (taskType === "suggest_skills") {
-            openAiSuggestionModal({ title: copy.suggestionTitle, text: ruleBasedSkillSuggestions(resume).join(", "), onApply: (value) => setField("skills", value) });
-          } else if (taskType === "improve_project_description") {
-            openAiSuggestionModal({ title: copy.suggestionTitle, text: normalizeTextList(resume.projects).join("\n"), onApply: (value) => setField("projects", value) });
-          } else {
-            showAiInlineMessage(aiErrorMessage(error));
-          }
+          showAiInlineMessage(aiErrorMessage(error));
         }
       } finally {
         restore();
@@ -9798,7 +9856,7 @@ function bindInteractions() {
         return;
       }
       if (!canUseAiTask("analyze_job_description")) {
-        openFeatureLockModal("ats_advanced");
+        openAiTaskAccessModal("analyze_job_description", "ats_advanced");
         aiAssistantState = { ...aiAssistantState, ...nextState, error: aiCopy().noCredits };
         render();
         return;
@@ -9837,7 +9895,7 @@ function bindInteractions() {
         return;
       }
       if (!canUseAiTask("tailor_resume_to_job")) {
-        openFeatureLockModal("job_tailoring", { resumeId: resume.id });
+        openAiTaskAccessModal("tailor_resume_to_job", "job_tailoring", { resumeId: resume.id });
         return;
       }
       const restore = setButtonLoading(button, aiCopy().improving);
@@ -9849,7 +9907,11 @@ function bindInteractions() {
           result.keywords?.length ? `${t().ai.missingKeywords}\n${result.keywords.join(", ")}` : "",
           result.suggestions?.length ? `${t().ai.suggestionsTitle}\n${result.suggestions.join("\n")}` : "",
         ].filter(Boolean).join("\n\n");
-        openAiSuggestionModal({ title: aiCopy().tailorJob, text: text || aiCopy().fallbackError });
+        if (!text) {
+          showAiInlineMessage(aiCopy().fallbackError);
+          return;
+        }
+        openAiSuggestionModal({ title: aiCopy().tailorJob, text });
       } catch (error) {
         if (error.message !== "insufficient_credits") showAiInlineMessage(aiErrorMessage(error));
       } finally {
@@ -14648,7 +14710,7 @@ function renderDashboard() {
   const statusLabel = completion >= 100 ? dashboardHomeLabels.readyToExport : primaryResume ? dashboardHomeLabels.inProgress : dashboardHomeLabels.notStarted;
   const recommendationText = completion >= 100 ? dashboardHomeLabels.exportRecommendation : primaryResume ? nextAction : dashboardHomeLabels.startRecommendation;
   const cleanPdfAvailable = primaryResume ? canExportWithoutBranding(primaryResume.id, access) : isPaidPlan(access);
-  const aiToolsLocked = !isLoggedIn();
+  const aiToolsLocked = !canUseAiTask("generate_professional_summary");
   const exportStatusLabel = primaryResume ? (cleanPdfAvailable ? dashboardHomeLabels.brandFreePdf : dashboardHomeLabels.brandedPdf) : dashboardHomeLabels.awaitingResume;
   const heroSecondaryActions = isPaidPlan(access)
     ? [
@@ -14707,7 +14769,8 @@ function renderDashboard() {
     { iconName: "globe", title: h.tasks[3], description: dashboardHomeLabels.nextStepDescriptions[3], featureKey: "resume_translation", attrs: `data-route="/dashboard/ai" data-ai-action="translation"` },
     { iconName: "download", title: h.tasks[4], description: dashboardHomeLabels.nextStepDescriptions[4], featureKey: "", badgeOverride: primaryResume ? exportStatusLabel : dashboardHomeLabels.startFirst, attrs: primaryResume ? `data-pdf-export-resume="${primaryResume.id}"` : `data-new-resume data-route="/dashboard/builder"` },
   ].map((item) => {
-    const locked = item.featureKey ? !isLoggedIn() : false;
+    const taskType = aiActionTask((item.attrs.match(/data-ai-action="([^"]+)"/) || [])[1] || "");
+    const locked = taskType ? !canUseAiTask(taskType) : item.featureKey ? !isLoggedIn() : false;
     return {
       ...item,
       locked,
@@ -16493,8 +16556,8 @@ function renderAiAssistant() {
     ? result.suggestions.map((suggestion) => aiSuggestionCard(suggestion, selectedResume?.id)).join("")
     : `<div class="ai-empty-panel">${icon("sparkles")}<p>${result ? a.noSuggestions : a.start}</p></div>`;
   const hasAnalysis = result && !isLoading;
-  const atsLocked = !isLoggedIn();
-  const tailorLocked = !isLoggedIn();
+  const atsLocked = !canUseAiTask("analyze_job_description");
+  const tailorLocked = !canUseAiTask("tailor_resume_to_job");
   const keywordPanel = hasAnalysis ? `
     <section class="ai-keyword-grid">
       ${aiKeywordCard(a.foundKeywords, result.foundKeywords)}
@@ -16528,8 +16591,8 @@ function renderAiAssistant() {
           <label>${a.label}<textarea data-ai-field="jobDescription" placeholder="${a.placeholder}">${escapeHtml(aiAssistantState.jobDescription)}</textarea></label>
           <p class="ai-form-error" data-ai-error ${aiAssistantState.error ? "" : "hidden"}>${escapeHtml(aiAssistantState.error)}</p>
           <div class="ai-form-actions">
-            <button class="primary-button full ${atsLocked ? "locked-action" : ""}" type="submit">${icon(atsLocked ? "lock" : "target")} ${isLoading ? a.analyzing : aiActionLabel(a.button, "analyze_job_description")}</button>
-            <button class="secondary-button full ${tailorLocked ? "locked-action" : ""}" type="button" data-ai-tailor-job>${icon(tailorLocked ? "lock" : "sparkles")} ${aiActionLabel(aiCopy().tailorJob, "tailor_resume_to_job")}</button>
+            <button class="primary-button full ${atsLocked ? "locked-action" : ""}" type="submit">${icon(atsLocked ? "lock" : "target")} <span>${isLoading ? a.analyzing : aiActionLabel(a.button, "analyze_job_description")}</span></button>
+            <button class="secondary-button full ${tailorLocked ? "locked-action" : ""}" type="button" data-ai-tailor-job>${icon(tailorLocked ? "lock" : "sparkles")} <span>${aiActionLabel(aiCopy().tailorJob, "tailor_resume_to_job")}</span></button>
             ${aiCreditBalanceBadge()}
           </div>
         </form>

@@ -8554,9 +8554,9 @@ select:focus-visible {
 .resume-brand-watermark,
 .pdf-brand-watermark {
   position: absolute;
-  inset: clamp(34px, 4.8vw, 54px);
+  inset: clamp(42px, 6vw, 68px);
   z-index: 0;
-  overflow: hidden;
+  overflow: visible;
   pointer-events: none;
   user-select: none;
 }
@@ -8565,13 +8565,13 @@ select:focus-visible {
 .pdf-brand-watermark-diagonal {
   position: absolute;
   left: 50%;
-  top: 48%;
-  width: 150%;
-  transform: translate(-50%, -50%) rotate(-25deg);
+  top: 50%;
+  width: 88%;
+  transform: translate(-50%, -50%) rotate(-24deg);
   color: rgba(31, 105, 213, 0.075);
-  font-size: clamp(34px, 7vw, 76px);
+  font-size: clamp(24px, 4.4vw, 42px);
   font-weight: 900;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   line-height: 1;
   text-align: center;
   white-space: nowrap;
@@ -8582,7 +8582,7 @@ select:focus-visible {
   position: absolute;
   right: 0;
   bottom: 0;
-  max-width: 72%;
+  max-width: 90%;
   padding: 5px 10px;
   border: 1px solid rgba(31, 105, 213, 0.16);
   border-radius: 999px;
@@ -8591,7 +8591,9 @@ select:focus-visible {
   font-size: 10px;
   font-weight: 800;
   line-height: 1.2;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  text-align: center;
+  white-space: normal;
 }
 
 .resume-document [hidden] {
@@ -8630,7 +8632,7 @@ select:focus-visible {
 
 .pdf-fit-export-document > .pdf-brand-watermark,
 .pdf-export-document > .pdf-brand-watermark {
-  inset: 14.3mm 15.35mm;
+  inset: 18mm 18mm;
 }
 
 .pdf-preview-export-page {
@@ -8796,7 +8798,8 @@ select:focus-visible {
 
 .pdf-brand-watermark-diagonal {
   color: rgba(31, 105, 213, 0.07);
-  font-size: 42pt;
+  font-size: 31pt;
+  width: 88%;
 }
 
 .pdf-brand-watermark-seal {
@@ -8805,6 +8808,7 @@ select:focus-visible {
   color: rgba(11, 23, 54, 0.5);
   background: rgba(255, 255, 255, 0.78);
   font-size: 7.25pt;
+  max-width: 88%;
 }
 
 @page resume-a4 {
@@ -17325,13 +17329,11 @@ select:focus-visible {
   display: grid;
   gap: 12px;
   min-width: 0;
-  padding: 14px;
-  border: 1px solid rgba(37, 99, 235, 0.14);
-  border-radius: 20px;
-  background:
-    radial-gradient(circle at 8% 0%, rgba(105, 216, 242, 0.14), transparent 32%),
-    linear-gradient(135deg, #f8fbff 0%, #ffffff 100%);
-  box-shadow: 0 14px 34px rgba(18, 60, 145, 0.07);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .cover-letter-ai-primary {
@@ -17345,6 +17347,8 @@ select:focus-visible {
   justify-content: center;
   min-height: 52px;
   font-size: 15px;
+  min-width: 0;
+  white-space: normal;
   box-shadow: 0 14px 30px rgba(31, 105, 213, 0.22);
 }
 
@@ -17361,6 +17365,7 @@ select:focus-visible {
   min-width: 0;
   padding-inline: 13px;
   text-align: left;
+  white-space: normal;
 }
 
 .cover-letter-ai-button .icon {
@@ -17387,6 +17392,8 @@ select:focus-visible {
   min-height: 42px;
   justify-content: center;
   padding-inline: 14px;
+  min-width: 0;
+  white-space: normal;
 }
 
 .cover-letter-body-editor {
@@ -17534,26 +17541,55 @@ select:focus-visible {
 
 .ai-form-actions,
 .ai-action-row {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 10px;
   min-width: 0;
 }
 
+.ai-form-actions {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: center;
+}
+
+.ai-action-row {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  align-items: center;
+}
+
 .ai-action-row > button {
-  flex: 1 1 240px;
   max-width: 100%;
   min-width: 0;
   white-space: normal;
 }
 
+.ai-form-actions > button,
+.ai-action-row > button {
+  justify-content: center;
+}
+
+.ai-form-actions > button .icon,
+.ai-action-row > button .icon {
+  flex: 0 0 auto;
+}
+
+.ai-form-actions > button span,
 .ai-action-row > button span {
   min-width: 0;
   overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .ai-form-actions .full {
-  flex: 1 1 180px;
+  width: 100%;
+}
+
+.ai-form-actions .ai-credit-balance-note,
+.ai-action-row .ai-credit-balance-note {
+  justify-content: center;
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
 }
 
 .ai-credit-balance-note {
@@ -17795,12 +17831,15 @@ select:focus-visible {
 }
 
 .keyword-cloud span {
+  max-width: 100%;
   padding: 8px 12px;
   border-radius: 999px;
   color: var(--blue);
   background: #eef5ff;
   font-weight: 800;
   font-size: 13px;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .keyword-cloud small {
