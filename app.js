@@ -15166,7 +15166,7 @@ function builderSectionPanel(title, index) {
   const listValue = (items) => escapeHtml((items || []).join("\n"));
   const aiButtonMarkup = (taskType, label, iconName = "sparkles", className = "secondary-button") => {
     const locked = !canUseAiTask(taskType);
-    return `<button class="${className} small ${locked ? "locked-action" : ""}" type="button" data-ai-builder-task="${taskType}">${icon(locked ? "lock" : iconName)} ${aiActionLabel(label, taskType)}</button>`;
+    return `<button class="${className} small ${locked ? "locked-action" : ""}" type="button" data-ai-builder-task="${taskType}">${icon(locked ? "lock" : iconName)} <span>${aiActionLabel(label, taskType)}</span></button>`;
   };
   const aiActions = index === 1
     ? `<div class="ai-action-row">${aiButtonMarkup("generate_professional_summary", ai.generateSummary)}${aiButtonMarkup("improve_professional_summary", ai.improveSummary, "sparkles", "ghost-button")}${aiCreditBalanceBadge()}</div>`
@@ -17035,7 +17035,7 @@ function renderCoverLetters() {
   const draft = normalizeCoverLetter(coverLetterDraft || createBlankCoverLetter({ id: currentCoverLetterId || undefined }));
   const aiButton = (taskType, label, iconName = "sparkles", className = "ghost-button", attrs = `data-cover-letter-ai="${taskType}"`) => {
     const locked = !canUseAiTask(taskType);
-    return `<button class="${className} small ${locked ? "locked-action" : ""}" type="button" ${attrs}>${icon(locked ? "lock" : iconName)} ${aiActionLabel(label, taskType)}</button>`;
+    return `<button class="${className} small cover-letter-ai-button ${locked ? "locked-action" : ""}" type="button" ${attrs}>${icon(locked ? "lock" : iconName)} <span>${aiActionLabel(label, taskType)}</span></button>`;
   };
   const builder = `
     <section class="cover-letter-builder-page" data-letter-builder>
@@ -17078,15 +17078,22 @@ function renderCoverLetters() {
           <label>${c.fields.experience}<textarea data-letter-field="experience">${escapeHtml(draft.experience)}</textarea></label>
         </div>
         <div class="letter-editor-head">
-          <label>${c.fields.body}</label>
-          <div class="ai-action-row">
-            ${aiButton("generate_cover_letter", aiCopy().generateLetter, "sparkles", "secondary-button", "data-cover-letter-generate")}
-            ${aiButton("improve_cover_letter", aiCopy().improveLetter)}
-            ${aiButton("tailor_cover_letter_to_job", aiCopy().tailorLetter, "target")}
-            ${aiButton("formal_cover_letter", aiCopy().formalLetter, "pen")}
-            ${aiButton("direct_cover_letter", aiCopy().directLetter, "pen")}
-            ${aiButton("confident_cover_letter", aiCopy().confidentLetter, "pen")}
-            ${aiCreditBalanceBadge()}
+          <div>
+            <label>${c.fields.body}</label>
+            <p class="letter-ai-helper">${currentLanguage === "pt" ? "Crie uma carta completa ou refine o texto atual com IA." : "Create a complete letter or refine the current text with AI."}</p>
+          </div>
+          <div class="cover-letter-ai-panel">
+            <div class="cover-letter-ai-primary">
+              ${aiButton("generate_cover_letter", aiCopy().generateLetter, "sparkles", "primary-button", "data-cover-letter-generate")}
+              ${aiCreditBalanceBadge()}
+            </div>
+            <div class="cover-letter-ai-tools" aria-label="${escapeHtml(currentLanguage === "pt" ? "Op\u00e7\u00f5es de IA para carta" : "Cover letter AI options")}">
+              ${aiButton("improve_cover_letter", aiCopy().improveLetter)}
+              ${aiButton("tailor_cover_letter_to_job", aiCopy().tailorLetter, "target", "secondary-button")}
+              ${aiButton("formal_cover_letter", aiCopy().formalLetter, "pen")}
+              ${aiButton("direct_cover_letter", aiCopy().directLetter, "pen")}
+              ${aiButton("confident_cover_letter", aiCopy().confidentLetter, "pen")}
+            </div>
           </div>
         </div>
         <textarea class="cover-letter-body-editor" data-letter-field="body">${escapeHtml(draft.body)}</textarea>

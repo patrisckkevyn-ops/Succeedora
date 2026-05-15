@@ -4576,8 +4576,13 @@ body,
     flex-direction: column;
   }
 
-  .letter-editor-head .secondary-button {
+  .letter-editor-head .cover-letter-ai-button {
     width: 100%;
+  }
+
+  .cover-letter-ai-primary,
+  .cover-letter-ai-tools {
+    grid-template-columns: 1fr;
   }
 
   .ai-input-panel,
@@ -17299,16 +17304,89 @@ select:focus-visible {
 }
 
 .letter-editor-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  display: grid;
+  gap: 14px;
 }
 
 .letter-editor-head label {
   margin: 0;
   color: #10214a;
   font-weight: 800;
+}
+
+.letter-ai-helper {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 5px 0 0;
+}
+
+.cover-letter-ai-panel {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(37, 99, 235, 0.14);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(105, 216, 242, 0.14), transparent 32%),
+    linear-gradient(135deg, #f8fbff 0%, #ffffff 100%);
+  box-shadow: 0 14px 34px rgba(18, 60, 145, 0.07);
+}
+
+.cover-letter-ai-primary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.cover-letter-ai-primary .cover-letter-ai-button {
+  justify-content: center;
+  min-height: 52px;
+  font-size: 15px;
+  box-shadow: 0 14px 30px rgba(31, 105, 213, 0.22);
+}
+
+.cover-letter-ai-tools {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.cover-letter-ai-button {
+  justify-content: flex-start;
+  gap: 9px;
+  min-height: 44px;
+  min-width: 0;
+  padding-inline: 13px;
+  text-align: left;
+}
+
+.cover-letter-ai-button .icon {
+  flex: 0 0 auto;
+}
+
+.cover-letter-ai-button span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.cover-letter-ai-tools .cover-letter-ai-button {
+  width: 100%;
+  border-color: rgba(37, 99, 235, 0.16);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.cover-letter-ai-tools .cover-letter-ai-button:hover {
+  background: #eef5ff;
+  border-color: rgba(37, 99, 235, 0.26);
+}
+
+.cover-letter-ai-panel .ai-credit-balance-note {
+  min-height: 42px;
+  justify-content: center;
+  padding-inline: 14px;
 }
 
 .cover-letter-body-editor {
@@ -17459,6 +17537,19 @@ select:focus-visible {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  min-width: 0;
+}
+
+.ai-action-row > button {
+  flex: 1 1 240px;
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+}
+
+.ai-action-row > button span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .ai-form-actions .full {
