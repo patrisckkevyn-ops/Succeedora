@@ -4,7 +4,7 @@ Add these environment variables in Vercel under Project Settings > Environment V
 
 ```env
 OPENAI_API_KEY=
-OPENAI_MODEL=gpt-5.1-mini
+OPENAI_MODEL=gpt-5.4-mini
 ```
 
 Keep `OPENAI_API_KEY` only in Vercel or a local `.env` file. Do not paste it into `app.js`, HTML, CSS, or any frontend file.

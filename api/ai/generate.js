@@ -1,5 +1,5 @@
 const OPENAI_RESPONSES_ENDPOINT = "https://api.openai.com/v1/responses";
-const DEFAULT_MODEL = "gpt-5.1-mini";
+const DEFAULT_MODEL = "gpt-5.4-mini";
 const MAX_BODY_BYTES = 64 * 1024;
 const MAX_TEXT_CHARS = 14000;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
