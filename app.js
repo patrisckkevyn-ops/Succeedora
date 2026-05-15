@@ -2442,7 +2442,7 @@ const ADDITIONAL_RESUME_TEMPLATES = [
   ["professional", "Professional", "Profissional", "Corporate", "Corporativo", "pro", ["pro", "corporate"], "A split-header professional layout with contact card, timeline experience and strong lower grid.", "Um layout profissional com cabeçalho dividido, card de contato, timeline de experiência e grid inferior.", "Best for administrative roles", "Ideal para cargos administrativos"],
   ["clean-pro", "Clean Pro", "Clean Pro", "ATS", "ATS", "pro", ["pro", "ats", "corporate"], "A minimal premium layout with generous spacing, refined bullets and discreet skill chips.", "Um layout minimalista premium, com respiro, bullets refinados e chips discretos.", "ATS-focused with premium polish", "Focado em ATS com acabamento premium"],
   ["modern-ats", "Modern ATS", "ATS moderno", "ATS", "ATS", "pro", ["pro", "ats", "technology"], "ATS-safe structure with a sharper modern header and a separated skills band.", "Estrutura segura para ATS, com cabeçalho moderno e faixa de habilidades destacada.", "Online applications and ATS uploads", "Candidaturas online e uploads em ATS"],
-  ["senior-executive", "Senior Executive", "Executivo senior", "Executive", "Executivo", "premium", ["premium", "executive", "corporate"], "A boardroom-ready premium resume with dark header, executive summary and strategic side rail.", "Um currículo premium de diretoria, com cabeçalho escuro, resumo executivo e lateral estratégica.", "For senior professionals", "Para profissionais seniores"],
+  ["senior-executive", "Senior Executive", "Executivo senior", "Executive", "Executivo", "premium", ["premium", "executive", "corporate"], "A signature executive resume with a premium ribbon, strong nameplate, strategic sidebar and polished leadership sections.", "Um currículo executivo premium com faixa de assinatura, nome forte, sidebar estratégica e seções sofisticadas de liderança.", "Senior leaders, managers, coordinators and high-value executive applications", "Lideranças seniores, gerentes, coordenadores e candidaturas executivas de alto valor"],
   ["marketing", "Marketing", "Marketing", "Creative", "Criativo", "pro", ["pro", "creative", "corporate"], "A results-first layout for campaigns, brand and growth profiles.", "Um layout orientado a resultados para campanhas, marca e crescimento.", "For marketing and growth roles", "Para marketing e growth"],
   ["sales", "Sales", "Vendas", "Corporate", "Corporativo", "pro", ["pro", "corporate"], "A metrics-driven resume for revenue, account and commercial roles.", "Um curriculo orientado a metricas para vendas, contas e area comercial.", "Best for sales and customer-facing roles", "Ideal para vendas e relacionamento com clientes"],
   ["developer", "Developer", "Desenvolvedor", "Technology", "Tecnologia", "premium", ["premium", "technology", "ats"], "A premium technical resume with stack sidebar, project-first structure and visible engineering links.", "Um currículo técnico premium, com sidebar de stack, projetos em destaque e links de engenharia visíveis.", "For tech and product", "Para tecnologia e produto"],
@@ -9105,6 +9105,84 @@ async function exportCoverLetterPdf(letter, button) {
 }
 
 function curatedSampleResume(template = "professional") {
+  if (template === "senior-executive") {
+    return createBlankResume({
+      selectedTemplate: template,
+      personal: {
+        fullName: "Patrick Justino",
+        title: currentLanguage === "pt" ? "Supervisor Administrativo" : "Administrative Supervisor",
+        email: "patrickkevyn@gmail.com",
+        phone: "+55 27 99999-9999",
+        location: currentLanguage === "pt" ? "Serra, Espirito Santo" : "Serra, Espirito Santo",
+      },
+      summary: currentLanguage === "pt"
+        ? "Profissional com mais de 8 anos de experiencia em gestao administrativa, financeira e de pessoas. Atuacao estrategica na otimizacao de processos, reducao de custos e melhoria de resultados, com forte habilidade analitica, visao sistemica e foco em eficiencia operacional."
+        : "Professional with 8+ years of experience in administrative, financial and people management. Strategic background in process optimization, cost reduction and performance improvement, with analytical thinking, systems view and operational efficiency focus.",
+      workExperience: currentLanguage === "pt"
+        ? [
+          {
+            role: "Supervisor Administrativo",
+            company: "Grupo Solucao Logistica",
+            location: "Serra, ES",
+            period: "03/2021 - Atual",
+            achievements: [
+              "Supervisiono rotinas administrativas e financeiras da operacao, garantindo eficiencia, compliance e qualidade nos processos.",
+              "Lidero uma equipe de 12 profissionais, promovendo desenvolvimento, engajamento e alta performance.",
+              "Implanto indicadores e dashboards para acompanhamento de resultados e tomada de decisao.",
+              "Estruturo e padronizo processos, gerando ganhos de eficiencia e reducao de retrabalho.",
+            ],
+          },
+          {
+            role: "Analista Administrativo Senior",
+            company: "TecnoServ Servicos Empresariais",
+            location: "Vitoria, ES",
+            period: "06/2017 - 02/2021",
+            achievements: [
+              "Realizei analise financeira e acompanhamento de despesas para decisoes estrategicas.",
+              "Apoiei a lideranca na gestao de contratos, fornecedores e indicadores de desempenho.",
+              "Participei de projetos de melhoria de processos e reducao de custos operacionais.",
+            ],
+          },
+        ]
+        : [
+          {
+            role: "Administrative Supervisor",
+            company: "Solution Logistics Group",
+            location: "Serra, ES",
+            period: "03/2021 - Present",
+            achievements: [
+              "Supervise administrative and financial routines, ensuring efficiency, compliance and process quality.",
+              "Lead a team of 12 professionals, promoting development, engagement and high performance.",
+              "Implement KPI dashboards for performance tracking and decision making.",
+              "Structure and standardize processes, improving efficiency and reducing rework.",
+            ],
+          },
+          {
+            role: "Senior Administrative Analyst",
+            company: "TecnoServ Business Services",
+            location: "Vitoria, ES",
+            period: "06/2017 - 02/2021",
+            achievements: [
+              "Performed financial analysis and expense monitoring to support strategic decisions.",
+              "Supported leadership with contracts, suppliers and performance indicators.",
+              "Participated in process improvement and operational cost reduction projects.",
+            ],
+          },
+        ],
+      education: [{ degree: currentLanguage === "pt" ? "Bacharelado em Administracao" : "Bachelor's Degree in Business Administration", school: currentLanguage === "pt" ? "Universidade Federal do Espirito Santo (UFES)" : "Federal University of Espirito Santo (UFES)", period: "2013 - 2016" }],
+      skills: currentLanguage === "pt"
+        ? ["Gestao de Equipes", "Planejamento Estrategico", "Controle Orcamentario", "Analise de Indicadores", "Processos e Melhoria Continua", "Excel Avancado", "Power BI", "Comunicacao e Negociacao"]
+        : ["Team Management", "Strategic Planning", "Budget Control", "KPI Analysis", "Process Improvement", "Advanced Excel", "Power BI", "Communication and Negotiation"],
+      languages: currentLanguage === "pt" ? ["Portugues - Nativo", "Ingles - Avancado (C1)", "Espanhol - Intermediario (B1)"] : ["Portuguese - Native", "English - Advanced (C1)", "Spanish - Intermediate (B1)"],
+      certifications: currentLanguage === "pt"
+        ? ["CPA-20 - Certificacao Profissional ANBIMA", "Excel Avancado - Fundacao Bradesco", "Power BI para Negocios - Data Science Academy", "Lideranca e Gestao de Pessoas - FGV Online"]
+        : ["CPA-20 - ANBIMA Professional Certification", "Advanced Excel - Bradesco Foundation", "Power BI for Business - Data Science Academy", "Leadership and People Management - FGV Online"],
+      projects: currentLanguage === "pt"
+        ? ["Projeto de Reducao de Custos Operacionais - Lideranca do projeto que identificou oportunidades de economia e renegociacao com fornecedores, resultando em reducao de 18% nos custos anuais.", "Implantacao de Dashboard Gerencial - Desenvolvimento e implantacao de painel de indicadores em Power BI para aumentar a agilidade e precisao das analises."]
+        : ["Operational Cost Reduction Project - Led a project that identified savings and supplier renegotiation opportunities, reducing annual costs by 18%.", "Management Dashboard Implementation - Developed and implemented Power BI KPI dashboards to improve analysis speed and accuracy."],
+      professionalLinks: ["linkedin.com/in/patrickjustino"],
+    });
+  }
   if (template === "creative") {
     return createBlankResume({
       selectedTemplate: template,
@@ -12956,6 +13034,85 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
       ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
     </p>
   `).join("");
+  if (template === "senior-executive") {
+    const execSection = (className, iconName, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><div class="exec-section-title"><span>${icon(iconName)}</span><h3>${title}</h3></div>${body}</section>`;
+    const executiveInitial = (displayName || "Amanda Silva").trim().charAt(0).toUpperCase() || "A";
+    const executiveTagline = currentLanguage === "pt"
+      ? "Gestão eficiente de processos, pessoas e resultados para impulsionar performance e crescimento."
+      : "Efficient leadership of people, processes and results to drive performance and growth.";
+    const executiveFooter = currentLanguage === "pt" ? ["ORGANIZAÇÃO", "ESTRATÉGIA", "RESULTADOS"] : ["ORGANIZATION", "STRATEGY", "RESULTS"];
+    const executiveContactItems = [
+      ["mail", personal.email],
+      ["headset", personal.phone],
+      ["globe", displayLocation],
+      ["link", normalizeTextList(data.professionalLinks)[0]],
+    ].filter((item) => curatedHasText(item[1]));
+    const executiveContacts = executiveContactItems.length
+      ? executiveContactItems.map(([iconName, value], index) => `<p ${index === 0 ? `data-preview-field="contact" data-preview-empty="${b.document.header}"` : ""}><span>${icon(iconName)}</span>${escapeHtml(value)}</p>`).join("")
+      : `<p data-preview-field="contact" data-preview-empty="${b.document.header}"><span>${icon("mail")}</span>${display(curatedContact, b.document.header)}</p>`;
+    const executiveSkills = normalizeTextList(data.skills);
+    const executiveSkillList = (executiveSkills.length ? executiveSkills : normalizeTextList(b.values.skills)).map((skill, index) => {
+      const width = [96, 91, 88, 94, 86, 82, 90, 78][index % 8];
+      return `<p><span>${escapeHtml(skill)}</span><em><i style="width:${width}%"></i></em></p>`;
+    }).join("");
+    const executiveLanguages = normalizeTextList(data.languages).map((item) => {
+      const [language, ...levelParts] = item.split(/[-–—|:]/);
+      const level = levelParts.join(" ").trim();
+      return `<p><span>${escapeHtml(language.trim() || item)}</span>${level ? `<strong>${escapeHtml(level)}</strong>` : ""}</p>`;
+    }).join("");
+    const executiveExperienceEntries = (curatedExperiences.length ? curatedExperiences : [curatedPrimaryExperience]).map((item, index) => `
+      <article class="exec-experience-item">
+        <div class="exec-entry-top">
+          <div>
+            <strong ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>
+            <p><span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>${curatedHasText(item.company) && curatedHasText(item.location) ? " - " : ""}<span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span></p>
+          </div>
+          <em ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</em>
+        </div>
+        <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
+      </article>
+    `).join("");
+    const executiveProjectItems = normalizeTextList(data.projects);
+    const executiveProjects = executiveProjectItems.map((item, index) => `
+      <article class="exec-project-item">
+        <strong>${escapeHtml(item.split(" - ")[0] || item)}</strong>
+        <p>${escapeHtml(item.includes(" - ") ? item.split(" - ").slice(1).join(" - ") : item)}</p>
+        <em>${new Date().getFullYear() - Math.min(index, 3)}</em>
+      </article>
+    `).join("");
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-senior-executive executive-signature-resume ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="exec-signature-header">
+              <div class="exec-ribbon"><span>${escapeHtml(executiveInitial)}</span></div>
+              <div class="exec-title-block">
+                <h2 data-preview-field="name" data-preview-empty="Amanda Silva">${display(displayName, "Amanda Silva")}</h2>
+                <strong data-preview-field="title" data-preview-empty="${b.values.professionalTitle}">${display(personal.title, b.values.professionalTitle)}</strong>
+                <p>${escapeHtml(executiveTagline)}</p>
+              </div>
+              <div class="exec-dot-field" aria-hidden="true"></div>
+            </header>
+            <div class="exec-signature-body">
+              <aside class="exec-sidebar">
+                ${execSection("exec-side-section exec-contact", "user", currentLanguage === "pt" ? "Contato" : "Contact", executiveContacts, executiveContactItems.length > 0 || curatedHasText(curatedContact))}
+                ${execSection("exec-side-section exec-skills", "sparkles", curatedLabels.skills, `<div class="exec-skill-meter-list" data-preview-field="skills" data-preview-empty="">${executiveSkillList}</div>`, executiveSkills.length > 0)}
+                ${execSection("exec-side-section exec-languages", "globe", curatedLabels.languages, `<div class="exec-language-list" data-preview-field="languages" data-preview-empty="">${executiveLanguages}</div>`, curatedHasList(data.languages))}
+                ${execSection("exec-side-section exec-certifications", "shield", curatedLabels.certifications, `<ul data-preview-field="certifications" data-preview-empty="">${linesMarkup(data.certifications, "")}</ul>`, curatedHasList(data.certifications))}
+              </aside>
+              <main class="exec-main">
+                ${execSection("exec-main-section exec-summary", "sparkles", curatedLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, curatedHasText(data.summary))}
+                ${execSection("exec-main-section exec-experience", "layout", curatedLabels.experience, executiveExperienceEntries, curatedExperiences.length > 0)}
+                ${execSection("exec-main-section exec-education", "file", curatedLabels.education, curatedEducationEntries, curatedEducationItems.length > 0)}
+                ${execSection("exec-main-section exec-projects", "target", curatedLabels.projects, `<div class="exec-project-list" data-preview-field="projects" data-preview-empty="">${executiveProjects}</div>`, executiveProjectItems.length > 0)}
+              </main>
+            </div>
+            <footer class="exec-signature-footer">${executiveFooter.map((word) => `<strong>${escapeHtml(word)}</strong>`).join("<span></span>")}</footer>
+          </div>
+        </div>
+      </div>
+    `;
+  }
   if (template === "elegant") {
     const elegantSection = (className, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3>${title}</h3>${body}</section>`;
     const elegantInitials = (displayName || "Amanda Silva").split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part.charAt(0)).join("").toUpperCase() || "AS";
