@@ -11730,13 +11730,13 @@ select:focus-visible {
   --curated-accent-2: #47a4bd;
   --curated-dark: #0b1d33;
   position: relative;
-  grid-template-columns: minmax(0, 1fr) minmax(176px, 0.34fr);
-  gap: 14px 25px;
-  padding: 0 42px 38px;
+  grid-template-columns: minmax(0, 1fr) minmax(205px, 0.36fr);
+  gap: 14px 28px;
+  padding: 0 44px 40px;
   overflow: hidden;
   border: 1px solid #d6e1ef;
   background:
-    linear-gradient(90deg, rgba(31, 95, 139, 0.07), transparent 26%),
+    linear-gradient(90deg, rgba(31, 95, 139, 0.055), transparent 26%),
     linear-gradient(180deg, #ffffff, #f9fbff);
 }
 
@@ -11751,11 +11751,11 @@ select:focus-visible {
 .resume-document.resume-template-corporate.curated-resume .curated-header {
   position: relative;
   grid-column: 1 / -1;
-  grid-template-columns: auto minmax(0, 1fr) minmax(180px, 0.34fr);
-  gap: 14px 20px;
+  grid-template-columns: auto minmax(0, 1fr) minmax(225px, 0.38fr);
+  gap: 12px 22px;
   align-items: center;
-  margin: 0 -42px 4px;
-  padding: 30px 42px 25px 50px;
+  margin: 0 -44px 6px;
+  padding: 24px 44px 22px 52px;
   border: 0;
   background:
     radial-gradient(circle at 86% 20%, rgba(71, 164, 189, 0.24), transparent 34%),
@@ -11763,8 +11763,8 @@ select:focus-visible {
 }
 
 .resume-document.resume-template-corporate.curated-resume .curated-header-mark {
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   border-radius: 8px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(212, 233, 245, 0.82)),
@@ -11774,7 +11774,7 @@ select:focus-visible {
 
 .resume-document.resume-template-corporate.curated-resume .curated-header h2 {
   color: #ffffff;
-  font-size: 34px;
+  font-size: 32px;
   letter-spacing: 0;
 }
 
@@ -11790,20 +11790,23 @@ select:focus-visible {
   display: flex;
   align-items: center;
   margin: 0;
-  padding: 13px 15px;
+  padding: 12px 14px;
   border: 1px solid rgba(211, 231, 241, 0.24);
   border-radius: 8px;
   color: #edf8fb;
+  font-size: 10.8px;
+  line-height: 1.42;
   background: rgba(255, 255, 255, 0.08);
 }
 
 .resume-document.resume-template-corporate.curated-resume .curated-summary {
-  grid-column: 1 / -1;
+  grid-column: 1;
+  grid-row: 2;
   display: grid;
-  grid-template-columns: minmax(150px, 0.28fr) minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: minmax(112px, 0.22fr) minmax(0, 1fr);
+  gap: 16px;
   align-items: start;
-  padding: 18px 20px !important;
+  padding: 17px 19px !important;
   border: 1px solid rgba(31, 95, 139, 0.14) !important;
   border-left: 0 !important;
   border-radius: 8px;
@@ -11821,15 +11824,45 @@ select:focus-visible {
 
 .resume-document.resume-template-corporate.curated-resume .curated-side-section {
   grid-column: 2;
-  padding: 14px 15px !important;
+  align-self: start;
+  padding: 15px 15px !important;
   border: 1px solid rgba(31, 95, 139, 0.15) !important;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.86) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  box-shadow: 0 12px 28px rgba(16, 45, 74, 0.055) !important;
+}
+
+.resume-document.resume-template-corporate.curated-resume .curated-experience {
+  grid-row: 3 / span 5;
+}
+
+.resume-document.resume-template-corporate.curated-resume .curated-projects {
+  grid-row: 8;
+}
+
+.resume-document.resume-template-corporate.curated-resume .curated-skills {
+  grid-row: 2;
+}
+
+.resume-document.resume-template-corporate.curated-resume .curated-education {
+  grid-row: 3;
+}
+
+.resume-document.resume-template-corporate.curated-resume .curated-certifications {
+  grid-row: 4;
+}
+
+.resume-document.resume-template-corporate.curated-resume .curated-languages {
+  grid-row: 5;
+}
+
+.resume-document.resume-template-corporate.curated-resume .curated-links {
+  grid-row: 6;
 }
 
 .resume-document.resume-template-corporate.curated-resume h3 {
   color: #163b5d;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
 }
 
 .resume-document.resume-template-corporate.curated-resume .curated-experience-item {
