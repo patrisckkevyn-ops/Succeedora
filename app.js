@@ -474,6 +474,7 @@ const I18N = {
       pageTitle: "Resume Builder",
       back: "Back",
       backToTemplates: "Back to templates",
+      backToCreateResume: "Back to create resume",
       improve: "Improve with AI",
       download: "Download PDF",
       generatingPdf: "Generating PDF...",
@@ -901,6 +902,7 @@ const I18N = {
       pageTitle: "Criador de currículo",
       back: "Voltar",
       backToTemplates: "Voltar aos modelos",
+      backToCreateResume: "Voltar para criar currículo",
       improve: "Melhorar com IA",
       download: "Baixar PDF",
       generatingPdf: "Gerando PDF...",
@@ -2131,6 +2133,56 @@ const BLOG_SLUG_TRANSLATIONS = [
   ["como-fazer-curriculo-em-ingles", "how-to-create-english-resume"],
 ];
 
+const TEMPLATE_STATUS = Object.freeze({
+  active: "active",
+  draft: "draft",
+  hidden: "hidden",
+  disabled: "disabled",
+});
+
+const TEMPLATE_STATUS_BY_KEY = Object.freeze({
+  modern: TEMPLATE_STATUS.active,
+  "simple-ats": TEMPLATE_STATUS.active,
+  sales: TEMPLATE_STATUS.active,
+  minimal: TEMPLATE_STATUS.draft,
+  professional: TEMPLATE_STATUS.draft,
+  tech: TEMPLATE_STATUS.draft,
+  student: TEMPLATE_STATUS.draft,
+  "first-job": TEMPLATE_STATUS.draft,
+  executive: TEMPLATE_STATUS.hidden,
+  creative: TEMPLATE_STATUS.hidden,
+  international: TEMPLATE_STATUS.hidden,
+  classic: TEMPLATE_STATUS.hidden,
+  corporate: TEMPLATE_STATUS.hidden,
+  elegant: TEMPLATE_STATUS.hidden,
+  "senior-executive": TEMPLATE_STATUS.hidden,
+  marketing: TEMPLATE_STATUS.hidden,
+  developer: TEMPLATE_STATUS.hidden,
+  designer: TEMPLATE_STATUS.hidden,
+  healthcare: TEMPLATE_STATUS.hidden,
+  legal: TEMPLATE_STATUS.hidden,
+  finance: TEMPLATE_STATUS.hidden,
+  academic: TEMPLATE_STATUS.hidden,
+  "remote-work": TEMPLATE_STATUS.hidden,
+  operations: TEMPLATE_STATUS.hidden,
+  manager: TEMPLATE_STATUS.hidden,
+  consultant: TEMPLATE_STATUS.hidden,
+  startup: TEMPLATE_STATUS.hidden,
+  global: TEMPLATE_STATUS.hidden,
+  "clean-pro": TEMPLATE_STATUS.disabled,
+  "modern-ats": TEMPLATE_STATUS.disabled,
+  "customer-service": TEMPLATE_STATUS.disabled,
+  graduate: TEMPLATE_STATUS.disabled,
+});
+
+function templateStatus(key) {
+  return TEMPLATE_STATUS_BY_KEY[key] || TEMPLATE_STATUS.hidden;
+}
+
+function isTemplateActive(template = {}) {
+  return (template.status || templateStatus(template.key)) === TEMPLATE_STATUS.active;
+}
+
 const RESUME_TEMPLATES = [
   {
     key: "modern",
@@ -2360,6 +2412,10 @@ const RESUME_TEMPLATES = [
     name: "Simple ATS",
     icon: "target",
     category: "ATS",
+    categories: {
+      en: "ATS / Traditional / Maximum Compatibility",
+      pt: "ATS / Tradicional / Compatibilidade Maxima",
+    },
     access: "free",
     descriptions: {
       en: "Direct and traditional template designed for maximum compatibility with recruiting systems.",
@@ -2444,7 +2500,7 @@ const ADDITIONAL_RESUME_TEMPLATES = [
   ["modern-ats", "Modern ATS", "ATS moderno", "ATS", "ATS", "pro", ["pro", "ats", "technology"], "ATS-safe structure with a sharper modern header and a separated skills band.", "Estrutura segura para ATS, com cabeçalho moderno e faixa de habilidades destacada.", "Online applications and ATS uploads", "Candidaturas online e uploads em ATS"],
   ["senior-executive", "Senior Executive", "Executivo senior", "Executive", "Executivo", "premium", ["premium", "executive", "corporate"], "A signature executive resume with a premium ribbon, strong nameplate, strategic sidebar and polished leadership sections.", "Um currículo executivo premium com faixa de assinatura, nome forte, sidebar estratégica e seções sofisticadas de liderança.", "Senior leaders, managers, coordinators and high-value executive applications", "Lideranças seniores, gerentes, coordenadores e candidaturas executivas de alto valor"],
   ["marketing", "Marketing", "Marketing", "Creative", "Criativo", "pro", ["pro", "creative", "corporate"], "A results-first layout for campaigns, brand and growth profiles.", "Um layout orientado a resultados para campanhas, marca e crescimento.", "For marketing and growth roles", "Para marketing e growth"],
-  ["sales", "Sales", "Vendas", "Corporate", "Corporativo", "pro", ["pro", "corporate"], "A metrics-driven resume for revenue, account and commercial roles.", "Um curriculo orientado a metricas para vendas, contas e area comercial.", "Best for sales and customer-facing roles", "Ideal para vendas e relacionamento com clientes"],
+  ["sales", "Sales", "Vendas", "Sales / Commercial / Customer Relations", "Vendas / Comercial / Relacionamento com Cliente", "pro", ["pro", "corporate"], "A modern Pro resume for sales, revenue, account, customer success and commercial relationship roles, with metrics-first hierarchy.", "Um curriculo Pro moderno para vendas, receita, contas, sucesso do cliente e relacionamento comercial, com hierarquia orientada a metricas.", "Best for sales, SDR, BDR, account executive, customer success and client-facing growth roles", "Ideal para vendas, SDR, BDR, account executive, customer success e relacionamento com clientes"],
   ["developer", "Developer", "Desenvolvedor", "Technology", "Tecnologia", "premium", ["premium", "technology", "ats"], "A premium technical resume with stack sidebar, project-first structure and visible engineering links.", "Um currículo técnico premium, com sidebar de stack, projetos em destaque e links de engenharia visíveis.", "For tech and product", "Para tecnologia e produto"],
   ["designer", "Designer", "Designer", "Creative", "Criativo", "premium", ["premium", "creative", "technology"], "A refined visual layout for design, UX and portfolio-driven careers.", "Um layout visual refinado para design, UX e carreiras orientadas a portfólio.", "Creative modern layout", "Visual criativo e moderno"],
   ["healthcare", "Healthcare", "Saude", "Corporate", "Corporativo", "pro", ["pro", "corporate", "ats"], "A trustworthy clinical resume for healthcare and care operations.", "Um curriculo confiavel para saude, clinica e operacoes de cuidado.", "For healthcare professionals", "Para profissionais de saude"],
@@ -2512,6 +2568,7 @@ let builderSaveState = "saved";
 let activeBuilderSectionIndex = 0;
 let pendingTemplateChangeDraft = null;
 let autoSaveTimer = null;
+let autoSaveCommitTimer = null;
 let aiAssistantState = { resumeId: "", jobTitle: "", company: "", jobDescription: "", result: null, error: "" };
 
 const CSS_PX_PER_INCH = 96;
@@ -2842,6 +2899,16 @@ function exitResumeBuilder() {
   setRoute(builderReturnRoute || "/dashboard/templates");
 }
 
+function exitToNewResumeFlow() {
+  cancelPendingResumeAutosave();
+  currentBuilderResumeId = null;
+  builderDraft = null;
+  pendingTemplateChangeDraft = null;
+  builderSaveState = "saved";
+  activeBuilderSectionIndex = 0;
+  setRoute("/dashboard/builder");
+}
+
 function resumeLabels() {
   return currentLanguage === "pt" ? {
     untitled: "Currículo sem título",
@@ -2853,6 +2920,12 @@ function resumeLabels() {
     delete: "Excluir",
     duplicate: "Duplicar",
     downloadPdf: "Baixar PDF",
+    adminToolLabel: "Admin",
+    adminFillTest: "Preencher teste",
+    adminReplaceTitle: "Substituir dados do curr\u00edculo?",
+    adminReplaceText: "Este curr\u00edculo j\u00e1 possui informa\u00e7\u00f5es preenchidas. Deseja substituir pelos dados de teste?",
+    adminReplace: "Substituir",
+    adminFilledMessage: "Dados de teste preenchidos. Revise e salve se quiser manter.",
     createFirst: "Criar meu primeiro currículo",
     chooseTemplate: "Escolher modelo",
     emptyTitle: "Você ainda não criou nenhum currículo",
@@ -2885,6 +2958,12 @@ function resumeLabels() {
     delete: "Delete",
     duplicate: "Duplicate",
     downloadPdf: "Download PDF",
+    adminToolLabel: "Admin",
+    adminFillTest: "Fill test data",
+    adminReplaceTitle: "Replace resume data?",
+    adminReplaceText: "This resume already has filled information. Do you want to replace it with test data?",
+    adminReplace: "Replace",
+    adminFilledMessage: "Test data filled. Review and save if you want to keep it.",
     createFirst: "Create my first resume",
     chooseTemplate: "Choose template",
     emptyTitle: "You haven\u2019t created any resumes yet",
@@ -2984,18 +3063,234 @@ function normalizeResume(raw = {}) {
   return resume;
 }
 
+const ADMIN_TEST_RESUME_PROFILES = Object.freeze({
+  productManager: "productManager",
+});
+
+function adminProductManagerTestResume(baseResume = ensureBuilderDraft()) {
+  const now = isoNow();
+  const base = normalizeResume(baseResume || {});
+  const resume = normalizeResume({
+    ...base,
+    id: base.id || currentBuilderResumeId || newResumeId(),
+    title: "Amanda Silva",
+    selectedTemplate: base.selectedTemplate || selectedTemplateKey,
+    documentFormat: normalizeDocumentFormat(base.documentFormat || selectedDocumentFormat),
+    createdAt: base.createdAt || now,
+    updatedAt: now,
+    personal: {
+      ...base.personal,
+      firstName: "Amanda",
+      lastName: "Silva",
+      fullName: "Amanda Silva",
+      title: "Product Manager",
+      email: "amanda.silva@example.com",
+      phone: "+55 11 90000-0000",
+      address: "",
+      city: "S\u00e3o Paulo",
+      state: "SP",
+      postalCode: "",
+      location: "S\u00e3o Paulo, Brasil",
+      links: "linkedin.com/in/amandasilva\namandasilva.com",
+    },
+    summary: "Product Manager com experi\u00eancia em estrat\u00e9gia de produto, pesquisa com usu\u00e1rios, prioriza\u00e7\u00e3o de roadmap e colabora\u00e7\u00e3o com times de design, engenharia e neg\u00f3cios. Perfil orientado a dados, comunica\u00e7\u00e3o clara e foco em entregar solu\u00e7\u00f5es digitais que melhoram a experi\u00eancia do usu\u00e1rio e geram impacto para o neg\u00f3cio.",
+    workExperience: [
+      {
+        role: "Product Manager",
+        company: "NovaTech Digital",
+        location: "S\u00e3o Paulo, Brasil",
+        period: "Mar 2021 \u2014 Atual",
+        achievements: [
+          "Liderou a defini\u00e7\u00e3o de roadmap de produto com base em pesquisas, m\u00e9tricas de uso e objetivos de neg\u00f3cio.",
+          "Priorizou funcionalidades em colabora\u00e7\u00e3o com design, engenharia, marketing e atendimento ao cliente.",
+          "Acompanhou indicadores de ado\u00e7\u00e3o, reten\u00e7\u00e3o e satisfa\u00e7\u00e3o para orientar melhorias cont\u00ednuas.",
+          "Coordenou entregas em ciclos \u00e1geis, garantindo alinhamento entre stakeholders e equipe t\u00e9cnica.",
+        ],
+      },
+      {
+        role: "Analista de Produto",
+        company: "BrightApps Solutions",
+        location: "Campinas, Brasil",
+        period: "Jun 2018 \u2014 Fev 2021",
+        achievements: [
+          "Analisou feedbacks de usu\u00e1rios e dados de comportamento para identificar oportunidades de melhoria.",
+          "Criou documenta\u00e7\u00e3o de requisitos, hist\u00f3rias de usu\u00e1rio e crit\u00e9rios de aceite para novas funcionalidades.",
+          "Apoiou testes de usabilidade e valida\u00e7\u00e3o de hip\u00f3teses com clientes reais.",
+          "Colaborou com times de desenvolvimento para melhorar fluxos digitais e reduzir fric\u00e7\u00f5es no produto.",
+        ],
+      },
+      {
+        role: "Assistente de Projetos Digitais",
+        company: "StartHub Brasil",
+        location: "S\u00e3o Paulo, Brasil",
+        period: "Jan 2016 \u2014 Mai 2018",
+        achievements: [
+          "Apoiou o acompanhamento de projetos digitais, cronogramas e entregas internas.",
+          "Organizou reuni\u00f5es, atas, documentos de escopo e comunica\u00e7\u00e3o entre \u00e1reas.",
+          "Auxiliou na an\u00e1lise de requisitos e acompanhamento de demandas de clientes.",
+          "Contribuiu para melhoria de processos internos e organiza\u00e7\u00e3o das prioridades do time.",
+        ],
+      },
+    ],
+    education: [
+      {
+        degree: "Administra\u00e7\u00e3o de Empresas",
+        school: "Universidade de S\u00e3o Paulo",
+        location: "S\u00e3o Paulo, Brasil",
+        period: "2012 \u2014 2016",
+        description: "\u00canfase em estrat\u00e9gia, gest\u00e3o de neg\u00f3cios, marketing e an\u00e1lise organizacional.",
+      },
+      {
+        degree: "MBA em Gest\u00e3o de Produtos Digitais",
+        school: "FIAP",
+        location: "S\u00e3o Paulo, Brasil",
+        period: "2020 \u2014 2021",
+        description: "Forma\u00e7\u00e3o voltada para estrat\u00e9gia de produto, m\u00e9tricas, experi\u00eancia do usu\u00e1rio e inova\u00e7\u00e3o digital.",
+      },
+    ],
+    skills: [
+      "Gest\u00e3o de Produto",
+      "Roadmap",
+      "Pesquisa com Usu\u00e1rios",
+      "An\u00e1lise de M\u00e9tricas",
+      "Prioriza\u00e7\u00e3o",
+      "Metodologias \u00c1geis",
+      "Scrum",
+      "Kanban",
+      "UX Research",
+      "Product Discovery",
+      "Product Delivery",
+      "Comunica\u00e7\u00e3o Estrat\u00e9gica",
+      "Lideran\u00e7a",
+      "Resolu\u00e7\u00e3o de Problemas",
+      "Figma",
+      "Jira",
+      "Notion",
+      "Google Analytics",
+      "SQL b\u00e1sico",
+      "Power BI",
+    ],
+    languages: ["Portugu\u00eas \u2014 Nativo", "Ingl\u00eas \u2014 Avan\u00e7ado", "Espanhol \u2014 Intermedi\u00e1rio"],
+    certifications: [
+      "Product Management Professional \u2014 Product School \u2014 2023",
+      "Scrum Foundation Professional Certificate \u2014 CertiProf \u2014 2022",
+      "UX Research Basics \u2014 Google \u2014 2021",
+      "Data Analytics for Business \u2014 Coursera \u2014 2020",
+    ],
+    projects: [
+      "Redesign do Onboarding de Usu\u00e1rios - Liderou estudo de comportamento e redesenho do fluxo inicial do produto para reduzir fric\u00e7\u00f5es e melhorar a ativa\u00e7\u00e3o de novos usu\u00e1rios. 2023 - amandasilva.com/onboarding",
+      "Dashboard de M\u00e9tricas de Produto - Criou estrutura de indicadores para acompanhar ado\u00e7\u00e3o, reten\u00e7\u00e3o, convers\u00e3o e satisfa\u00e7\u00e3o dos usu\u00e1rios em tempo real. 2022 - amandasilva.com/dashboard",
+      "Pesquisa de Necessidades do Cliente - Conduziu entrevistas, an\u00e1lise de feedbacks e prioriza\u00e7\u00e3o de oportunidades para orientar decis\u00f5es de produto. 2021 - amandasilva.com/research",
+    ],
+    professionalLinks: ["linkedin.com/in/amandasilva", "amandasilva.com"],
+  });
+  resume.completion = calculateCompletion(resume);
+  return resume;
+}
+
+function adminTestResume(profile = ADMIN_TEST_RESUME_PROFILES.productManager, baseResume = ensureBuilderDraft()) {
+  if (profile === ADMIN_TEST_RESUME_PROFILES.productManager) return adminProductManagerTestResume(baseResume);
+  return adminProductManagerTestResume(baseResume);
+}
+
+function resumeHasFilledContent(resume = ensureBuilderDraft()) {
+  const normalized = normalizeResume(resume);
+  const personal = normalized.personal || {};
+  const hasPersonal = [
+    personal.firstName,
+    personal.lastName,
+    personal.fullName,
+    personal.title,
+    personal.email,
+    personal.phone,
+    personal.address,
+    personal.city,
+    personal.state,
+    personal.postalCode,
+    personal.location,
+    personal.links,
+  ].some((item) => String(item || "").trim());
+  const hasExperience = (normalized.workExperience || []).some((item) => [
+    item.role,
+    item.company,
+    item.location,
+    item.period,
+    ...(item.achievements || []),
+  ].some((value) => String(value || "").trim()));
+  const hasEducation = (normalized.education || []).some((item) => [
+    item.school,
+    item.degree,
+    item.location,
+    item.period,
+    item.description,
+  ].some((value) => String(value || "").trim()));
+  return Boolean(
+    hasPersonal
+    || String(normalized.summary || "").trim()
+    || hasExperience
+    || hasEducation
+    || normalized.skills.length
+    || normalized.languages.length
+    || normalized.certifications.length
+    || normalized.projects.length
+    || normalized.professionalLinks.length
+  );
+}
+
 function loadResumes() {
   try {
     const parsed = JSON.parse(localStorage.getItem(userScopedStorageKey(RESUMES_STORAGE_KEY)) || "[]");
-    return Array.isArray(parsed) ? parsed.map(normalizeResume) : [];
+    if (!Array.isArray(parsed)) return [];
+    const normalized = parsed.map(normalizeResume);
+    const deduped = dedupeResumes(normalized);
+    if (deduped.length !== normalized.length) {
+      localStorage.setItem(userScopedStorageKey(RESUMES_STORAGE_KEY), JSON.stringify(deduped));
+    }
+    return deduped;
   } catch (error) {
     return [];
   }
 }
 
+function dedupeResumes(resumes = []) {
+  const byId = new Map();
+  resumes.forEach((resume) => {
+    const normalized = normalizeResume(resume);
+    const existing = byId.get(normalized.id);
+    if (!existing || new Date(normalized.updatedAt || 0) >= new Date(existing.updatedAt || 0)) {
+      byId.set(normalized.id, normalized);
+    }
+  });
+  const uniqueResumes = Array.from(byId.values());
+  const hasFilledResume = uniqueResumes.some((resume) => resumeHasFilledContent(resume));
+  const resumesToKeep = hasFilledResume ? uniqueResumes.filter((resume) => resumeHasFilledContent(resume)) : uniqueResumes;
+  const bySignature = new Map();
+  resumesToKeep
+    .sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0))
+    .forEach((resume) => {
+      const signature = [
+        String(resume.title || "").trim().toLowerCase(),
+        resume.selectedTemplate,
+        resume.documentFormat,
+        String(resume.personal?.fullName || "").trim().toLowerCase(),
+        String(resume.personal?.email || "").trim().toLowerCase(),
+        String(resume.summary || "").trim().toLowerCase(),
+        JSON.stringify(resume.workExperience || []),
+        JSON.stringify(resume.education || []),
+        JSON.stringify(resume.skills || []),
+        JSON.stringify(resume.languages || []),
+        JSON.stringify(resume.certifications || []),
+        JSON.stringify(resume.projects || []),
+        JSON.stringify(resume.professionalLinks || []),
+      ].join("|");
+      if (!bySignature.has(signature)) bySignature.set(signature, resume);
+    });
+  return Array.from(bySignature.values());
+}
+
 function storeResumes(resumes) {
   try {
-    localStorage.setItem(userScopedStorageKey(RESUMES_STORAGE_KEY), JSON.stringify(resumes.map(normalizeResume)));
+    localStorage.setItem(userScopedStorageKey(RESUMES_STORAGE_KEY), JSON.stringify(dedupeResumes(resumes)));
   } catch (error) {
     // The UI still works for the current session if storage is blocked.
   }
@@ -3007,7 +3302,7 @@ function findResume(id) {
 
 function upsertResume(resume) {
   const normalized = normalizeResume(resume);
-  const resumes = loadResumes();
+  const resumes = dedupeResumes(loadResumes());
   const index = resumes.findIndex((item) => item.id === normalized.id);
   if (index >= 0) resumes[index] = normalized;
   else resumes.unshift(normalized);
@@ -3533,6 +3828,67 @@ function fieldValue(name, fallback = "") {
   return filled.length ? filled[filled.length - 1] : fallback || "";
 }
 
+function collectBuilderExperiences(draft = ensureBuilderDraft()) {
+  const rows = Array.from(document.querySelectorAll("[data-resume-experience-item]"));
+  if (!rows.length) {
+    const firstExperience = draft.workExperience?.[0] || {};
+    const extraExperience = Array.isArray(draft.workExperience) ? draft.workExperience.slice(1) : [];
+    return [{
+      ...firstExperience,
+      company: fieldValue("experienceCompany", firstExperience.company || ""),
+      role: fieldValue("experienceRole", firstExperience.role || ""),
+      period: fieldValue("experiencePeriod", firstExperience.period || ""),
+      location: fieldValue("experienceLocation", firstExperience.location || ""),
+      achievements: linesFromValue(fieldValue("experience", (firstExperience.achievements || []).join("\n"))),
+    }, ...extraExperience];
+  }
+  const experiences = rows.map((row, index) => {
+    const current = draft.workExperience?.[index] || {};
+    const value = (fieldName, fallback = "") => {
+      const field = row.querySelector(`[data-resume-experience-field="${fieldName}"]`);
+      return field ? field.value.trim() : fallback || "";
+    };
+    return {
+      ...current,
+      company: value("company", current.company || ""),
+      role: value("role", current.role || ""),
+      period: value("period", current.period || ""),
+      location: value("location", current.location || ""),
+      achievements: linesFromValue(value("achievements", (current.achievements || []).join("\n"))),
+    };
+  });
+  return experiences.length ? experiences : [{ company: "", role: "", period: "", location: "", achievements: [] }];
+}
+
+function collectBuilderEducation(draft = ensureBuilderDraft()) {
+  const rows = Array.from(document.querySelectorAll("[data-resume-education-item]"));
+  if (!rows.length) {
+    const firstEducation = draft.education?.[0] || {};
+    const extraEducation = Array.isArray(draft.education) ? draft.education.slice(1) : [];
+    return [{
+      ...firstEducation,
+      school: fieldValue("educationSchool", firstEducation.school || ""),
+      degree: fieldValue("educationDegree", firstEducation.degree || ""),
+    }, ...extraEducation];
+  }
+  const educationItems = rows.map((row, index) => {
+    const current = draft.education?.[index] || {};
+    const value = (fieldName, fallback = "") => {
+      const field = row.querySelector(`[data-resume-education-field="${fieldName}"]`);
+      return field ? field.value.trim() : fallback || "";
+    };
+    return {
+      ...current,
+      school: value("school", current.school || ""),
+      degree: value("degree", current.degree || ""),
+      location: value("location", current.location || ""),
+      period: value("period", current.period || ""),
+      description: value("description", current.description || ""),
+    };
+  });
+  return educationItems.length ? educationItems : [{ school: "", degree: "", location: "", period: "", description: "" }];
+}
+
 function collectBuilderResume() {
   const draft = ensureBuilderDraft();
   const draftPersonal = draft.personal || {};
@@ -3566,18 +3922,12 @@ function collectBuilderResume() {
       links: draftPersonal.links || "",
     },
     summary: fieldValue("summary", draft.summary || ""),
-    workExperience: [{
-      company: fieldValue("experienceCompany", draft.workExperience?.[0]?.company || ""),
-      role: fieldValue("experienceRole", draft.workExperience?.[0]?.role || ""),
-      period: fieldValue("experiencePeriod", draft.workExperience?.[0]?.period || ""),
-      location: fieldValue("experienceLocation", draft.workExperience?.[0]?.location || ""),
-      achievements: linesFromValue(fieldValue("experience", (draft.workExperience?.[0]?.achievements || []).join("\n"))),
-    }],
-    education: [{ school: fieldValue("educationSchool", draft.education?.[0]?.school || ""), degree: fieldValue("educationDegree", draft.education?.[0]?.degree || "") }],
+    workExperience: collectBuilderExperiences(draft),
+    education: collectBuilderEducation(draft),
     skills: normalizeTextList(fieldValue("skills", (draft.skills || []).join(", "))),
     languages: normalizeTextList(fieldValue("languages", (draft.languages || []).join("\n"))),
     certifications: normalizeTextList(fieldValue("certifications", (draft.certifications || []).join("\n"))),
-    projects: normalizeTextList(fieldValue("projects", (draft.projects || []).join("\n"))),
+    projects: linesFromValue(fieldValue("projects", (draft.projects || []).join("\n"))),
     professionalLinks: normalizeTextList(fieldValue("links", (draft.professionalLinks || []).join("\n"))),
   });
   resume.completion = calculateCompletion(resume);
@@ -3594,6 +3944,21 @@ function setSaveState(state, message = "") {
   });
   const messageEl = stateEl.querySelector("[data-save-message]");
   if (messageEl) messageEl.textContent = message;
+}
+
+function showResumeSaveButtonFeedback(button) {
+  if (!button) return;
+  const labels = t().builder;
+  button.dataset.defaultHtml ||= button.innerHTML;
+  button.classList.remove("is-saving");
+  button.classList.add("is-saved");
+  button.disabled = false;
+  button.innerHTML = `${icon("check")} ${labels.saved}`;
+  window.setTimeout(() => {
+    if (!button.isConnected) return;
+    button.classList.remove("is-saved");
+    button.innerHTML = button.dataset.defaultHtml || `${icon("check")} ${labels.save}`;
+  }, 2600);
 }
 
 function saveCurrentResume(showSuccess = false) {
@@ -3614,13 +3979,35 @@ function saveCurrentResume(showSuccess = false) {
   return saved;
 }
 
+function isBuilderRouteActive() {
+  return getRoute() === "/dashboard/builder" && Boolean(document.querySelector(".builder-page"));
+}
+
 function scheduleAutoSave() {
   setSaveState("unsaved");
   if (autoSaveTimer) window.clearTimeout(autoSaveTimer);
+  if (autoSaveCommitTimer) window.clearTimeout(autoSaveCommitTimer);
   autoSaveTimer = window.setTimeout(() => {
+    autoSaveTimer = null;
+    if (!isBuilderRouteActive()) return;
     setSaveState("saving");
-    window.setTimeout(() => saveCurrentResume(false), 350);
+    autoSaveCommitTimer = window.setTimeout(() => {
+      autoSaveCommitTimer = null;
+      if (!isBuilderRouteActive()) return;
+      saveCurrentResume(false);
+    }, 350);
   }, 900);
+}
+
+function cancelPendingResumeAutosave() {
+  if (autoSaveTimer) {
+    window.clearTimeout(autoSaveTimer);
+    autoSaveTimer = null;
+  }
+  if (autoSaveCommitTimer) {
+    window.clearTimeout(autoSaveCommitTimer);
+    autoSaveCommitTimer = null;
+  }
 }
 
 function updateBuilderProgress(resume = collectBuilderResume()) {
@@ -3668,10 +4055,50 @@ function pageHeightForFormat(format) {
   return documentPageSpec(format).heightPx;
 }
 
+function resetResumeShellPageVars(shell, format = selectedDocumentFormat) {
+  if (!shell) return documentPageSpec(format);
+  const normalizedFormat = normalizeDocumentFormat(format);
+  const spec = documentPageSpec(normalizedFormat);
+  applyDocumentFormatClass(shell, normalizedFormat);
+  applyPdfPageVariables(shell, normalizedFormat);
+  shell.dataset.previewScaled = "true";
+  shell.style.setProperty("--resume-page-width", `${spec.widthPx}px`);
+  shell.style.setProperty("--resume-page-height", `${spec.heightPx}px`);
+  shell.style.setProperty("--preview-scale", "1");
+  shell.style.setProperty("--scaled-page-width", `${spec.widthPx}px`);
+  shell.style.setProperty("--scaled-page-height", `${spec.heightPx}px`);
+  const documentNode = shell.querySelector(".resume-document");
+  if (documentNode) {
+    applyDocumentFormatClass(documentNode, normalizedFormat);
+    applyPdfPageVariables(documentNode, normalizedFormat);
+    documentNode.style.removeProperty("--resume-page-width");
+    documentNode.style.removeProperty("--resume-page-height");
+  }
+  return spec;
+}
+
+function applyResumeShellPreviewScale(shell, options = {}) {
+  if (!shell) return;
+  const format = normalizeDocumentFormat(options.format || shell.getAttribute("data-document-format-current") || selectedDocumentFormat);
+  const spec = resetResumeShellPageVars(shell, format);
+  const documentNode = shell.querySelector(".resume-document");
+  if (!documentNode) return;
+  const contentWidth = Math.max(spec.widthPx, documentNode.scrollWidth || spec.widthPx);
+  const contentHeight = Math.max(spec.heightPx, documentNode.scrollHeight || spec.heightPx);
+  const maxScale = Number.isFinite(options.maxScale) ? options.maxScale : 1;
+  const availableWidth = Math.max(1, options.availableWidth || spec.widthPx);
+  const availableHeight = Math.max(1, options.availableHeight || spec.heightPx);
+  const scale = Math.max(0.035, Math.min(maxScale, availableWidth / contentWidth, availableHeight / contentHeight));
+  shell.style.setProperty("--resume-page-width", `${contentWidth}px`);
+  shell.style.setProperty("--resume-page-height", `${contentHeight}px`);
+  shell.style.setProperty("--preview-scale", scale.toFixed(4));
+  shell.style.setProperty("--scaled-page-width", `${(contentWidth * scale).toFixed(2)}px`);
+  shell.style.setProperty("--scaled-page-height", `${(contentHeight * scale).toFixed(2)}px`);
+}
+
 function updateResumePreviewScales(root = document) {
   root.querySelectorAll(".resume-document-shell").forEach((shell) => {
     const format = shell.getAttribute("data-document-format-current") || selectedDocumentFormat;
-    const pageWidth = pageWidthForFormat(format);
     const pageHeight = pageHeightForFormat(format);
     const container = shell.closest(".resume-thumbnail, .builder-preview-frame, .template-preview-content") || shell.parentElement;
     if (!container) return;
@@ -3682,23 +4109,23 @@ function updateResumePreviewScales(root = document) {
     const isThumbnail = container.classList.contains("resume-thumbnail");
     const isTemplatePreview = container.classList.contains("template-preview-content");
     const isResumeOnlyPreview = Boolean(container.closest(".template-preview-resume-only-dialog"));
-    const scrollbarAllowance = isBuilderFrame ? 18 : 0;
+    const scrollbarAllowance = 0;
     const containerRect = container.getBoundingClientRect();
     const containerWidth = containerRect.width || container.clientWidth;
     const containerHeight = containerRect.height || container.clientHeight;
     const availableWidth = Math.max(1, containerWidth - horizontalPadding - scrollbarAllowance);
     const availableHeight = Math.max(1, containerHeight - verticalPadding);
-    const maxScale = isResumeOnlyPreview ? 1 : isTemplatePreview ? 0.98 : 1;
-    const widthScale = availableWidth / pageWidth;
-    const heightFill = isResumeOnlyPreview ? 0.995 : isTemplatePreview ? 0.985 : 1;
-    const heightScale = (isThumbnail || isTemplatePreview) ? (availableHeight * heightFill) / pageHeight : maxScale;
-    const scale = Math.max(0.05, Math.min(maxScale, widthScale, heightScale));
-    shell.dataset.previewScaled = "true";
-    shell.style.setProperty("--resume-page-width", `${pageWidth}px`);
-    shell.style.setProperty("--resume-page-height", `${pageHeight}px`);
-    shell.style.setProperty("--preview-scale", scale.toFixed(4));
-    shell.style.setProperty("--scaled-page-width", `${(pageWidth * scale).toFixed(2)}px`);
-    shell.style.setProperty("--scaled-page-height", `${(pageHeight * scale).toFixed(2)}px`);
+    const frameZoomsToFit = !isBuilderFrame || container.classList.contains("zoom-fit");
+    const maxScale = container.classList.contains("zoom-out") ? 0.72 : isTemplatePreview ? 0.98 : 1;
+    const heightTarget = (isThumbnail || isTemplatePreview || isResumeOnlyPreview || frameZoomsToFit)
+      ? availableHeight * (isResumeOnlyPreview ? 0.995 : isTemplatePreview ? 0.985 : 1)
+      : pageHeight;
+    applyResumeShellPreviewScale(shell, {
+      format,
+      availableWidth,
+      availableHeight: heightTarget,
+      maxScale,
+    });
   });
 }
 
@@ -3712,6 +4139,61 @@ function updateBuilderLivePreview() {
   };
   frame.innerHTML = resumeDocument(selectedTemplateKey, selectedDocumentFormat, resume);
   updateResumePreviewScales(frame);
+}
+
+function fillAdminTestResume() {
+  if (!isAdminAccount()) return;
+  cancelPendingResumeAutosave();
+  const filled = adminTestResume(ADMIN_TEST_RESUME_PROFILES.productManager, ensureBuilderDraft());
+  builderDraft = filled;
+  currentBuilderResumeId = filled.id;
+  selectedTemplateKey = filled.selectedTemplate;
+  selectedDocumentFormat = filled.documentFormat;
+  activeBuilderSectionIndex = 0;
+  routes["/dashboard/builder"]();
+  setSaveState("unsaved", resumeLabels().adminFilledMessage);
+}
+
+function openAdminTestResumeConfirmModal() {
+  if (!isAdminAccount()) return;
+  const labels = resumeLabels();
+  const modal = document.createElement("div");
+  modal.className = "template-preview-modal admin-test-resume-modal";
+  modal.innerHTML = `
+    <section class="template-preview-dialog admin-test-resume-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(labels.adminReplaceTitle)}">
+      <div class="template-preview-header">
+        <div>
+          <span class="eyebrow">${escapeHtml(labels.adminToolLabel)}</span>
+          <h2>${escapeHtml(labels.adminReplaceTitle)}</h2>
+          <p>${escapeHtml(labels.adminReplaceText)}</p>
+        </div>
+        <button class="icon-button" type="button" data-admin-test-cancel aria-label="${escapeHtml(labels.cancel)}">${icon("close")}</button>
+      </div>
+      <div class="admin-dialog-actions admin-test-resume-actions">
+        <button class="secondary-button" type="button" data-admin-test-cancel>${escapeHtml(labels.cancel)}</button>
+        <button class="primary-button" type="button" data-admin-test-confirm>${escapeHtml(labels.adminReplace)}</button>
+      </div>
+    </section>
+  `;
+  document.body.appendChild(modal);
+  const close = () => modal.remove();
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal || event.target.closest("[data-admin-test-cancel]")) close();
+  });
+  modal.querySelector("[data-admin-test-confirm]")?.addEventListener("click", () => {
+    close();
+    fillAdminTestResume();
+  });
+}
+
+function requestAdminTestResumeFill() {
+  if (!isAdminAccount()) return;
+  const currentResume = collectBuilderResume();
+  if (resumeHasFilledContent(currentResume)) {
+    openAdminTestResumeConfirmModal();
+    return;
+  }
+  fillAdminTestResume();
 }
 
 function getInitialTheme() {
@@ -3784,7 +4266,7 @@ function themeToggle() {
   return `<button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="${label}" title="${label}">${icon(isDark ? "sun" : "moon")}</button>`;
 }
 
-function resumeTemplates() {
+function resumeTemplates(options = {}) {
   const localizedNames = {
     pt: {
       modern: "Moderno",
@@ -3818,7 +4300,7 @@ function resumeTemplates() {
       "First Job": "Primeiro emprego",
     },
   };
-  return [...RESUME_TEMPLATES, ...ADDITIONAL_RESUME_TEMPLATES].map((template) => ({
+  const templates = allResumeTemplateDefinitions().map((template) => ({
     ...template,
     name: template.names?.[currentLanguage] || localizedNames[currentLanguage]?.[template.key] || template.name,
     category: template.categories?.[currentLanguage] || localizedCategories[currentLanguage]?.[template.category] || template.category,
@@ -3828,14 +4310,19 @@ function resumeTemplates() {
     idealForText: template.idealFor?.[currentLanguage] || [],
     filterGroups: Array.from(new Set([...(template.filterGroups || []), ...templateFilterGroups(template)])),
   }));
+  return options.includeInactive ? templates : templates.filter(isTemplateActive);
 }
 
 function getTemplateByKey(key) {
-  return resumeTemplates().find((template) => template.key === key) || resumeTemplates()[0];
+  const templates = resumeTemplates({ includeInactive: true });
+  return templates.find((template) => template.key === key) || resumeTemplates()[0] || templates[0];
 }
 
 function allResumeTemplateDefinitions() {
-  return [...RESUME_TEMPLATES, ...ADDITIONAL_RESUME_TEMPLATES];
+  return [...RESUME_TEMPLATES, ...ADDITIONAL_RESUME_TEMPLATES].map((template) => ({
+    ...template,
+    status: template.status || templateStatus(template.key),
+  }));
 }
 
 function templateFilterGroups(template = {}) {
@@ -3857,9 +4344,15 @@ function templateFilterGroups(template = {}) {
 }
 
 function templateFilterOptions() {
-  return currentLanguage === "pt"
+  const options = currentLanguage === "pt"
     ? [["all", "Todos"], ["free", "Gratuitos"], ["pro", "Pro"], ["premium", "Premium"], ["ats", "ATS"], ["executive", "Executivo"], ["creative", "Criativo"], ["technology", "Tecnologia"], ["international", "Internacional"], ["first-job", "Primeiro emprego"], ["corporate", "Corporativo"], ["healthcare", "Saúde"], ["legal", "Jurídico"], ["finance", "Finanças"], ["academic", "Acadêmico"]]
     : [["all", "All"], ["free", "Free"], ["pro", "Pro"], ["premium", "Premium"], ["ats", "ATS"], ["executive", "Executive"], ["creative", "Creative"], ["technology", "Technology"], ["international", "International"], ["first-job", "First job"], ["corporate", "Corporate"], ["healthcare", "Healthcare"], ["legal", "Legal"], ["finance", "Finance"], ["academic", "Academic"]];
+  const activeGroups = new Set();
+  resumeTemplates().forEach((template) => {
+    activeGroups.add(template.access || "pro");
+    (template.filterGroups || []).forEach((group) => activeGroups.add(group));
+  });
+  return options.filter(([key]) => key === "all" || activeGroups.has(key));
 }
 
 function sampleResumeData() {
@@ -4277,21 +4770,42 @@ function simpleAtsSampleResume() {
       personal: {
         fullName: "Patrick Justino",
         title: "Supervisor Administrativo",
-        email: "patrick@email.com",
-        phone: "+55 27 99999-9999",
-        city: "Serra",
-        state: "ES",
+        email: "patrick.justino@email.com",
+        phone: "(11) 91234-5678",
+        location: "Sao Paulo, SP",
       },
       summary: "Profissional com experiência em rotinas administrativas, organização de processos, atendimento a demandas internas e acompanhamento de indicadores. Perfil comunicativo, prático e focado em eficiência operacional.",
       workExperience: [{
         role: "Supervisor Administrativo",
-        company: "Empresa Exemplo",
-        location: "Serra - ES",
-        period: "Jan 2023 - Atual",
+        company: "Empresa Exemplo Ltda.",
+        location: "Sao Paulo, SP",
+        period: "Jan 2022 - Atual",
         achievements: [
           "Organizei rotinas administrativas e acompanhei indicadores internos.",
           "Apoiei equipes na distribuição de demandas e controle de processos.",
           "Realizei atendimento interno e comunicação entre áreas.",
+        ],
+      },
+      {
+        role: "Analista Administrativo",
+        company: "Solucoes Corporativas S.A.",
+        location: "Sao Paulo, SP",
+        period: "Out 2019 - Dez 2021",
+        achievements: [
+          "Controlei documentos, planilhas e relatorios gerenciais.",
+          "Realizei atendimento interno e suporte as areas operacionais.",
+          "Elaborei apresentacoes e acompanhei prazos.",
+        ],
+      },
+      {
+        role: "Assistente Administrativo",
+        company: "Servicos Integrados Ltda.",
+        location: "Sao Paulo, SP",
+        period: "Mar 2017 - Set 2019",
+        achievements: [
+          "Apoiei rotinas administrativas e financeiras.",
+          "Organizei arquivos e cadastros de clientes e fornecedores.",
+          "Emiti relatorios e apoiei processos de compras.",
         ],
       }],
       education: [{ degree: "Administração - 2020 a 2024", school: "Universidade Exemplo" }],
@@ -4300,6 +4814,13 @@ function simpleAtsSampleResume() {
       certifications: ["Excel Intermediário - Instituição Exemplo, 2024"],
       projects: ["Padronização de processos internos - Estruturei fluxos de acompanhamento para reduzir retrabalho e melhorar a comunicação entre áreas."],
       professionalLinks: ["LinkedIn: linkedin.com/in/patrickjustino"],
+      summary: "Profissional com experiencia em rotinas administrativas, organizacao de processos, atendimento e relacionamento interno e acompanhamento de indicadores. Perfil comunicativo, pratico e focado em eficiencia operacional.",
+      education: [{ degree: "Administracao", school: "Universidade Exemplo - Sao Paulo, SP", period: "Concluido em 2020" }],
+      skills: ["Comunicacao", "Organizacao", "Pacote Office", "Atendimento ao cliente", "Gestao de processos", "Analise de dados", "Planejamento"],
+      languages: ["Portugues - Nativo", "Ingles - Intermediario"],
+      certifications: ["Excel Intermediario - Fundacao Bradesco - 2021", "Gestao de Processos - Sebrae - 2020"],
+      projects: ["Otimizacao de processos internos - Mapeei e propus melhorias no fluxo de atendimento, reduzindo retrabalho e melhorando a eficiencia operacional. Mar 2023 - Jul 2023"],
+      professionalLinks: ["portfoliopatrick.com.br", "github.com/patrickjustino", "linkedin.com/in/patrickjustino"],
     });
   }
   return createBlankResume({
@@ -4307,21 +4828,42 @@ function simpleAtsSampleResume() {
     personal: {
       fullName: "Patrick Justino",
       title: "Administrative Supervisor",
-      email: "patrick@email.com",
-      phone: "+55 27 99999-9999",
-      city: "Serra",
-      state: "ES",
+      email: "patrick.justino@email.com",
+      phone: "+55 11 91234-5678",
+      location: "Sao Paulo, Brazil",
     },
     summary: "Professional with experience in administrative routines, process organization, internal request support and performance tracking. Communicative, practical and focused on operational efficiency.",
     workExperience: [{
       role: "Administrative Supervisor",
-      company: "Example Company",
-      location: "Serra - ES",
-      period: "Jan 2023 - Present",
+      company: "Example Company Ltd.",
+      location: "Sao Paulo, Brazil",
+      period: "Jan 2022 - Present",
       achievements: [
         "Organized administrative routines and monitored internal indicators.",
         "Supported teams with task distribution and process control.",
         "Handled internal service requests and communication between departments.",
+      ],
+    },
+    {
+      role: "Administrative Analyst",
+      company: "Corporate Solutions S.A.",
+      location: "Sao Paulo, Brazil",
+      period: "Oct 2019 - Dec 2021",
+      achievements: [
+        "Controlled documents, spreadsheets and management reports.",
+        "Handled internal support for operational departments.",
+        "Prepared presentations and monitored deadlines.",
+      ],
+    },
+    {
+      role: "Administrative Assistant",
+      company: "Integrated Services Ltd.",
+      location: "Sao Paulo, Brazil",
+      period: "Mar 2017 - Sep 2019",
+      achievements: [
+        "Supported administrative and financial routines.",
+        "Organized files and customer and supplier records.",
+        "Issued reports and supported purchasing processes.",
       ],
     }],
     education: [{ degree: "Business Administration - 2020 to 2024", school: "Example University" }],
@@ -4330,6 +4872,12 @@ function simpleAtsSampleResume() {
     certifications: ["Intermediate Excel - Example Institution, 2024"],
     projects: ["Internal process standardization - Structured follow-up flows to reduce rework and improve communication between departments."],
     professionalLinks: ["LinkedIn: linkedin.com/in/patrickjustino"],
+    education: [{ degree: "Business Administration", school: "Example University - Sao Paulo, Brazil", period: "Completed in 2020" }],
+    skills: ["Communication", "Organization", "Microsoft Office", "Customer Service", "Process Management", "Data Analysis", "Planning"],
+    languages: ["Portuguese - Native", "English - Intermediate"],
+    certifications: ["Intermediate Excel - Bradesco Foundation - 2021", "Process Management - Sebrae - 2020"],
+    projects: ["Internal process optimization - Mapped and proposed improvements in the service workflow, reducing rework and improving operational efficiency. Mar 2023 - Jul 2023"],
+    professionalLinks: ["patrickportfolio.com", "github.com/patrickjustino", "linkedin.com/in/patrickjustino"],
   });
 }
 
@@ -4419,6 +4967,12 @@ function syncPathWithLanguage(language = currentLanguage) {
 }
 
 function setRoute(path) {
+  if (path !== "/dashboard/builder") {
+    const builderIsOpen = Boolean(document.querySelector(".builder-page"));
+    const editingSavedResume = currentBuilderResumeId && findResume(currentBuilderResumeId);
+    if (builderIsOpen && builderDraft && editingSavedResume) saveCurrentResume(false);
+    cancelPendingResumeAutosave();
+  }
   if (path === "/dashboard/builder") rememberBuilderReturnRoute();
   if (path === "/blog" || path.startsWith("/blog/")) {
     if (shouldUseLocalizedPath()) {
@@ -6108,8 +6662,9 @@ function canExportWithoutBranding(resumeId = currentResumeAccessId(), access = g
 }
 
 function canUseTemplate(templateKey, access = getUserAccess()) {
-  const template = allResumeTemplateDefinitions().find((item) => item.key === templateKey);
-  if (!template || template.access === "free") return true;
+  const template = getTemplateByKey(templateKey);
+  if (!template || !isTemplateActive(template)) return false;
+  if (template.access === "free") return true;
   if (isAdminAccount()) return true;
   if (hasOneTime("premiumTemplates", templateKey, access)) return true;
   if (template.access === "premium") return planRank(access.plan) >= planRank("premium");
@@ -6133,7 +6688,7 @@ function templateLockFeature(template = {}) {
 
 function availableTemplateKey(preferred = selectedTemplateKey) {
   if (canUseTemplate(preferred)) return preferred;
-  return allResumeTemplateDefinitions().find((template) => template.access === "free")?.key || "minimal";
+  return resumeTemplates().find((template) => template.access === "free" && canUseTemplate(template.key))?.key || "simple-ats";
 }
 
 function openProTemplateModal() {
@@ -7130,6 +7685,7 @@ function bindInteractions() {
 
   document.querySelectorAll("[data-new-resume]").forEach((button) => {
     button.addEventListener("click", (event) => {
+      cancelPendingResumeAutosave();
       if (!canUseFeature("unlimited_resumes") && loadResumes().length >= 1) {
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -7146,13 +7702,19 @@ function bindInteractions() {
 
   document.querySelectorAll("[data-edit-resume]").forEach((button) => {
     button.addEventListener("click", () => {
+      cancelPendingResumeAutosave();
       loadResumeIntoBuilder(button.getAttribute("data-edit-resume"));
       preferCollapsedSidebarForBuilder();
     });
   });
 
   document.querySelectorAll("[data-preview-resume]").forEach((button) => {
-    button.addEventListener("click", () => openResumePreview(button.getAttribute("data-preview-resume")));
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      cancelPendingResumeAutosave();
+      openResumePreview(button.getAttribute("data-preview-resume"));
+    });
   });
 
   document.querySelectorAll("[data-duplicate-resume]").forEach((button) => {
@@ -7174,14 +7736,125 @@ function bindInteractions() {
   });
 
   document.querySelectorAll("[data-pdf-export-resume]").forEach((button) => {
-    button.addEventListener("click", () => exportResumeDataPdf(button.getAttribute("data-pdf-export-resume"), button));
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      cancelPendingResumeAutosave();
+      exportResumeDataPdf(button.getAttribute("data-pdf-export-resume"), button);
+    });
   });
 
   document.querySelectorAll("[data-save-resume]").forEach((button) => {
-    button.addEventListener("click", () => {
-      if (autoSaveTimer) window.clearTimeout(autoSaveTimer);
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      cancelPendingResumeAutosave();
+      button.dataset.defaultHtml ||= button.innerHTML;
+      button.classList.remove("is-saved");
+      button.classList.add("is-saving");
+      button.disabled = true;
       setSaveState("saving");
-      window.setTimeout(() => saveCurrentResume(true), 250);
+      saveCurrentResume(true);
+      showResumeSaveButtonFeedback(button);
+    });
+  });
+
+  document.querySelectorAll("[data-admin-fill-test-resume]").forEach((button) => {
+    button.addEventListener("click", () => {
+      requestAdminTestResumeFill();
+    });
+  });
+
+  document.querySelectorAll("[data-resume-experience-field]").forEach((field) => {
+    field.addEventListener("input", () => {
+      updateBuilderLivePreview();
+      scheduleAutoSave();
+      updateBuilderProgress();
+      updateBuilderSectionNav();
+    });
+  });
+
+  document.querySelectorAll("[data-add-experience]").forEach((button) => {
+    button.addEventListener("click", () => {
+      builderDraft = collectBuilderResume();
+      builderDraft.workExperience = [
+        ...(builderDraft.workExperience || []),
+        { company: "", role: "", period: "", location: "", achievements: [] },
+      ];
+      builderDraft.updatedAt = isoNow();
+      activeBuilderSectionIndex = 2;
+      renderBuilder();
+      scheduleAutoSave();
+      updateBuilderLivePreview();
+    });
+  });
+
+  document.querySelectorAll("[data-remove-experience]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const index = Number(button.getAttribute("data-remove-experience"));
+      builderDraft = collectBuilderResume();
+      const experiences = Array.isArray(builderDraft.workExperience) ? [...builderDraft.workExperience] : [];
+      if (experiences.length <= 1 || Number.isNaN(index)) return;
+      experiences.splice(index, 1);
+      builderDraft.workExperience = experiences.length ? experiences : [{ company: "", role: "", period: "", location: "", achievements: [] }];
+      builderDraft.updatedAt = isoNow();
+      activeBuilderSectionIndex = 2;
+      renderBuilder();
+      scheduleAutoSave();
+      updateBuilderLivePreview();
+    });
+  });
+
+  document.querySelectorAll("[data-resume-education-field]").forEach((field) => {
+    field.addEventListener("input", () => {
+      updateBuilderLivePreview();
+      scheduleAutoSave();
+      updateBuilderProgress();
+      updateBuilderSectionNav();
+    });
+  });
+
+  document.querySelectorAll("[data-add-education]").forEach((button) => {
+    button.addEventListener("click", () => {
+      builderDraft = collectBuilderResume();
+      builderDraft.education = [
+        ...(builderDraft.education || []),
+        { school: "", degree: "", location: "", period: "", description: "" },
+      ];
+      builderDraft.updatedAt = isoNow();
+      activeBuilderSectionIndex = 3;
+      renderBuilder();
+      scheduleAutoSave();
+      updateBuilderLivePreview();
+    });
+  });
+
+  document.querySelectorAll("[data-remove-education]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const index = Number(button.getAttribute("data-remove-education"));
+      builderDraft = collectBuilderResume();
+      const educationItems = Array.isArray(builderDraft.education) ? [...builderDraft.education] : [];
+      if (educationItems.length <= 1 || Number.isNaN(index)) return;
+      educationItems.splice(index, 1);
+      builderDraft.education = educationItems.length ? educationItems : [{ school: "", degree: "", location: "", period: "", description: "" }];
+      builderDraft.updatedAt = isoNow();
+      activeBuilderSectionIndex = 3;
+      renderBuilder();
+      scheduleAutoSave();
+      updateBuilderLivePreview();
+    });
+  });
+
+  document.querySelectorAll("[data-add-list-line]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const fieldName = button.getAttribute("data-add-list-line");
+      const field = document.querySelector(`[data-resume-field="${fieldName}"]`);
+      if (!field) return;
+      field.value = `${field.value.replace(/\s+$/g, "")}${field.value.trim() ? "\n" : ""}`;
+      field.focus();
+      field.selectionStart = field.value.length;
+      field.selectionEnd = field.value.length;
+      field.dispatchEvent(new Event("input", { bubbles: true }));
     });
   });
 
@@ -7404,7 +8077,7 @@ function bindInteractions() {
   });
 
   document.querySelectorAll("[data-builder-exit]").forEach((button) => {
-    button.addEventListener("click", exitResumeBuilder);
+    button.addEventListener("click", exitToNewResumeFlow);
   });
 
   document.querySelectorAll("[data-cover-letter-new]").forEach((button) => {
@@ -7748,6 +8421,7 @@ function bindInteractions() {
     button.addEventListener("click", () => {
       const templateKey = button.getAttribute("data-use-template") || "modern";
       const destination = button.getAttribute("data-template-destination");
+      if (!isTemplateActive(getTemplateByKey(templateKey))) return;
       if (destination === "signup") {
         selectedTemplateKey = templateKey;
         setRoute("/signup");
@@ -7826,7 +8500,12 @@ function bindInteractions() {
   });
 
   document.querySelectorAll("[data-pdf-export]").forEach((button) => {
-    button.addEventListener("click", () => exportResumePdf(button));
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      cancelPendingResumeAutosave();
+      exportResumePdf(button);
+    });
   });
 
   document.querySelectorAll("[data-watermark-option]").forEach((button) => {
@@ -7905,7 +8584,8 @@ function bindInteractions() {
       const restore = setButtonLoading(button, loadingLabel);
       const resume = collectBuilderResume();
       const setField = (name, value) => {
-        const field = document.querySelector(`[data-resume-field="${name}"]`);
+        const field = document.querySelector(`[data-resume-field="${name}"]`)
+          || (name === "experience" ? document.querySelector('[data-resume-experience-field="achievements"]') : null);
         if (!field) return;
         field.value = value;
         field.dispatchEvent(new Event("input", { bubbles: true }));
@@ -8100,12 +8780,31 @@ function bindInteractions() {
     });
   }
 
+  function updatePreviewPairSeparators(root = previewRoot()) {
+    if (!root) return;
+    root.querySelectorAll("[data-preview-pair-separator]").forEach((separator) => {
+      const [firstField, secondField] = (separator.getAttribute("data-preview-pair-separator") || "").split(":");
+      const container = separator.parentElement;
+      const first = container?.querySelector(`[data-preview-field="${firstField}"]`)?.textContent.trim();
+      const second = container?.querySelector(`[data-preview-field="${secondField}"]`)?.textContent.trim();
+      separator.hidden = !(first && second);
+    });
+  }
+
   function syncPreviewField(field) {
     const targetName = field.getAttribute("data-preview-target");
     const root = previewRoot();
     const targets = root ? Array.from(root.querySelectorAll(`[data-preview-field="${targetName}"]`)) : [];
     if (!targets.length) return;
       const value = field.value.trim();
+    if (root?.classList.contains("sales-pro-resume") && ["summary", "experience", "skills", "certifications", "projects"].includes(targetName)) {
+      updateBuilderLivePreview();
+      return;
+    }
+    if (root?.classList.contains("simple-ats-resume") && ["skills", "certifications", "projects", "links", "languages"].includes(targetName)) {
+      updateBuilderLivePreview();
+      return;
+    }
     targets.forEach((target) => {
       const displayValue = value || target.getAttribute("data-preview-empty") || "";
       if (targetName === "skills") {
@@ -8126,6 +8825,7 @@ function bindInteractions() {
     }
     });
     updatePreviewContactLine();
+    updatePreviewPairSeparators(root);
     refreshOptionalResumeSections(root);
   }
 
@@ -8156,6 +8856,12 @@ function bindInteractions() {
     }
     if (root.classList.contains("professional-pro-resume")) {
       const list = root.querySelector(".professional-pro-contact-list");
+      if (list) list.innerHTML = customContactMarkup;
+      refreshOptionalResumeSections(root);
+      return;
+    }
+    if (root.classList.contains("sales-pro-resume")) {
+      const list = root.querySelector(".sales-contact-list");
       if (list) list.innerHTML = customContactMarkup;
       refreshOptionalResumeSections(root);
       return;
@@ -8216,6 +8922,7 @@ function bindInteractions() {
     });
   });
   updatePreviewContactLine();
+  updatePreviewPairSeparators();
 
   updateResumePreviewScales();
   applyScrollReveals();
@@ -8882,6 +9589,7 @@ function openWatermarkRemovalModal({ resumeId = currentResumeAccessId(), button 
 function openTemplatePreview(templateKey, context = "public") {
   const copy = t();
   const template = getTemplateByKey(templateKey);
+  if (!template || (!isTemplateActive(template) && context !== "builder")) return;
   const root = document.body || document.getElementById("app");
   const existing = document.querySelector(".template-preview-modal");
   if (existing) existing.remove();
@@ -8908,7 +9616,12 @@ function openTemplatePreview(templateKey, context = "public") {
   });
   modal.querySelector(".template-preview-floating-close")?.focus();
   modal.querySelectorAll("[data-pdf-export]").forEach((button) => {
-    button.addEventListener("click", () => exportResumePdf(button));
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      cancelPendingResumeAutosave();
+      exportResumePdf(button);
+    });
   });
   modal.querySelectorAll("[data-document-format]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -8949,30 +9662,21 @@ function openResumePreview(resumeId) {
   const resume = findResume(resumeId);
   if (!resume) return;
   const template = getTemplateByKey(resume.selectedTemplate);
-  selectedDocumentFormat = resume.documentFormat;
+  const previewFormat = normalizeDocumentFormat(resume.documentFormat);
   const copy = t();
   const root = document.body || document.getElementById("app");
   const existing = document.querySelector(".template-preview-modal");
   if (existing) existing.remove();
   const modal = document.createElement("div");
-  modal.className = "template-preview-modal";
+  modal.className = "template-preview-modal resume-only-preview-modal resume-data-preview-modal";
   modal.innerHTML = `
     <div class="template-preview-backdrop" data-modal-close></div>
-    <section class="template-preview-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(resume.title)}">
-      <header class="template-preview-header">
-        <div>
-          <div class="template-card-badges">
-            <span>${template.name}</span>
-            <span>${resume.documentFormat === "letter" ? copy.builder.usLetter : copy.builder.a4}</span>
-          </div>
-          <h2>${escapeHtml(resume.title)}</h2>
-          <p>${copy.dashboard.library.lastEdited}: ${formatResumeDate(resume.updatedAt)}</p>
-        </div>
-        <button class="icon-button" type="button" data-modal-close aria-label="${copy.dashboard.close}">${icon("close")}</button>
-      </header>
-      <div class="template-preview-content">${resumeDocument(resume.selectedTemplate, resume.documentFormat, resume)}</div>
-      <footer class="template-preview-footer">
+    <section class="template-preview-dialog template-preview-premium-dialog template-preview-resume-only-dialog resume-preview-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(resume.title)}">
+      <button class="icon-button template-preview-floating-close" type="button" data-modal-close aria-label="${copy.dashboard.close}">${icon("close")}</button>
+      <div class="template-preview-content resume-preview-content">${resumeDocument(resume.selectedTemplate, previewFormat, resume)}</div>
+      <footer class="resume-preview-floating-actions">
         <span class="pdf-export-status modal-pdf-status" data-pdf-status role="status" aria-live="polite"></span>
+        <span class="resume-preview-floating-meta">${escapeHtml(template?.name || "")} · ${previewFormat === "letter" ? copy.builder.usLetter : copy.builder.a4}</span>
         <button class="secondary-button" type="button" data-edit-resume="${resume.id}" data-route="/dashboard/builder">${copy.dashboard.library.actions[0]}</button>
         <button class="secondary-button" type="button" data-pdf-export-resume="${resume.id}">${resumeLabels().downloadPdf}</button>
         <button class="primary-button" type="button" data-modal-close>${copy.builder.continueEditing}</button>
@@ -8981,10 +9685,17 @@ function openResumePreview(resumeId) {
   `;
   root.appendChild(modal);
   updateResumePreviewScales(modal);
+  window.requestAnimationFrame(() => updateResumePreviewScales(modal));
   modal.querySelectorAll("[data-modal-close]").forEach((button) => button.addEventListener("click", () => modal.remove()));
+  modal.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") modal.remove();
+  });
+  modal.querySelector(".template-preview-floating-close")?.focus();
   modal.querySelectorAll("[data-edit-resume]").forEach((button) => {
     button.addEventListener("click", (event) => {
       event.preventDefault();
+      event.stopImmediatePropagation();
+      cancelPendingResumeAutosave();
       loadResumeIntoBuilder(button.getAttribute("data-edit-resume"));
       preferCollapsedSidebarForBuilder();
       modal.remove();
@@ -8992,7 +9703,12 @@ function openResumePreview(resumeId) {
     });
   });
   modal.querySelectorAll("[data-pdf-export-resume]").forEach((button) => {
-    button.addEventListener("click", () => exportResumeDataPdf(button.getAttribute("data-pdf-export-resume"), button));
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      cancelPendingResumeAutosave();
+      exportResumeDataPdf(button.getAttribute("data-pdf-export-resume"), button);
+    });
   });
 }
 
@@ -9354,6 +10070,118 @@ function curatedSampleResume(template = "professional") {
       professionalLinks: ["linkedin.com/in/carlosmendes", "carlosmendes.com.br"],
     });
   }
+  if (template === "sales") {
+    return createBlankResume({
+      selectedTemplate: template,
+      personal: {
+        fullName: "Amanda Silva",
+        title: currentLanguage === "pt" ? "Account Executive" : "Account Executive",
+        email: "amanda.silva@email.com",
+        phone: "+55 11 98765-4321",
+        location: currentLanguage === "pt" ? "Sao Paulo, SP" : "Sao Paulo, Brazil",
+      },
+      summary: currentLanguage === "pt"
+        ? "Profissional de vendas B2B com 6+ anos em gestao de contas estrategicas, prospeccao consultiva, CRM e crescimento de receita. Atua na construcao de relacionamentos de longo prazo, previsibilidade de pipeline e negociacoes orientadas a valor."
+        : "B2B sales professional with 6+ years in strategic account management, consultative prospecting, CRM and revenue growth. Strong background building long-term client relationships, pipeline predictability and value-led negotiations.",
+      workExperience: currentLanguage === "pt"
+        ? [
+          {
+            role: "Account Executive",
+            company: "Tech Solutions SaaS",
+            location: "Sao Paulo, SP",
+            period: "2021 - Atual",
+            achievements: [
+              "Gerenciei carteira de clientes estrategicos B2B e negociei renovacoes de alto valor.",
+              "Atingi 135% da meta anual em 2023 com expansao de contas e novos contratos.",
+              "Influenciei R$ 1,2M em receita com propostas consultivas e gestao ativa de pipeline.",
+            ],
+          },
+          {
+            role: "Executiva de Vendas Pleno",
+            company: "Solucoes Digitais",
+            location: "Sao Paulo, SP",
+            period: "2019 - 2021",
+            achievements: [
+              "Estruturei funil comercial, cadencias de follow-up e demonstracoes para decisores.",
+              "Aumentei em 28% a conversao entre oportunidades qualificadas e fechamento.",
+              "Gerei +42% em leads qualificados em parceria com marketing e pre-vendas.",
+            ],
+          },
+          {
+            role: "Executiva de Vendas Junior",
+            company: "StartUp Solucoes",
+            location: "Sao Paulo, SP",
+            period: "2017 - 2019",
+            achievements: [
+              "Qualifiquei leads, agendei reunioes e apoiei propostas comerciais.",
+              "Superei metas por 6 trimestres consecutivos com prospeccao ativa.",
+            ],
+          },
+        ]
+        : [
+          {
+            role: "Account Executive",
+            company: "Tech Solutions SaaS",
+            location: "Sao Paulo, Brazil",
+            period: "2021 - Present",
+            achievements: [
+              "Managed a portfolio of strategic B2B accounts and negotiated high-value renewals.",
+              "Reached 135% of annual quota in 2023 through account expansion and new contracts.",
+              "Influenced R$ 1.2M in revenue with consultative proposals and active pipeline management.",
+            ],
+          },
+          {
+            role: "Sales Executive",
+            company: "Digital Solutions",
+            location: "Sao Paulo, Brazil",
+            period: "2019 - 2021",
+            achievements: [
+              "Structured sales funnel, follow-up cadences and executive demos for decision makers.",
+              "Increased conversion from qualified opportunities to closed deals by 28%.",
+              "Generated +42% qualified leads through sales and marketing alignment.",
+            ],
+          },
+          {
+            role: "Junior Sales Executive",
+            company: "StartUp Solutions",
+            location: "Sao Paulo, Brazil",
+            period: "2017 - 2019",
+            achievements: [
+              "Qualified leads, booked meetings and supported commercial proposals.",
+              "Exceeded targets for 6 consecutive quarters through active prospecting.",
+            ],
+          },
+        ],
+      education: [{ degree: currentLanguage === "pt" ? "Bacharelado em Administracao de Empresas" : "Bachelor's Degree in Business Administration", school: currentLanguage === "pt" ? "Universidade Presbiteriana Mackenzie" : "Mackenzie Presbyterian University", period: "2013 - 2017" }],
+      skills: currentLanguage === "pt"
+        ? ["Negociacao", "Prospeccao", "Vendas B2B", "CRM", "Gestao de Pipeline", "Follow-up", "Relacionamento com Cliente", "Comunicacao", "Apresentacao", "Analise de Dados", "Fechamento", "Planejamento Comercial"]
+        : ["Negotiation", "Prospecting", "B2B Sales", "CRM", "Pipeline Management", "Follow-up", "Client Relationship", "Communication", "Presentation", "Data Analysis", "Closing", "Commercial Planning"],
+      languages: currentLanguage === "pt" ? ["Portugues - Nativo", "Ingles - Avancado"] : ["Portuguese - Native", "English - Advanced"],
+      certifications: currentLanguage === "pt"
+        ? ["HubSpot Sales Software Certification - HubSpot Academy - 2023", "LinkedIn Sales Navigator Essential Training - LinkedIn Learning - 2022", "Sales Management Fundamentals - Gong Academy - 2021", "Salesforce Fundamentals for Sales Professionals - Salesforce Trailhead - 2020"]
+        : ["HubSpot Sales Software Certification - HubSpot Academy - 2023", "LinkedIn Sales Navigator Essential Training - LinkedIn Learning - 2022", "Sales Management Fundamentals - Gong Academy - 2021", "Salesforce Fundamentals for Sales Professionals - Salesforce Trailhead - 2020"],
+      projects: currentLanguage === "pt"
+        ? [
+          "Reestruturacao do Funil de Vendas - Redesenhei etapas de qualificacao e aumentei em 27% a taxa de conversao.",
+          "Expansao de Contas Estrategicas - Desenvolvi estrategia de upsell e cross-sell, gerando 35% de crescimento no faturamento das contas existentes.",
+          "Programa de Recuperacao de Clientes - Reativei clientes inativos e recuperei 18% da receita perdida.",
+          "Padronizacao do Processo de Prospeccao - Criei cadencias e playbooks, gerando +40% em reunioes qualificadas.",
+          "Curso: Negociacao de Alta Performance - Instituto Brasileiro de Vendas",
+          "Curso: Customer Success: Estrategias e Metricas - Reev",
+          "Curso: Excel Avancado para Negocios - Udemy",
+        ]
+        : [
+          "Sales Funnel Restructure - Redesigned qualification stages and increased conversion rate by 27%.",
+          "Strategic Account Expansion - Built upsell and cross-sell strategy, generating 35% growth across existing accounts.",
+          "Customer Recovery Program - Reactivated dormant customers and recovered 18% of lost revenue.",
+          "Prospecting Process Standardization - Created cadences and playbooks, generating +40% qualified meetings.",
+          "Course: High-Performance Negotiation - Brazilian Sales Institute",
+          "Course: Customer Success: Strategy and Metrics - Reev",
+          "Course: Advanced Excel for Business - Udemy",
+        ],
+      professionalLinks: ["linkedin.com/in/amandasilva"],
+    });
+  }
   if (template === "senior-executive") {
     return createBlankResume({
       selectedTemplate: template,
@@ -9675,6 +10503,130 @@ function createResumeExportNode({ template, format, resume, source, brandFree })
   return prepareResumeForPdf(documentNode, { brandFree, format: normalizedFormat });
 }
 
+function createResumePreviewExportShell({ template, format, resume, source }) {
+  const normalizedFormat = normalizeDocumentFormat(format);
+  const holder = document.createElement("div");
+  if (resume) {
+    holder.innerHTML = resumeDocument(template || resume.selectedTemplate || selectedTemplateKey, normalizedFormat, resume);
+    return holder.querySelector(".resume-document-shell");
+  }
+
+  const documentNode = source?.cloneNode(true);
+  if (!documentNode) return null;
+  documentNode.removeAttribute("style");
+  documentNode.removeAttribute("data-preview-scaled");
+  documentNode.classList.remove("pdf-export-document");
+  applyDocumentFormatClass(documentNode, normalizedFormat);
+
+  const shell = document.createElement("div");
+  shell.className = `resume-document-shell ${documentFormatClass(normalizedFormat)}`;
+  shell.setAttribute("data-document-format-current", normalizedFormat);
+  shell.setAttribute("data-resume-document-shell", "");
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "resume-page-scale-wrapper";
+  wrapper.appendChild(documentNode);
+  shell.appendChild(wrapper);
+  return shell;
+}
+
+function prepareResumePreviewShellForPdf(shell, format) {
+  const normalizedFormat = normalizeDocumentFormat(format);
+  resetResumeShellPageVars(shell, normalizedFormat);
+  const documentNode = shell.querySelector(".resume-document");
+  if (documentNode) {
+    documentNode.removeAttribute("style");
+    documentNode.removeAttribute("data-preview-scaled");
+    documentNode.classList.remove("pdf-export-document");
+    applyDocumentFormatClass(documentNode, normalizedFormat);
+    applyPdfPageVariables(documentNode, normalizedFormat);
+  }
+}
+
+function fitResumePreviewShellToSinglePdfPage(shell, format) {
+  const spec = documentPageSpec(format);
+  applyResumeShellPreviewScale(shell, {
+    format,
+    availableWidth: spec.widthPx,
+    availableHeight: spec.heightPx,
+    maxScale: 1,
+  });
+}
+
+function createResumePdfFitDocument({ template, format, resume, source, brandFree }) {
+  const normalizedFormat = normalizeDocumentFormat(format);
+  const holder = document.createElement("div");
+  if (resume) {
+    holder.innerHTML = resumeDocument(template || resume.selectedTemplate || selectedTemplateKey, normalizedFormat, resume);
+  }
+  const sourceDocument = holder.querySelector(".resume-document") || source?.cloneNode(true);
+  if (!sourceDocument) return null;
+  const documentNode = sourceDocument.cloneNode(true);
+  documentNode.classList.add("pdf-fit-export-document");
+  documentNode.classList.remove("sample-resume-document", "pdf-export-document");
+  documentNode.removeAttribute("style");
+  documentNode.removeAttribute("data-preview-scaled");
+  applyDocumentFormatClass(documentNode, normalizedFormat);
+  applyPdfPageVariables(documentNode, normalizedFormat);
+  documentNode.querySelectorAll("section").forEach((section) => {
+    if (!sectionHasContent(section)) section.remove();
+  });
+  if (!brandFree) {
+    const footer = document.createElement("footer");
+    footer.className = "pdf-brand-footer";
+    footer.textContent = "Created with Succeedora";
+    documentNode.appendChild(footer);
+  }
+  return documentNode;
+}
+
+function measurePdfFitHeight(documentNode) {
+  const rect = documentNode.getBoundingClientRect();
+  const top = rect.top;
+  const bottoms = [documentNode.scrollHeight];
+  documentNode.querySelectorAll("header, section, footer, article, div, p, ul, li").forEach((node) => {
+    const nodeRect = node.getBoundingClientRect();
+    if (nodeRect.width || nodeRect.height) bottoms.push(nodeRect.bottom - top);
+  });
+  return Math.max(...bottoms);
+}
+
+function fitPdfDocumentToPage(documentNode, format) {
+  if (!documentNode) return 1;
+  const spec = documentPageSpec(format);
+  let scale = 1;
+  const layoutAtScale = (nextScale, final = false) => {
+    const width = spec.widthPx / nextScale;
+    const height = spec.heightPx / nextScale;
+    documentNode.style.width = `${width}px`;
+    documentNode.style.maxWidth = "none";
+    documentNode.style.minWidth = "0";
+    documentNode.style.height = final ? `${height}px` : "auto";
+    documentNode.style.minHeight = final ? `${height}px` : "0";
+    documentNode.style.margin = "0";
+    documentNode.style.boxShadow = "none";
+    documentNode.style.transform = final ? `scale(${nextScale})` : "none";
+    documentNode.style.transformOrigin = "top left";
+    documentNode.style.overflow = final ? "hidden" : "visible";
+    documentNode.style.setProperty("--resume-page-width", `${width}px`);
+    documentNode.style.setProperty("--resume-page-height", `${height}px`);
+  };
+
+  for (let index = 0; index < 4; index += 1) {
+    layoutAtScale(scale, false);
+    const contentHeight = Math.max(1, measurePdfFitHeight(documentNode));
+    const nextScale = Math.max(0.54, Math.min(1, spec.heightPx / contentHeight));
+    if (Math.abs(nextScale - scale) < 0.01) {
+      scale = nextScale;
+      break;
+    }
+    scale = nextScale;
+  }
+
+  layoutAtScale(scale, true);
+  return scale;
+}
+
 function createPdfExportStage(format) {
   const normalizedFormat = normalizeDocumentFormat(format);
   const stage = document.createElement("div");
@@ -9702,6 +10654,13 @@ function createPdfExportPage(stage, sourceDocument, format) {
   stage.appendChild(page);
 
   return { page, content, documentNode };
+}
+
+function createPdfExportFullDocumentPage(stage, sourceDocument, format) {
+  const state = createPdfExportPage(stage, sourceDocument, format);
+  const documentNode = sourceDocument.cloneNode(true);
+  state.content.replaceChildren(documentNode);
+  return { ...state, documentNode };
 }
 
 function pdfPageHasContent(state) {
@@ -9816,16 +10775,56 @@ function appendBlockToPdfPages(state, block, sourceDocument, format) {
   return state;
 }
 
+function resumePdfPageBlocks(sourceDocument) {
+  if (!sourceDocument?.classList?.contains("modern-resume")) return Array.from(sourceDocument.children);
+
+  const orderedBlocks = [];
+  const seen = new Set();
+  const addBlock = (block) => {
+    if (!block || seen.has(block)) return;
+    seen.add(block);
+    orderedBlocks.push(block);
+  };
+  const addSection = (selector) => addBlock(sourceDocument.querySelector(selector));
+
+  addBlock(Array.from(sourceDocument.children).find((block) => block.classList?.contains("modern-header")));
+  addSection(".modern-main-column > .modern-summary");
+  addSection(".modern-sidebar > .modern-skills");
+  addSection(".modern-main-column > .modern-experience");
+  addSection(".modern-sidebar > .modern-education");
+  addSection(".modern-main-column > .modern-projects");
+  addSection(".modern-sidebar > .modern-languages");
+  addSection(".modern-sidebar > .modern-certifications");
+  addSection(".modern-sidebar > .modern-links");
+
+  Array.from(sourceDocument.children).forEach((block) => {
+    if (block.classList?.contains("modern-main-column") || block.classList?.contains("modern-sidebar")) return;
+    addBlock(block);
+  });
+
+  return orderedBlocks.length ? orderedBlocks : Array.from(sourceDocument.children);
+}
+
 function buildResumePdfExport({ template, format, resume, source, brandFree }) {
   const normalizedFormat = normalizeDocumentFormat(format);
-  const sourceDocument = createResumeExportNode({ template, format: normalizedFormat, resume, source, brandFree });
   const stage = createPdfExportStage(normalizedFormat);
+  stage.classList.add("pdf-fit-export-stage");
   document.body.appendChild(stage);
 
-  let state = createPdfExportPage(stage, sourceDocument, normalizedFormat);
-  Array.from(sourceDocument.children).forEach((block) => {
-    state = appendBlockToPdfPages(state, block, sourceDocument, normalizedFormat);
-  });
+  const sourceDocument = createResumePdfFitDocument({ template, format: normalizedFormat, resume, source, brandFree });
+  if (!sourceDocument) throw new Error("Resume document unavailable");
+
+  const page = document.createElement("div");
+  page.className = `pdf-export-page pdf-fit-export-page ${documentFormatClass(normalizedFormat)}`;
+  page.setAttribute("data-pdf-page", normalizedFormat);
+  applyPdfPageVariables(page, normalizedFormat);
+
+  const content = document.createElement("div");
+  content.className = "pdf-fit-export-content";
+  content.appendChild(sourceDocument);
+  page.appendChild(content);
+  stage.appendChild(page);
+  fitPdfDocumentToPage(sourceDocument, normalizedFormat);
 
   return {
     stage,
@@ -9838,6 +10837,7 @@ async function savePdfExport(stage, format, filename) {
   const normalizedFormat = normalizeDocumentFormat(format);
   const spec = documentPageSpec(normalizedFormat);
   const { html2canvas, jsPDF } = await loadPdfRenderer();
+  if (document.fonts?.ready) await document.fonts.ready;
   const pdf = new jsPDF({ unit: "mm", format: spec.jsPdfFormat, orientation: "portrait", compress: true });
   const pages = Array.from(stage.querySelectorAll(".pdf-export-page"));
 
@@ -9873,6 +10873,7 @@ function setPdfStatus(button, message, state = "") {
 }
 
 async function exportResumePdf(button, options = {}) {
+  cancelPendingResumeAutosave();
   const b = t().builder;
   const modal = button?.closest(".template-preview-modal");
   const source = modal?.querySelector(".resume-document") || document.querySelector(".builder-preview .resume-document");
@@ -9891,6 +10892,7 @@ async function exportResumePdf(button, options = {}) {
       button.textContent = b.generatingPdf;
     }
     setPdfStatus(button, b.generatingPdf, "loading");
+    if (document.fonts?.ready) await document.fonts.ready;
     const format = normalizeDocumentFormat(selectedDocumentFormat);
     const resume = document.querySelector(".builder-page") ? collectBuilderResume() : null;
     const exportJob = buildResumePdfExport({
@@ -9915,6 +10917,7 @@ async function exportResumePdf(button, options = {}) {
 }
 
 async function exportResumeDataPdf(resumeId, button, options = {}) {
+  cancelPendingResumeAutosave();
   const resume = findResume(resumeId);
   if (!resume) return;
   const b = t().builder;
@@ -9933,6 +10936,7 @@ async function exportResumeDataPdf(resumeId, button, options = {}) {
       button.textContent = b.generatingPdf;
     }
     setPdfStatus(button, b.generatingPdf, "loading");
+    if (document.fonts?.ready) await document.fonts.ready;
     const format = normalizeDocumentFormat(resume.documentFormat);
     const exportJob = buildResumePdfExport({
       template: resume.selectedTemplate,
@@ -9942,7 +10946,6 @@ async function exportResumeDataPdf(resumeId, button, options = {}) {
     });
     wrapper = exportJob.stage;
     await savePdfExport(exportJob.stage, format, exportJob.filename);
-    upsertResume({ ...resume, exportedAt: isoNow(), updatedAt: resume.updatedAt || isoNow() });
     setPdfStatus(button, b.pdfSuccess, "success");
   } catch (error) {
     setPdfStatus(button, b.pdfError, "error");
@@ -9999,8 +11002,7 @@ function renderHome() {
   const seo = localizedSeo("home");
   const trustIcons = ["shield", "globe", "download"];
   const heroProductChips = currentLanguage === "pt" ? ["ATS", "Keywords", "Resumo", "Carta"] : ["ATS", "Keywords", "Summary", "Cover Letter"];
-  const homeTemplateKeys = ["minimal", "modern", "executive", "tech", "creative", "global"];
-  const homeTemplates = homeTemplateKeys.map(getTemplateByKey);
+  const homeTemplates = resumeTemplates().slice(0, 6);
   const viewAllTemplatesLabel = currentLanguage === "pt" ? "Ver todos os modelos" : "View all templates";
   mount(`
     <div class="public-shell home-shell">
@@ -10147,7 +11149,7 @@ function templateCard(template, index, compact = true) {
   const accessClass = templateAccessClass(template);
   const searchText = `${template.name} ${template.category} ${template.description} ${template.bestForText} ${template.access}`.toLowerCase();
   return `
-    <article class="template-card resume-template-card template-${template.key}" data-template-category="${template.key}" data-template-access="${template.access}" data-template-groups="${template.filterGroups.join(" ")}" data-template-search="${escapeHtml(searchText)}">
+    <article class="template-card resume-template-card template-${template.key}" data-template-category="${template.key}" data-template-access="${template.access}" data-template-status="${template.status}" data-template-groups="${template.filterGroups.join(" ")}" data-template-search="${escapeHtml(searchText)}">
       ${templateCardPreviewMarkup(template.key)}
       <div class="template-card-meta">
         <div class="template-card-badges">
@@ -11968,8 +12970,9 @@ function dashboardShell(activeKey, content) {
   const nav = [["/dashboard", "layout", "dashboard"], ["/dashboard/resumes", "file", "resumes"], ["/dashboard/builder", "pen", "builder"], ["/dashboard/cover-letters", "mail", "coverLetters"], ["/dashboard/templates", "templates", "templates"], ["/dashboard/ai", "sparkles", "ai"], ["/dashboard/support", "headset", "support"], ["/dashboard/profile", "user", "profile"], ["/dashboard/billing", "card", "billing"], ["/dashboard/settings", "settings", "settings"]];
   if (isAdminAccount()) nav.push(["/admin", "settings", "admin"]);
   const mobileNav = nav.slice(0, 5);
+  const isBuilderEditor = activeKey === "builder" && !String(content || "").includes("builder-template-selection");
   mount(`
-    <div class="app-shell ${sidebarCollapsed ? "sidebar-collapsed" : ""}">
+    <div class="app-shell ${sidebarCollapsed ? "sidebar-collapsed" : ""} ${isBuilderEditor ? "builder-workspace" : ""}">
       <aside class="sidebar">
         <div class="sidebar-head">${brandLogo("a", "#/dashboard", "/dashboard")}<div class="sidebar-head-actions"><button class="icon-button sidebar-collapse-button" type="button" data-sidebar-collapse aria-label="${sidebarCollapsed ? d.expandSidebar : d.collapseSidebar}" title="${sidebarCollapsed ? d.expandSidebar : d.collapseSidebar}" aria-expanded="${!sidebarCollapsed}">${icon("menu")}</button><button class="icon-button sidebar-toggle" aria-label="${d.closeSidebar}">${icon("close")}</button></div></div>
         <nav class="side-nav">${nav.map(([path, iconName, key]) => `<a class="${activeKey === key ? "active" : ""}" href="#${path}" data-route="${path}" title="${d.nav[key]}">${icon(iconName)} <span>${d.nav[key]}</span></a>`).join("")}</nav>
@@ -12373,9 +13376,9 @@ function resumeCard(resume, actions) {
       <div class="recent-resume-status">${escapeHtml(statusLabel)} - ${escapeHtml(formatLabel)}</div>
       <div class="resume-meta"><span>${template.name} · ${resume.documentFormat === "letter" ? "US Letter" : "A4"}</span><div class="progress"><span style="width:${resume.completion}%"></span></div></div>
       <div class="resume-actions">
-        <button class="secondary-button small" data-edit-resume="${resume.id}" data-route="/dashboard/builder">${actions[0]}</button>
-        <button class="ghost-button small" data-preview-resume="${resume.id}">${actions[1]}</button>
-        <button class="ghost-button small" data-pdf-export-resume="${resume.id}">${actions[2]}</button>
+        <button class="secondary-button small" type="button" data-edit-resume="${resume.id}" data-route="/dashboard/builder">${actions[0]}</button>
+        <button class="ghost-button small" type="button" data-preview-resume="${resume.id}">${actions[1]}</button>
+        <button class="ghost-button small" type="button" data-pdf-export-resume="${resume.id}">${actions[2]}</button>
       </div>
     </article>
   `;
@@ -12388,7 +13391,8 @@ function renderResumes() {
   const labels = resumeLabels();
   const resumes = loadResumes().sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
   const actions = lib.actions;
-  const templates = resumeTemplates();
+  const savedTemplateKeys = new Set(resumes.map((resume) => resume.selectedTemplate).filter(Boolean));
+  const templates = resumeTemplates({ includeInactive: true }).filter((template) => isTemplateActive(template) || savedTemplateKeys.has(template.key));
   dashboardShell("resumes", `
     <main class="dashboard-content resume-library-page">
       <section class="resume-library-hero">
@@ -12429,11 +13433,11 @@ function renderResumes() {
               <span>${resume.completion}% ${lib.completion}</span>
             </div>
             <div class="resume-actions">
-              <button class="secondary-button small" data-edit-resume="${resume.id}" data-route="/dashboard/builder">${actions[0]}</button>
-              <button class="ghost-button small" data-preview-resume="${resume.id}">${actions[1]}</button>
-              <button class="ghost-button small" data-duplicate-resume="${resume.id}">${labels.duplicate}</button>
-              <button class="ghost-button small" data-delete-resume="${resume.id}">${labels.delete}</button>
-              <button class="ghost-button small" data-pdf-export-resume="${resume.id}">${labels.downloadPdf}</button>
+              <button class="secondary-button small" type="button" data-edit-resume="${resume.id}" data-route="/dashboard/builder">${actions[0]}</button>
+              <button class="ghost-button small" type="button" data-preview-resume="${resume.id}">${actions[1]}</button>
+              <button class="ghost-button small" type="button" data-duplicate-resume="${resume.id}">${labels.duplicate}</button>
+              <button class="ghost-button small" type="button" data-delete-resume="${resume.id}">${labels.delete}</button>
+              <button class="ghost-button small" type="button" data-pdf-export-resume="${resume.id}">${labels.downloadPdf}</button>
             </div>
           </div>
         </article>`;
@@ -12529,7 +13533,7 @@ function renderBuilderTemplateSelection() {
               ? (currentLanguage === "pt" ? "Disponível no Premium" : "Available with Premium")
               : labels.proLabel;
           return `
-            <article class="template-card dashboard-template-card builder-template-card template-${template.key} ${locked ? "locked-feature" : ""}" data-template-category="${template.key}" data-template-access="${template.access}" data-template-groups="${template.filterGroups.join(" ")}">
+            <article class="template-card dashboard-template-card builder-template-card template-${template.key} ${locked ? "locked-feature" : ""}" data-template-category="${template.key}" data-template-access="${template.access}" data-template-status="${template.status}" data-template-groups="${template.filterGroups.join(" ")}">
               <div class="template-card-topline">
                 <span class="template-badge">${template.category}</span>
                 <span class="template-badge ${accessClass}">${accessLabel}</span>
@@ -12572,6 +13576,17 @@ function renderBuilder() {
   const draft = ensureBuilderDraft();
   const completion = calculateCompletion(draft);
   const selectedTemplate = getTemplateByKey(selectedTemplateKey);
+  const adminBuilderTool = isAdminAccount()
+    ? `<div class="admin-builder-tools"><button class="secondary-button small admin-builder-tool" type="button" data-admin-fill-test-resume><span>${escapeHtml(resumeLabels().adminToolLabel)}:</span> ${escapeHtml(resumeLabels().adminFillTest)}</button></div>`
+    : "";
+  const saveStateMarkup = `
+    <div class="save-state" data-save-state data-state="${builderSaveState}">
+      <span class="saved" data-save-label="saved" ${builderSaveState === "saved" ? "" : "hidden"}>${b.saved}</span>
+      <span data-save-label="saving" ${builderSaveState === "saving" ? "" : "hidden"}>${b.saving}</span>
+      <span data-save-label="unsaved" ${builderSaveState === "unsaved" ? "" : "hidden"}>${b.unsaved}</span>
+      <small data-save-message></small>
+    </div>
+  `;
   dashboardShell("builder", `
     <main class="builder-page">
       <div class="builder-mobile-tabs">
@@ -12580,7 +13595,8 @@ function renderBuilder() {
       </div>
 
       <div class="builder-exit-row">
-        <button class="secondary-button small builder-exit-button" type="button" data-builder-exit>${icon("arrowLeft")} ${b.backToTemplates}</button>
+        <button class="secondary-button small builder-exit-button" type="button" data-builder-exit>${icon("arrowLeft")} ${b.backToCreateResume}</button>
+        <div class="builder-exit-meta">${saveStateMarkup}${adminBuilderTool}</div>
       </div>
 
       <aside class="builder-flow-sidebar">
@@ -12663,7 +13679,6 @@ function builderSectionPanel(title, index) {
   const resume = ensureBuilderDraft();
   const personal = resume.personal || {};
   const experience = resume.workExperience?.[0] || {};
-  const education = resume.education?.[0] || {};
   const value = (item) => escapeHtml(item || "");
   const listValue = (items) => escapeHtml((items || []).join("\n"));
   const aiButtonMarkup = (taskType, label, iconName = "sparkles", className = "secondary-button") => {
@@ -12684,7 +13699,7 @@ function builderSectionPanel(title, index) {
   const status = index < 5 ? b.required : b.optional;
   const helper = index === 1 ? b.helpers.summary : index === 2 ? b.helpers.experience : index === 4 ? b.helpers.skills : index === 8 ? b.helpers.links : "";
   let content = "";
-  let actions = index > 2 ? `<div class="section-actions"><button class="secondary-button small">${b.addItem} ${title}</button></div>` : "";
+  let actions = "";
 
   if (index === 0) {
     const firstName = personal.firstName || String(personal.fullName || "").split(" ")[0] || "";
@@ -12693,10 +13708,47 @@ function builderSectionPanel(title, index) {
   } else if (index === 1) {
     content = `<label>${b.labels.summary}<textarea data-resume-field="summary" data-preview-target="summary" placeholder="${b.placeholders.summary}">${value(resume.summary)}</textarea></label>`;
   } else if (index === 2) {
-    content = `<div class="two-col"><label>${b.labels.company}<input data-resume-field="experienceCompany" data-preview-target="experienceCompany" value="${value(experience.company)}" placeholder="Company name" /></label><label>${b.labels.role}<input data-resume-field="experienceRole" data-preview-target="experienceRole" value="${value(experience.role)}" placeholder="Role title" /></label><label>${b.labels.period}<input data-resume-field="experiencePeriod" data-preview-target="experiencePeriod" value="${value(experience.period)}" placeholder="2021 - Present" /></label><label>${b.labels.location}<input data-resume-field="experienceLocation" data-preview-target="experienceLocation" value="${value(experience.location)}" placeholder="${b.labels.location}" /></label></div><label>${b.labels.achievements}<textarea data-resume-field="experience" data-preview-target="experience" placeholder="${b.placeholders.achievements}">${listValue(experience.achievements)}</textarea></label>`;
-    actions = `<div class="section-actions"><button class="secondary-button small">${icon("pen")} ${b.addExperience}</button><button class="ghost-button small">${b.remove}</button></div>`;
+    const experiences = Array.isArray(resume.workExperience) && resume.workExperience.length
+      ? resume.workExperience
+      : [{ company: "", role: "", period: "", location: "", achievements: [] }];
+    const experienceLabel = currentLanguage === "pt" ? "Experi\u00eancia" : "Experience";
+    content = `<div class="builder-experience-list">${experiences.map((item, itemIndex) => `
+      <article class="builder-experience-item" data-resume-experience-item data-experience-index="${itemIndex}">
+        <div class="builder-experience-head">
+          <strong>${experienceLabel} ${itemIndex + 1}</strong>
+          <button class="ghost-button small" type="button" data-remove-experience="${itemIndex}" ${experiences.length <= 1 ? "disabled" : ""}>${b.remove}</button>
+        </div>
+        <div class="two-col">
+          <label>${b.labels.company}<input data-resume-experience-field="company" value="${value(item.company)}" placeholder="Company name" /></label>
+          <label>${b.labels.role}<input data-resume-experience-field="role" value="${value(item.role)}" placeholder="Role title" /></label>
+          <label>${b.labels.period}<input data-resume-experience-field="period" value="${value(item.period)}" placeholder="2021 - Present" /></label>
+          <label>${b.labels.location}<input data-resume-experience-field="location" value="${value(item.location)}" placeholder="${b.labels.location}" /></label>
+        </div>
+        <label>${b.labels.achievements}<textarea data-resume-experience-field="achievements" placeholder="${b.placeholders.achievements}">${listValue(item.achievements)}</textarea></label>
+      </article>
+    `).join("")}</div>`;
+    actions = `<div class="section-actions builder-experience-actions"><button class="secondary-button small" type="button" data-add-experience>${icon("pen")} ${b.addExperience}</button></div>`;
   } else if (index === 3) {
-    content = `<div class="two-col"><label>${b.labels.school}<input data-resume-field="educationSchool" data-preview-target="educationSchool" value="${value(education.school)}" /></label><label>${b.labels.degree}<input data-resume-field="educationDegree" data-preview-target="educationDegree" value="${value(education.degree)}" /></label></div>`;
+    const educationItems = Array.isArray(resume.education) && resume.education.length
+      ? resume.education
+      : [{ school: "", degree: "", location: "", period: "", description: "" }];
+    const educationLabel = currentLanguage === "pt" ? "Forma\u00e7\u00e3o" : "Education";
+    content = `<div class="builder-education-list">${educationItems.map((item, itemIndex) => `
+      <article class="builder-education-item" data-resume-education-item data-education-index="${itemIndex}">
+        <div class="builder-education-head">
+          <strong>${educationLabel} ${itemIndex + 1}</strong>
+          <button class="ghost-button small" type="button" data-remove-education="${itemIndex}" ${educationItems.length <= 1 ? "disabled" : ""}>${b.remove}</button>
+        </div>
+        <div class="two-col">
+          <label>${b.labels.school}<input data-resume-education-field="school" value="${value(item.school)}" /></label>
+          <label>${b.labels.degree}<input data-resume-education-field="degree" value="${value(item.degree)}" /></label>
+          <label>${b.labels.period}<input data-resume-education-field="period" value="${value(item.period)}" placeholder="2020 - 2021" /></label>
+          <label>${b.labels.location}<input data-resume-education-field="location" value="${value(item.location)}" placeholder="${b.labels.location}" /></label>
+        </div>
+        <label>${currentLanguage === "pt" ? "Descri\u00e7\u00e3o" : "Description"}<textarea data-resume-education-field="description">${value(item.description)}</textarea></label>
+      </article>
+    `).join("")}</div>`;
+    actions = `<div class="section-actions builder-list-actions"><button class="secondary-button small" type="button" data-add-education>${b.addItem} ${title}</button></div>`;
   } else if (index === 4) {
     content = `<label>${b.labels.skills}<textarea data-resume-field="skills" data-preview-target="skills" placeholder="${b.placeholders.skills}">${escapeHtml((resume.skills || []).join(", "))}</textarea></label>`;
   } else if (index === 5) {
@@ -12705,8 +13757,10 @@ function builderSectionPanel(title, index) {
     content = `<label>${b.labels.certifications}<textarea data-resume-field="certifications" data-preview-target="certifications">${listValue(resume.certifications)}</textarea></label>`;
   } else if (index === 7) {
     content = `<label>${b.labels.projects}<textarea data-resume-field="projects" data-preview-target="projects">${listValue(resume.projects)}</textarea></label>`;
+    actions = `<div class="section-actions builder-list-actions"><button class="secondary-button small" type="button" data-add-list-line="projects">${b.addItem} ${title}</button></div>`;
   } else if (index === 8) {
     content = `<label>${b.labels.links}<textarea data-resume-field="links" data-preview-target="links" placeholder="${b.placeholders.links}">${listValue(resume.professionalLinks)}</textarea></label>`;
+    actions = `<div class="section-actions builder-list-actions"><button class="secondary-button small" type="button" data-add-list-line="links">${b.addItem} ${title}</button></div>`;
   } else {
     const template = getTemplateByKey(selectedTemplateKey);
     const missing = missingSectionLabels(resume);
@@ -12792,7 +13846,7 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
           <span ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</span>
         </div>
         <p class="modern-entry-meta">
-          <span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>${hasText(item.company) && hasText(item.location) ? " - " : ""}<span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span>
+          <span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>${index === 0 ? `<span class="resume-meta-separator" data-preview-pair-separator="experienceCompany:experienceLocation" aria-hidden="true"${hasText(item.company) && hasText(item.location) ? "" : " hidden"}> - </span>` : hasText(item.company) && hasText(item.location) ? " - " : ""}<span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span>
         </p>
         <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
       </div>
@@ -13103,7 +14157,7 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
         projects: "Projects",
         links: "Links",
       };
-    const contactItems = [displayLocation, personal.email, personal.phone, normalizeTextList(data.professionalLinks)[0]].filter(Boolean);
+    const contactItems = [personal.email, personal.phone, displayLocation, normalizeTextList(data.professionalLinks)[0]].filter(Boolean);
     const simpleContact = contactItems.join(" | ") || b.document.header;
     const optional = (className, title, body, hasContent) => `
       <section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}>
@@ -13125,12 +14179,19 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
     `).join("");
     const educationItems = (data.education || []).filter((item) => hasText(item.degree) || hasText(item.school));
     const educationBody = (educationItems.length ? educationItems : [education]).map((item, index) => `
-      <p class="simple-ats-education-item">
-        <strong data-preview-field="${index === 0 ? "educationDegree" : ""}" data-preview-empty="">${display(item.degree, "")}</strong>
-        <span data-preview-field="${index === 0 ? "educationSchool" : ""}" data-preview-empty="">${display(item.school, "")}</span>
-      </p>
+      <div class="simple-ats-education-item">
+        <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
+        <span ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</span>
+        ${hasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
+      </div>
     `).join("");
-    const simpleParagraphs = (items, fieldName) => `<div class="simple-ats-text-list" data-preview-field="${fieldName}" data-preview-empty="">${normalizeTextList(items).map((item) => `<p>${escapeHtml(item)}</p>`).join("")}</div>`;
+    const simpleCertifications = (items, fieldName) => `<div class="simple-ats-text-list" data-preview-field="${fieldName}" data-preview-empty="">${normalizeTextList(items).map((item) => `<p>${escapeHtml(item.replace(/\s+-\s+([^-\n]+)\s+-\s+(\d{4})$/, " - $1 | $2"))}</p>`).join("")}</div>`;
+    const simpleProjects = (items, fieldName) => `<div class="simple-ats-project-list" data-preview-field="${fieldName}" data-preview-empty="">${normalizeTextList(items).map((item) => {
+      const parts = item.split(" - ").map((part) => part.trim()).filter(Boolean);
+      const title = parts.shift() || item;
+      return `<p><strong>${escapeHtml(title)}</strong>${parts.length ? `<span>${escapeHtml(parts.join(" - "))}</span>` : ""}</p>`;
+    }).join("")}</div>`;
+    const simpleLinkLine = normalizeTextList(data.professionalLinks).map(escapeHtml).join(" | ");
     return `
       <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
         <div class="resume-page-scale-wrapper">
@@ -13144,10 +14205,10 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
             ${optional("simple-ats-experience", simpleLabels.experience, experienceBody, experiences.length > 0)}
             ${optional("simple-ats-education", simpleLabels.education, educationBody, educationItems.length > 0)}
             ${optional("simple-ats-skills", simpleLabels.skills, `<div class="resume-skill-list simple-ats-skill-text" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, hasList(data.skills))}
-            ${optional("simple-ats-certifications", simpleLabels.certifications, simpleParagraphs(data.certifications, "certifications"), hasList(data.certifications))}
+            ${optional("simple-ats-certifications", simpleLabels.certifications, simpleCertifications(data.certifications, "certifications"), hasList(data.certifications))}
             ${optional("simple-ats-languages", simpleLabels.languages, `<p data-preview-field="languages" data-preview-empty="">${brList(data.languages, "")}</p>`, hasList(data.languages))}
-            ${optional("simple-ats-projects", simpleLabels.projects, simpleParagraphs(data.projects, "projects"), hasList(data.projects))}
-            ${optional("simple-ats-links", simpleLabels.links, `<div class="resume-link-list" data-preview-field="links" data-preview-empty="">${paragraphList(data.professionalLinks, "")}</div>`, hasList(data.professionalLinks))}
+            ${optional("simple-ats-projects", simpleLabels.projects, simpleProjects(data.projects, "projects"), hasList(data.projects))}
+            ${optional("simple-ats-links", simpleLabels.links, `<p class="simple-ats-link-line" data-preview-field="links" data-preview-empty="">${simpleLinkLine}</p>`, hasList(data.professionalLinks))}
           </div>
         </div>
       </div>
@@ -13283,6 +14344,141 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
       ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
     </p>
   `).join("");
+  if (template === "sales") {
+    const salesSection = (className, iconName, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3><span>${icon(iconName)}</span>${title}</h3>${body}</section>`;
+    const salesLinks = normalizeTextList(data.professionalLinks);
+    const salesContactItems = [
+      ["mail", personal.email],
+      ["headset", personal.phone],
+      ["globe", displayLocation],
+      ["link", salesLinks[0]],
+    ].filter((item) => curatedHasText(item[1]));
+    const salesContacts = salesContactItems.map(([iconName, value]) => `<p>${icon(iconName)}<span>${escapeHtml(value)}</span></p>`).join("");
+    const metricSources = [
+      data.summary,
+      ...curatedExperiences.flatMap((item) => normalizeTextList(item.achievements)),
+      ...normalizeTextList(data.projects),
+    ].filter(Boolean);
+    const metricPattern = /(?:R\$\s?[\d.,]+\s?[MBK]?|\+?\d+(?:[,.]\d+)?\s?%|\d+(?:[,.]\d+)?\s?x)/i;
+    const salesMetricLabel = (text, metric) => {
+      const normalized = String(text || "").toLowerCase();
+      if (/meta|quota|target/.test(normalized)) return currentLanguage === "pt" ? "da meta anual atingida" : "of annual quota reached";
+      if (/lead|qualified|qualificado|prospect/.test(normalized)) return currentLanguage === "pt" ? "em geracao de leads qualificados" : "in qualified lead generation";
+      if (/receita|revenue|faturamento|mrr|arr/.test(normalized)) return currentLanguage === "pt" ? "em receita influenciada" : "in influenced revenue";
+      if (/convers|conversion|fechamento|closing/.test(normalized)) return currentLanguage === "pt" ? "de aumento na conversao" : "increase in conversion";
+      if (/retenc|reten|retention|churn|recover|recuper/.test(normalized)) return currentLanguage === "pt" ? "em retencao e recuperacao" : "in retention and recovery";
+      return String(text || "")
+        .replace(metric, "")
+        .replace(/^[\s:;,.+-]+|[\s:;,.]+$/g, "")
+        .replace(/\s+/g, " ")
+        .slice(0, 64) || (currentLanguage === "pt" ? "resultado comercial" : "commercial result");
+    };
+    const salesMetrics = [];
+    metricSources.forEach((item) => {
+      if (salesMetrics.length >= 4) return;
+      const text = String(item || "").trim();
+      const match = text.match(metricPattern);
+      if (!match) return;
+      const metric = match[0].replace(/\s+/g, " ").trim();
+      const label = salesMetricLabel(text, match[0]);
+      if (!salesMetrics.some((itemMetric) => itemMetric.metric === metric)) salesMetrics.push({ metric, label: label || (currentLanguage === "pt" ? "resultado comercial" : "commercial result") });
+    });
+    const salesMetricCards = salesMetrics.map((item, index) => `
+      <article>
+        <span>${icon(["target", "user", "card", "arrow"][index % 4])}</span>
+        <strong>${escapeHtml(item.metric)}</strong>
+        <p>${escapeHtml(item.label)}</p>
+      </article>
+    `).join("");
+    const allProjectItems = normalizeTextList(data.projects);
+    const salesCourseItems = allProjectItems
+      .filter((item) => /^(curso|course):/i.test(item))
+      .map((item) => item.replace(/^(curso|course):\s*/i, "").trim())
+      .filter(Boolean);
+    const salesCaseItems = allProjectItems.filter((item) => !/^(curso|course):/i.test(item));
+    const salesCases = salesCaseItems.map((item, index) => {
+      const parts = item.split(" - ").map((part) => part.trim()).filter(Boolean);
+      const title = parts.shift() || item;
+      const text = parts.join(" - ") || item;
+      const [description, result] = text.split(/Resultado:|Result:/);
+      const resultText = result || (text.match(metricPattern) ? text : "");
+      return `
+        <article class="sales-case-item">
+          <span></span>
+          <div>
+            <strong>${escapeHtml(title)}</strong>
+            <p>${escapeHtml((description || text).trim())}</p>
+            ${resultText && resultText !== description ? `<b>${currentLanguage === "pt" ? "Resultado:" : "Result:"} ${escapeHtml(resultText.trim())}</b>` : ""}
+          </div>
+        </article>
+      `;
+    }).join("");
+    const salesEducation = (curatedEducationItems.length ? curatedEducationItems : [education]).map((item, index) => `
+      <article class="sales-education-item">
+        <div>
+          <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
+          <p ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</p>
+        </div>
+        ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
+      </article>
+    `).join("");
+    const salesExperience = (curatedExperiences.length ? curatedExperiences : [curatedPrimaryExperience]).map((item, index) => `
+      <article class="sales-experience-item">
+        <div class="sales-experience-head">
+          <div>
+            <strong ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>
+            <p><span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>${curatedHasText(item.company) && curatedHasText(item.location) ? " - " : ""}<span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span></p>
+          </div>
+          <em ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</em>
+        </div>
+        <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(normalizeTextList(item.achievements).slice(0, index < 2 ? 2 : 1), "")}</ul>
+      </article>
+    `).join("");
+    const salesSkills = normalizeTextList(data.skills);
+    const salesSkillTags = (salesSkills.length ? salesSkills : normalizeTextList(b.values.skills)).map((skill) => `<span>${escapeHtml(skill)}</span>`).join("");
+    const salesCertifications = normalizeTextList(data.certifications).map((item, index) => {
+      const parts = item.split(/\s+-\s+|,\s*/).map((part) => part.trim()).filter(Boolean);
+      const year = parts.length > 2 ? parts.pop() : "";
+      const issuer = parts.length > 1 ? parts.pop() : "";
+      const name = parts.join(" - ") || item;
+      return `
+        <article class="sales-cert-item">
+          <span>${icon(["shield", "target", "sparkles", "file"][index % 4])}</span>
+          <div>
+            <strong>${escapeHtml(name)}</strong>
+            ${issuer ? `<p>${escapeHtml(issuer)}</p>` : ""}
+          </div>
+          ${year ? `<em>${escapeHtml(year)}</em>` : ""}
+        </article>
+      `;
+    }).join("");
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-sales sales-pro-resume ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="sales-pro-header">
+              <span aria-hidden="true"></span>
+              <h2 data-preview-field="name" data-preview-empty="Amanda Silva">${display(displayName, "Amanda Silva")}</h2>
+              <strong data-preview-field="title" data-preview-empty="${currentLanguage === "pt" ? "Account Executive" : "Account Executive"}">${display(personal.title, currentLanguage === "pt" ? "Account Executive" : "Account Executive")}</strong>
+              <div class="sales-contact-list">${salesContacts}</div>
+            </header>
+            <main class="sales-pro-main">
+              ${salesSection("sales-profile", "user", currentLanguage === "pt" ? "Perfil Profissional" : "Professional Profile", `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, curatedHasText(data.summary))}
+              ${salesSection("sales-metrics", "target", currentLanguage === "pt" ? "Destaques Comerciais" : "Commercial Highlights", `<div class="sales-metric-grid">${salesMetricCards}</div>`, salesMetrics.length > 0)}
+              ${salesSection("sales-cases", "card", currentLanguage === "pt" ? "Projetos e Cases Comerciais" : "Commercial Projects and Cases", `<div data-preview-field="projects" data-preview-empty="">${salesCases}</div>`, salesCaseItems.length > 0)}
+              ${salesSection("sales-education", "file", currentLanguage === "pt" ? "Formacao Academica" : "Education", salesEducation, curatedEducationItems.length > 0)}
+              ${salesSection("sales-courses", "file", currentLanguage === "pt" ? "Cursos Complementares" : "Additional Courses", `<ul>${linesMarkup(salesCourseItems, "")}</ul>`, salesCourseItems.length > 0)}
+            </main>
+            <aside class="sales-pro-sidebar">
+              ${salesSection("sales-experience-card", "card", currentLanguage === "pt" ? "Experiencia Profissional" : "Professional Experience", salesExperience, curatedExperiences.length > 0)}
+              ${salesSection("sales-skill-card", "sparkles", currentLanguage === "pt" ? "Competencias" : "Core Skills", `<div class="sales-skill-tags" data-preview-field="skills" data-preview-empty="">${salesSkillTags}</div>`, salesSkills.length > 0)}
+              ${salesSection("sales-cert-card", "shield", currentLanguage === "pt" ? "Certificacoes" : "Certifications", `<div data-preview-field="certifications" data-preview-empty="">${salesCertifications}</div>`, curatedHasList(data.certifications))}
+            </aside>
+          </div>
+        </div>
+      </div>
+    `;
+  }
   if (template === "professional") {
     const professionalSection = (className, iconName, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3><span>${icon(iconName)}</span>${title}</h3>${body}</section>`;
     const professionalLinks = normalizeTextList(data.professionalLinks);
@@ -14240,7 +15436,7 @@ function renderTemplatesPage() {
         const accessLabel = templateAccessLabel(template);
         const lockFeature = templateLockFeature(template);
         return `
-        <article class="template-card dashboard-template-card template-${template.key} ${locked ? "locked-feature" : ""}" data-template-category="${template.key}" data-template-access="${template.access}" data-template-groups="${template.filterGroups.join(" ")}" data-template-search="${escapeHtml(`${template.name} ${template.category} ${template.description} ${template.bestForText}`.toLowerCase())}">
+        <article class="template-card dashboard-template-card template-${template.key} ${locked ? "locked-feature" : ""}" data-template-category="${template.key}" data-template-access="${template.access}" data-template-status="${template.status}" data-template-groups="${template.filterGroups.join(" ")}" data-template-search="${escapeHtml(`${template.name} ${template.category} ${template.description} ${template.bestForText}`.toLowerCase())}">
           <div class="template-card-topline">
             <span class="template-badge">${template.category}</span>
             <span class="template-badge ${accessClass}">${accessLabel}</span>
