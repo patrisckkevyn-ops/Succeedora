@@ -1,6 +1,6 @@
 {
   "routes": [
     { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/((?!api/|_vercel/|.*\\.).*)", "dest": "/index.html" }
   ]
 }
