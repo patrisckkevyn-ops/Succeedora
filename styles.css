@@ -8092,6 +8092,10 @@ select:focus-visible {
   overflow: hidden;
 }
 
+.resume-document [hidden] {
+  display: none !important;
+}
+
 .pdf-export-stage,
 .pdf-export-wrapper {
   position: absolute;
@@ -12586,6 +12590,925 @@ select:focus-visible {
 }
 
 .pdf-export-document.tech-lab-resume {
+  box-shadow: none;
+}
+
+.resume-document.tech-product-resume {
+  --tech-navy: #06192d;
+  --tech-navy-2: #0b2438;
+  --tech-ink: #101827;
+  --tech-muted: #5e6a7d;
+  --tech-line: #d9e2ea;
+  --tech-cyan: #12b8b0;
+  --tech-green: #6fca43;
+  --tech-blue: #3f64e9;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 0.34fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 28px 28px;
+  padding: 42px 38px 38px 58px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.11);
+  border-radius: 5px;
+  color: var(--tech-ink);
+  background: #ffffff;
+  box-shadow: 0 24px 62px rgba(15, 23, 42, 0.13);
+}
+
+.resume-document-shell[data-preview-scaled="true"] .resume-document.tech-product-resume {
+  padding: 42px 38px 38px 58px;
+}
+
+.resume-document.tech-product-resume::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 10px;
+  background: linear-gradient(180deg, var(--tech-cyan), var(--tech-green) 56%, var(--tech-blue));
+}
+
+.resume-document.tech-product-resume .tech-product-top {
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: end;
+  min-width: 0;
+}
+
+.resume-document.tech-product-resume .tech-product-main {
+  grid-column: 1;
+  grid-row: 2;
+  display: grid;
+  align-content: start;
+  gap: 24px;
+  min-width: 0;
+}
+
+.resume-document.tech-product-resume .tech-product-sidebar {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: grid;
+  align-content: start;
+  gap: 17px;
+  min-width: 0;
+}
+
+.resume-document.tech-product-resume section {
+  display: block;
+  width: auto;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.resume-document.tech-product-resume section[hidden],
+.resume-document.professional-pro-resume section[hidden] {
+  display: none !important;
+}
+
+.resume-document.tech-product-resume .tech-product-hero {
+  position: relative;
+  min-height: 142px;
+  margin: 0;
+  padding: 34px 28px 27px;
+  border: 0;
+  border-radius: 18px 18px 18px 4px;
+  background:
+    radial-gradient(circle at 86% 14%, rgba(18, 184, 176, 0.17), transparent 32%),
+    linear-gradient(135deg, #06192d, #0a2036 62%, #071827);
+  box-shadow: 0 18px 38px rgba(6, 25, 45, 0.22);
+}
+
+.resume-document.tech-product-resume .tech-code-mark {
+  position: absolute;
+  top: -54px;
+  left: -2px;
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  color: var(--tech-cyan);
+  background: var(--tech-navy);
+  font-size: 20px;
+  font-weight: 950;
+  letter-spacing: 0;
+  box-shadow: 0 14px 28px rgba(6, 25, 45, 0.2);
+}
+
+.resume-document.tech-product-resume .tech-code-mark::after {
+  content: "";
+  position: absolute;
+  right: -28px;
+  top: 26px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--tech-blue);
+}
+
+.resume-document.tech-product-resume .tech-product-hero > strong {
+  display: block;
+  margin: 0 0 12px;
+  color: var(--tech-cyan);
+  font-size: 11.4px;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.resume-document.tech-product-resume h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 37px;
+  font-weight: 950;
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.resume-document.tech-product-resume .tech-product-hero p {
+  max-width: 230px;
+  margin: 18px 0 0;
+  color: #eaf4f7;
+  font-size: 13.2px;
+  line-height: 1.38;
+}
+
+.resume-document.tech-product-resume h3 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 14px;
+  color: var(--tech-ink);
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.09em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.resume-document.tech-product-resume h3::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  border-radius: 2px;
+  background: var(--tech-cyan);
+}
+
+.resume-document.tech-product-resume p,
+.resume-document.tech-product-resume li {
+  color: #263348;
+  font-size: 12.35px;
+  line-height: 1.55;
+}
+
+.resume-document.tech-product-resume ul {
+  display: grid;
+  gap: 6px;
+  margin: 9px 0 0;
+  padding-left: 18px;
+}
+
+.resume-document.tech-product-resume li::marker {
+  color: var(--tech-cyan);
+}
+
+.resume-document.tech-product-resume .tech-product-summary {
+  align-self: end;
+}
+
+.resume-document.tech-product-resume .tech-product-summary > p {
+  margin: 0;
+  max-width: 300px;
+}
+
+.resume-document.tech-product-resume .tech-product-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin-top: 27px;
+  padding-top: 18px;
+  border-top: 1px solid var(--tech-line);
+}
+
+.resume-document.tech-product-resume .tech-product-highlights span {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  border-right: 1px solid var(--tech-line);
+  color: #24324a;
+  font-size: 10.7px;
+  font-weight: 750;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.resume-document.tech-product-resume .tech-product-highlights span:last-child {
+  border-right: 0;
+}
+
+.resume-document.tech-product-resume .tech-product-highlights .icon {
+  width: 22px;
+  height: 22px;
+  color: var(--tech-navy);
+}
+
+.resume-document.tech-product-resume .tech-product-stack,
+.resume-document.tech-product-resume .tech-product-contact {
+  padding: 19px 17px;
+  border-radius: 17px;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 88% 8%, rgba(18, 184, 176, 0.16), transparent 28%),
+    linear-gradient(180deg, #071c30, #0b2438);
+  box-shadow: 0 18px 34px rgba(6, 25, 45, 0.18);
+}
+
+.resume-document.tech-product-resume .tech-product-stack h3,
+.resume-document.tech-product-resume .tech-product-contact h3 {
+  color: #ffffff;
+}
+
+.resume-document.tech-product-resume .tech-product-stack-list {
+  display: grid;
+  gap: 0;
+}
+
+.resume-document.tech-product-resume .tech-product-stack-list span {
+  display: block;
+  min-height: 0;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+  color: #f5fbff;
+  background: transparent;
+  font-size: 11.3px;
+  font-weight: 850;
+}
+
+.resume-document.tech-product-resume .tech-product-stack-list span:last-child {
+  border-bottom: 0;
+}
+
+.resume-document.tech-product-resume .tech-product-stack-list .icon {
+  display: none;
+}
+
+.resume-document.tech-product-resume .tech-product-card {
+  padding: 17px 16px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 15px;
+  background: #ffffff;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.055);
+}
+
+.resume-document.tech-product-resume .tech-product-credential {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 2px 10px;
+  margin: 0;
+  padding: 0 0 13px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.resume-document.tech-product-resume .tech-product-credential + .tech-product-credential {
+  padding-top: 13px;
+}
+
+.resume-document.tech-product-resume .tech-product-credential:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.resume-document.tech-product-resume .tech-product-credential > span {
+  grid-row: 1 / span 3;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  color: var(--tech-blue);
+  background: #eef6ff;
+}
+
+.resume-document.tech-product-resume .tech-product-credential .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.resume-document.tech-product-resume .tech-product-credential strong {
+  color: var(--tech-ink);
+  font-size: 11.8px;
+  font-weight: 950;
+  line-height: 1.25;
+}
+
+.resume-document.tech-product-resume .tech-product-credential small,
+.resume-document.tech-product-resume .tech-product-credential em {
+  color: var(--tech-muted);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.resume-document.tech-product-resume .tech-product-contact-list {
+  display: grid;
+  gap: 10px;
+}
+
+.resume-document.tech-product-resume .tech-product-contact-list p {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  margin: 0;
+  color: #f2fbff;
+  font-size: 11.1px;
+  overflow-wrap: anywhere;
+}
+
+.resume-document.tech-product-resume .tech-product-contact-list .icon {
+  width: 15px;
+  height: 15px;
+  color: #ffffff;
+}
+
+.resume-document.tech-product-resume .tech-product-language-list {
+  display: grid;
+  gap: 9px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.resume-document.tech-product-resume .tech-product-language-list p {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+  color: #f2fbff;
+  font-size: 11.2px;
+}
+
+.resume-document.tech-product-resume .tech-product-language-list i {
+  display: flex;
+  gap: 3px;
+}
+
+.resume-document.tech-product-resume .tech-product-language-list b {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.resume-document.tech-product-resume .tech-product-language-list b.active {
+  background: var(--tech-cyan);
+}
+
+.resume-document.tech-product-resume .tech-product-language-list strong {
+  color: #f2fbff;
+  font-size: 10.2px;
+  font-weight: 750;
+}
+
+.resume-document.tech-product-resume .tech-product-experience {
+  position: relative;
+  padding-left: 34px;
+}
+
+.resume-document.tech-product-resume .tech-product-experience::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 44px;
+  bottom: 8px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--tech-cyan), rgba(18, 184, 176, 0.1));
+}
+
+.resume-document.tech-product-resume .tech-product-experience h3 {
+  margin-left: -34px;
+}
+
+.resume-document.tech-product-resume .tech-product-experience-item {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  padding: 0 0 21px;
+}
+
+.resume-document.tech-product-resume .tech-product-experience-item::before {
+  content: "";
+  position: absolute;
+  left: -31px;
+  top: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--tech-cyan);
+  box-shadow: 0 0 0 5px rgba(18, 184, 176, 0.11);
+}
+
+.resume-document.tech-product-resume .tech-product-experience-item:last-child {
+  padding-bottom: 0;
+}
+
+.resume-document.tech-product-resume .tech-product-entry-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.resume-document.tech-product-resume .tech-product-entry-head strong {
+  color: var(--tech-ink);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.resume-document.tech-product-resume .tech-product-entry-head p {
+  margin: 4px 0 0;
+  color: #263348;
+  font-size: 12px;
+}
+
+.resume-document.tech-product-resume .tech-product-entry-head p span:first-child {
+  color: var(--tech-blue);
+  font-weight: 850;
+}
+
+.resume-document.tech-product-resume .tech-product-entry-head em {
+  color: #263348;
+  font-size: 11.4px;
+  font-style: normal;
+  font-weight: 750;
+}
+
+.resume-document.tech-product-resume .tech-product-projects > div {
+  display: grid;
+  gap: 10px;
+}
+
+.resume-document.tech-product-resume .tech-product-project {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 14px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.09);
+}
+
+.resume-document.tech-product-resume .tech-product-project:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.resume-document.tech-product-resume .tech-product-project > span {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  color: var(--tech-blue);
+  background: #eef6ff;
+}
+
+.resume-document.tech-product-resume .tech-product-project .icon {
+  width: 25px;
+  height: 25px;
+}
+
+.resume-document.tech-product-resume .tech-product-project div div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.resume-document.tech-product-resume .tech-product-project strong {
+  color: var(--tech-ink);
+  font-size: 13.4px;
+  font-weight: 950;
+}
+
+.resume-document.tech-product-resume .tech-product-project em {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 20px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: #ffffff;
+  background: var(--tech-cyan);
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 850;
+}
+
+.resume-document.tech-product-resume .tech-product-project p,
+.resume-document.tech-product-resume .tech-product-project b {
+  display: block;
+  margin: 4px 0 0;
+  color: #263348;
+  font-size: 11.7px;
+  line-height: 1.42;
+}
+
+.resume-document.tech-product-resume .tech-product-project b {
+  font-weight: 900;
+}
+
+.pdf-export-document.tech-product-resume {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(200px, 0.34fr) !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 28px 28px !important;
+  padding: 42px 38px 38px 58px !important;
+  box-shadow: none;
+}
+
+.resume-document.professional-pro-resume {
+  --professional-navy: #061d36;
+  --professional-blue: #1477f2;
+  --professional-cyan: #56d9d0;
+  --professional-ink: #172033;
+  --professional-muted: #5d6778;
+  --professional-line: #d7dee8;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(235px, 0.39fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 26px 38px;
+  padding: 45px 45px 36px 58px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 5px;
+  color: var(--professional-ink);
+  background: #ffffff;
+  box-shadow: 0 24px 58px rgba(15, 23, 42, 0.12);
+}
+
+.resume-document-shell[data-preview-scaled="true"] .resume-document.professional-pro-resume {
+  padding: 45px 45px 36px 58px;
+}
+
+.resume-document.professional-pro-resume::before {
+  content: "";
+  position: absolute;
+  inset: 26px auto 26px 30px;
+  width: 4px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--professional-blue), var(--professional-cyan));
+}
+
+.resume-document.professional-pro-resume section,
+.resume-document.professional-pro-resume header {
+  display: block;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.resume-document.resume-template-professional.professional-pro-resume section,
+.resume-document.resume-template-professional.professional-pro-resume header {
+  order: initial;
+  grid-column: auto;
+  grid-row: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.resume-document.resume-template-professional.professional-pro-resume section[hidden] {
+  display: none !important;
+}
+
+.resume-document.professional-pro-resume .professional-pro-header {
+  grid-column: 1;
+  grid-row: 1;
+  padding-top: 8px;
+}
+
+.resume-document.professional-pro-resume .professional-pro-header h2 {
+  max-width: 390px;
+  margin: 0;
+  color: #09223e;
+  font-size: 43px;
+  font-weight: 950;
+  line-height: 1.05;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.resume-document.professional-pro-resume .professional-pro-header strong {
+  display: block;
+  margin-top: 16px;
+  color: var(--professional-blue);
+  font-size: 16px;
+  font-weight: 850;
+  letter-spacing: 0.18em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.resume-document.professional-pro-resume .professional-pro-header p {
+  max-width: 445px;
+  margin: 17px 0 0;
+  color: #323b4c;
+  font-size: 13.3px;
+  line-height: 1.62;
+}
+
+.resume-document.professional-pro-resume .professional-pro-main {
+  grid-column: 1;
+  grid-row: 2;
+  display: grid;
+  align-content: start;
+  gap: 24px;
+  min-width: 0;
+}
+
+.resume-document.professional-pro-resume .professional-pro-sidebar {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  min-width: 0;
+}
+
+.resume-document.professional-pro-resume h3 {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin: 0 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--professional-line);
+  color: #172033;
+  font-size: 14px;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.resume-document.professional-pro-resume h3 > span {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  color: var(--professional-blue);
+}
+
+.resume-document.professional-pro-resume h3 .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.resume-document.professional-pro-resume p,
+.resume-document.professional-pro-resume li {
+  color: #273142;
+  font-size: 12.6px;
+  line-height: 1.58;
+}
+
+.resume-document.professional-pro-resume ul {
+  display: grid;
+  gap: 6px;
+  margin: 9px 0 0;
+  padding-left: 18px;
+}
+
+.resume-document.professional-pro-resume li::marker {
+  color: var(--professional-blue);
+}
+
+.resume-document.professional-pro-resume .professional-pro-contact {
+  padding: 25px 23px;
+  border-radius: 10px;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 86% 12%, rgba(20, 119, 242, 0.18), transparent 34%),
+    linear-gradient(135deg, #061d36, #082846 58%, #0b2e50);
+  box-shadow: 0 18px 38px rgba(6, 29, 54, 0.2);
+}
+
+.resume-document.professional-pro-resume .professional-pro-contact h3 {
+  margin-bottom: 17px;
+  color: #ffffff;
+  border-bottom-color: rgba(255, 255, 255, 0.68);
+}
+
+.resume-document.professional-pro-resume .professional-pro-contact h3 > span {
+  display: none;
+}
+
+.resume-document.professional-pro-resume .professional-pro-contact p {
+  display: grid;
+  grid-template-columns: 21px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  margin: 0;
+  color: #f5f9ff;
+  font-size: 12.4px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.resume-document.professional-pro-resume .professional-pro-contact p + p {
+  margin-top: 15px;
+}
+
+.resume-document.professional-pro-resume .professional-pro-contact .icon {
+  width: 18px;
+  height: 18px;
+  color: #ffffff;
+}
+
+.resume-document.professional-pro-resume .professional-pro-card {
+  padding: 20px 18px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.055);
+}
+
+.resume-document.professional-pro-resume .professional-pro-skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px 8px;
+}
+
+.resume-document.professional-pro-resume .professional-pro-skill-tags span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 29px;
+  padding: 6px 11px;
+  border: 1px solid #d9e0e9;
+  border-radius: 5px;
+  color: #263142;
+  background: #fbfcfe;
+  font-size: 12.1px;
+  font-weight: 650;
+  line-height: 1.15;
+}
+
+.resume-document.professional-pro-resume .professional-pro-profile p {
+  margin: 0;
+  max-width: 560px;
+}
+
+.resume-document.professional-pro-resume .professional-pro-experience {
+  position: relative;
+}
+
+.resume-document.professional-pro-resume .professional-pro-experience::after {
+  content: "";
+  position: absolute;
+  top: 58px;
+  bottom: 18px;
+  left: 5px;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(20, 119, 242, 0.55), rgba(20, 119, 242, 0.1));
+}
+
+.resume-document.professional-pro-resume .professional-pro-experience-item {
+  position: relative;
+  padding-left: 30px;
+  margin-bottom: 20px;
+}
+
+.resume-document.professional-pro-resume .professional-pro-experience-item:last-child {
+  margin-bottom: 0;
+}
+
+.resume-document.professional-pro-resume .professional-pro-experience-item::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 0;
+  z-index: 1;
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  background: var(--professional-blue);
+  box-shadow: 0 0 0 5px rgba(20, 119, 242, 0.11);
+}
+
+.resume-document.professional-pro-resume .professional-pro-entry-head,
+.resume-document.professional-pro-resume .professional-pro-education-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: start;
+}
+
+.resume-document.professional-pro-resume .professional-pro-entry-head strong,
+.resume-document.professional-pro-resume .professional-pro-education-item strong,
+.resume-document.professional-pro-resume .professional-pro-card-entry strong,
+.resume-document.professional-pro-resume .professional-pro-cert-item strong {
+  color: #141d2d;
+  font-size: 13.6px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.resume-document.professional-pro-resume .professional-pro-entry-head p,
+.resume-document.professional-pro-resume .professional-pro-education-item p,
+.resume-document.professional-pro-resume .professional-pro-card-entry span,
+.resume-document.professional-pro-resume .professional-pro-cert-item p {
+  margin: 5px 0 0;
+  color: var(--professional-muted);
+  font-size: 12.1px;
+  font-weight: 600;
+}
+
+.resume-document.professional-pro-resume .professional-pro-entry-head em,
+.resume-document.professional-pro-resume .professional-pro-education-item em,
+.resume-document.professional-pro-resume .professional-pro-card-entry em,
+.resume-document.professional-pro-resume .professional-pro-cert-item em {
+  color: #263142;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.resume-document.professional-pro-resume .professional-pro-education-item + .professional-pro-education-item,
+.resume-document.professional-pro-resume .professional-pro-card-entry + .professional-pro-card-entry {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(15, 23, 42, 0.11);
+}
+
+.resume-document.professional-pro-resume .professional-pro-card-entry {
+  display: block;
+  margin: 0;
+}
+
+.resume-document.professional-pro-resume .professional-pro-card-entry em {
+  display: block;
+  margin-top: 5px;
+  color: #6a7483;
+}
+
+.resume-document.professional-pro-resume .professional-pro-cert-item {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.resume-document.professional-pro-resume .professional-pro-cert-item + .professional-pro-cert-item {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+.resume-document.professional-pro-resume .professional-pro-cert-item > span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #dce5f0;
+  border-radius: 5px;
+  color: var(--professional-blue);
+  background: #f8fbff;
+}
+
+.resume-document.professional-pro-resume .professional-pro-cert-item .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.resume-document.professional-pro-resume .professional-pro-courses ul {
+  margin-top: 0;
+}
+
+.pdf-export-document.professional-pro-resume {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(235px, 0.39fr) !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 26px 38px !important;
+  padding: 45px 45px 36px 58px !important;
   box-shadow: none;
 }
 

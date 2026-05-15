@@ -2338,17 +2338,17 @@ const RESUME_TEMPLATES = [
     icon: "settings",
     category: "Tech",
     categories: {
-      en: "Technology / Projects",
-      pt: "Tecnologia / Projetos",
+      en: "Technology / Projects / Product",
+      pt: "Tecnologia / Projetos / Produto",
     },
     access: "pro",
     previewDescriptions: {
-      en: "A modern technical resume for software, data, product and IT profiles, with clear space for stack, projects and links.",
-      pt: "Um curriculo tecnico moderno para software, dados, produto e TI, com espaco claro para stack, projetos e links.",
+      en: "Modern Pro template for technology, product, data and digital professionals, with stack, timeline and featured projects.",
+      pt: "Modelo Pro moderno para tecnologia, produto, dados e profissionais digitais, com stack, timeline e projetos em destaque.",
     },
     descriptions: {
-      en: "A crisp technology resume with strong skills visibility.",
-      pt: "Um currículo de tecnologia com habilidades bem destacadas.",
+      en: "A modern technology resume with a SaaS-style layout, strong stack visibility and project-focused hierarchy.",
+      pt: "Um currículo moderno de tecnologia, com visual SaaS, stack em destaque e hierarquia focada em projetos.",
     },
     bestFor: {
       en: "Software, data, product, IT and technical roles",
@@ -2439,7 +2439,7 @@ const RESUME_TEMPLATES = [
 ];
 
 const ADDITIONAL_RESUME_TEMPLATES = [
-  ["professional", "Professional", "Profissional", "Corporate", "Corporativo", "pro", ["pro", "corporate"], "A split-header professional layout with contact card, timeline experience and strong lower grid.", "Um layout profissional com cabeçalho dividido, card de contato, timeline de experiência e grid inferior.", "Best for administrative roles", "Ideal para cargos administrativos"],
+  ["professional", "Professional", "Profissional", "Corporate / Professional", "Corporativo / Profissional", "pro", ["pro", "corporate"], "A modern corporate Pro template with a strong contact card, clean timeline and organized sidebar.", "Um modelo Pro corporativo moderno, com card de contato forte, timeline limpa e sidebar organizada.", "Best for corporate, administrative and marketing roles", "Ideal para areas corporativas, administrativas e marketing"],
   ["clean-pro", "Clean Pro", "Clean Pro", "ATS", "ATS", "pro", ["pro", "ats", "corporate"], "A minimal premium layout with generous spacing, refined bullets and discreet skill chips.", "Um layout minimalista premium, com respiro, bullets refinados e chips discretos.", "ATS-focused with premium polish", "Focado em ATS com acabamento premium"],
   ["modern-ats", "Modern ATS", "ATS moderno", "ATS", "ATS", "pro", ["pro", "ats", "technology"], "ATS-safe structure with a sharper modern header and a separated skills band.", "Estrutura segura para ATS, com cabeçalho moderno e faixa de habilidades destacada.", "Online applications and ATS uploads", "Candidaturas online e uploads em ATS"],
   ["senior-executive", "Senior Executive", "Executivo senior", "Executive", "Executivo", "premium", ["premium", "executive", "corporate"], "A signature executive resume with a premium ribbon, strong nameplate, strategic sidebar and polished leadership sections.", "Um currículo executivo premium com faixa de assinatura, nome forte, sidebar estratégica e seções sofisticadas de liderança.", "Senior leaders, managers, coordinators and high-value executive applications", "Lideranças seniores, gerentes, coordenadores e candidaturas executivas de alto valor"],
@@ -6637,6 +6637,32 @@ function aiCopy() {
   };
 }
 
+function aiErrorMessage(error) {
+  const code = typeof error === "string" ? error : error?.message || "";
+  const messages = currentLanguage === "pt" ? {
+    missing_openai_api_key: "IA sem chave configurada. Adicione OPENAI_API_KEY nas variáveis de ambiente da Vercel e faça um novo deploy.",
+    openai_error: "A OpenAI recusou a chamada. Verifique se a chave, o modelo OPENAI_MODEL e a cobrança da conta estão ativos.",
+    ai_generation_failed: "A IA não respondeu agora. Verifique se o endpoint /api/ai/generate está publicado e tente novamente.",
+    unsupported_task: "Esta ação de IA ainda não está suportada pelo backend.",
+    unsafe_input: "O texto enviado parece conter instruções inseguras. Remova comandos como ignorar regras ou revelar prompts e tente novamente.",
+    payload_too_large: "O texto enviado é grande demais para esta ação. Reduza o conteúdo e tente novamente.",
+    rate_limited: "Muitas chamadas de IA em pouco tempo. Aguarde um minuto e tente novamente.",
+    insufficient_credits: aiCopy().noCredits,
+    network_error: "Não foi possível conectar ao endpoint de IA. Abra pelo domínio publicado ou rode com as funções da Vercel, não apenas pelo arquivo HTML.",
+  } : {
+    missing_openai_api_key: "AI key is not configured. Add OPENAI_API_KEY to Vercel environment variables and redeploy.",
+    openai_error: "OpenAI rejected the request. Check your API key, OPENAI_MODEL, and account billing.",
+    ai_generation_failed: "AI did not respond right now. Check that /api/ai/generate is deployed and try again.",
+    unsupported_task: "This AI action is not supported by the backend yet.",
+    unsafe_input: "The submitted text appears to contain unsafe instructions. Remove commands like ignoring rules or revealing prompts and try again.",
+    payload_too_large: "The submitted text is too large for this action. Shorten it and try again.",
+    rate_limited: "Too many AI requests in a short time. Wait a minute and try again.",
+    insufficient_credits: aiCopy().noCredits,
+    network_error: "Could not connect to the AI endpoint. Open the deployed domain or run with Vercel functions, not just the HTML file.",
+  };
+  return messages[code] || aiCopy().fallbackError;
+}
+
 function aiTaskCredits(taskType) {
   return AI_TASK_CREDITS[taskType] || 1;
 }
@@ -6688,19 +6714,25 @@ async function requestAiGeneration(taskType, data = {}) {
     openFeatureLockModal(aiTaskFeature(taskType));
     throw new Error("insufficient_credits");
   }
-  const response = await fetch("/api/ai/generate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      taskType,
-      language: currentLanguage,
-      data,
-      user: {
-        id: currentAccount()?.id || "",
-        email: normalizeEmail(currentAccount()?.email || ""),
-      },
-    }),
-  });
+  let response;
+  try {
+    response = await fetch("/api/ai/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        taskType,
+        language: currentLanguage,
+        data,
+        user: {
+          id: currentAccount()?.id || "",
+          email: normalizeEmail(currentAccount()?.email || ""),
+        },
+      }),
+    });
+  } catch (error) {
+    recordAiUsage(taskType, 0, "error", "network_error");
+    throw new Error("network_error");
+  }
   const payload = await response.json().catch(() => ({}));
   if (!response.ok || !payload.success) {
     recordAiUsage(taskType, 0, "error", payload.error || "ai_generation_failed");
@@ -7456,7 +7488,7 @@ function bindInteractions() {
       } catch (error) {
         if (error.message === "insufficient_credits") return;
         draft.body = generateCoverLetterBody(draft);
-        coverLetterSaveMessage = aiCopy().fallbackError;
+        coverLetterSaveMessage = aiErrorMessage(error);
       } finally {
         restore();
       }
@@ -7497,7 +7529,7 @@ function bindInteractions() {
         draft.body = result.body || draft.body;
         coverLetterSaveMessage = result.suggestions?.length ? result.suggestions.join(" ") : "";
       } catch (error) {
-        if (error.message !== "insufficient_credits") coverLetterSaveMessage = aiCopy().fallbackError;
+        if (error.message !== "insufficient_credits") coverLetterSaveMessage = aiErrorMessage(error);
       } finally {
         restore();
       }
@@ -7940,7 +7972,7 @@ function bindInteractions() {
           } else if (taskType === "improve_project_description") {
             openAiSuggestionModal({ title: copy.suggestionTitle, text: normalizeTextList(resume.projects).join("\n"), onApply: (value) => setField("projects", value) });
           } else {
-            showAiInlineMessage(copy.fallbackError);
+            showAiInlineMessage(aiErrorMessage(error));
           }
         }
       } finally {
@@ -7988,7 +8020,7 @@ function bindInteractions() {
         aiAssistantState = {
           ...nextState,
           result: error.message === "insufficient_credits" ? null : analyzeResumeForJob(resume, nextState),
-          error: error.message === "insufficient_credits" ? aiCopy().noCredits : aiCopy().fallbackError,
+          error: aiErrorMessage(error),
         };
         render();
       }
@@ -8030,7 +8062,7 @@ function bindInteractions() {
         ].filter(Boolean).join("\n\n");
         openAiSuggestionModal({ title: aiCopy().tailorJob, text: text || aiCopy().fallbackError });
       } catch (error) {
-        if (error.message !== "insufficient_credits") showAiInlineMessage(aiCopy().fallbackError);
+        if (error.message !== "insufficient_credits") showAiInlineMessage(aiErrorMessage(error));
       } finally {
         restore();
       }
@@ -8073,11 +8105,12 @@ function bindInteractions() {
     const root = previewRoot();
     const targets = root ? Array.from(root.querySelectorAll(`[data-preview-field="${targetName}"]`)) : [];
     if (!targets.length) return;
-    const value = field.value.trim();
+      const value = field.value.trim();
     targets.forEach((target) => {
       const displayValue = value || target.getAttribute("data-preview-empty") || "";
       if (targetName === "skills") {
-      target.innerHTML = displayValue.split(",").map((skill) => skill.trim()).filter(Boolean).map((skill) => `<span>${escapeHtml(skill)}</span>`).join("");
+      const skills = displayValue.split(/,|\n/).map((skill) => skill.trim()).filter(Boolean);
+      target.innerHTML = skills.map((skill) => `<span>${escapeHtml(skill)}</span>`).join("");
     } else if (targetName === "certifications" && (target.closest(".student-courses") || target.closest(".simple-ats-certifications") || target.closest(".executive-certifications"))) {
       target.innerHTML = displayValue.split(/,|\n/).map((item) => item.trim()).filter(Boolean).map((item) => `<p>${escapeHtml(item)}</p>`).join("");
     } else if (["languages", "certifications"].includes(targetName)) {
@@ -8099,7 +8132,7 @@ function bindInteractions() {
   function updatePreviewContactLine() {
     const root = previewRoot();
     const contact = root ? root.querySelector('[data-preview-field="contact"]') : null;
-    if (!contact) return;
+    if (!root) return;
     const getSource = (name) => document.querySelector(`[data-preview-source="${name}"]`)?.value.trim() || "";
     const location = resumeContactLocation({
       address: getSource("address"),
@@ -8108,6 +8141,26 @@ function bindInteractions() {
       postalCode: getSource("postalCode"),
       location: getSource("location"),
     });
+    const customContactItems = [
+      ["mail", getSource("email")],
+      ["headset", getSource("phone")],
+      ["globe", location],
+      ["link", normalizeTextList(document.querySelector('[data-resume-field="links"]')?.value || "")[0]],
+    ].filter((item) => item[1]);
+    const customContactMarkup = customContactItems.map(([iconName, value]) => `<p>${icon(iconName)}<span>${escapeHtml(value)}</span></p>`).join("");
+    if (root.classList.contains("tech-product-resume")) {
+      const list = root.querySelector(".tech-product-contact-list");
+      if (list) list.innerHTML = customContactMarkup;
+      refreshOptionalResumeSections(root);
+      return;
+    }
+    if (root.classList.contains("professional-pro-resume")) {
+      const list = root.querySelector(".professional-pro-contact-list");
+      if (list) list.innerHTML = customContactMarkup;
+      refreshOptionalResumeSections(root);
+      return;
+    }
+    if (!contact) return;
     const showLinkInContact = root?.classList?.contains("student-resume") || root?.classList?.contains("simple-ats-resume") || root?.classList?.contains("executive-resume");
     const studentLink = showLinkInContact
       ? normalizeTextList(document.querySelector('[data-resume-field="links"]')?.value || "")[0]
@@ -9105,6 +9158,202 @@ async function exportCoverLetterPdf(letter, button) {
 }
 
 function curatedSampleResume(template = "professional") {
+  if (template === "tech") {
+    return createBlankResume({
+      selectedTemplate: template,
+      personal: {
+        fullName: "Amanda Silva",
+        title: "Product Manager",
+        email: "amanda.silva@email.com",
+        phone: "+55 11 98765-4321",
+        location: currentLanguage === "pt" ? "Sao Paulo, Brasil" : "Sao Paulo, Brazil",
+      },
+      summary: currentLanguage === "pt"
+        ? "Product Manager com 6+ anos em produtos digitais, estratégia, pesquisa com usuários, dados e execução ágil."
+        : "Product Manager with 6+ years in digital products, strategy, user research, data and agile delivery.",
+      workExperience: currentLanguage === "pt"
+        ? [
+          {
+            role: "Senior Product Manager",
+            company: "Nexora Labs",
+            location: "Sao Paulo, Brasil",
+            period: "2021 - Presente",
+            achievements: [
+              "Liderou plataforma SaaS usada por 50 mil empresas.",
+              "Definiu roadmap e elevou NPS de 32 para 62.",
+              "Entregou features com design, engenharia e dados.",
+            ],
+          },
+          {
+            role: "Product Manager",
+            company: "Trackin Inc.",
+            location: "Remoto",
+            period: "2019 - 2021",
+            achievements: [
+              "Conduziu discovery e lançamento web/mobile.",
+              "Validou soluções com pesquisa e testes.",
+              "Reduziu churn em 18% com novo onboarding.",
+            ],
+          },
+          {
+            role: "Associate Product Analyst",
+            company: "Visiona Tech",
+            location: "Sao Paulo, Brasil",
+            period: "2017 - 2019",
+            achievements: [
+              "Analisou dados para definir KPIs.",
+              "Criou dashboards de performance.",
+            ],
+          },
+        ]
+        : [
+          {
+            role: "Senior Product Manager",
+            company: "Nexora Labs",
+            location: "Sao Paulo, Brazil",
+            period: "2021 - Present",
+            achievements: [
+              "Led a SaaS platform used by 50k+ companies.",
+              "Defined roadmap and raised NPS from 32 to 62.",
+              "Shipped features with design, engineering and data.",
+            ],
+          },
+          {
+            role: "Product Manager",
+            company: "Trackin Inc.",
+            location: "Remote",
+            period: "2019 - 2021",
+            achievements: [
+              "Owned discovery to launch for web/mobile apps.",
+              "Validated solutions with research and tests.",
+              "Reduced churn by 18% with onboarding updates.",
+            ],
+          },
+          {
+            role: "Associate Product Analyst",
+            company: "Visiona Tech",
+            location: "Sao Paulo, Brazil",
+            period: "2017 - 2019",
+            achievements: [
+              "Analyzed product data and KPIs.",
+              "Built performance dashboards.",
+            ],
+          },
+        ],
+      education: [
+        { degree: currentLanguage === "pt" ? "M.Sc. em Ciencia da Computacao" : "M.Sc. in Computer Science", school: currentLanguage === "pt" ? "Universidade de Sao Paulo (USP)" : "University of Sao Paulo (USP)", period: "2015 - 2017" },
+        { degree: currentLanguage === "pt" ? "B.Sc. em Sistemas de Informacao" : "B.Sc. in Information Systems", school: currentLanguage === "pt" ? "Universidade Federal do Rio de Janeiro (UFRJ)" : "Federal University of Rio de Janeiro (UFRJ)", period: "2011 - 2015" },
+      ],
+      skills: ["Product Strategy", "Analytics", "SQL", "Figma", "Leadership"],
+      languages: currentLanguage === "pt" ? ["Portugues - Nativo", "Ingles - Fluente", "Espanhol - Intermediario"] : ["Portuguese - Native", "English - Fluent", "Spanish - Intermediate"],
+      certifications: ["PSPO I - Scrum.org, 2022", "Google Analytics 4 - Google, 2021", "Product Management Certificate - Product School, 2020"],
+      projects: currentLanguage === "pt"
+        ? ["InsightHub Platform - Plataforma analytics para SMBs. Resultado: 40% mais adocao em 3 meses.", "Mobile App Redesign - Nova experiencia baseada em pesquisa. Resultado: 25% mais ativacao.", "Pricing Experiment - Testes de pricing e pacotes. Resultado: 17% mais MRR."]
+        : ["InsightHub Platform - Analytics platform for SMBs. Result: 40% more adoption in 3 months.", "Mobile App Redesign - New research-based experience. Result: 25% more activation.", "Pricing Experiment - Pricing and packaging tests. Result: 17% more MRR."],
+      professionalLinks: ["linkedin.com/in/amandasilva"],
+    });
+  }
+  if (template === "professional") {
+    return createBlankResume({
+      selectedTemplate: template,
+      personal: {
+        fullName: "Carlos Mendes",
+        title: currentLanguage === "pt" ? "Analista de Marketing" : "Marketing Analyst",
+        email: "carlos.mendes@email.com",
+        phone: currentLanguage === "pt" ? "(11) 98765-4321" : "+55 11 98765-4321",
+        location: currentLanguage === "pt" ? "Sao Paulo, SP, Brasil" : "Sao Paulo, Brazil",
+      },
+      summary: currentLanguage === "pt"
+        ? "Analista de marketing com 5+ anos em campanhas digitais, analise de metricas, branding e geracao de demanda. Focado em resultados, comunicacao clara e estrategias que conectam marcas ao publico."
+        : "Marketing analyst with 5+ years in digital campaigns, metrics analysis, branding and demand generation. Focused on results, clear communication and strategies that connect brands with audiences.",
+      workExperience: currentLanguage === "pt"
+        ? [
+          {
+            role: "Analista de Marketing Pleno",
+            company: "Agencia Next Level",
+            location: "Sao Paulo, SP",
+            period: "2021 - Atual",
+            achievements: [
+              "Desenvolveu estrategias digitais para clientes de tecnologia e servicos.",
+              "Analisou campanhas e indicadores para otimizacao continua.",
+              "Coordenou times e parceiros para entrega de projetos.",
+              "Aumentou em 35% a geracao de leads qualificados.",
+            ],
+          },
+          {
+            role: "Analista de Marketing Junior",
+            company: "StartGrow",
+            location: "Sao Paulo, SP",
+            period: "2019 - 2021",
+            achievements: [
+              "Apoiou campanhas de midia paga e conteudo.",
+              "Monitorou KPIs e preparou relatorios de performance.",
+              "Contribuiu para aumento de 20% no engajamento organico.",
+            ],
+          },
+          {
+            role: "Assistente de Marketing",
+            company: "BrandUp",
+            location: "Sao Paulo, SP",
+            period: "2018 - 2019",
+            achievements: [
+              "Apoiou eventos, branding e comunicacao interna.",
+              "Criou materiais graficos e apresentacoes.",
+            ],
+          },
+        ]
+        : [
+          {
+            role: "Marketing Analyst",
+            company: "Next Level Agency",
+            location: "Sao Paulo, Brazil",
+            period: "2021 - Present",
+            achievements: [
+              "Developed digital strategies for technology and services clients.",
+              "Analyzed campaign performance and KPIs for continuous optimization.",
+              "Coordinated internal teams and partners to deliver projects.",
+              "Increased qualified lead generation by 35%.",
+            ],
+          },
+          {
+            role: "Junior Marketing Analyst",
+            company: "StartGrow",
+            location: "Sao Paulo, Brazil",
+            period: "2019 - 2021",
+            achievements: [
+              "Supported paid media and content campaigns.",
+              "Monitored KPIs and prepared performance reports.",
+              "Contributed to a 20% increase in organic engagement.",
+            ],
+          },
+          {
+            role: "Marketing Assistant",
+            company: "BrandUp",
+            location: "Sao Paulo, Brazil",
+            period: "2018 - 2019",
+            achievements: [
+              "Supported events, branding and internal communications.",
+              "Created graphic materials and presentations.",
+            ],
+          },
+        ],
+      education: [
+        { degree: currentLanguage === "pt" ? "Bacharelado em Marketing" : "Bachelor's Degree in Marketing", school: currentLanguage === "pt" ? "Universidade de Sao Paulo (USP)" : "University of Sao Paulo (USP)", period: "2014 - 2017" },
+        { degree: currentLanguage === "pt" ? "Tecnico em Administracao" : "Technical Program in Administration", school: currentLanguage === "pt" ? "Etec de Sao Paulo" : "Etec Sao Paulo", period: "2011 - 2013" },
+      ],
+      skills: currentLanguage === "pt"
+        ? ["Marketing Digital", "Midia Paga", "SEO", "Google Analytics", "Inbound Marketing", "CRM", "Redes Sociais", "Excel Avancado", "Copywriting", "Comunicacao", "Analise de Dados"]
+        : ["Digital Marketing", "Paid Media", "SEO", "Google Analytics", "Inbound Marketing", "CRM", "Social Media", "Advanced Excel", "Copywriting", "Communication", "Data Analysis"],
+      languages: currentLanguage === "pt" ? ["Portugues - Nativo", "Ingles - Avancado"] : ["Portuguese - Native", "English - Advanced"],
+      certifications: currentLanguage === "pt"
+        ? ["Google Analytics Individual Qualification - Google - 2023", "Meta Blueprint Certified - Meta - 2022", "HubSpot Content Marketing Certification - HubSpot Academy - 2021"]
+        : ["Google Analytics Individual Qualification - Google - 2023", "Meta Blueprint Certified - Meta - 2022", "HubSpot Content Marketing Certification - HubSpot Academy - 2021"],
+      projects: currentLanguage === "pt"
+        ? ["Marketing Digital na Pratica - Rock Content", "Google Analytics para Iniciantes - Google", "Copywriting e Storytelling - Conquer"]
+        : ["Practical Digital Marketing - Rock Content", "Google Analytics for Beginners - Google", "Copywriting and Storytelling - Conquer"],
+      professionalLinks: ["linkedin.com/in/carlosmendes", "carlosmendes.com.br"],
+    });
+  }
   if (template === "senior-executive") {
     return createBlankResume({
       selectedTemplate: template,
@@ -13034,6 +13283,89 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
       ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
     </p>
   `).join("");
+  if (template === "professional") {
+    const professionalSection = (className, iconName, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3><span>${icon(iconName)}</span>${title}</h3>${body}</section>`;
+    const professionalLinks = normalizeTextList(data.professionalLinks);
+    const professionalContactItems = [
+      ["mail", personal.email],
+      ["headset", personal.phone],
+      ["globe", displayLocation],
+      ["link", professionalLinks[0]],
+      ["layout", professionalLinks[1]],
+    ].filter((item) => curatedHasText(item[1]));
+    const professionalContacts = professionalContactItems.map(([iconName, value]) => `<p>${icon(iconName)}<span>${escapeHtml(value)}</span></p>`).join("");
+    const professionalSkills = normalizeTextList(data.skills);
+    const professionalSkillTags = (professionalSkills.length ? professionalSkills : normalizeTextList(b.values.skills)).map((skill) => `<span>${escapeHtml(skill)}</span>`).join("");
+    const professionalExperienceEntries = (curatedExperiences.length ? curatedExperiences : [curatedPrimaryExperience]).map((item, index) => `
+      <article class="professional-pro-experience-item">
+        <div class="professional-pro-entry-head">
+          <div>
+            <strong ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>
+            <p><span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>${curatedHasText(item.company) && curatedHasText(item.location) ? " - " : ""}<span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span></p>
+          </div>
+          <em ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</em>
+        </div>
+        <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
+      </article>
+    `).join("");
+    const professionalEducationEntries = (curatedEducationItems.length ? curatedEducationItems : [education]).map((item, index) => `
+      <article class="professional-pro-education-item">
+        <div>
+          <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
+          <p ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</p>
+        </div>
+        ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
+      </article>
+    `).join("");
+    const professionalSideEducation = (curatedEducationItems.length ? curatedEducationItems : [education]).map((item, index) => `
+      <p class="professional-pro-card-entry">
+        <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
+        <span ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</span>
+        ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
+      </p>
+    `).join("");
+    const professionalCertifications = normalizeTextList(data.certifications).map((item, index) => {
+      const parts = item.split(" - ").map((part) => part.trim()).filter(Boolean);
+      const year = parts.length > 2 ? parts.pop() : "";
+      const issuer = parts.length > 1 ? parts.pop() : "";
+      const name = parts.join(" - ") || item;
+      return `
+        <article class="professional-pro-cert-item">
+          <span>${icon(["shield", "file", "settings"][index % 3])}</span>
+          <div>
+            <strong>${escapeHtml(name)}</strong>
+            ${issuer ? `<p>${escapeHtml(issuer)}</p>` : ""}
+          </div>
+          ${year ? `<em>${escapeHtml(year)}</em>` : ""}
+        </article>
+      `;
+    }).join("");
+    const professionalCourses = normalizeTextList(data.projects);
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-professional professional-pro-resume ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="professional-pro-header">
+              <h2 data-preview-field="name" data-preview-empty="Carlos Mendes">${display(displayName, "Carlos Mendes")}</h2>
+              <strong data-preview-field="title" data-preview-empty="${currentLanguage === "pt" ? "Analista de Marketing" : "Marketing Analyst"}">${display(personal.title, currentLanguage === "pt" ? "Analista de Marketing" : "Marketing Analyst")}</strong>
+            </header>
+            <aside class="professional-pro-sidebar">
+      ${professionalSection("professional-pro-contact", "mail", currentLanguage === "pt" ? "Contato" : "Contact", `<div class="professional-pro-contact-list">${professionalContacts}</div>`, professionalContactItems.length > 0)}
+              ${professionalSection("professional-pro-card professional-pro-skills", "sparkles", curatedLabels.skills, `<div class="professional-pro-skill-tags" data-preview-field="skills" data-preview-empty="">${professionalSkillTags}</div>`, professionalSkills.length > 0)}
+              ${professionalSection("professional-pro-card professional-pro-education-side", "file", currentLanguage === "pt" ? "Educacao" : "Education", professionalSideEducation, curatedEducationItems.length > 0)}
+              ${professionalSection("professional-pro-card professional-pro-certifications", "shield", curatedLabels.certifications, `<div data-preview-field="certifications" data-preview-empty="">${professionalCertifications}</div>`, curatedHasList(data.certifications))}
+            </aside>
+            <main class="professional-pro-main">
+              ${professionalSection("professional-pro-profile", "user", curatedLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, curatedHasText(data.summary))}
+              ${professionalSection("professional-pro-experience", "layout", curatedLabels.experience, professionalExperienceEntries, curatedExperiences.length > 0)}
+              ${professionalSection("professional-pro-education-main", "file", curatedLabels.education, professionalEducationEntries, curatedEducationItems.length > 0)}
+              ${professionalSection("professional-pro-courses", "file", currentLanguage === "pt" ? "Cursos Complementares" : "Additional Courses", `<ul data-preview-field="projects" data-preview-empty="">${linesMarkup(professionalCourses, "")}</ul>`, professionalCourses.length > 0)}
+            </main>
+          </div>
+        </div>
+      </div>
+    `;
+  }
   if (template === "senior-executive") {
     const execSection = (className, iconName, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><div class="exec-section-title"><span>${icon(iconName)}</span><h3>${title}</h3></div>${body}</section>`;
     const executiveInitial = (displayName || "Amanda Silva").trim().charAt(0).toUpperCase() || "A";
@@ -13152,37 +13484,84 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
   }
   if (template === "tech") {
     const techSection = (className, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3>${title}</h3>${body}</section>`;
-    const techKicker = currentLanguage === "pt" ? "Perfil tecnico" : "Technical profile";
-    const techSidebarTitle = currentLanguage === "pt" ? "Stack principal" : "Core stack";
-    const techSideSections = [
-      techSection("tech-lab-card tech-lab-skills", techSidebarTitle, `<div class="resume-skill-list tech-lab-skill-list" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, curatedHasList(data.skills)),
-      techSection("tech-lab-card tech-lab-education", curatedLabels.education, curatedEducationEntries, curatedEducationItems.length > 0),
-      techSection("tech-lab-card tech-lab-certifications", curatedLabels.certifications, `<p data-preview-field="certifications" data-preview-empty="">${curatedLines(data.certifications)}</p>`, curatedHasList(data.certifications)),
-      techSection("tech-lab-card tech-lab-languages", curatedLabels.languages, `<p data-preview-field="languages" data-preview-empty="">${curatedLines(data.languages)}</p>`, curatedHasList(data.languages)),
-      techSection("tech-lab-card tech-lab-links", curatedLabels.links, `<div class="resume-link-list curated-link-list" data-preview-field="links" data-preview-empty="">${paragraphList(data.professionalLinks, "")}</div>`, curatedHasList(data.professionalLinks)),
-    ].join("");
+    const productLabel = currentLanguage === "pt" ? "Resumo Profissional" : "Profile Summary";
+    const stackLabel = currentLanguage === "pt" ? "Stack e Habilidades" : "Stack & Skills";
+    const contactLabel = currentLanguage === "pt" ? "Contato e Idiomas" : "Contact & Languages";
+    const techSkills = normalizeTextList(data.skills);
+    const techSkillItems = (techSkills.length ? techSkills : normalizeTextList(b.values.skills)).map((skill) => `<span>${escapeHtml(skill)}</span>`).join("");
+    const techExperienceEntries = (curatedExperiences.length ? curatedExperiences : [curatedPrimaryExperience]).map((item, index) => `
+      <article class="tech-product-experience-item">
+        <div class="tech-product-entry-head">
+          <div>
+            <strong ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>
+            <p><span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>${curatedHasText(item.company) && curatedHasText(item.location) ? " - " : ""}<span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span></p>
+          </div>
+          <em ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</em>
+        </div>
+        <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
+      </article>
+    `).join("");
+    const techProjects = normalizeTextList(data.projects).map((project, index) => {
+      const parts = project.split(" - ");
+      const title = parts.shift() || project;
+      const text = parts.join(" - ") || project;
+      const [description, result] = text.split(/Resultado:|Result:/);
+      return `
+        <article class="tech-product-project">
+          <span>${icon(["target", "layout", "shield"][index % 3])}</span>
+          <div>
+            <div><strong>${escapeHtml(title)}</strong><em>${new Date().getFullYear() - Math.min(index, 3)}</em></div>
+            <p>${escapeHtml((description || text).trim())}</p>
+            ${result ? `<b>${currentLanguage === "pt" ? "Resultado:" : "Result:"} ${escapeHtml(result.trim())}</b>` : ""}
+          </div>
+        </article>
+      `;
+    }).join("");
+    const techEducation = curatedEducationItems.map((item, index) => `
+      <p class="tech-product-credential">
+        <span>${icon("file")}</span>
+        <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
+        <small ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</small>
+        ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
+      </p>
+    `).join("");
+    const techCertifications = normalizeTextList(data.certifications).map((item, index) => {
+      const parts = item.split(" - ");
+      return `<p class="tech-product-credential"><span>${icon(["shield", "target", "settings"][index % 3])}</span><strong>${escapeHtml(parts[0] || item)}</strong>${parts[1] ? `<small>${escapeHtml(parts[1])}</small>` : ""}${parts[2] ? `<em>${escapeHtml(parts[2])}</em>` : ""}</p>`;
+    }).join("");
+    const techContactItems = [
+      ["mail", personal.email],
+      ["headset", personal.phone],
+      ["globe", displayLocation],
+      ["link", normalizeTextList(data.professionalLinks)[0]],
+    ].filter((item) => curatedHasText(item[1]));
+    const techContacts = techContactItems.map(([iconName, value]) => `<p>${icon(iconName)}<span>${escapeHtml(value)}</span></p>`).join("");
+    const techLanguages = normalizeTextList(data.languages).map((item, index) => {
+      const [language, ...levelParts] = item.split(/[-–—|:]/);
+      const dots = 5 - Math.min(index, 2);
+      return `<p><span>${escapeHtml((language || item).trim())}</span><i>${Array.from({ length: 5 }, (_, dotIndex) => `<b class="${dotIndex < dots ? "active" : ""}"></b>`).join("")}</i><strong>${escapeHtml(levelParts.join(" ").trim() || "")}</strong></p>`;
+    }).join("");
     return `
       <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
         <div class="resume-page-scale-wrapper">
-          <div class="resume-document professional-preview resume-template-tech tech-lab-resume ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
-            <header class="tech-lab-hero">
-              <div class="tech-lab-identity">
-                <span class="tech-lab-kicker">${techKicker}</span>
-                <h2 data-preview-field="name" data-preview-empty="Amanda Silva">${display(displayName, "Amanda Silva")}</h2>
+          <div class="resume-document professional-preview resume-template-tech tech-product-resume ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <div class="tech-product-top">
+              <header class="tech-product-hero">
                 <strong data-preview-field="title" data-preview-empty="${b.values.professionalTitle}">${display(personal.title, b.values.professionalTitle)}</strong>
-              </div>
-              <p class="resume-contact-line tech-lab-contact" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(curatedContact, b.document.header)}</p>
-            </header>
-            <div class="tech-lab-body">
-              <main class="tech-lab-main">
-                ${techSection("tech-lab-profile", curatedLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, curatedHasText(data.summary))}
-                ${techSection("tech-lab-experience", curatedLabels.experience, curatedExperienceEntries, curatedExperiences.length > 0)}
-                ${techSection("tech-lab-projects", curatedLabels.projects, curatedParagraphs(data.projects, "projects"), curatedHasList(data.projects))}
-              </main>
-              <aside class="tech-lab-sidebar">
-                ${techSideSections}
-              </aside>
+                <h2 data-preview-field="name" data-preview-empty="Amanda Silva">${display(displayName, "Amanda Silva")}</h2>
+              </header>
+              ${techSection("tech-product-summary", productLabel, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, curatedHasText(data.summary))}
             </div>
+            <main class="tech-product-main">
+              ${techSection("tech-product-experience", curatedLabels.experience, techExperienceEntries, curatedExperiences.length > 0)}
+              ${techSection("tech-product-projects", currentLanguage === "pt" ? "Projetos em destaque" : "Featured Projects", `<div data-preview-field="projects" data-preview-empty="">${techProjects}</div>`, curatedHasList(data.projects))}
+            </main>
+            <aside class="tech-product-sidebar">
+              ${techSection("tech-product-stack", stackLabel, `<div class="tech-product-stack-list" data-preview-field="skills" data-preview-empty="">${techSkillItems}</div>`, techSkills.length > 0)}
+              ${techSection("tech-product-card tech-product-education", curatedLabels.education, techEducation, curatedEducationItems.length > 0)}
+              ${techSection("tech-product-card tech-product-certifications", curatedLabels.certifications, techCertifications, curatedHasList(data.certifications))}
+              ${techSection("tech-product-contact", contactLabel, `<div class="tech-product-contact-list">${techContacts}</div><div class="tech-product-language-list" data-preview-field="languages" data-preview-empty="">${techLanguages}</div>`, techContactItems.length > 0 || curatedHasList(data.languages))}
+            </aside>
           </div>
         </div>
       </div>
