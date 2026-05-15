@@ -585,9 +585,12 @@ const I18N = {
       suggestionsTitle: "Improvement suggestions",
       foundKeywords: "Keywords found",
       missingKeywords: "Missing keywords",
+      skillSuggestions: "Suggested skills",
+      missingSections: "Missing sections",
+      generalRecommendations: "General recommendation",
       skillsMatch: "Skills match",
       experienceMatch: "Experience match",
-      categories: { summary: "Professional summary", experience: "Experience", skills: "Skills", keywords: "Keywords", formatting: "Formatting", upgrade: "Advanced optimization" },
+      categories: { summary: "Professional summary", experience: "Experience", skills: "Skills", keywords: "Keywords", missingSections: "Missing sections", recommendation: "General recommendation", formatting: "Formatting", upgrade: "Advanced optimization" },
       actions: { apply: "Apply suggestion", copy: "Copy suggestion", edit: "Edit in resume", copied: "Suggestion copied", pro: "Available with Pro" },
       suggestions: {
         summaryTarget: "Your professional summary could mention the target role more clearly.",
@@ -1050,6 +1053,9 @@ Object.assign(I18N.pt.ai, {
   suggestionsTitle: "Sugestões de melhoria",
   foundKeywords: "Palavras-chave encontradas",
   missingKeywords: "Palavras-chave faltando",
+  skillSuggestions: "Habilidades sugeridas",
+  missingSections: "Se\u00e7\u00f5es ausentes",
+  generalRecommendations: "Recomenda\u00e7\u00e3o geral",
   skillsMatch: "Compatibilidade de habilidades",
   experienceMatch: "Compatibilidade de experiência",
   categories: { summary: "Resumo profissional", experience: "Experiência", skills: "Habilidades", keywords: "Palavras-chave", formatting: "Formatação", upgrade: "Otimização avançada" },
@@ -1064,6 +1070,11 @@ Object.assign(I18N.pt.ai, {
     contact: "Inclua e-mail, telefone e localização para facilitar o contato dos recrutadores.",
     advanced: "Desbloqueie recomendações mais profundas de palavras-chave e adaptação por vaga.",
   },
+});
+
+Object.assign(I18N.pt.ai.categories, {
+  missingSections: "Se\u00e7\u00f5es ausentes",
+  recommendation: "Recomenda\u00e7\u00e3o geral",
 });
 
 Object.assign(I18N.en.auth, {
@@ -9801,7 +9812,7 @@ function bindInteractions() {
       } catch (error) {
         aiAssistantState = {
           ...nextState,
-          result: error.message === "insufficient_credits" ? null : analyzeResumeForJob(resume, nextState),
+          result: null,
           error: aiErrorMessage(error),
         };
         render();
@@ -16488,8 +16499,11 @@ function renderAiAssistant() {
     <section class="ai-keyword-grid">
       ${aiKeywordCard(a.foundKeywords, result.foundKeywords)}
       ${aiKeywordCard(a.missingKeywords, result.missingKeywords)}
+      ${aiKeywordCard(a.skillSuggestions, result.skillSuggestions)}
+      ${aiKeywordCard(a.missingSections, result.missingSections)}
       <article class="dash-card ai-match-card"><h3>${a.skillsMatch}</h3><strong>${result.skillsMatch}%</strong><p>${result.skillsMatched.join(", ") || a.noSuggestions}</p></article>
       <article class="dash-card ai-match-card"><h3>${a.experienceMatch}</h3><strong>${result.experienceMatch}%</strong><p>${result.experienceNote}</p></article>
+      <article class="dash-card ai-match-card ai-recommendation-card"><h3>${a.generalRecommendations}</h3><p>${result.generalRecommendations.join(" ") || result.experienceNote || a.noSuggestions}</p></article>
     </section>
   ` : `<section class="ai-keyword-grid"><div class="ai-empty-panel wide">${icon("target")}<p>${a.start}</p></div></section>`;
 
@@ -16729,24 +16743,44 @@ function analyzeResumeForJob(resume, values) {
 
 function aiAnalysisResult(result, resume, values) {
   const a = t().ai;
-  const fallback = analyzeResumeForJob(resume, values);
-  const matched = Array.isArray(result.matchedKeywords) ? result.matchedKeywords : fallback.foundKeywords;
-  const missing = Array.isArray(result.missingKeywords) ? result.missingKeywords : fallback.missingKeywords;
-  const suggestions = Array.isArray(result.suggestions) && result.suggestions.length
-    ? result.suggestions.map((text, index) => ({
-        category: index === 0 ? a.categories.summary : index === 1 ? a.categories.keywords : a.categories.experience,
-        text,
-        section: index === 1 ? "skills" : "summary",
-      }))
-    : fallback.suggestions;
+  const list = (value) => Array.isArray(value) ? value.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 12) : [];
+  const matched = list(result.matchedKeywords);
+  const missing = list(result.missingKeywords);
+  const skillSuggestions = list(result.skillSuggestions);
+  const missingSections = list(result.missingSections);
+  const generalRecommendations = list(result.generalRecommendations);
+  const summarySuggestions = list(result.summarySuggestions);
+  const experienceSuggestions = list(result.experienceSuggestions);
+  const directSuggestions = list(result.suggestions);
+  const suggestions = [
+    ...summarySuggestions.map((text) => ({ category: a.categories.summary, text, section: "summary" })),
+    ...experienceSuggestions.map((text) => ({ category: a.categories.experience, text, section: "experience" })),
+    ...skillSuggestions.map((text) => ({ category: a.categories.skills, text, section: "skills" })),
+    ...missingSections.map((text) => ({ category: a.categories.missingSections || a.categories.formatting, text, section: "formatting" })),
+    ...generalRecommendations.map((text) => ({ category: a.categories.recommendation || a.categories.keywords, text, section: "summary" })),
+    ...directSuggestions.map((text, index) => ({
+      category: index === 0 ? a.categories.summary : index === 1 ? a.categories.keywords : a.categories.experience,
+      text,
+      section: index === 1 ? "skills" : "summary",
+    })),
+  ].slice(0, 12);
+  const totalKeywords = matched.length + missing.length;
+  const skillsMatched = (resume.skills || []).filter((skill) => matched.some((keyword) => normalizeAiText(keyword).includes(normalizeAiText(skill)) || normalizeAiText(skill).includes(normalizeAiText(keyword)))).slice(0, 8);
+  const skillsMatch = totalKeywords ? Math.round((matched.length / totalKeywords) * 100) : 0;
+  const experienceText = normalizeAiText((resume.workExperience || []).flatMap((item) => [item.role, item.company, ...(item.achievements || [])]).join(" "));
+  const experienceHits = matched.filter((keyword) => experienceText.includes(normalizeAiText(keyword))).length;
+  const experienceMatch = matched.length ? Math.round((experienceHits / matched.length) * 100) : 0;
   return {
-    score: Math.max(0, Math.min(100, Number(result.score) || fallback.score)),
+    score: Math.max(0, Math.min(100, Number(result.score) || 0)),
     foundKeywords: matched,
     missingKeywords: missing,
-    skillsMatch: fallback.skillsMatch,
-    skillsMatched: fallback.skillsMatched,
-    experienceMatch: fallback.experienceMatch,
-    experienceNote: result.explanation || fallback.experienceNote,
+    skillSuggestions,
+    missingSections,
+    generalRecommendations,
+    skillsMatch,
+    skillsMatched,
+    experienceMatch,
+    experienceNote: result.explanation || generalRecommendations[0] || a.noSuggestions,
     suggestions,
   };
 }
@@ -16863,7 +16897,9 @@ function renderProfile() {
               <span>${icon(accountVerified ? "check" : "shield")} <small>${s.accountStatus}</small><strong>${accountVerified ? s.verifiedAccount : s.unverifiedAccount}</strong></span>
               <span>${icon("shield")} <small>${s.activeSession}</small><strong>${escapeHtml(formattedLastAccess || accountStatusLabel)}</strong></span>
             </div>
-            <button class="secondary-button small" type="button" data-password-prepared="#profile-password-message">${icon("lock")} ${s.changePassword}</button>
+            <div class="password-action-row">
+              <button class="secondary-button small" type="button" data-password-prepared="#profile-password-message">${icon("lock")} ${s.changePassword}</button>
+            </div>
             <p class="settings-message" id="profile-password-message" hidden></p>
           </article>
 
@@ -16955,7 +16991,9 @@ function renderSettings() {
             <span>${icon("shield")} ${s.activeAccount}</span>
           </div>
           <p>${s.changePasswordHelp}</p>
-          <button class="secondary-button small" type="button">${s.updatePassword}</button>
+          <div class="password-action-row">
+            <button class="secondary-button small" type="button">${s.updatePassword}</button>
+          </div>
         </article>
         <article class="settings-card account-settings-card">
           <div class="settings-card-head"><div><span class="eyebrow">${s.accountTitle}</span><h2>${s.accountTitle}</h2></div></div>
@@ -17008,8 +17046,10 @@ function renderAccountSettings() {
           <p>${s.accountText}</p>
           <div class="section-actions">
             <button class="secondary-button small" type="button" data-route="/dashboard/profile">${copy.dashboard.nav.profile}</button>
-            <button class="secondary-button small" type="button" data-password-prepared="#settings-password-message">${s.changePassword}</button>
             <button class="ghost-button small" type="button" data-route="/" data-sign-out>${copy.dashboard.signOut}</button>
+          </div>
+          <div class="password-action-row">
+            <button class="secondary-button small" type="button" data-password-prepared="#settings-password-message">${s.changePassword}</button>
           </div>
           <p class="settings-message" id="settings-password-message" hidden></p>
         </article>

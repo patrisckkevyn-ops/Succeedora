@@ -72,23 +72,23 @@ const TASKS = {
   },
   analyze_resume_ats: {
     maxTokens: 1200,
-    instruction: "Analyze the resume for ATS readability and completeness. Return an estimated score and concrete improvements. Never claim the score is official.",
-    responseShape: '{ "score": 0-100, "matchedKeywords": ["string"], "missingKeywords": ["string"], "summarySuggestions": ["string"], "experienceSuggestions": ["string"], "generalRecommendations": ["string"], "explanation": "string" }',
+    instruction: "Analyze the resume for ATS readability, completeness, and keyword relevance. Return an estimated score and concrete improvements. Never claim the score is official and never promise ATS approval.",
+    responseShape: '{ "score": 0-100, "matchedKeywords": ["string"], "missingKeywords": ["string"], "summarySuggestions": ["string"], "experienceSuggestions": ["string"], "skillSuggestions": ["string"], "missingSections": ["string"], "generalRecommendations": ["string"], "explanation": "string" }',
   },
   analyze_job_description: {
     maxTokens: 1200,
-    instruction: "Analyze the job description against the resume. Return an estimated ATS score, matched keywords, missing keywords, and suggestions. Never claim the score is official.",
-    responseShape: '{ "score": 0-100, "matchedKeywords": ["string"], "missingKeywords": ["string"], "summarySuggestions": ["string"], "experienceSuggestions": ["string"], "generalRecommendations": ["string"], "explanation": "string" }',
+    instruction: "Analyze the selected resume against the supplied job title, company, and job description. Base the estimated ATS score on the actual resume content and job description compatibility, including summary, work experience, skills, education, projects, and certifications. Return job-specific keywords and practical improvements. Never claim the score is official and never promise ATS approval.",
+    responseShape: '{ "score": 0-100, "matchedKeywords": ["string"], "missingKeywords": ["string"], "summarySuggestions": ["string"], "experienceSuggestions": ["string"], "skillSuggestions": ["string"], "missingSections": ["string"], "generalRecommendations": ["string"], "explanation": "string" }',
   },
   suggest_ats_keywords: {
     maxTokens: 1000,
-    instruction: "Suggest ATS keywords and honest ways to incorporate them naturally into the resume.",
-    responseShape: '{ "score": 0-100, "matchedKeywords": ["string"], "missingKeywords": ["string"], "summarySuggestions": ["string"], "experienceSuggestions": ["string"], "generalRecommendations": ["string"], "suggestions": ["string"], "explanation": "string" }',
+    instruction: "Suggest ATS keywords and honest ways to incorporate them naturally into the resume. Never claim the score is official and never promise ATS approval.",
+    responseShape: '{ "score": 0-100, "matchedKeywords": ["string"], "missingKeywords": ["string"], "summarySuggestions": ["string"], "experienceSuggestions": ["string"], "skillSuggestions": ["string"], "missingSections": ["string"], "generalRecommendations": ["string"], "suggestions": ["string"], "explanation": "string" }',
   },
   ats_keyword_suggestions: {
     maxTokens: 1000,
-    instruction: "Suggest ATS keywords and honest ways to incorporate them naturally into the resume.",
-    responseShape: '{ "score": 0-100, "matchedKeywords": ["string"], "missingKeywords": ["string"], "summarySuggestions": ["string"], "experienceSuggestions": ["string"], "generalRecommendations": ["string"], "suggestions": ["string"], "explanation": "string" }',
+    instruction: "Suggest ATS keywords and honest ways to incorporate them naturally into the resume. Never claim the score is official and never promise ATS approval.",
+    responseShape: '{ "score": 0-100, "matchedKeywords": ["string"], "missingKeywords": ["string"], "summarySuggestions": ["string"], "experienceSuggestions": ["string"], "skillSuggestions": ["string"], "missingSections": ["string"], "generalRecommendations": ["string"], "suggestions": ["string"], "explanation": "string" }',
   },
   translate_resume: {
     maxTokens: 1600,
@@ -314,17 +314,26 @@ function normalizeResult(taskType, parsed) {
   }
   if (taskType.includes("cover_letter")) return { title: limitString(result.title, 160), body: limitString(result.body || result.coverLetter, 6000), suggestions };
   if (taskType === "analyze_resume_ats" || taskType === "analyze_job_description" || taskType === "ats_keyword_suggestions" || taskType === "suggest_ats_keywords") {
+    const summarySuggestions = list(result.summarySuggestions);
+    const experienceSuggestions = list(result.experienceSuggestions);
+    const skillSuggestions = list(result.skillSuggestions || result.skillsSuggestions || result.skills);
+    const missingSections = list(result.missingSections || result.absentSections);
+    const generalRecommendations = list(result.generalRecommendations || result.recommendations);
     return {
       score: Math.max(0, Math.min(100, Number(result.score) || 0)),
       matchedKeywords: list(result.matchedKeywords || result.foundKeywords),
       missingKeywords: list(result.missingKeywords),
-      summarySuggestions: list(result.summarySuggestions),
-      experienceSuggestions: list(result.experienceSuggestions),
-      generalRecommendations: list(result.generalRecommendations || result.recommendations),
+      summarySuggestions,
+      experienceSuggestions,
+      skillSuggestions,
+      missingSections,
+      generalRecommendations,
       suggestions: suggestions.length ? suggestions : [
-        ...list(result.summarySuggestions),
-        ...list(result.experienceSuggestions),
-        ...list(result.generalRecommendations || result.recommendations),
+        ...summarySuggestions,
+        ...experienceSuggestions,
+        ...skillSuggestions,
+        ...missingSections,
+        ...generalRecommendations,
       ].slice(0, 12),
       explanation: limitString(result.explanation, 1200),
     };
