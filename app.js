@@ -2254,9 +2254,9 @@ const TEMPLATE_STATUS_BY_KEY = Object.freeze({
   "first-job": TEMPLATE_STATUS.draft,
   executive: TEMPLATE_STATUS.active,
   creative: TEMPLATE_STATUS.active,
-  international: TEMPLATE_STATUS.hidden,
-  classic: TEMPLATE_STATUS.hidden,
-  corporate: TEMPLATE_STATUS.hidden,
+  international: TEMPLATE_STATUS.active,
+  classic: TEMPLATE_STATUS.active,
+  corporate: TEMPLATE_STATUS.active,
   elegant: TEMPLATE_STATUS.hidden,
   "senior-executive": TEMPLATE_STATUS.hidden,
   marketing: TEMPLATE_STATUS.hidden,
@@ -3722,6 +3722,22 @@ function upsertCoverLetter(letter) {
   return normalized;
 }
 
+function showCoverLetterSaveButtonFeedback(button) {
+  if (!button) return;
+  const labels = coverLetterLabels();
+  button.dataset.defaultHtml ||= button.innerHTML;
+  if (button._coverLetterSaveFeedbackTimer) window.clearTimeout(button._coverLetterSaveFeedbackTimer);
+  button.classList.remove("is-saving");
+  button.classList.add("is-saved");
+  button.disabled = false;
+  button.innerHTML = `${icon("check")} ${currentLanguage === "pt" ? "Salvo" : labels.statusSaved}`;
+  button._coverLetterSaveFeedbackTimer = window.setTimeout(() => {
+    if (!button.isConnected) return;
+    button.classList.remove("is-saved");
+    button.innerHTML = button.dataset.defaultHtml || `${icon("check")} ${labels.actions.save}`;
+  }, 2600);
+}
+
 function startNewCoverLetter() {
   if (!canUseFeature("cover_letters_unlimited") && loadCoverLetters().length >= 1) {
     openFeatureLockModal("cover_letters_unlimited");
@@ -4917,7 +4933,7 @@ function cleanStartAtsSampleResume() {
         phone: "+55 11 90000-0000",
         location: "S\u00e3o Paulo, Brasil",
       },
-      summary: "Product Manager com experi\u00eancia em estrat\u00e9gia de produto, pesquisa com usu\u00e1rios, prioriza\u00e7\u00e3o de roadmap e colabora\u00e7\u00e3o com times de design, engenharia e neg\u00f3cios. Perfil orientado a dados, comunica\u00e7\u00e3o clara e foco em entregar solu\u00e7\u00f5es digitais que melhoram a experi\u00eancia do usu\u00e1rio e geram impacto para o neg\u00f3cio.",
+      summary: "Product Manager com experi\u00eancia em estrat\u00e9gia de produto, pesquisa com usu\u00e1rios e prioriza\u00e7\u00e3o de roadmap. Perfil orientado a dados, comunica\u00e7\u00e3o clara e foco em solu\u00e7\u00f5es digitais com impacto para o neg\u00f3cio.",
       workExperience: [
         {
           role: "Product Manager",
@@ -4926,32 +4942,18 @@ function cleanStartAtsSampleResume() {
           period: "Mar 2021 \u2014 Atual",
           achievements: [
             "Liderou a defini\u00e7\u00e3o de roadmap de produto com base em pesquisas, m\u00e9tricas de uso e objetivos de neg\u00f3cio.",
-            "Priorizou funcionalidades em colabora\u00e7\u00e3o com design, engenharia, marketing e atendimento ao cliente.",
-            "Acompanhou indicadores de ado\u00e7\u00e3o, reten\u00e7\u00e3o e satisfa\u00e7\u00e3o para orientar melhorias cont\u00ednuas.",
-            "Coordenou entregas em ciclos \u00e1geis, garantindo alinhamento entre stakeholders e equipe t\u00e9cnica.",
-          ],
-        },
-        {
-          role: "Associate de Projetos Digitais",
-          company: "StartHub Brasil",
-          location: "S\u00e3o Paulo, Brasil",
-          period: "Jan 2018 \u2014 Mai 2021",
-          achievements: [
-            "Apoiou o acompanhamento de projetos digitais, cronogramas e entregas internas.",
-            "Organizou materiais, atas, documentos de escopo e comunica\u00e7\u00e3o entre \u00e1reas.",
-            "Auxiliou na an\u00e1lise de requisitos e acompanhamento de demandas de clientes.",
+            "Acompanhou indicadores de ado\u00e7\u00e3o e reten\u00e7\u00e3o para orientar melhorias cont\u00ednuas.",
           ],
         },
       ],
       education: [
-        { degree: "Administra\u00e7\u00e3o de Empresas", school: "Universidade de S\u00e3o Paulo", location: "S\u00e3o Paulo, Brasil", period: "2012 \u2014 2016" },
         { degree: "MBA em Gest\u00e3o de Produtos Digitais", school: "FIAP", location: "S\u00e3o Paulo, Brasil", period: "2020 \u2014 2021" },
       ],
-      skills: ["Gest\u00e3o de Produto", "Roadmap", "Pesquisa com Usu\u00e1rios", "An\u00e1lise de M\u00e9tricas", "Prioriza\u00e7\u00e3o", "Metodologias \u00c1geis", "Scrum", "Kanban", "UX Research", "Figma", "Jira", "Notion", "Power BI"],
-      languages: ["Portugu\u00eas \u2014 Nativo", "Ingl\u00eas \u2014 Avan\u00e7ado", "Espanhol \u2014 Intermedi\u00e1rio"],
-      certifications: ["Product Management Professional \u2014 Product School, 2023", "Scrum Foundation Professional Certificate \u2014 CertiProf, 2022", "UX Research Basics \u2014 Google, 2021"],
-      projects: ["Redesign do Onboarding de Usu\u00e1rios - Liderou estudo de comportamento e redesenho do fluxo inicial do produto, reduzindo fric\u00e7\u00f5es e melhorando a ativa\u00e7\u00e3o de novos usu\u00e1rios. 2023 - amandasilva.com/onboarding"],
-      professionalLinks: ["linkedin.com/in/amandasilva", "amandasilva.com", "github.com/amandasilva"],
+      skills: ["Gest\u00e3o de Produto", "Roadmap", "Pesquisa com Usu\u00e1rios", "An\u00e1lise de M\u00e9tricas", "Scrum", "Figma", "Jira"],
+      languages: ["Portugu\u00eas \u2014 Nativo", "Ingl\u00eas \u2014 Avan\u00e7ado"],
+      certifications: ["Product Management Professional \u2014 Product School, 2023"],
+      projects: ["Redesign do Onboarding - Redesenho do fluxo inicial do produto para reduzir fric\u00e7\u00f5es de ativa\u00e7\u00e3o."],
+      professionalLinks: ["linkedin.com/in/amandasilva", "amandasilva.com"],
     });
   }
   return createBlankResume({
@@ -4963,7 +4965,7 @@ function cleanStartAtsSampleResume() {
       phone: "+55 11 90000-0000",
       location: "Sao Paulo, Brazil",
     },
-    summary: "Product Manager with experience in product strategy, user research, roadmap prioritization and collaboration with design, engineering and business teams. Data-oriented profile with clear communication and focus on delivering digital solutions that improve user experience and create business impact.",
+    summary: "Product Manager with experience in product strategy, user research and roadmap prioritization. Data-oriented profile with clear communication and focus on digital solutions that create business impact.",
     workExperience: [
       {
         role: "Product Manager",
@@ -4972,32 +4974,18 @@ function cleanStartAtsSampleResume() {
         period: "Mar 2021 \u2014 Present",
         achievements: [
           "Led product roadmap definition based on research, usage metrics and business objectives.",
-          "Prioritized features in collaboration with design, engineering, marketing and customer support.",
-          "Tracked adoption, retention and satisfaction indicators to guide continuous improvements.",
-          "Coordinated deliveries in agile cycles, ensuring alignment between stakeholders and technical teams.",
-        ],
-      },
-      {
-        role: "Digital Projects Associate",
-        company: "StartHub Brazil",
-        location: "Sao Paulo, Brazil",
-        period: "Jan 2018 \u2014 May 2021",
-        achievements: [
-          "Supported digital project tracking, schedules and internal deliveries.",
-          "Organized materials, meeting notes, scope documents and cross-team communication.",
-          "Assisted with requirements analysis and customer demand follow-up.",
+          "Tracked adoption and retention indicators to guide continuous improvements.",
         ],
       },
     ],
     education: [
-      { degree: "Business Administration", school: "University of Sao Paulo", location: "Sao Paulo, Brazil", period: "2012 \u2014 2016" },
       { degree: "MBA in Digital Product Management", school: "FIAP", location: "Sao Paulo, Brazil", period: "2020 \u2014 2021" },
     ],
-    skills: ["Product Management", "Roadmap", "User Research", "Metrics Analysis", "Prioritization", "Agile Methodologies", "Scrum", "Kanban", "UX Research", "Figma", "Jira", "Notion", "Power BI"],
-    languages: ["Portuguese \u2014 Native", "English \u2014 Advanced", "Spanish \u2014 Intermediate"],
-    certifications: ["Product Management Professional \u2014 Product School, 2023", "Scrum Foundation Professional Certificate \u2014 CertiProf, 2022", "UX Research Basics \u2014 Google, 2021"],
-    projects: ["User Onboarding Redesign - Led behavior study and redesign of the initial product flow, reducing friction and improving new user activation. 2023 - amandasilva.com/onboarding"],
-    professionalLinks: ["linkedin.com/in/amandasilva", "amandasilva.com", "github.com/amandasilva"],
+    skills: ["Product Management", "Roadmap", "User Research", "Metrics Analysis", "Scrum", "Figma", "Jira"],
+    languages: ["Portuguese \u2014 Native", "English \u2014 Advanced"],
+    certifications: ["Product Management Professional \u2014 Product School, 2023"],
+    projects: ["User Onboarding Redesign - Redesigned the initial product flow to reduce activation friction."],
+    professionalLinks: ["linkedin.com/in/amandasilva", "amandasilva.com"],
   });
 }
 
@@ -5152,41 +5140,30 @@ function simpleAtsSampleResume() {
           "Realizei atendimento interno e comunicação entre áreas.",
         ],
       },
-      {
-        role: "Analista Administrativo",
-        company: "Solucoes Corporativas S.A.",
-        location: "Sao Paulo, SP",
-        period: "Out 2019 - Dez 2021",
-        achievements: [
-          "Controlei documentos, planilhas e relatorios gerenciais.",
-          "Realizei atendimento interno e suporte as areas operacionais.",
-          "Elaborei apresentacoes e acompanhei prazos.",
-        ],
-      },
-      {
-        role: "Assistente Administrativo",
-        company: "Servicos Integrados Ltda.",
-        location: "Sao Paulo, SP",
-        period: "Mar 2017 - Set 2019",
-        achievements: [
-          "Apoiei rotinas administrativas e financeiras.",
-          "Organizei arquivos e cadastros de clientes e fornecedores.",
-          "Emiti relatorios e apoiei processos de compras.",
-        ],
-      }],
+      ],
       education: [{ degree: "Administração - 2020 a 2024", school: "Universidade Exemplo" }],
       skills: ["Liderança", "Comunicação", "Organização", "Pacote Office", "Atendimento ao cliente", "Gestão de processos"],
       languages: ["Português - Nativo", "Inglês - Intermediário"],
       certifications: ["Excel Intermediário - Instituição Exemplo, 2024"],
       projects: ["Padronização de processos internos - Estruturei fluxos de acompanhamento para reduzir retrabalho e melhorar a comunicação entre áreas."],
       professionalLinks: ["LinkedIn: linkedin.com/in/patrickjustino"],
-      summary: "Profissional com experiencia em rotinas administrativas, organizacao de processos, atendimento e relacionamento interno e acompanhamento de indicadores. Perfil comunicativo, pratico e focado em eficiencia operacional.",
+      summary: "Profissional com experiencia em rotinas administrativas, organizacao de processos e acompanhamento de indicadores. Perfil pratico, comunicativo e focado em eficiencia operacional.",
       education: [{ degree: "Administracao", school: "Universidade Exemplo - Sao Paulo, SP", period: "Concluido em 2020" }],
-      skills: ["Comunicacao", "Organizacao", "Pacote Office", "Atendimento ao cliente", "Gestao de processos", "Analise de dados", "Planejamento"],
+      skills: ["Comunicacao", "Organizacao", "Pacote Office", "Atendimento ao cliente", "Gestao de processos"],
       languages: ["Portugues - Nativo", "Ingles - Intermediario"],
-      certifications: ["Excel Intermediario - Fundacao Bradesco - 2021", "Gestao de Processos - Sebrae - 2020"],
-      projects: ["Otimizacao de processos internos - Mapeei e propus melhorias no fluxo de atendimento, reduzindo retrabalho e melhorando a eficiencia operacional. Mar 2023 - Jul 2023"],
-      professionalLinks: ["portfoliopatrick.com.br", "github.com/patrickjustino", "linkedin.com/in/patrickjustino"],
+      certifications: ["Excel Intermediario - Fundacao Bradesco - 2021"],
+      projects: ["Otimizacao de processos internos - Mapeamento de fluxo para reduzir retrabalho operacional."],
+      professionalLinks: ["linkedin.com/in/patrickjustino"],
+      workExperience: [{
+        role: "Supervisor Administrativo",
+        company: "Empresa Exemplo Ltda.",
+        location: "Sao Paulo, SP",
+        period: "Jan 2022 - Atual",
+        achievements: [
+          "Organizei rotinas administrativas e acompanhei indicadores internos.",
+          "Apoiei equipes na distribuicao de demandas e controle de processos.",
+        ],
+      }],
     });
   }
   return createBlankResume({
@@ -5198,7 +5175,7 @@ function simpleAtsSampleResume() {
       phone: "+55 11 91234-5678",
       location: "Sao Paulo, Brazil",
     },
-    summary: "Professional with experience in administrative routines, process organization, internal request support and performance tracking. Communicative, practical and focused on operational efficiency.",
+    summary: "Professional with experience in administrative routines, process organization and performance tracking. Practical, communicative and focused on operational efficiency.",
     workExperience: [{
       role: "Administrative Supervisor",
       company: "Example Company Ltd.",
@@ -5207,43 +5184,14 @@ function simpleAtsSampleResume() {
       achievements: [
         "Organized administrative routines and monitored internal indicators.",
         "Supported teams with task distribution and process control.",
-        "Handled internal service requests and communication between departments.",
-      ],
-    },
-    {
-      role: "Administrative Analyst",
-      company: "Corporate Solutions S.A.",
-      location: "Sao Paulo, Brazil",
-      period: "Oct 2019 - Dec 2021",
-      achievements: [
-        "Controlled documents, spreadsheets and management reports.",
-        "Handled internal support for operational departments.",
-        "Prepared presentations and monitored deadlines.",
-      ],
-    },
-    {
-      role: "Administrative Assistant",
-      company: "Integrated Services Ltd.",
-      location: "Sao Paulo, Brazil",
-      period: "Mar 2017 - Sep 2019",
-      achievements: [
-        "Supported administrative and financial routines.",
-        "Organized files and customer and supplier records.",
-        "Issued reports and supported purchasing processes.",
       ],
     }],
-    education: [{ degree: "Business Administration - 2020 to 2024", school: "Example University" }],
-    skills: ["Leadership", "Communication", "Organization", "Microsoft Office", "Customer service", "Process management"],
-    languages: ["Portuguese - Native", "English - Intermediate"],
-    certifications: ["Intermediate Excel - Example Institution, 2024"],
-    projects: ["Internal process standardization - Structured follow-up flows to reduce rework and improve communication between departments."],
-    professionalLinks: ["LinkedIn: linkedin.com/in/patrickjustino"],
     education: [{ degree: "Business Administration", school: "Example University - Sao Paulo, Brazil", period: "Completed in 2020" }],
-    skills: ["Communication", "Organization", "Microsoft Office", "Customer Service", "Process Management", "Data Analysis", "Planning"],
+    skills: ["Communication", "Organization", "Microsoft Office", "Customer Service", "Process Management"],
     languages: ["Portuguese - Native", "English - Intermediate"],
-    certifications: ["Intermediate Excel - Bradesco Foundation - 2021", "Process Management - Sebrae - 2020"],
-    projects: ["Internal process optimization - Mapped and proposed improvements in the service workflow, reducing rework and improving operational efficiency. Mar 2023 - Jul 2023"],
-    professionalLinks: ["patrickportfolio.com", "github.com/patrickjustino", "linkedin.com/in/patrickjustino"],
+    certifications: ["Intermediate Excel - Bradesco Foundation - 2021"],
+    projects: ["Internal process optimization - Mapped workflow improvements to reduce operational rework."],
+    professionalLinks: ["linkedin.com/in/patrickjustino"],
   });
 }
 
@@ -8683,7 +8631,14 @@ function bindInteractions() {
       currentCoverLetterId = saved.id;
       coverLetterDraft = saved;
       coverLetterSaveMessage = labels.saved;
-      routes["/dashboard/cover-letters"]();
+      const message = document.querySelector("[data-cover-letter-message]");
+      if (message) {
+        message.textContent = labels.saved;
+        message.hidden = false;
+      }
+      const preview = document.querySelector("[data-letter-preview]");
+      if (preview) preview.innerHTML = coverLetterDocument(saved);
+      showCoverLetterSaveButtonFeedback(button);
     });
   });
 
@@ -15028,6 +14983,41 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
       ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
     </p>
   `).join("");
+  if (template === "corporate") {
+    const corporateSidebar = [
+      curatedOptional("curated-skills curated-side-section", curatedLabels.skills, `<div class="resume-skill-list curated-skill-list" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, curatedHasList(data.skills)),
+      curatedOptional("curated-education curated-side-section", curatedLabels.education, curatedEducationEntries, curatedEducationItems.length > 0),
+      curatedOptional("curated-certifications curated-side-section", curatedLabels.certifications, `<p data-preview-field="certifications" data-preview-empty="">${curatedLines(data.certifications)}</p>`, curatedHasList(data.certifications)),
+      curatedOptional("curated-languages curated-side-section", curatedLabels.languages, `<p data-preview-field="languages" data-preview-empty="">${curatedLines(data.languages)}</p>`, curatedHasList(data.languages)),
+      curatedOptional("curated-links curated-side-section", curatedLabels.links, `<div class="resume-link-list curated-link-list" data-preview-field="links" data-preview-empty="">${paragraphList(data.professionalLinks, "")}</div>`, curatedHasList(data.professionalLinks)),
+    ].join("");
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-corporate corporate-resume curated-resume curated-layout-${templateProfile.layout} curated-tone-${templateProfile.tone} curated-accent-${templateProfile.accent} ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="curated-header">
+              <div class="curated-header-mark" aria-hidden="true"></div>
+              <div>
+                <h2 data-preview-field="name" data-preview-empty="Amanda Silva">${display(displayName, "Amanda Silva")}</h2>
+                <strong data-preview-field="title" data-preview-empty="${b.values.professionalTitle}">${display(personal.title, b.values.professionalTitle)}</strong>
+              </div>
+              <p class="resume-contact-line curated-contact-line" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(curatedContact, b.document.header)}</p>
+            </header>
+            <div class="corporate-resume-body">
+              <main class="corporate-resume-main">
+                ${curatedOptional("curated-summary curated-main-section", curatedLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, curatedHasText(data.summary))}
+                ${curatedOptional("curated-experience curated-main-section", curatedLabels.experience, curatedExperienceEntries, curatedExperiences.length > 0)}
+                ${curatedOptional("curated-projects curated-main-section", curatedLabels.projects, curatedParagraphs(data.projects, "projects"), curatedHasList(data.projects))}
+              </main>
+              <aside class="corporate-resume-sidebar">
+                ${corporateSidebar}
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
   if (template === "sales") {
     const salesSection = (className, iconName, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3><span>${icon(iconName)}</span>${title}</h3>${body}</section>`;
     const salesLinks = normalizeTextList(data.professionalLinks);
@@ -15449,6 +15439,12 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
   }
   if (template === "international") {
     const internationalSection = (className, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3>${title}</h3>${body}</section>`;
+    const internationalSignals = currentLanguage === "pt"
+      ? ["Remoto", "Bilíngue", "ATS global"]
+      : ["Remote ready", "Bilingual", "Global ATS"];
+    const internationalRoute = currentLanguage === "pt"
+      ? ["Mobilidade global", "Colaboração remota", "Perfil internacional"]
+      : ["Global mobility", "Remote collaboration", "International profile"];
     const internationalSideSections = [
       internationalSection("international-card international-skills", curatedLabels.skills, `<div class="resume-skill-list curated-skill-list" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, curatedHasList(data.skills)),
       internationalSection("international-card international-education", curatedLabels.education, curatedEducationEntries, curatedEducationItems.length > 0),
@@ -15467,8 +15463,13 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
                 <h2 data-preview-field="name" data-preview-empty="Amanda Silva">${display(displayName, "Amanda Silva")}</h2>
                 <strong data-preview-field="title" data-preview-empty="${b.values.professionalTitle}">${display(personal.title, b.values.professionalTitle)}</strong>
               </div>
-              <p class="resume-contact-line international-contact" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(curatedContact, b.document.header)}</p>
+              <div class="international-contact-panel">
+                <span>${currentLanguage === "pt" ? "Contato" : "Contact"}</span>
+                <p class="resume-contact-line international-contact" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(curatedContact, b.document.header)}</p>
+              </div>
+              <div class="international-signal-row" aria-hidden="true">${internationalSignals.map((item) => `<span>${item}</span>`).join("")}</div>
             </header>
+            <div class="international-route-strip" aria-hidden="true">${internationalRoute.map((item) => `<span>${item}</span>`).join("")}</div>
             <div class="international-body">
               <main class="international-main">
                 ${internationalSection("international-profile", curatedLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, curatedHasText(data.summary))}
@@ -16097,6 +16098,9 @@ function renderCoverLetters() {
   const draft = normalizeCoverLetter(coverLetterDraft || createBlankCoverLetter({ id: currentCoverLetterId || undefined }));
   const builder = `
     <section class="cover-letter-builder-page" data-letter-builder>
+      <div class="cover-letter-builder-topbar">
+        <button class="ghost-button small" type="button" data-cover-letter-list>${icon("arrowLeft")} ${c.actions.list}</button>
+      </div>
       <div class="cover-letter-mobile-tabs">
         <button class="active" type="button" data-cover-letter-tab="edit">${c.tabs.edit}</button>
         <button type="button" data-cover-letter-tab="preview">${c.tabs.preview}</button>
@@ -16107,7 +16111,6 @@ function renderCoverLetters() {
             <h2>${currentCoverLetterId ? c.editBuilderTitle : c.builderTitle}</h2>
             <p>${c.intro}</p>
           </div>
-          <button class="ghost-button small" type="button" data-cover-letter-list>${c.actions.list}</button>
         </div>
         ${resumes.length ? `
           <label>${c.selectResume}
