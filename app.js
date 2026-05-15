@@ -110,6 +110,8 @@ const iconPaths = {
   download: "M12 3v11m0 0l-4-4m4 4l4-4M5 19h14",
   link: "M10 13a5 5 0 007 0l2-2a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-2 2a5 5 0 007 7l1-1",
   layout: "M3 4h18v16H3V4zm0 5h18M9 9v11",
+  templates: "M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z",
+  user: "M12 12a4 4 0 100-8 4 4 0 000 8zM4 21a8 8 0 0116 0",
   settings: "M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 01-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.6V21a2 2 0 01-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1A2 2 0 014.2 17l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.6-1H3a2 2 0 010-4h.1a1.7 1.7 0 001.6-1 1.7 1.7 0 00-.3-1.9L4.3 7A2 2 0 017 4.2l.1.1a1.7 1.7 0 001.9.3h.1a1.7 1.7 0 001-1.6V3a2 2 0 014 0v.1a1.7 1.7 0 001 1.6h.1a1.7 1.7 0 001.9-.3l.1-.1A2 2 0 0119.8 7l-.1.1a1.7 1.7 0 00-.3 1.9v.1a1.7 1.7 0 001.6 1h.1a2 2 0 010 4H21a1.7 1.7 0 00-1.6.9z",
   sun: "M12 4V2m0 20v-2m8-8h2M2 12h2m13.7-5.7l1.4-1.4M4.9 19.1l1.4-1.4m0-11.4L4.9 4.9m14.2 14.2l-1.4-1.4M12 16a4 4 0 100-8 4 4 0 000 8z",
   moon: "M21 14.5A8.5 8.5 0 119.5 3a7 7 0 0011.5 11.5z",
@@ -11632,7 +11634,7 @@ function dashboardShell(activeKey, content) {
   const planLabel = accessPlanLabel(access);
   const planExpiryLabel = accessPlanExpiryLabel(access);
   const showSidebarUpgrade = !isPaidPlan(access);
-  const nav = [["/dashboard", "layout", "dashboard"], ["/dashboard/resumes", "file", "resumes"], ["/dashboard/builder", "pen", "builder"], ["/dashboard/cover-letters", "mail", "coverLetters"], ["/dashboard/templates", "shield", "templates"], ["/dashboard/ai", "sparkles", "ai"], ["/dashboard/support", "headset", "support"], ["/dashboard/profile", "file", "profile"], ["/dashboard/billing", "card", "billing"], ["/dashboard/settings", "settings", "settings"]];
+  const nav = [["/dashboard", "layout", "dashboard"], ["/dashboard/resumes", "file", "resumes"], ["/dashboard/builder", "pen", "builder"], ["/dashboard/cover-letters", "mail", "coverLetters"], ["/dashboard/templates", "templates", "templates"], ["/dashboard/ai", "sparkles", "ai"], ["/dashboard/support", "headset", "support"], ["/dashboard/profile", "user", "profile"], ["/dashboard/billing", "card", "billing"], ["/dashboard/settings", "settings", "settings"]];
   if (isAdminAccount()) nav.push(["/admin", "settings", "admin"]);
   const mobileNav = nav.slice(0, 5);
   mount(`
@@ -11660,7 +11662,7 @@ function dashboardShell(activeKey, content) {
               <button class="user-menu" type="button" data-user-menu><span>${escapeHtml(profileInitials(profile))}</span>${escapeHtml(profileFirstName(profile))}</button>
               <div class="user-dropdown">
                 <div class="user-dropdown-head"><strong>${escapeHtml(profile.fullName)}</strong><small>${escapeHtml(profile.email)}</small><span>${d.currentPlan}: ${escapeHtml(planExpiryLabel ? `${planLabel} · ${planExpiryLabel}` : planLabel)}</span></div>
-                <button type="button" data-route="/dashboard/profile">${icon("file")} ${d.nav.profile}</button>
+                <button type="button" data-route="/dashboard/profile">${icon("user")} ${d.nav.profile}</button>
                 <button type="button" data-route="/dashboard/support">${icon("headset")} ${d.nav.support}</button>
                 <button type="button" data-route="/dashboard/settings">${icon("settings")} ${d.nav.settings}</button>
                 <button type="button" data-route="/dashboard/billing">${icon("card")} ${d.billing}</button>
