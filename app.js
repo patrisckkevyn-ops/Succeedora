@@ -12952,6 +12952,44 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
       ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
     </p>
   `).join("");
+  if (template === "tech") {
+    const techSection = (className, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3>${title}</h3>${body}</section>`;
+    const techKicker = currentLanguage === "pt" ? "Perfil tecnico" : "Technical profile";
+    const techSidebarTitle = currentLanguage === "pt" ? "Stack principal" : "Core stack";
+    const techSideSections = [
+      techSection("tech-lab-card tech-lab-skills", techSidebarTitle, `<div class="resume-skill-list tech-lab-skill-list" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, curatedHasList(data.skills)),
+      techSection("tech-lab-card tech-lab-education", curatedLabels.education, curatedEducationEntries, curatedEducationItems.length > 0),
+      techSection("tech-lab-card tech-lab-certifications", curatedLabels.certifications, `<p data-preview-field="certifications" data-preview-empty="">${curatedLines(data.certifications)}</p>`, curatedHasList(data.certifications)),
+      techSection("tech-lab-card tech-lab-languages", curatedLabels.languages, `<p data-preview-field="languages" data-preview-empty="">${curatedLines(data.languages)}</p>`, curatedHasList(data.languages)),
+      techSection("tech-lab-card tech-lab-links", curatedLabels.links, `<div class="resume-link-list curated-link-list" data-preview-field="links" data-preview-empty="">${paragraphList(data.professionalLinks, "")}</div>`, curatedHasList(data.professionalLinks)),
+    ].join("");
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-tech tech-lab-resume ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="tech-lab-hero">
+              <div class="tech-lab-identity">
+                <span class="tech-lab-kicker">${techKicker}</span>
+                <h2 data-preview-field="name" data-preview-empty="Amanda Silva">${display(displayName, "Amanda Silva")}</h2>
+                <strong data-preview-field="title" data-preview-empty="${b.values.professionalTitle}">${display(personal.title, b.values.professionalTitle)}</strong>
+              </div>
+              <p class="resume-contact-line tech-lab-contact" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(curatedContact, b.document.header)}</p>
+            </header>
+            <div class="tech-lab-body">
+              <main class="tech-lab-main">
+                ${techSection("tech-lab-profile", curatedLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, curatedHasText(data.summary))}
+                ${techSection("tech-lab-experience", curatedLabels.experience, curatedExperienceEntries, curatedExperiences.length > 0)}
+                ${techSection("tech-lab-projects", curatedLabels.projects, curatedParagraphs(data.projects, "projects"), curatedHasList(data.projects))}
+              </main>
+              <aside class="tech-lab-sidebar">
+                ${techSideSections}
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
   if (template === "international") {
     const internationalSection = (className, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3>${title}</h3>${body}</section>`;
     const internationalSideSections = [
