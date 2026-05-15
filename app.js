@@ -13200,9 +13200,11 @@ function ruleBasedExperienceBullets(resume) {
   if (bullets.length) {
     return bullets.map((item) => item.replace(/^[-â€¢]\s*/, "").replace(/^(worked|responsible)/i, currentLanguage === "pt" ? "Atuei" : "Led"));
   }
+  const role = experience.role || resume.personal?.title || (currentLanguage === "pt" ? "profissional" : "professional");
+  const skills = (resume.skills || []).slice(0, 3).join(", ");
   return currentLanguage === "pt"
-    ? ["Liderei [iniciativa] para melhorar [resultado] em [percentual].", "Colaborei com equipes multidisciplinares para entregar [projeto] com foco em [impacto]."]
-    : ["Led [initiative] to improve [result] by [percentage].", "Collaborated with cross-functional teams to deliver [project] with focus on [impact]."];
+    ? [`Atuei como ${role} em [tipo de projeto], utilizando ${skills || "[ferramentas/tecnologias]"} para entregar [resultado].`, "Colaborei com equipes e clientes para transformar necessidades em entregas claras, organizadas e mensuráveis.", "Melhorei [processo/página/entrega] com foco em qualidade, comunicação e impacto para o usuário final."]
+    : [`Worked as ${role} on [project type], using ${skills || "[tools/technologies]"} to deliver [result].`, "Collaborated with teams and stakeholders to turn requirements into clear, organized, measurable deliverables.", "Improved [process/page/deliverable] with focus on quality, communication, and end-user impact."];
 }
 
 function ruleBasedSkillSuggestions(resume, jobText = "") {

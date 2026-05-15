@@ -17,7 +17,7 @@ const TASKS = {
   },
   rewrite_experience: {
     maxTokens: 1000,
-    instruction: "Rewrite professional experience bullets using action verbs and truthful impact. If metrics are missing, use placeholders like [result] and [percentage] instead of inventing numbers.",
+    instruction: "Rewrite professional experience bullets using action verbs and truthful impact. If the experience field is empty but the user supplied a role, title, skills, or project context, create editable bullet templates grounded in that context. If metrics are missing, use placeholders like [result] and [percentage] instead of inventing numbers.",
   },
   suggest_skills: {
     maxTokens: 800,
