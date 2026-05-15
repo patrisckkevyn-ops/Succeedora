@@ -8081,6 +8081,11 @@ select:focus-visible {
   transform-origin: top center;
 }
 
+.resume-document-shell[data-preview-fit="true"] .resume-page-scale-wrapper {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
 .resume-document-shell[data-preview-scaled="true"] .resume-document {
   width: var(--resume-page-width);
   height: var(--resume-page-height);
@@ -8088,6 +8093,10 @@ select:focus-visible {
   min-height: 0;
   padding: 54px 58px;
   transform: none;
+}
+
+.resume-document-shell[data-preview-fit="true"] .resume-document.resume-preview-fit-document {
+  max-width: none;
 }
 
 .builder-preview-frame .resume-document-shell[data-preview-scaled="true"],
@@ -11923,6 +11932,12 @@ select:focus-visible {
 .resume-document.resume-template-executive.executive-resume .executive-link-list p {
   color: var(--executive-ink);
   font-weight: 850;
+}
+
+.resume-document.resume-template-executive.executive-resume .executive-link-list p {
+  color: #334155;
+  font-weight: 500;
+  overflow-wrap: anywhere;
 }
 
 .resume-document.resume-template-executive.executive-resume .executive-results {

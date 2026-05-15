@@ -2150,7 +2150,7 @@ const TEMPLATE_STATUS_BY_KEY = Object.freeze({
   tech: TEMPLATE_STATUS.draft,
   student: TEMPLATE_STATUS.draft,
   "first-job": TEMPLATE_STATUS.draft,
-  executive: TEMPLATE_STATUS.hidden,
+  executive: TEMPLATE_STATUS.active,
   creative: TEMPLATE_STATUS.hidden,
   international: TEMPLATE_STATUS.hidden,
   classic: TEMPLATE_STATUS.hidden,
@@ -3965,7 +3965,7 @@ function collectBuilderResume() {
       title: fieldValue("title", draftPersonal.title || ""),
       email: fieldValue("email", draftPersonal.email || ""),
       phone: fieldValue("phone", draftPersonal.phone || ""),
-      address: fieldValue("address", draftPersonal.address || ""),
+      address: "",
       city,
       state,
       postalCode,
@@ -4113,6 +4113,7 @@ function resetResumeShellPageVars(shell, format = selectedDocumentFormat) {
   applyDocumentFormatClass(shell, normalizedFormat);
   applyPdfPageVariables(shell, normalizedFormat);
   shell.dataset.previewScaled = "true";
+  delete shell.dataset.previewFit;
   shell.style.setProperty("--resume-page-width", `${spec.widthPx}px`);
   shell.style.setProperty("--resume-page-height", `${spec.heightPx}px`);
   shell.style.setProperty("--preview-scale", "1");
@@ -4147,6 +4148,77 @@ function applyResumeShellPreviewScale(shell, options = {}) {
   shell.style.setProperty("--scaled-page-height", `${(pageHeight * scale).toFixed(2)}px`);
 }
 
+function resetResumeDocumentPreviewFit(documentNode, format = selectedDocumentFormat) {
+  if (!documentNode) return documentPageSpec(format);
+  const normalizedFormat = normalizeDocumentFormat(format);
+  const spec = documentPageSpec(normalizedFormat);
+  documentNode.classList.remove("resume-preview-fit-document");
+  documentNode.style.removeProperty("width");
+  documentNode.style.removeProperty("max-width");
+  documentNode.style.removeProperty("min-width");
+  documentNode.style.removeProperty("height");
+  documentNode.style.removeProperty("min-height");
+  documentNode.style.removeProperty("margin");
+  documentNode.style.removeProperty("box-shadow");
+  documentNode.style.removeProperty("transform");
+  documentNode.style.removeProperty("transform-origin");
+  documentNode.style.removeProperty("overflow");
+  documentNode.style.setProperty("--resume-page-width", `${spec.widthPx}px`);
+  documentNode.style.setProperty("--resume-page-height", `${spec.heightPx}px`);
+  return spec;
+}
+
+function measureResumePreviewFitHeight(documentNode) {
+  const rect = documentNode.getBoundingClientRect();
+  const top = rect.top;
+  const bottoms = [documentNode.scrollHeight];
+  documentNode.querySelectorAll("header, section, footer, article, div, p, ul, li").forEach((node) => {
+    const nodeRect = node.getBoundingClientRect();
+    if (nodeRect.width || nodeRect.height) bottoms.push(nodeRect.bottom - top);
+  });
+  return Math.max(...bottoms);
+}
+
+function fitResumeDocumentToPreviewPage(shell, format = selectedDocumentFormat) {
+  const previewContainer = shell?.closest(".builder-preview-frame, .resume-thumbnail, .template-preview-content");
+  if (!previewContainer) return;
+  const documentNode = shell.querySelector(".resume-document");
+  if (!documentNode) return;
+  const normalizedFormat = normalizeDocumentFormat(format);
+  const spec = resetResumeDocumentPreviewFit(documentNode, normalizedFormat);
+  let scale = 1;
+  const layoutAtScale = (nextScale, final = false) => {
+    const width = spec.widthPx / nextScale;
+    const height = spec.heightPx / nextScale;
+    documentNode.style.width = `${width}px`;
+    documentNode.style.maxWidth = "none";
+    documentNode.style.minWidth = "0";
+    documentNode.style.height = final ? `${height}px` : "auto";
+    documentNode.style.minHeight = final ? `${height}px` : "0";
+    documentNode.style.margin = "0";
+    documentNode.style.transform = final ? `scale(${nextScale})` : "none";
+    documentNode.style.transformOrigin = "top left";
+    documentNode.style.overflow = final ? "hidden" : "visible";
+    documentNode.style.setProperty("--resume-page-width", `${width}px`);
+    documentNode.style.setProperty("--resume-page-height", `${height}px`);
+  };
+
+  for (let index = 0; index < 4; index += 1) {
+    layoutAtScale(scale, false);
+    const contentHeight = Math.max(1, measureResumePreviewFitHeight(documentNode));
+    const nextScale = Math.max(0.54, Math.min(1, spec.heightPx / contentHeight));
+    if (Math.abs(nextScale - scale) < 0.01) {
+      scale = nextScale;
+      break;
+    }
+    scale = nextScale;
+  }
+
+  documentNode.classList.add("resume-preview-fit-document");
+  shell.dataset.previewFit = "true";
+  layoutAtScale(scale, true);
+}
+
 function updateResumePreviewScales(root = document) {
   root.querySelectorAll(".resume-document-shell").forEach((shell) => {
     const format = shell.getAttribute("data-document-format-current") || selectedDocumentFormat;
@@ -4177,6 +4249,7 @@ function updateResumePreviewScales(root = document) {
       availableHeight: heightTarget,
       maxScale,
     });
+    fitResumeDocumentToPreviewPage(shell, format);
   });
 }
 
@@ -13830,7 +13903,7 @@ function builderSectionPanel(title, index) {
   if (index === 0) {
     const firstName = personal.firstName || String(personal.fullName || "").split(" ")[0] || "";
     const lastName = personal.lastName || String(personal.fullName || "").split(" ").slice(1).join(" ");
-    content = `<div class="two-col"><label>${b.labels.firstName}<input data-resume-field="firstName" data-preview-name-part="first" value="${value(firstName)}" placeholder="Amanda" autocomplete="given-name" /></label><label>${b.labels.lastName}<input data-resume-field="lastName" data-preview-name-part="last" value="${value(lastName)}" placeholder="Silva" autocomplete="family-name" /></label><label>${b.labels.title}<input data-resume-field="title" data-preview-source="title" data-preview-target="title" value="${value(personal.title)}" placeholder="${b.labels.title}" /></label><label>${b.labels.email}<input data-resume-field="email" data-preview-source="email" value="${value(personal.email)}" placeholder="email@example.com" autocomplete="email" /></label><label>${b.labels.phone}<input data-resume-field="phone" data-preview-source="phone" value="${value(personal.phone)}" placeholder="+55 11 99999-9999" autocomplete="tel" /></label><label>${b.labels.address}<input data-resume-field="address" data-preview-source="address" value="${value(personal.address)}" placeholder="${b.labels.address}" autocomplete="street-address" /></label><label>${b.labels.city}<input data-resume-field="city" data-preview-source="city" value="${value(personal.city)}" placeholder="${b.labels.city}" autocomplete="address-level2" /></label><label>${b.labels.state}<input data-resume-field="state" data-preview-source="state" value="${value(personal.state)}" placeholder="${b.labels.state}" autocomplete="address-level1" /></label><label>${b.labels.postalCode}<input data-resume-field="postalCode" data-preview-source="postalCode" value="${value(personal.postalCode)}" placeholder="${b.labels.postalCode}" autocomplete="postal-code" /></label></div>`;
+    content = `<div class="two-col"><label>${b.labels.firstName}<input data-resume-field="firstName" data-preview-name-part="first" value="${value(firstName)}" placeholder="Amanda" autocomplete="given-name" /></label><label>${b.labels.lastName}<input data-resume-field="lastName" data-preview-name-part="last" value="${value(lastName)}" placeholder="Silva" autocomplete="family-name" /></label><label>${b.labels.title}<input data-resume-field="title" data-preview-source="title" data-preview-target="title" value="${value(personal.title)}" placeholder="${b.labels.title}" /></label><label>${b.labels.email}<input data-resume-field="email" data-preview-source="email" value="${value(personal.email)}" placeholder="email@example.com" autocomplete="email" /></label><label>${b.labels.phone}<input data-resume-field="phone" data-preview-source="phone" value="${value(personal.phone)}" placeholder="+55 11 99999-9999" autocomplete="tel" /></label><label>${b.labels.city}<input data-resume-field="city" data-preview-source="city" value="${value(personal.city)}" placeholder="${b.labels.city}" autocomplete="address-level2" /></label><label>${b.labels.state}<input data-resume-field="state" data-preview-source="state" value="${value(personal.state)}" placeholder="${b.labels.state}" autocomplete="address-level1" /></label><label>${b.labels.postalCode}<input data-resume-field="postalCode" data-preview-source="postalCode" value="${value(personal.postalCode)}" placeholder="${b.labels.postalCode}" autocomplete="postal-code" /></label></div>`;
   } else if (index === 1) {
     content = `<label>${b.labels.summary}<textarea data-resume-field="summary" data-preview-target="summary" placeholder="${b.placeholders.summary}">${value(resume.summary)}</textarea></label>`;
   } else if (index === 2) {
@@ -14071,6 +14144,7 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
       </p>
     `).join("");
     const executiveParagraphs = (items, fieldName) => `<div class="executive-text-list" data-preview-field="${fieldName}" data-preview-empty="">${normalizeTextList(items).map((item) => `<p>${escapeHtml(item)}</p>`).join("")}</div>`;
+    const executiveLinks = `<div class="executive-link-list" data-preview-field="links" data-preview-empty="">${normalizeTextList(data.professionalLinks).map((item) => `<p>${escapeHtml(item)}</p>`).join("")}</div>`;
     return `
       <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
         <div class="resume-page-scale-wrapper">
@@ -14092,6 +14166,7 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
               ${optional("executive-education executive-side-section", labels.education, educationBody, educationItems.length > 0)}
               ${optional("executive-certifications executive-side-section", labels.certifications, executiveParagraphs(data.certifications, "certifications"), hasList(data.certifications))}
               ${optional("executive-languages executive-side-section", labels.languages, `<p data-preview-field="languages" data-preview-empty="">${brList(data.languages, "")}</p>`, hasList(data.languages))}
+              ${optional("executive-links executive-side-section", labels.links, executiveLinks, hasList(data.professionalLinks))}
             </div>
           </div>
         </div>
