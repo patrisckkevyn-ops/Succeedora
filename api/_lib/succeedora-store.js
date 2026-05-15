@@ -1,5 +1,5 @@
-const KV_URL = String(process.env.KV_REST_API_URL || "").replace(/\/$/, "");
-const KV_TOKEN = String(process.env.KV_REST_API_TOKEN || "");
+const KV_URL = String(process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "").replace(/\/$/, "");
+const KV_TOKEN = String(process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "");
 const KEY_PREFIX = "succeedora:stripe";
 const AI_KEY_PREFIX = "succeedora:ai";
 
@@ -98,6 +98,14 @@ function subscriptionKey(subscriptionId) {
   return `${KEY_PREFIX}:subscription:${subscriptionId}`;
 }
 
+function userPaymentsKey(userId) {
+  return `${KEY_PREFIX}:user:${userId}:payments`;
+}
+
+function allPaymentsKey() {
+  return `${KEY_PREFIX}:payments`;
+}
+
 function aiCreditKey(userId) {
   return `${AI_KEY_PREFIX}:user:${userId}:credits`;
 }
@@ -123,6 +131,34 @@ function cleanUserIdentity(user = {}) {
 function defaultAiCredits() {
   const now = new Date().toISOString();
   return { balance: 0, totalPurchased: 0, totalUsed: 0, updatedAt: now };
+}
+
+function defaultAccessState() {
+  return {
+    plan: "free",
+    planState: {
+      type: "free",
+      status: "active",
+      startedAt: "",
+      expiresAt: null,
+      updatedAt: new Date().toISOString(),
+      source: "kv",
+      durationLabel: "",
+      stripeCustomerId: "",
+      stripeSubscriptionId: "",
+      currentPeriodEnd: null,
+    },
+    aiCredits: 0,
+    creditHistory: [],
+    adminEntitlements: [],
+    oneTime: {
+      watermarkRemoval: [],
+      premiumPdf: [],
+      careerPack: [],
+      premiumTemplates: [],
+      onlineLinks: [],
+    },
+  };
 }
 
 function normalizeAiCredits(raw = {}) {
@@ -266,7 +302,9 @@ function paymentRecord(metadata = {}, stripeData = {}, status = "paid") {
     userEmail: metadata.userEmail || "",
     productType: metadata.productType || "",
     currency: String(metadata.currency || stripeData.currency || "").toUpperCase() || "BRL",
+    amount: Number(stripeData.amount_total || stripeData.amountTotal || 0),
     amount_total: Number(stripeData.amount_total || stripeData.amountTotal || 0),
+    amountTotal: Number(stripeData.amount_total || stripeData.amountTotal || 0),
     priceId: metadata.priceId || stripeData.priceId || "",
     stripeSessionId: stripeData.stripeSessionId || "",
     stripePaymentIntentId: stripeData.stripePaymentIntentId || "",
@@ -290,9 +328,10 @@ async function persistPayment(record) {
   await kvSetJson(record.stripeSessionId ? paymentKey(record.stripeSessionId) : subscriptionKey(record.stripeSubscriptionId), record);
   if (record.stripeSubscriptionId) await kvSetJson(subscriptionKey(record.stripeSubscriptionId), record);
   if (record.userId) {
-    await kvCommand(["SADD", `${KEY_PREFIX}:user:${record.userId}:payments`, id]).catch(() => null);
+    await kvCommand(["SADD", userPaymentsKey(record.userId), id]).catch(() => null);
     if (record.stripeCustomerId) await kvCommand(["SET", `${KEY_PREFIX}:user:${record.userId}:stripeCustomerId`, record.stripeCustomerId]).catch(() => null);
   }
+  await kvCommand(["SADD", allPaymentsKey(), id]).catch(() => null);
   return { applied: true, payment: record };
 }
 
@@ -342,10 +381,142 @@ async function findWebhookPaymentBySession(sessionId) {
   return kvGetJson(paymentKey(sessionId));
 }
 
+async function findStripeRecordById(id) {
+  if (!kvConfigured() || !id) return null;
+  const key = String(id).startsWith("sub_") ? subscriptionKey(id) : paymentKey(id);
+  return (await kvGetJson(key)) || (await kvGetJson(subscriptionKey(id))) || null;
+}
+
+function addUnique(list = [], value = "") {
+  const text = String(value || "").trim();
+  return text && !list.map(String).includes(text) ? [...list, text] : list;
+}
+
+function planFromPayment(record = {}) {
+  const productType = record.productType || record.entitlement?.productType || "";
+  return record.planType || record.entitlement?.planType || (productType === "plan_premium" ? "premium" : productType === "plan_pro" ? "pro" : "");
+}
+
+function paymentTargetId(record = {}) {
+  return record.resumeId || record.templateId || record.entitlement?.resumeId || record.entitlement?.templateId || record.entitlement?.targetId || "__global__";
+}
+
+function paymentIsActive(record = {}) {
+  return ["paid", "active", "trialing"].includes(record.status);
+}
+
+function paymentToClient(record = {}) {
+  const productType = record.productType || record.entitlement?.productType || "";
+  return {
+    id: record.stripeSessionId || record.stripeSubscriptionId || record.id || "",
+    userId: record.userId || "",
+    userEmail: record.userEmail || "",
+    productType,
+    productName: productType,
+    amount: Number(record.amount_total || record.amountTotal || 0),
+    amountTotal: Number(record.amount_total || record.amountTotal || 0),
+    currency: String(record.currency || "BRL").toUpperCase(),
+    paymentMethod: "stripe",
+    status: record.status === "active" || record.status === "trialing" ? "paid" : record.status || "paid",
+    stripeSessionId: record.stripeSessionId || "",
+    stripePaymentIntentId: record.stripePaymentIntentId || "",
+    stripeCustomerId: record.stripeCustomerId || "",
+    stripeSubscriptionId: record.stripeSubscriptionId || "",
+    priceId: record.priceId || "",
+    resumeId: record.resumeId || record.entitlement?.resumeId || "",
+    templateKey: record.templateId || record.entitlement?.templateId || "",
+    creditAmount: Number(record.creditsAmount || record.entitlement?.creditsAmount || 0),
+    approvedAt: record.approvedAt || record.startedAt || "",
+    createdAt: record.createdAt || record.approvedAt || record.startedAt || new Date().toISOString(),
+  };
+}
+
+async function listStripeRecordsForUser(userInput = {}) {
+  const user = cleanUserIdentity(userInput);
+  if (!kvConfigured()) return { configured: false, payments: [] };
+  if (!user.userId) return { configured: true, payments: [] };
+  const ids = await kvCommand(["SMEMBERS", userPaymentsKey(user.userId)]).catch(() => []);
+  const records = [];
+  for (const id of Array.isArray(ids) ? ids : []) {
+    const record = await findStripeRecordById(id).catch(() => null);
+    if (record && (!record.userId || record.userId === user.userId)) records.push(record);
+  }
+  records.sort((a, b) => new Date(b.approvedAt || b.createdAt || 0) - new Date(a.approvedAt || a.createdAt || 0));
+  return { configured: true, payments: records };
+}
+
+async function buildUserAccessFromKv(userInput = {}) {
+  const user = cleanUserIdentity(userInput);
+  const access = defaultAccessState();
+  if (!kvConfigured()) return { configured: false, access, payments: [], transactions: [] };
+  if (!user.userId || !user.userEmail) return { configured: true, access, payments: [], transactions: [] };
+
+  const [{ payments }, creditState] = await Promise.all([
+    listStripeRecordsForUser(user),
+    getAiCreditState(user),
+  ]);
+
+  access.aiCredits = Number(creditState.credits.balance || 0);
+  access.creditHistory = creditState.transactions;
+
+  let activePlan = null;
+  payments.forEach((record) => {
+    if (!paymentIsActive(record)) return;
+    const productType = record.productType || record.entitlement?.productType || "";
+    const targetId = paymentTargetId(record);
+    if (productType === "remove_watermark") access.oneTime.watermarkRemoval = addUnique(access.oneTime.watermarkRemoval, targetId);
+    if (productType === "premium_pdf") access.oneTime.premiumPdf = addUnique(access.oneTime.premiumPdf, targetId);
+    if (productType === "premium_template") access.oneTime.premiumTemplates = addUnique(access.oneTime.premiumTemplates, targetId);
+    if (productType === "career_pack") access.oneTime.careerPack = addUnique(access.oneTime.careerPack, targetId);
+    if (productType === "online_resume_link") access.oneTime.onlineLinks = addUnique(access.oneTime.onlineLinks, targetId);
+
+    const planType = planFromPayment(record);
+    if (["pro", "premium"].includes(planType)) {
+      const candidate = {
+        type: planType,
+        status: ["active", "trialing"].includes(record.status) ? "active" : record.status,
+        startedAt: record.startedAt || record.approvedAt || record.createdAt || new Date().toISOString(),
+        expiresAt: record.currentPeriodEnd || null,
+        updatedAt: record.approvedAt || record.createdAt || new Date().toISOString(),
+        source: "stripe",
+        durationLabel: "",
+        stripeCustomerId: record.stripeCustomerId || "",
+        stripeSubscriptionId: record.stripeSubscriptionId || "",
+        currentPeriodEnd: record.currentPeriodEnd || null,
+      };
+      if (!activePlan || (candidate.type === "premium" && activePlan.type !== "premium") || new Date(candidate.updatedAt) > new Date(activePlan.updatedAt || 0)) {
+        activePlan = candidate;
+      }
+    }
+  });
+
+  if (activePlan) {
+    access.plan = activePlan.type;
+    access.planState = activePlan;
+  }
+  access.adminEntitlements = payments.filter(paymentIsActive).map((record) => ({
+    productType: record.productType || record.entitlement?.productType || "",
+    targetId: paymentTargetId(record),
+    paymentId: record.stripeSessionId || record.stripeSubscriptionId || "",
+    grantedBy: "stripe",
+    grantedAt: record.approvedAt || record.startedAt || record.createdAt || "",
+  }));
+
+  return {
+    configured: true,
+    access,
+    payments: payments.map(paymentToClient),
+    transactions: creditState.transactions,
+  };
+}
+
 module.exports = {
   AI_CREDIT_PACKS,
   AI_TASK_CREDIT_COSTS,
   aiTaskCreditCost,
+  kvConfigured,
+  buildUserAccessFromKv,
+  listStripeRecordsForUser,
   getAiCreditState,
   adjustAiCredits,
   reserveAiCreditsForTask,

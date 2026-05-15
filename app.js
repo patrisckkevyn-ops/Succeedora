@@ -5668,7 +5668,8 @@ function mount(html, seo = {}) {
   updateDocumentLanguage(seo);
   document.getElementById("app").innerHTML = html;
   bindInteractions();
-  if (PRIVATE_ROUTES.has(getRoute()) && isLoggedIn()) syncAiCredits();
+  if (PRIVATE_ROUTES.has(getRoute()) && isLoggedIn()) syncServerAccess();
+  if (getRoute().startsWith("/admin") && isAdminAccount()) syncAdminKvDataset({ rerender: true });
   initTurnstileWidgets(document.getElementById("app"));
   scheduleResumePreviewScales(document.getElementById("app"));
   window.scrollTo({ top: 0, behavior: "auto" });
@@ -7314,6 +7315,12 @@ function defaultAccessState() {
     aiCredits: 0,
     creditHistory: [],
     adminEntitlements: [],
+    serverPlanVerifiedAt: "",
+    serverEntitlementsVerifiedAt: "",
+    serverCreditsVerifiedAt: "",
+    serverAccessSyncedAt: "",
+    serverAccessSyncError: "",
+    serverSource: "",
     oneTime: {
       watermarkRemoval: [],
       premiumPdf: [],
@@ -7352,8 +7359,42 @@ function normalizeAccessState(raw = {}) {
     aiCredits: Math.max(0, Number(raw.aiCredits) || 0),
     creditHistory,
     adminEntitlements,
+    serverPlanVerifiedAt: String(raw.serverPlanVerifiedAt || ""),
+    serverEntitlementsVerifiedAt: String(raw.serverEntitlementsVerifiedAt || ""),
+    serverCreditsVerifiedAt: String(raw.serverCreditsVerifiedAt || ""),
+    serverAccessSyncedAt: String(raw.serverAccessSyncedAt || ""),
+    serverAccessSyncError: String(raw.serverAccessSyncError || ""),
+    serverSource: String(raw.serverSource || ""),
     oneTime,
   };
+}
+
+function isLocalDevelopmentRuntime() {
+  const host = String(window.location.hostname || "").toLowerCase();
+  return !host || host === "localhost" || host === "127.0.0.1" || host === "::1" || window.location.protocol === "file:";
+}
+
+function paidAccessRequiresServerVerification() {
+  return !isLocalDevelopmentRuntime();
+}
+
+function applyProductionAccessGuards(access = defaultAccessState()) {
+  const normalized = normalizeAccessState(access);
+  if (!paidAccessRequiresServerVerification() || isAdminAccount()) return normalized;
+  const guarded = { ...normalized };
+  if (!guarded.serverPlanVerifiedAt) {
+    guarded.plan = "free";
+    guarded.planState = freePlanState("system");
+  }
+  if (!guarded.serverEntitlementsVerifiedAt) {
+    guarded.oneTime = defaultAccessState().oneTime;
+    guarded.adminEntitlements = [];
+  }
+  if (!guarded.serverCreditsVerifiedAt) {
+    guarded.aiCredits = 0;
+    guarded.creditHistory = [];
+  }
+  return guarded;
 }
 
 function getUserAccess() {
@@ -7373,8 +7414,9 @@ function getUserAccess() {
 }
 
 function effectiveAccessState(access = getUserAccess(), account = currentAccount()) {
-  const normalized = normalizeAccessState(access);
-  const effectivePlan = getEffectivePlan(account, { access: normalized, persist: Boolean(account?.id) });
+  const normalized = applyProductionAccessGuards(access);
+  const accountForPlan = paidAccessRequiresServerVerification() && !isAdminAccount(account) ? null : account;
+  const effectivePlan = getEffectivePlan(accountForPlan, { access: normalized, persist: Boolean(accountForPlan?.id) });
   return { ...normalized, plan: effectivePlan.type, planState: effectivePlan };
 }
 
@@ -8159,11 +8201,11 @@ function aiActionLabel(label, taskType) {
 
 function aiCreditBalanceBadge() {
   const label = currentLanguage === "pt" ? "Cr\u00e9ditos de IA" : "AI credits";
-  return `<span class="ai-credit-balance-note">${label}: <span data-ai-credit-balance>${Number(getUserAccess().aiCredits || 0)}</span></span>`;
+  return `<span class="ai-credit-balance-note">${label}: <span data-ai-credit-balance>${Number(effectiveAccessState().aiCredits || 0)}</span></span>`;
 }
 
 function canUseAiTask(taskType) {
-  return isLoggedIn() && Number(getUserAccess().aiCredits || 0) >= aiTaskCredits(taskType);
+  return isLoggedIn() && Number(effectiveAccessState().aiCredits || 0) >= aiTaskCredits(taskType);
 }
 
 function openAiTaskAccessModal(taskType, featureKey = aiTaskFeature(taskType), context = {}) {
@@ -8172,7 +8214,7 @@ function openAiTaskAccessModal(taskType, featureKey = aiTaskFeature(taskType), c
     setRoute("/signin");
     return;
   }
-  const balance = Number(getUserAccess().aiCredits || 0);
+  const balance = Number(effectiveAccessState().aiCredits || 0);
   if (balance < aiTaskCredits(taskType)) {
     openInsufficientCreditsModal({ balance, required: aiTaskCredits(taskType) });
     return;
@@ -8185,7 +8227,7 @@ function updateLocalAiCreditBalance(balance, transactions = null) {
   if (!account) return;
   const normalizedBalance = Math.max(0, Number(balance || 0));
   const access = getUserAccess();
-  const nextAccess = { ...access, aiCredits: normalizedBalance };
+  const nextAccess = { ...access, aiCredits: normalizedBalance, serverCreditsVerifiedAt: isoNow(), serverSource: "kv" };
   if (Array.isArray(transactions)) {
     nextAccess.creditHistory = transactions.map((item) => ({
       amount: Number(item.amount || 0),
@@ -8198,6 +8240,97 @@ function updateLocalAiCreditBalance(balance, transactions = null) {
   document.querySelectorAll("[data-ai-credit-balance]").forEach((node) => {
     node.textContent = String(normalizedBalance);
   });
+}
+
+let serverAccessSyncInFlight = null;
+let lastServerAccessSyncAt = 0;
+
+function applyServerAccessPayload(payload = {}, account = currentAccount()) {
+  if (!account || !payload.access) return false;
+  const now = isoNow();
+  const nextAccess = normalizeAccessState({
+    ...payload.access,
+    creditHistory: payload.transactions || payload.access.creditHistory || [],
+    serverPlanVerifiedAt: now,
+    serverEntitlementsVerifiedAt: now,
+    serverCreditsVerifiedAt: now,
+    serverAccessSyncedAt: now,
+    serverAccessSyncError: "",
+    serverSource: "kv",
+  });
+  saveUserAccess(account, nextAccess);
+  if (Array.isArray(payload.payments)) {
+    saveUserPayments(account, payload.payments);
+  }
+  if (currentAccount()?.id === account.id) {
+    document.querySelectorAll("[data-ai-credit-balance]").forEach((node) => {
+      node.textContent = String(nextAccess.aiCredits);
+    });
+  }
+  updateAccount(account.id, (current) => ({
+    ...current,
+    plan: nextAccess.planState,
+    manualPlanUpdatedAt: nextAccess.planState.updatedAt,
+    manualPlanUpdatedBy: nextAccess.planState.source || "kv",
+  }));
+  return true;
+}
+
+async function syncServerAccess(options = {}) {
+  const account = currentAccount();
+  if (!account?.id || !account?.email) return null;
+  if (serverAccessSyncInFlight) return serverAccessSyncInFlight;
+  if (!options.force && Date.now() - lastServerAccessSyncAt < 30000) return null;
+  lastServerAccessSyncAt = Date.now();
+  const previous = JSON.stringify(loadUserAccess(account));
+  serverAccessSyncInFlight = (async () => {
+    try {
+      const response = await fetch(`/api/stripe/sync-entitlement?user_id=${encodeURIComponent(account.id)}&user_email=${encodeURIComponent(account.email)}`);
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload.success) throw new Error(payload.error || "server_access_sync_failed");
+      applyServerAccessPayload(payload, account);
+      const changed = previous !== JSON.stringify(loadUserAccess(account));
+      if (options.rerender && changed) render();
+      return payload;
+    } catch (error) {
+      const access = getUserAccess();
+      saveUserAccess(account, { ...access, serverAccessSyncError: error.message || "server_access_sync_failed" });
+      return null;
+    } finally {
+      serverAccessSyncInFlight = null;
+    }
+  })();
+  return serverAccessSyncInFlight;
+}
+
+let adminKvSyncInFlight = false;
+let lastAdminKvSyncAt = 0;
+
+async function syncAdminKvDataset(options = {}) {
+  if (!isAdminAccount()) return null;
+  if (adminKvSyncInFlight) return null;
+  if (!options.force && Date.now() - lastAdminKvSyncAt < 45000) return null;
+  adminKvSyncInFlight = true;
+  lastAdminKvSyncAt = Date.now();
+  let changed = false;
+  try {
+    const accounts = loadAccounts().filter((account) => account?.id && account?.email);
+    for (const account of accounts) {
+      const previous = JSON.stringify(loadUserAccess(account));
+      const response = await fetch(`/api/stripe/sync-entitlement?user_id=${encodeURIComponent(account.id)}&user_email=${encodeURIComponent(account.email)}`);
+      const payload = await response.json().catch(() => ({}));
+      if (response.ok && payload.success && payload.access) {
+        applyServerAccessPayload(payload, account);
+        changed = changed || previous !== JSON.stringify(loadUserAccess(account));
+      }
+    }
+    if (options.rerender && changed) render();
+    return changed;
+  } catch (error) {
+    return null;
+  } finally {
+    adminKvSyncInFlight = false;
+  }
 }
 
 async function syncAiCredits(options = {}) {
@@ -8286,7 +8419,7 @@ async function requestAiGeneration(taskType, data = {}) {
       throw new Error("auth_required");
     }
     openInsufficientCreditsModal({
-      balance: Number(getUserAccess().aiCredits || 0),
+      balance: Number(effectiveAccessState().aiCredits || 0),
       required: aiTaskCredits(taskType),
     });
     throw new Error("insufficient_credits");
@@ -10483,7 +10616,7 @@ async function openStripeCustomerPortal(button = null) {
     button.textContent = labels.redirectingStripe;
   }
   try {
-    const access = getUserAccess();
+    const access = effectiveAccessState();
     const response = await fetch("/api/stripe/create-customer-portal-session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -10602,9 +10735,12 @@ function wait(ms) {
 
 async function syncStripeWebhookEntitlement(sessionId, account, attempts = 5) {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
-    const response = await fetch(`/api/stripe/sync-entitlement?session_id=${encodeURIComponent(sessionId)}&user_id=${encodeURIComponent(account.id)}`);
+    const response = await fetch(`/api/stripe/sync-entitlement?session_id=${encodeURIComponent(sessionId)}&user_id=${encodeURIComponent(account.id)}&user_email=${encodeURIComponent(account.email || "")}`);
     const payload = await response.json().catch(() => ({}));
-    if (response.ok && payload.success && !payload.pending && payload.payment) return payload.payment;
+    if (response.ok && payload.success && !payload.pending && payload.payment) {
+      applyServerAccessPayload(payload, account);
+      return payload.payment;
+    }
     if (response.status !== 202 && (!response.ok || !payload.pending)) throw new Error(payload.error || "stripe_sync_failed");
     await wait(1400 + attempt * 700);
   }
@@ -10637,6 +10773,7 @@ async function confirmStripeCheckoutFromUrl() {
       return;
     }
     applyStripeWebhookPayment(payment);
+    await syncServerAccess({ force: true });
     const productType = payment.productType || session.metadata?.productType || "";
     const product = paymentProductDisplay(productType, payment.currency || session.currency || getSelectedCurrency());
     upsertPaymentRequest({
@@ -12609,7 +12746,7 @@ function pricingActionButton(planKey, featured, mode, isCurrent) {
 
 function pricingCard(name, price, items, featured, badge = "", index = 0, mode = "public") {
   const copy = t();
-  const access = getUserAccess();
+  const access = effectiveAccessState();
   const planKey = planKeyForIndex(index);
   const isCurrent = access.plan === planKey;
   const showCurrentState = mode !== "home" && mode !== "public" && isCurrent;
@@ -14515,7 +14652,7 @@ function dashboardShell(activeKey, content) {
   restoreSidebarAfterBuilder(activeKey);
   const d = t().dashboard;
   const profile = loadProfile();
-  const access = getUserAccess();
+  const access = effectiveAccessState();
   const planLabel = accessPlanLabel(access);
   const planExpiryLabel = accessPlanExpiryLabel(access);
   const showSidebarUpgrade = !isPaidPlan(access);
@@ -14575,7 +14712,7 @@ function dashboardShell(activeKey, content) {
 function renderDashboard() {
   const h = t().dashboard.home;
   const accessCopy = t().dashboard.access;
-  const access = getUserAccess();
+  const access = effectiveAccessState();
   const profile = loadProfile();
   const hasSupportReply = hasUnreadSupportReply();
   const resumes = loadResumes();
@@ -16749,7 +16886,7 @@ function missingResumeSections(resume) {
 
 function analyzeResumeForJob(resume, values) {
   const a = t().ai;
-  const access = getUserAccess();
+  const access = effectiveAccessState();
   const jobText = [values.jobTitle, values.company, values.jobDescription].filter(Boolean).join(" ");
   const resumeText = resumeSearchText(resume);
   const normalizedJob = normalizeAiText(jobText);
@@ -16866,7 +17003,7 @@ function renderProfile() {
   const b = copy.builder;
   const profile = loadProfile();
   const account = currentAccount();
-  const access = getUserAccess();
+  const access = effectiveAccessState();
   const resumes = loadResumes();
   const letters = loadCoverLetters();
   const themeOptions = ["light", "dark", "system"].map((value) => [value, s.themeOptions[value]]);
@@ -17075,7 +17212,7 @@ function renderAccountSettings() {
   const copy = t();
   const s = copy.settings;
   const profile = loadProfile();
-  const access = getUserAccess();
+  const access = effectiveAccessState();
   const planText = accessPlanExpiryLabel(access) ? `${accessPlanLabel(access)} · ${accessPlanExpiryLabel(access)}` : accessPlanLabel(access);
   const themeOptions = ["light", "dark", "system"].map((value) => [value, s.themeOptions[value]]);
   dashboardShell("settings", `
@@ -17300,7 +17437,7 @@ function renderTemplatesPage() {
 }
 
 function renderBilling() {
-  const access = getUserAccess();
+  const access = effectiveAccessState();
   const labels = t().dashboard.access;
   const stripeLabels = t().payments;
   const canManageStripe = access.planState?.source === "stripe" && access.planState?.stripeSubscriptionId;
