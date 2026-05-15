@@ -13447,6 +13447,7 @@ select:focus-visible {
   --exec-line: #d9ddea;
   position: relative;
   display: grid;
+  grid-template-columns: 1fr;
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 0;
   padding: 0;
@@ -13458,6 +13459,12 @@ select:focus-visible {
     radial-gradient(circle at 88% 10%, rgba(111, 92, 246, 0.12), transparent 18%),
     linear-gradient(180deg, #ffffff, #fbfcff 58%, #ffffff);
   box-shadow: 0 28px 70px rgba(7, 18, 57, 0.2);
+}
+
+.resume-document.executive-signature-resume .exec-signature-header,
+.resume-document.executive-signature-resume .exec-signature-body,
+.resume-document.executive-signature-resume .exec-signature-footer {
+  grid-column: 1 / -1;
 }
 
 .resume-document-shell[data-preview-scaled="true"] .resume-document.executive-signature-resume {
