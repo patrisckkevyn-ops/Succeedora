@@ -1,5 +1,7 @@
 {
   "routes": [
+    { "src": "/api/ai/credits", "dest": "/api/ai/generate" },
+    { "src": "/api/admin/ai-credits", "dest": "/api/ai/generate" },
     { "handle": "filesystem" },
     { "src": "/((?!api/|_vercel/|.*\\.).*)", "dest": "/index.html" }
   ]

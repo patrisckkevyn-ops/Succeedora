@@ -7,10 +7,12 @@ const RATE_LIMIT_MAX_REQUESTS = 20;
 const rateLimitBuckets = new Map();
 const {
   aiTaskCreditCost,
+  adjustAiCredits,
   reserveAiCreditsForTask,
   refundAiCreditsForTask,
   getAiCreditState,
 } = require("../_lib/succeedora-store");
+const ADMIN_EMAILS = ["patrisckkevyn@gmail.com"];
 
 const TASKS = {
   generate_professional_summary: {
@@ -131,6 +133,14 @@ function json(res, statusCode, payload) {
   res.end(JSON.stringify(payload));
 }
 
+function requestUrl(req) {
+  return new URL(req.url || "/api/ai/generate", `https://${req.headers.host || "succeedora.com"}`);
+}
+
+function isAdmin(email = "") {
+  return ADMIN_EMAILS.includes(String(email || "").trim().toLowerCase());
+}
+
 function parseBody(req) {
   if (req.body && typeof req.body === "object") return Promise.resolve(req.body);
   return new Promise((resolve, reject) => {
@@ -212,6 +222,59 @@ function userFromBody(body = {}) {
   };
 }
 
+async function handleAiCreditsLookup(req, res) {
+  try {
+    const url = requestUrl(req);
+    const userId = String(url.searchParams.get("userId") || "").trim();
+    const userEmail = String(url.searchParams.get("userEmail") || "").trim().toLowerCase();
+    if (!userId || !userEmail) return json(res, 401, { success: false, error: "auth_required" });
+    const state = await getAiCreditState({ userId, userEmail });
+    if (!state.configured) return json(res, 503, { success: false, error: "server_persistent_store_not_configured" });
+    return json(res, 200, {
+      success: true,
+      aiCredits: state.credits,
+      transactions: state.transactions,
+    });
+  } catch (error) {
+    return json(res, 500, { success: false, error: "credits_lookup_failed" });
+  }
+}
+
+async function handleAdminAiCredits(req, res, body) {
+  try {
+    if (req.method === "GET") {
+      const url = requestUrl(req);
+      const adminEmail = String(url.searchParams.get("adminEmail") || "").trim().toLowerCase();
+      const userId = String(url.searchParams.get("userId") || "").trim();
+      const userEmail = String(url.searchParams.get("userEmail") || "").trim().toLowerCase();
+      if (!isAdmin(adminEmail)) return json(res, 403, { success: false, error: "admin_required" });
+      const state = await getAiCreditState({ userId, userEmail });
+      return json(res, 200, { success: true, aiCredits: state.credits, transactions: state.transactions });
+    }
+
+    const adminEmail = String(body.adminEmail || "").trim().toLowerCase();
+    const userId = String(body.userId || "").trim();
+    const userEmail = String(body.userEmail || "").trim().toLowerCase();
+    const amount = Math.trunc(Number(body.amount || 0));
+    const reason = String(body.reason || "").slice(0, 180);
+    if (!isAdmin(adminEmail)) return json(res, 403, { success: false, error: "admin_required" });
+    if (!userId || !userEmail || !amount) return json(res, 400, { success: false, error: "invalid_credit_request" });
+    const result = await adjustAiCredits({ userId, userEmail }, amount, {
+      type: amount > 0 ? "admin_add" : "admin_remove",
+      reason,
+    });
+    const state = result.applied ? await getAiCreditState({ userId, userEmail }) : null;
+    return json(res, result.applied ? 200 : 400, {
+      success: result.applied,
+      error: result.applied ? "" : result.reason,
+      aiCredits: state?.credits || result.credits,
+      transactions: state?.transactions || [],
+    });
+  } catch (error) {
+    return json(res, 500, { success: false, error: "admin_credit_update_failed" });
+  }
+}
+
 function extractOutputText(payload) {
   if (typeof payload.output_text === "string") return payload.output_text;
   const chunks = [];
@@ -286,15 +349,16 @@ function normalizeResult(taskType, parsed) {
 }
 
 module.exports = async function handler(req, res) {
+  if (req.method === "GET") {
+    const url = requestUrl(req);
+    return url.searchParams.has("adminEmail") ? handleAdminAiCredits(req, res, {}) : handleAiCreditsLookup(req, res);
+  }
+
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return json(res, 405, { success: false, error: "method_not_allowed" });
   }
   if (!checkRateLimit(req)) return json(res, 429, { success: false, error: "rate_limited" });
-
-  const apiKey = process.env.OPENAI_API_KEY;
-  const model = process.env.OPENAI_MODEL || DEFAULT_MODEL;
-  if (!apiKey) return json(res, 500, { success: false, error: "missing_openai_api_key" });
 
   let body;
   try {
@@ -302,6 +366,13 @@ module.exports = async function handler(req, res) {
   } catch (error) {
     return json(res, 400, { success: false, error: error.message || "invalid_body" });
   }
+  if (body.adminEmail && Object.prototype.hasOwnProperty.call(body, "amount")) {
+    return handleAdminAiCredits(req, res, body);
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  const model = process.env.OPENAI_MODEL || DEFAULT_MODEL;
+  if (!apiKey) return json(res, 500, { success: false, error: "missing_openai_api_key" });
 
   const taskType = String(body.taskType || "");
   const task = TASKS[taskType];
