@@ -1,0 +1,52 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="styles.css">
+<body>
+  <main id="test-root"></main>
+  <pre id="results">pending</pre>
+  <script>
+    window.onerror = (message, source, line, column, error) => {
+      document.getElementById("results").textContent = JSON.stringify({ error: String(message), line, column, stack: String(error && error.stack || "") });
+    };
+  </script>
+  <script src="app.js"></script>
+  <script>
+    window.addEventListener("load", () => {
+      const keys = ["modern","minimal","executive","creative","student","international","classic","corporate","tech","simple-ats","elegant","first-job","professional","clean-pro","modern-ats","senior-executive","marketing","sales","developer","designer","healthcare","legal","finance","academic","remote-work","operations","customer-service","graduate","manager","consultant","startup","global"];
+      const root = document.getElementById("test-root");
+      const results = [];
+      for (const key of keys) {
+        try {
+          const html = sampleResumeDocument(key, "a4");
+          const wrap = document.createElement("div");
+          wrap.innerHTML = html;
+          root.appendChild(wrap);
+          const doc = wrap.querySelector(".resume-document");
+          const pdf = doc ? prepareResumeForPdf(doc, { format: "a4", brandFree: true }) : null;
+          if (pdf) document.body.appendChild(pdf);
+          const text = (doc && doc.textContent || "").replace(/\s+/g, " ").trim();
+          results.push({
+            key,
+            ok: Boolean(doc && text.length > 20),
+            hiddenVisible: Boolean(doc && doc.querySelector("[hidden]") && getComputedStyle(doc.querySelector("[hidden]")).display !== "none"),
+            pdfDisplay: pdf ? getComputedStyle(pdf).display : "",
+            pdfHasEmptySection: Boolean(pdf && Array.from(pdf.querySelectorAll("section")).some((section) => {
+              const clone = section.cloneNode(true);
+              clone.querySelector("h3")?.remove();
+              return clone.textContent.replace(/\s+/g, " ").trim().length === 0;
+            })),
+            hasFixedTechText: key === "tech" && (/Construindo produtos|Building digital|Data-driven decisions|Decisões orientadas/.test(text) || text.includes("</>")),
+            hasFixedProfessionalIntro: key === "professional" && /Profissional orientado|Results-oriented professional focused/.test(text),
+            overflowY: Boolean(doc && doc.clientHeight > 0 && doc.scrollHeight > doc.clientHeight + 4),
+            textLength: text.length,
+            className: doc ? doc.className : "",
+          });
+          if (pdf) pdf.remove();
+        } catch (error) {
+          results.push({ key, ok: false, error: String(error && error.message || error) });
+        }
+      }
+      document.getElementById("results").textContent = JSON.stringify(results, null, 2);
+    });
+  </script>
+</body>

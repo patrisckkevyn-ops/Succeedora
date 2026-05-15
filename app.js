@@ -2141,6 +2141,7 @@ const TEMPLATE_STATUS = Object.freeze({
 });
 
 const TEMPLATE_STATUS_BY_KEY = Object.freeze({
+  "clean-start-ats": TEMPLATE_STATUS.active,
   modern: TEMPLATE_STATUS.active,
   "simple-ats": TEMPLATE_STATUS.active,
   sales: TEMPLATE_STATUS.active,
@@ -2184,6 +2185,38 @@ function isTemplateActive(template = {}) {
 }
 
 const RESUME_TEMPLATES = [
+  {
+    key: "clean-start-ats",
+    name: "Clean Start ATS",
+    names: {
+      en: "Clean Start ATS",
+      pt: "Clean Start ATS",
+    },
+    icon: "shield",
+    category: "ATS",
+    categories: {
+      en: "ATS / Entry",
+      pt: "ATS / Entrada",
+    },
+    access: "free",
+    filterGroups: ["free", "ats", "corporate"],
+    descriptions: {
+      en: "Clean, direct and ATS-friendly template for creating a professional resume safely.",
+      pt: "Modelo limpo, direto e compat\u00edvel com ATS para criar um curr\u00edculo profissional com seguran\u00e7a.",
+    },
+    previewDescriptions: {
+      en: "A free one-column resume with clear hierarchy, neutral typography and ATS-safe structure for traditional applications.",
+      pt: "Um curr\u00edculo gratuito em uma coluna, com hierarquia clara, tipografia neutra e estrutura segura para sistemas ATS.",
+    },
+    bestFor: {
+      en: "Traditional applications, corporate jobs, administrative areas, first professional resumes and ATS systems",
+      pt: "Candidaturas tradicionais, vagas corporativas, \u00e1reas administrativas, primeiro curr\u00edculo profissional e sistemas ATS",
+    },
+    idealFor: {
+      en: ["traditional applications", "corporate roles", "administrative areas", "first professional resume", "users who want clarity", "ATS systems"],
+      pt: ["candidaturas tradicionais", "vagas corporativas", "\u00e1reas administrativas", "primeiro curr\u00edculo profissional", "usu\u00e1rios que querem clareza", "sistemas ATS"],
+    },
+  },
   {
     key: "modern",
     name: "Modern",
@@ -2413,8 +2446,8 @@ const RESUME_TEMPLATES = [
     icon: "target",
     category: "ATS",
     categories: {
-      en: "ATS / Traditional / Maximum Compatibility",
-      pt: "ATS / Tradicional / Compatibilidade Maxima",
+      en: "ATS / Traditional",
+      pt: "ATS / Tradicional",
     },
     access: "free",
     descriptions: {
@@ -2500,7 +2533,7 @@ const ADDITIONAL_RESUME_TEMPLATES = [
   ["modern-ats", "Modern ATS", "ATS moderno", "ATS", "ATS", "pro", ["pro", "ats", "technology"], "ATS-safe structure with a sharper modern header and a separated skills band.", "Estrutura segura para ATS, com cabeçalho moderno e faixa de habilidades destacada.", "Online applications and ATS uploads", "Candidaturas online e uploads em ATS"],
   ["senior-executive", "Senior Executive", "Executivo senior", "Executive", "Executivo", "premium", ["premium", "executive", "corporate"], "A signature executive resume with a premium ribbon, strong nameplate, strategic sidebar and polished leadership sections.", "Um currículo executivo premium com faixa de assinatura, nome forte, sidebar estratégica e seções sofisticadas de liderança.", "Senior leaders, managers, coordinators and high-value executive applications", "Lideranças seniores, gerentes, coordenadores e candidaturas executivas de alto valor"],
   ["marketing", "Marketing", "Marketing", "Creative", "Criativo", "pro", ["pro", "creative", "corporate"], "A results-first layout for campaigns, brand and growth profiles.", "Um layout orientado a resultados para campanhas, marca e crescimento.", "For marketing and growth roles", "Para marketing e growth"],
-  ["sales", "Sales", "Vendas", "Sales / Commercial / Customer Relations", "Vendas / Comercial / Relacionamento com Cliente", "pro", ["pro", "corporate"], "A modern Pro resume for sales, revenue, account, customer success and commercial relationship roles, with metrics-first hierarchy.", "Um curriculo Pro moderno para vendas, receita, contas, sucesso do cliente e relacionamento comercial, com hierarquia orientada a metricas.", "Best for sales, SDR, BDR, account executive, customer success and client-facing growth roles", "Ideal para vendas, SDR, BDR, account executive, customer success e relacionamento com clientes"],
+  ["sales", "Sales", "Vendas", "Sales / Commercial", "Vendas / Comercial", "pro", ["pro", "corporate"], "A modern Pro resume for sales, revenue, account, customer success and commercial relationship roles, with metrics-first hierarchy.", "Um curriculo Pro moderno para vendas, receita, contas, sucesso do cliente e relacionamento comercial, com hierarquia orientada a metricas.", "Best for sales, SDR, BDR, account executive, customer success and client-facing growth roles", "Ideal para vendas, SDR, BDR, account executive, customer success e relacionamento com clientes"],
   ["developer", "Developer", "Desenvolvedor", "Technology", "Tecnologia", "premium", ["premium", "technology", "ats"], "A premium technical resume with stack sidebar, project-first structure and visible engineering links.", "Um currículo técnico premium, com sidebar de stack, projetos em destaque e links de engenharia visíveis.", "For tech and product", "Para tecnologia e produto"],
   ["designer", "Designer", "Designer", "Creative", "Criativo", "premium", ["premium", "creative", "technology"], "A refined visual layout for design, UX and portfolio-driven careers.", "Um layout visual refinado para design, UX e carreiras orientadas a portfólio.", "Creative modern layout", "Visual criativo e moderno"],
   ["healthcare", "Healthcare", "Saude", "Corporate", "Corporativo", "pro", ["pro", "corporate", "ats"], "A trustworthy clinical resume for healthcare and care operations.", "Um curriculo confiavel para saude, clinica e operacoes de cuidado.", "For healthcare professionals", "Para profissionais de saude"],
@@ -3800,6 +3833,24 @@ function useTemplateForBuilder(templateKey) {
   startNewResume(selectedTemplateKey);
 }
 
+function openBuilderWithTemplate(templateKey) {
+  const template = getTemplateByKey(templateKey);
+  if (!isTemplateActive(template)) return false;
+  if (!canUseTemplate(templateKey)) {
+    openFeatureLockModal(templateLockFeature(template), { templateKey });
+    return false;
+  }
+  if (!pendingTemplateChangeDraft && !canUseFeature("unlimited_resumes") && loadResumes().length >= 1) {
+    openFeatureLockModal("unlimited_resumes");
+    return false;
+  }
+  useTemplateForBuilder(templateKey);
+  preferCollapsedSidebarForBuilder();
+  syncSidebarCollapsedState();
+  setRoute("/dashboard/builder");
+  return true;
+}
+
 function loadResumeIntoBuilder(id) {
   const resume = findResume(id);
   if (!resume) {
@@ -4083,17 +4134,17 @@ function applyResumeShellPreviewScale(shell, options = {}) {
   const spec = resetResumeShellPageVars(shell, format);
   const documentNode = shell.querySelector(".resume-document");
   if (!documentNode) return;
-  const contentWidth = Math.max(spec.widthPx, documentNode.scrollWidth || spec.widthPx);
-  const contentHeight = Math.max(spec.heightPx, documentNode.scrollHeight || spec.heightPx);
+  const pageWidth = spec.widthPx;
+  const pageHeight = spec.heightPx;
   const maxScale = Number.isFinite(options.maxScale) ? options.maxScale : 1;
-  const availableWidth = Math.max(1, options.availableWidth || spec.widthPx);
-  const availableHeight = Math.max(1, options.availableHeight || spec.heightPx);
-  const scale = Math.max(0.035, Math.min(maxScale, availableWidth / contentWidth, availableHeight / contentHeight));
-  shell.style.setProperty("--resume-page-width", `${contentWidth}px`);
-  shell.style.setProperty("--resume-page-height", `${contentHeight}px`);
+  const availableWidth = Math.max(1, options.availableWidth || pageWidth);
+  const availableHeight = Math.max(1, options.availableHeight || pageHeight);
+  const scale = Math.max(0.035, Math.min(maxScale, availableWidth / pageWidth, availableHeight / pageHeight));
+  shell.style.setProperty("--resume-page-width", `${pageWidth}px`);
+  shell.style.setProperty("--resume-page-height", `${pageHeight}px`);
   shell.style.setProperty("--preview-scale", scale.toFixed(4));
-  shell.style.setProperty("--scaled-page-width", `${(contentWidth * scale).toFixed(2)}px`);
-  shell.style.setProperty("--scaled-page-height", `${(contentHeight * scale).toFixed(2)}px`);
+  shell.style.setProperty("--scaled-page-width", `${(pageWidth * scale).toFixed(2)}px`);
+  shell.style.setProperty("--scaled-page-height", `${(pageHeight * scale).toFixed(2)}px`);
 }
 
 function updateResumePreviewScales(root = document) {
@@ -4632,6 +4683,101 @@ function minimalAtsSampleResume() {
     certifications: ["People Management - Example Institution, 2024"],
     projects: ["Internal process standardization - Structured follow-up flows to reduce rework and improve communication between teams."],
     professionalLinks: ["linkedin.com/in/patrickjustino"],
+  });
+}
+
+function cleanStartAtsSampleResume() {
+  if (currentLanguage === "pt") {
+    return createBlankResume({
+      selectedTemplate: "clean-start-ats",
+      personal: {
+        fullName: "Amanda Silva",
+        title: "Product Manager",
+        email: "amanda.silva@email.com",
+        phone: "+55 11 90000-0000",
+        location: "S\u00e3o Paulo, Brasil",
+      },
+      summary: "Product Manager com experi\u00eancia em estrat\u00e9gia de produto, pesquisa com usu\u00e1rios, prioriza\u00e7\u00e3o de roadmap e colabora\u00e7\u00e3o com times de design, engenharia e neg\u00f3cios. Perfil orientado a dados, comunica\u00e7\u00e3o clara e foco em entregar solu\u00e7\u00f5es digitais que melhoram a experi\u00eancia do usu\u00e1rio e geram impacto para o neg\u00f3cio.",
+      workExperience: [
+        {
+          role: "Product Manager",
+          company: "NovaTech Digital",
+          location: "S\u00e3o Paulo, Brasil",
+          period: "Mar 2021 \u2014 Atual",
+          achievements: [
+            "Liderou a defini\u00e7\u00e3o de roadmap de produto com base em pesquisas, m\u00e9tricas de uso e objetivos de neg\u00f3cio.",
+            "Priorizou funcionalidades em colabora\u00e7\u00e3o com design, engenharia, marketing e atendimento ao cliente.",
+            "Acompanhou indicadores de ado\u00e7\u00e3o, reten\u00e7\u00e3o e satisfa\u00e7\u00e3o para orientar melhorias cont\u00ednuas.",
+            "Coordenou entregas em ciclos \u00e1geis, garantindo alinhamento entre stakeholders e equipe t\u00e9cnica.",
+          ],
+        },
+        {
+          role: "Associate de Projetos Digitais",
+          company: "StartHub Brasil",
+          location: "S\u00e3o Paulo, Brasil",
+          period: "Jan 2018 \u2014 Mai 2021",
+          achievements: [
+            "Apoiou o acompanhamento de projetos digitais, cronogramas e entregas internas.",
+            "Organizou materiais, atas, documentos de escopo e comunica\u00e7\u00e3o entre \u00e1reas.",
+            "Auxiliou na an\u00e1lise de requisitos e acompanhamento de demandas de clientes.",
+          ],
+        },
+      ],
+      education: [
+        { degree: "Administra\u00e7\u00e3o de Empresas", school: "Universidade de S\u00e3o Paulo", location: "S\u00e3o Paulo, Brasil", period: "2012 \u2014 2016" },
+        { degree: "MBA em Gest\u00e3o de Produtos Digitais", school: "FIAP", location: "S\u00e3o Paulo, Brasil", period: "2020 \u2014 2021" },
+      ],
+      skills: ["Gest\u00e3o de Produto", "Roadmap", "Pesquisa com Usu\u00e1rios", "An\u00e1lise de M\u00e9tricas", "Prioriza\u00e7\u00e3o", "Metodologias \u00c1geis", "Scrum", "Kanban", "UX Research", "Figma", "Jira", "Notion", "Power BI"],
+      languages: ["Portugu\u00eas \u2014 Nativo", "Ingl\u00eas \u2014 Avan\u00e7ado", "Espanhol \u2014 Intermedi\u00e1rio"],
+      certifications: ["Product Management Professional \u2014 Product School, 2023", "Scrum Foundation Professional Certificate \u2014 CertiProf, 2022", "UX Research Basics \u2014 Google, 2021"],
+      projects: ["Redesign do Onboarding de Usu\u00e1rios - Liderou estudo de comportamento e redesenho do fluxo inicial do produto, reduzindo fric\u00e7\u00f5es e melhorando a ativa\u00e7\u00e3o de novos usu\u00e1rios. 2023 - amandasilva.com/onboarding"],
+      professionalLinks: ["linkedin.com/in/amandasilva", "amandasilva.com", "github.com/amandasilva"],
+    });
+  }
+  return createBlankResume({
+    selectedTemplate: "clean-start-ats",
+    personal: {
+      fullName: "Amanda Silva",
+      title: "Product Manager",
+      email: "amanda.silva@email.com",
+      phone: "+55 11 90000-0000",
+      location: "Sao Paulo, Brazil",
+    },
+    summary: "Product Manager with experience in product strategy, user research, roadmap prioritization and collaboration with design, engineering and business teams. Data-oriented profile with clear communication and focus on delivering digital solutions that improve user experience and create business impact.",
+    workExperience: [
+      {
+        role: "Product Manager",
+        company: "NovaTech Digital",
+        location: "Sao Paulo, Brazil",
+        period: "Mar 2021 \u2014 Present",
+        achievements: [
+          "Led product roadmap definition based on research, usage metrics and business objectives.",
+          "Prioritized features in collaboration with design, engineering, marketing and customer support.",
+          "Tracked adoption, retention and satisfaction indicators to guide continuous improvements.",
+          "Coordinated deliveries in agile cycles, ensuring alignment between stakeholders and technical teams.",
+        ],
+      },
+      {
+        role: "Digital Projects Associate",
+        company: "StartHub Brazil",
+        location: "Sao Paulo, Brazil",
+        period: "Jan 2018 \u2014 May 2021",
+        achievements: [
+          "Supported digital project tracking, schedules and internal deliveries.",
+          "Organized materials, meeting notes, scope documents and cross-team communication.",
+          "Assisted with requirements analysis and customer demand follow-up.",
+        ],
+      },
+    ],
+    education: [
+      { degree: "Business Administration", school: "University of Sao Paulo", location: "Sao Paulo, Brazil", period: "2012 \u2014 2016" },
+      { degree: "MBA in Digital Product Management", school: "FIAP", location: "Sao Paulo, Brazil", period: "2020 \u2014 2021" },
+    ],
+    skills: ["Product Management", "Roadmap", "User Research", "Metrics Analysis", "Prioritization", "Agile Methodologies", "Scrum", "Kanban", "UX Research", "Figma", "Jira", "Notion", "Power BI"],
+    languages: ["Portuguese \u2014 Native", "English \u2014 Advanced", "Spanish \u2014 Intermediate"],
+    certifications: ["Product Management Professional \u2014 Product School, 2023", "Scrum Foundation Professional Certificate \u2014 CertiProf, 2022", "UX Research Basics \u2014 Google, 2021"],
+    projects: ["User Onboarding Redesign - Led behavior study and redesign of the initial product flow, reducing friction and improving new user activation. 2023 - amandasilva.com/onboarding"],
+    professionalLinks: ["linkedin.com/in/amandasilva", "amandasilva.com", "github.com/amandasilva"],
   });
 }
 
@@ -8427,17 +8573,7 @@ function bindInteractions() {
         setRoute("/signup");
         return;
       }
-      if (!canUseTemplate(templateKey)) {
-        openFeatureLockModal(templateLockFeature(getTemplateByKey(templateKey)), { templateKey });
-        return;
-      }
-      if (!pendingTemplateChangeDraft && !canUseFeature("unlimited_resumes") && loadResumes().length >= 1) {
-        openFeatureLockModal("unlimited_resumes");
-        return;
-      }
-      useTemplateForBuilder(templateKey);
-      preferCollapsedSidebarForBuilder();
-      setRoute("/dashboard/builder");
+      openBuilderWithTemplate(templateKey);
     });
   });
 
@@ -8801,7 +8937,7 @@ function bindInteractions() {
       updateBuilderLivePreview();
       return;
     }
-    if (root?.classList.contains("simple-ats-resume") && ["skills", "certifications", "projects", "links", "languages"].includes(targetName)) {
+    if ((root?.classList.contains("simple-ats-resume") || root?.classList.contains("clean-start-ats-resume")) && ["skills", "certifications", "projects", "links", "languages"].includes(targetName)) {
       updateBuilderLivePreview();
       return;
     }
@@ -8867,7 +9003,7 @@ function bindInteractions() {
       return;
     }
     if (!contact) return;
-    const showLinkInContact = root?.classList?.contains("student-resume") || root?.classList?.contains("simple-ats-resume") || root?.classList?.contains("executive-resume");
+    const showLinkInContact = root?.classList?.contains("student-resume") || root?.classList?.contains("simple-ats-resume") || root?.classList?.contains("clean-start-ats-resume") || root?.classList?.contains("executive-resume");
     const studentLink = showLinkInContact
       ? normalizeTextList(document.querySelector('[data-resume-field="links"]')?.value || "")[0]
       : "";
@@ -9642,18 +9778,7 @@ function openTemplatePreview(templateKey, context = "public") {
         setRoute("/signup");
         return;
       }
-      if (!canUseTemplate(selectedTemplateKey)) {
-        openFeatureLockModal(templateLockFeature(getTemplateByKey(selectedTemplateKey)), { templateKey: selectedTemplateKey });
-        return;
-      }
-      if (!pendingTemplateChangeDraft && !canUseFeature("unlimited_resumes") && loadResumes().length >= 1) {
-        openFeatureLockModal("unlimited_resumes");
-        return;
-      }
-      modal.remove();
-      useTemplateForBuilder(selectedTemplateKey);
-      preferCollapsedSidebarForBuilder();
-      setRoute("/dashboard/builder");
+      if (openBuilderWithTemplate(selectedTemplateKey)) modal.remove();
     });
   });
 }
@@ -10360,6 +10485,7 @@ function curatedSampleResume(template = "professional") {
 }
 
 function sampleResumeDocument(template = "modern", format = selectedDocumentFormat) {
+  if (template === "clean-start-ats") return resumeDocument("clean-start-ats", format, cleanStartAtsSampleResume());
   if (template === "modern") return resumeDocument("modern", format, modernSampleResume());
   if (template === "executive") return resumeDocument("executive", format, executiveSampleResume());
   if (template === "minimal") return resumeDocument("minimal", format, minimalAtsSampleResume());
@@ -14128,6 +14254,96 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
             ${optional("first-job-projects", firstJobLabels.projects, firstJobParagraphs(data.projects, "projects"), hasList(data.projects))}
             ${optional("first-job-languages", firstJobLabels.languages, `<p data-preview-field="languages" data-preview-empty="">${brList(data.languages, "")}</p>`, hasList(data.languages))}
             ${optional("first-job-links", firstJobLabels.links, `<div class="resume-link-list first-job-link-list" data-preview-field="links" data-preview-empty="">${paragraphList(data.professionalLinks, "")}</div>`, hasList(data.professionalLinks))}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (template === "clean-start-ats") {
+    const hasText = (item) => String(item || "").trim().length > 0;
+    const hasList = (items) => normalizeTextList(items).length > 0;
+    const cleanLabels = currentLanguage === "pt"
+      ? {
+        summary: "Resumo profissional",
+        experience: "Experi\u00eancia profissional",
+        education: "Forma\u00e7\u00e3o",
+        skills: "Habilidades",
+        certifications: "Certifica\u00e7\u00f5es",
+        languages: "Idiomas",
+        projects: "Projetos",
+        links: "Links",
+      }
+      : {
+        summary: "Professional Summary",
+        experience: "Professional Experience",
+        education: "Education",
+        skills: "Skills",
+        certifications: "Certifications",
+        languages: "Languages",
+        projects: "Projects",
+        links: "Links",
+      };
+    const contactLinks = normalizeTextList(data.professionalLinks);
+    const headerLink = contactLinks[0] || "";
+    const remainingLinks = contactLinks.slice(1);
+    const contactItems = [displayLocation, personal.email, personal.phone, headerLink].filter(Boolean);
+    const cleanContact = contactItems.join(" | ") || b.document.header;
+    const optional = (className, title, body, hasContent) => `
+      <section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}>
+        <h3>${title}</h3>
+        ${body}
+      </section>
+    `;
+    const experiences = (data.workExperience || []).filter((item) => hasText(item.role) || hasText(item.company) || hasText(item.location) || hasText(item.period) || hasList(item.achievements));
+    const primaryExperience = experiences[0] || experience;
+    const experienceBody = (experiences.length ? experiences : [primaryExperience]).map((item, index) => `
+      <article class="clean-start-entry clean-start-experience-item">
+        <strong class="clean-start-role" ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>
+        <p class="clean-start-meta">
+          <span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>${hasText(item.company) && hasText(item.location) ? " &mdash; " : ""}<span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span>
+        </p>
+        <p class="clean-start-period" ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</p>
+        <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
+      </article>
+    `).join("");
+    const educationItems = (data.education || []).filter((item) => hasText(item.degree) || hasText(item.school) || hasText(item.location) || hasText(item.period));
+    const educationBody = (educationItems.length ? educationItems : [education]).map((item, index) => `
+      <article class="clean-start-entry clean-start-education-item">
+        <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
+        <p class="clean-start-meta">
+          <span ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</span>${hasText(item.school) && hasText(item.location) ? " &mdash; " : ""}<span>${display(item.location, "")}</span>
+        </p>
+        ${hasText(item.period) ? `<p class="clean-start-period">${display(item.period, "")}</p>` : ""}
+      </article>
+    `).join("");
+    const cleanLineList = (items, fieldName) => `<div class="clean-start-line-list" data-preview-field="${fieldName}" data-preview-empty="">${normalizeTextList(items).map((item) => `<p>${escapeHtml(item)}</p>`).join("")}</div>`;
+    const cleanProjects = normalizeTextList(data.projects).map((item) => {
+      const parts = item.split(" - ").map((part) => part.trim()).filter(Boolean);
+      const title = parts.shift() || item;
+      return `
+        <article class="clean-start-project-item">
+          <strong>${escapeHtml(title)}</strong>
+          ${parts.length ? `<p>${escapeHtml(parts.join(" - "))}</p>` : ""}
+        </article>
+      `;
+    }).join("");
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-clean-start-ats clean-start-ats-resume ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="clean-start-header">
+              <h2 data-preview-field="name" data-preview-empty="Amanda Silva">${display(displayName, "Amanda Silva")}</h2>
+              <strong data-preview-field="title" data-preview-empty="${b.values.professionalTitle}">${display(personal.title, b.values.professionalTitle)}</strong>
+              <p class="resume-contact-line clean-start-contact-line" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(cleanContact, b.document.header)}</p>
+            </header>
+            ${optional("clean-start-summary", cleanLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, hasText(data.summary))}
+            ${optional("clean-start-experience", cleanLabels.experience, experienceBody, experiences.length > 0)}
+            ${optional("clean-start-education", cleanLabels.education, educationBody, educationItems.length > 0)}
+            ${optional("clean-start-skills", cleanLabels.skills, `<p class="clean-start-skill-line" data-preview-field="skills" data-preview-empty="">${escapeHtml(normalizeTextList(data.skills).join(", "))}</p>`, hasList(data.skills))}
+            ${optional("clean-start-certifications", cleanLabels.certifications, cleanLineList(data.certifications, "certifications"), hasList(data.certifications))}
+            ${optional("clean-start-languages", cleanLabels.languages, cleanLineList(data.languages, "languages"), hasList(data.languages))}
+            ${optional("clean-start-projects", cleanLabels.projects, `<div class="clean-start-project-list" data-preview-field="projects" data-preview-empty="">${cleanProjects}</div>`, hasList(data.projects))}
+            ${optional("clean-start-links", cleanLabels.links, cleanLineList(remainingLinks, "links"), remainingLinks.length > 0)}
           </div>
         </div>
       </div>
