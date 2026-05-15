@@ -13122,6 +13122,297 @@ select:focus-visible {
   --curated-soft: #fbfaf7;
 }
 
+.resume-document.elegant-premium-resume {
+  --elegant-ink: #151923;
+  --elegant-muted: #6e7480;
+  --elegant-line: #ded7c9;
+  --elegant-soft: #fbfaf6;
+  --elegant-deep: #16343d;
+  --elegant-gold: #b4975a;
+  --elegant-mist: #edf3f1;
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #dedbd2;
+  border-radius: 4px;
+  color: var(--elegant-ink);
+  background:
+    linear-gradient(90deg, rgba(180, 151, 90, 0.06), transparent 36%),
+    linear-gradient(180deg, #fffdf8, #ffffff 46%, #fbfaf6);
+  box-shadow: 0 24px 60px rgba(22, 52, 61, 0.13);
+}
+
+.resume-document-shell[data-preview-scaled="true"] .resume-document.elegant-premium-resume {
+  padding: 0;
+}
+
+.resume-document.elegant-premium-resume::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 9px;
+  background: linear-gradient(90deg, var(--elegant-deep), var(--elegant-gold) 44%, rgba(22, 52, 61, 0.28));
+}
+
+.resume-document.elegant-premium-resume .elegant-premium-header {
+  position: relative;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  margin: 0;
+  padding: 42px 56px 25px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.resume-document.elegant-premium-resume .elegant-premium-header::after {
+  content: "";
+  position: absolute;
+  left: 56px;
+  right: 56px;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(180, 151, 90, 0.72), rgba(22, 52, 61, 0.22), transparent);
+}
+
+.resume-document.elegant-premium-resume .elegant-monogram {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgba(180, 151, 90, 0.58);
+  border-radius: 999px;
+  color: var(--elegant-deep);
+  background: linear-gradient(135deg, #ffffff, #f4efe2);
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  box-shadow: 0 14px 26px rgba(22, 52, 61, 0.08);
+}
+
+.resume-document.elegant-premium-resume .elegant-identity {
+  min-width: 0;
+}
+
+.resume-document.elegant-premium-resume h2 {
+  margin: 0;
+  color: var(--elegant-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+.resume-document.elegant-premium-resume .elegant-identity strong {
+  display: block;
+  margin-top: 7px;
+  color: var(--elegant-deep);
+  font-size: 12.4px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.resume-document.elegant-premium-resume .elegant-contact {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 8px 0 0 70px;
+  color: var(--elegant-muted);
+  font-size: 11.3px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.resume-document.elegant-premium-resume .elegant-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(210px, 0.35fr);
+  gap: 22px 30px;
+  align-content: start;
+  padding: 28px 54px 42px;
+}
+
+.resume-document.elegant-premium-resume .elegant-main,
+.resume-document.elegant-premium-resume .elegant-sidebar {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  min-width: 0;
+}
+
+.resume-document.elegant-premium-resume section {
+  display: block;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  vertical-align: initial;
+}
+
+.resume-document.elegant-premium-resume .elegant-profile {
+  padding: 0 0 16px;
+  border-bottom: 1px solid rgba(180, 151, 90, 0.28);
+}
+
+.resume-document.elegant-premium-resume .elegant-experience {
+  padding-top: 1px;
+}
+
+.resume-document.elegant-premium-resume .elegant-projects {
+  padding: 15px 17px;
+  border: 1px solid rgba(180, 151, 90, 0.18);
+  border-radius: 8px;
+  background: rgba(251, 250, 246, 0.78);
+}
+
+.resume-document.elegant-premium-resume .elegant-panel {
+  padding: 16px 16px 15px;
+  border: 1px solid rgba(180, 151, 90, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.resume-document.elegant-premium-resume .elegant-skills {
+  background: linear-gradient(180deg, #f8f4eb, #ffffff);
+}
+
+.resume-document.elegant-premium-resume h3 {
+  display: grid;
+  grid-template-columns: auto minmax(24px, 1fr);
+  gap: 10px;
+  align-items: center;
+  margin: 0 0 10px;
+  color: var(--elegant-deep);
+  font-size: 10.8px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.resume-document.elegant-premium-resume h3::after {
+  content: "";
+  height: 1px;
+  background: linear-gradient(90deg, rgba(180, 151, 90, 0.72), transparent);
+}
+
+.resume-document.elegant-premium-resume p,
+.resume-document.elegant-premium-resume li {
+  color: #353b46;
+  font-size: 12.55px;
+  line-height: 1.55;
+}
+
+.resume-document.elegant-premium-resume ul {
+  display: grid;
+  gap: 5px;
+  margin: 7px 0 0;
+  padding-left: 17px;
+}
+
+.resume-document.elegant-premium-resume .curated-experience-item {
+  position: relative;
+  display: grid;
+  gap: 5px;
+  padding: 0 0 15px 18px;
+  border-bottom: 1px solid rgba(180, 151, 90, 0.22);
+}
+
+.resume-document.elegant-premium-resume .curated-experience-item + .curated-experience-item {
+  margin-top: 1px;
+}
+
+.resume-document.elegant-premium-resume .curated-experience-item:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.resume-document.elegant-premium-resume .curated-experience-item::before {
+  content: "";
+  position: absolute;
+  inset: 4px auto 15px 0;
+  width: 3px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--elegant-gold), rgba(22, 52, 61, 0.28));
+}
+
+.resume-document.elegant-premium-resume .curated-entry-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.resume-document.elegant-premium-resume .curated-entry-head strong {
+  color: var(--elegant-ink);
+  font-size: 14.8px;
+  font-weight: 900;
+}
+
+.resume-document.elegant-premium-resume .curated-entry-head span {
+  color: var(--elegant-deep);
+  font-size: 10.8px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.resume-document.elegant-premium-resume .curated-entry-meta,
+.resume-document.elegant-premium-resume .curated-compact-item span,
+.resume-document.elegant-premium-resume .curated-compact-item em {
+  color: var(--elegant-muted);
+  font-size: 11.2px;
+  font-style: normal;
+  font-weight: 750;
+}
+
+.resume-document.elegant-premium-resume .curated-compact-item,
+.resume-document.elegant-premium-resume .curated-text-list,
+.resume-document.elegant-premium-resume .curated-link-list {
+  display: grid;
+  gap: 5px;
+}
+
+.resume-document.elegant-premium-resume .curated-compact-item strong,
+.resume-document.elegant-premium-resume .curated-link-list p {
+  color: var(--elegant-ink);
+  font-weight: 850;
+}
+
+.resume-document.elegant-premium-resume .elegant-skill-list {
+  display: grid;
+  gap: 0;
+}
+
+.resume-document.elegant-premium-resume .elegant-skill-list span {
+  display: block;
+  padding: 7px 0;
+  border: 0;
+  border-bottom: 1px solid rgba(180, 151, 90, 0.18);
+  border-radius: 0;
+  color: var(--elegant-ink);
+  background: transparent;
+  font-size: 11.5px;
+  font-weight: 800;
+}
+
+.resume-document.elegant-premium-resume .elegant-skill-list span:last-child {
+  border-bottom: 0;
+}
+
+.pdf-export-document.elegant-premium-resume {
+  padding: 0 !important;
+  box-shadow: none;
+}
+
 .resume-document.curated-tone-finance,
 .resume-document.curated-tone-corporate,
 .resume-document.curated-tone-operations {

@@ -2389,16 +2389,20 @@ const RESUME_TEMPLATES = [
     },
     access: "pro",
     previewDescriptions: {
-      en: "A refined resume for professionals who want a polished, elegant and mature presentation without looking overly decorative.",
-      pt: "Um curriculo refinado para profissionais que querem uma apresentacao elegante, madura e premium sem excesso visual.",
+      en: "Refined and sophisticated template for professionals who want a clean resume with a premium look.",
+      pt: "Modelo refinado e sofisticado, ideal para profissionais que querem um currículo limpo com aparência premium.",
     },
     descriptions: {
-      en: "A polished premium template with refined accents and calm structure.",
-      pt: "Um modelo premium polido, com detalhes refinados e estrutura calma.",
+      en: "Refined and sophisticated template for professionals who want a clean resume with a premium look.",
+      pt: "Modelo refinado e sofisticado, ideal para profissionais que querem um currículo limpo com aparência premium.",
     },
     bestFor: {
-      en: "Senior specialists, client-facing roles and premium applications",
-      pt: "Especialistas seniores, cargos com clientes e candidaturas premium",
+      en: "Corporate professionals, analysts, coordinators, consultants and administrative roles",
+      pt: "Profissionais corporativos, analistas, coordenadores, consultores e áreas administrativas",
+    },
+    idealFor: {
+      en: ["corporate professionals", "analysts", "coordinators", "consultants", "administrative professionals", "users who want elegance without excess"],
+      pt: ["profissionais corporativos", "analistas", "coordenadores", "consultores", "áreas administrativas", "profissionais que querem elegância sem exageros"],
     },
   },
   {
@@ -12952,6 +12956,43 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
       ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
     </p>
   `).join("");
+  if (template === "elegant") {
+    const elegantSection = (className, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3>${title}</h3>${body}</section>`;
+    const elegantInitials = (displayName || "Amanda Silva").split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part.charAt(0)).join("").toUpperCase() || "AS";
+    const elegantSideSections = [
+      elegantSection("elegant-panel elegant-skills", curatedLabels.skills, `<div class="resume-skill-list elegant-skill-list" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, curatedHasList(data.skills)),
+      elegantSection("elegant-panel elegant-education", curatedLabels.education, curatedEducationEntries, curatedEducationItems.length > 0),
+      elegantSection("elegant-panel elegant-certifications", curatedLabels.certifications, `<p data-preview-field="certifications" data-preview-empty="">${curatedLines(data.certifications)}</p>`, curatedHasList(data.certifications)),
+      elegantSection("elegant-panel elegant-languages", curatedLabels.languages, `<p data-preview-field="languages" data-preview-empty="">${curatedLines(data.languages)}</p>`, curatedHasList(data.languages)),
+      elegantSection("elegant-panel elegant-links", curatedLabels.links, `<div class="resume-link-list curated-link-list" data-preview-field="links" data-preview-empty="">${paragraphList(data.professionalLinks, "")}</div>`, curatedHasList(data.professionalLinks)),
+    ].join("");
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-elegant elegant-premium-resume ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="elegant-premium-header">
+              <span class="elegant-monogram" aria-hidden="true">${escapeHtml(elegantInitials)}</span>
+              <div class="elegant-identity">
+                <h2 data-preview-field="name" data-preview-empty="Amanda Silva">${display(displayName, "Amanda Silva")}</h2>
+                <strong data-preview-field="title" data-preview-empty="${b.values.professionalTitle}">${display(personal.title, b.values.professionalTitle)}</strong>
+              </div>
+              <p class="resume-contact-line elegant-contact" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(curatedContact, b.document.header)}</p>
+            </header>
+            <div class="elegant-body">
+              <main class="elegant-main">
+                ${elegantSection("elegant-profile", curatedLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, curatedHasText(data.summary))}
+                ${elegantSection("elegant-experience", curatedLabels.experience, curatedExperienceEntries, curatedExperiences.length > 0)}
+                ${elegantSection("elegant-projects", curatedLabels.projects, curatedParagraphs(data.projects, "projects"), curatedHasList(data.projects))}
+              </main>
+              <aside class="elegant-sidebar">
+                ${elegantSideSections}
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
   if (template === "tech") {
     const techSection = (className, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3>${title}</h3>${body}</section>`;
     const techKicker = currentLanguage === "pt" ? "Perfil tecnico" : "Technical profile";
