@@ -4116,14 +4116,12 @@ body:has(.home-shell)::-webkit-scrollbar {
 
 :root[data-theme="dark"] .contact-form,
 :root[data-theme="dark"] .contact-form input,
-:root[data-theme="dark"] .contact-form textarea,
-:root[data-theme="dark"] .turnstile-widget-box {
+:root[data-theme="dark"] .contact-form textarea {
   border-color: rgba(163, 183, 220, 0.2);
   background: rgba(18, 31, 59, 0.88);
 }
 
-:root[data-theme="dark"] .contact-form label,
-:root[data-theme="dark"] .turnstile-widget > span {
+:root[data-theme="dark"] .contact-form label {
   color: #f4f8ff;
 }
 
@@ -5475,7 +5473,6 @@ body,
 
 .turnstile-widget {
   display: none;
-  gap: 9px;
   min-width: 0;
 }
 
@@ -5487,28 +5484,13 @@ body,
   display: grid;
 }
 
-.turnstile-widget > span {
-  color: #52627e;
-  font-size: 12px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
 .turnstile-widget-box {
-  min-height: 70px;
-  overflow: hidden;
-  border: 1px solid rgba(31, 105, 213, 0.1);
-  border-radius: 16px;
-  background:
-    radial-gradient(circle at 90% 0%, rgba(105, 216, 242, 0.12), transparent 34%),
-    #fbfdff;
+  min-height: 65px;
 }
 
 .turnstile-widget[data-turnstile-state="error"] .turnstile-widget-box,
 .turnstile-widget[data-turnstile-state="blocked"] .turnstile-widget-box {
-  border-color: rgba(184, 34, 50, 0.2);
-  background: #fff6f7;
+  min-height: 65px;
 }
 
 .auth-success {

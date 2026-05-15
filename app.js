@@ -2903,10 +2903,8 @@ function turnstileAction(action = "form") {
 }
 
 function TurnstileWidget(action = "form") {
-  const labels = t().security;
   return `
     <div class="turnstile-widget" data-turnstile-widget data-turnstile-action="${escapeHtml(turnstileAction(action))}" data-turnstile-state="pending">
-      <span>${escapeHtml(labels.verificationTitle)}</span>
       <div class="turnstile-widget-box" data-turnstile-container></div>
       <input type="hidden" name="cf-turnstile-response" data-turnstile-token />
     </div>
