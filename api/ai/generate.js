@@ -296,6 +296,7 @@ module.exports = async function handler(req, res) {
   const input = {
     taskType,
     language,
+    responseFormat: "json",
     requiredResponseShape: {
       success: true,
       result: task.responseShape,
