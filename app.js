@@ -14,6 +14,7 @@ const SESSION_STORAGE_KEY = "succeedora.session";
 const PENDING_ROUTE_STORAGE_KEY = "succeedora.pendingRoute";
 const LEGACY_MIGRATION_STORAGE_KEY = "succeedora.legacyMigration";
 const PAYMENT_REQUESTS_STORAGE_KEY = "succeedora.paymentRequests";
+const CURRENCY_STORAGE_KEY = "succeedora.currency";
 const ADMIN_AUDIT_LOG_STORAGE_KEY = "succeedora.adminAuditLog";
 const AI_USAGE_STORAGE_KEY = "succeedora.aiUsage";
 const SUPPORT_TICKETS_STORAGE_KEY = "succeedora_support_tickets";
@@ -57,6 +58,37 @@ const PIX_ONE_TIME_PRODUCTS = {
 const AI_CREDIT_PRODUCT_TYPES = ["ai_credits", "ai_credits_starter", "ai_credits_growth", "ai_credits_power"];
 const AI_CREDIT_PRODUCT_AMOUNTS = { ai_credits: 10, ai_credits_starter: 10, ai_credits_growth: 30, ai_credits_power: 75 };
 const AI_CREDIT_STRIPE_PRODUCTS = ["ai_credits_starter", "ai_credits_growth", "ai_credits_power"];
+const PAYMENT_PRODUCT_PRICES = {
+  BRL: {
+    plan_free: 0,
+    plan_pro: 5900,
+    plan_premium: 9900,
+    ai_credits: 1900,
+    ai_credits_starter: 1900,
+    ai_credits_growth: 4900,
+    ai_credits_power: 9900,
+    remove_watermark: 790,
+    premium_pdf: 2900,
+    premium_template: 1900,
+    career_pack: 7900,
+    online_resume_link: 2400,
+  },
+  USD: {
+    plan_free: 0,
+    plan_pro: 1199,
+    plan_premium: 1999,
+    ai_credits: 399,
+    ai_credits_starter: 399,
+    ai_credits_growth: 899,
+    ai_credits_power: 1799,
+    remove_watermark: 199,
+    premium_pdf: 599,
+    premium_template: 399,
+    career_pack: 1499,
+    online_resume_link: 499,
+  },
+};
+const ONE_TIME_PRODUCT_TYPES = ["remove_watermark", "premium_pdf", "premium_template", "career_pack", "online_resume_link"];
 const DISPOSABLE_EMAIL_DOMAINS = new Set(["mailinator.com", "10minutemail.com", "temp-mail.org", "guerrillamail.com", "yopmail.com", "throwawaymail.com", "getnada.com", "emailondeck.com", "fakeinbox.com", "trashmail.com"]);
 const AI_TASK_CREDITS = {
   generate_professional_summary: 1,
@@ -1168,6 +1200,41 @@ Object.assign(I18N.en.settings, {
   privacyText: "Review the public legal pages without ending your session.",
   saveDuplicate: "This email is already registered.",
   mockPasswordMessage: "Password reset flow is prepared. Configure email sending to activate it in production.",
+  personalInformation: "Personal information",
+  profileHeroEyebrow: "Account workspace",
+  currentPlanTitle: "Current plan",
+  accountSecurityTitle: "Account security",
+  accountPreferencesTitle: "Preferences",
+  accountSummaryTitle: "Account summary",
+  accountStatus: "Account status",
+  accountCreated: "Account created",
+  activeSession: "Active session",
+  lastAccess: "Last access",
+  verifiedAccount: "Verified account",
+  unverifiedAccount: "Email not verified",
+  activeAccount: "Active account",
+  blockedAccount: "Blocked account",
+  planStatusActive: "Active",
+  planValidity: "Validity",
+  noExpiration: "No expiration",
+  aiCredits: "AI credits",
+  resumesCreated: "Resumes created",
+  lettersCreated: "Cover letters created",
+  lastEdited: "Last edited",
+  noActivityYet: "No account activity yet.",
+  defaultResumeFormat: "Default resume format",
+  preferredCurrency: "Preferred currency",
+  preparedPreference: "Prepared preference",
+  manageSubscription: "Manage subscription",
+  viewPlans: "View plans",
+  upgradeCta: "Upgrade plan",
+  freePlanText: "Start free and upgrade when you need premium templates, AI and brand-free PDF.",
+  paidPlanText: "Your active benefits are ready for professional applications.",
+  premiumPlanText: "You have the complete Succeedora toolkit active.",
+  planBenefits: { free: ["Basic resume builder", "Limited templates", "Standard export"], pro: ["Premium templates", "Brand-free PDF", "AI tools"], premium: ["Everything in Pro", "Advanced ATS", "Priority toolkit"] },
+  saving: "Saving...",
+  saveError: "Could not save right now.",
+  passwordSaved: "Password updated successfully.",
 });
 Object.assign(I18N.pt.auth, {
   signUpTitle: "Crie sua conta",
@@ -1507,6 +1574,41 @@ Object.assign(I18N.pt.settings, {
   privacyText: "Consulte as p\u00e1ginas legais p\u00fablicas sem encerrar sua sess\u00e3o.",
   saveDuplicate: "Este e-mail j\u00e1 est\u00e1 cadastrado.",
   mockPasswordMessage: "Recupera\u00e7\u00e3o de senha preparada. Configure o envio de e-mails para ativar em produ\u00e7\u00e3o.",
+  personalInformation: "Dados pessoais",
+  profileHeroEyebrow: "\u00c1rea da conta",
+  currentPlanTitle: "Plano atual",
+  accountSecurityTitle: "Seguran\u00e7a da conta",
+  accountPreferencesTitle: "Prefer\u00eancias",
+  accountSummaryTitle: "Resumo da conta",
+  accountStatus: "Status da conta",
+  accountCreated: "Conta criada em",
+  activeSession: "Sess\u00e3o ativa",
+  lastAccess: "\u00daltimo acesso",
+  verifiedAccount: "Conta verificada",
+  unverifiedAccount: "E-mail n\u00e3o verificado",
+  activeAccount: "Conta ativa",
+  blockedAccount: "Conta bloqueada",
+  planStatusActive: "Ativo",
+  planValidity: "Validade",
+  noExpiration: "Sem expira\u00e7\u00e3o",
+  aiCredits: "Cr\u00e9ditos de IA",
+  resumesCreated: "Curr\u00edculos criados",
+  lettersCreated: "Cartas criadas",
+  lastEdited: "\u00daltima edi\u00e7\u00e3o",
+  noActivityYet: "Nenhuma atividade na conta ainda.",
+  defaultResumeFormat: "Formato padr\u00e3o do curr\u00edculo",
+  preferredCurrency: "Moeda preferida",
+  preparedPreference: "Prefer\u00eancia preparada",
+  manageSubscription: "Gerenciar assinatura",
+  viewPlans: "Ver planos",
+  upgradeCta: "Fazer upgrade",
+  freePlanText: "Comece gr\u00e1tis e evolua quando precisar de modelos premium, IA e PDF sem marca.",
+  paidPlanText: "Seus benef\u00edcios ativos est\u00e3o prontos para candidaturas profissionais.",
+  premiumPlanText: "Voc\u00ea tem o conjunto completo da Succeedora ativo.",
+  planBenefits: { free: ["Criador de curr\u00edculo b\u00e1sico", "Modelos limitados", "Exporta\u00e7\u00e3o padr\u00e3o"], pro: ["Modelos premium", "PDF sem marca", "Ferramentas de IA"], premium: ["Tudo do Pro", "ATS avan\u00e7ado", "Kit priorit\u00e1rio"] },
+  saving: "Salvando...",
+  saveError: "N\u00e3o foi poss\u00edvel salvar agora.",
+  passwordSaved: "Senha alterada com sucesso.",
 });
 
 Object.assign(I18N.en.dashboard.nav, { support: "Support", admin: "Admin" });
@@ -2151,7 +2253,7 @@ const TEMPLATE_STATUS_BY_KEY = Object.freeze({
   student: TEMPLATE_STATUS.draft,
   "first-job": TEMPLATE_STATUS.draft,
   executive: TEMPLATE_STATUS.active,
-  creative: TEMPLATE_STATUS.hidden,
+  creative: TEMPLATE_STATUS.active,
   international: TEMPLATE_STATUS.hidden,
   classic: TEMPLATE_STATUS.hidden,
   corporate: TEMPLATE_STATUS.hidden,
@@ -2602,6 +2704,10 @@ let activeBuilderSectionIndex = 0;
 let pendingTemplateChangeDraft = null;
 let autoSaveTimer = null;
 let autoSaveCommitTimer = null;
+let previewScaleRaf = 0;
+const pendingPreviewScaleRoots = new Set();
+let builderStatusTimer = null;
+let builderPreviewTimer = null;
 let aiAssistantState = { resumeId: "", jobTitle: "", company: "", jobDescription: "", result: null, error: "" };
 
 const CSS_PX_PER_INCH = 96;
@@ -4059,6 +4165,14 @@ function cancelPendingResumeAutosave() {
     window.clearTimeout(autoSaveCommitTimer);
     autoSaveCommitTimer = null;
   }
+  if (builderStatusTimer) {
+    window.clearTimeout(builderStatusTimer);
+    builderStatusTimer = null;
+  }
+  if (builderPreviewTimer) {
+    window.clearTimeout(builderPreviewTimer);
+    builderPreviewTimer = null;
+  }
 }
 
 function updateBuilderProgress(resume = collectBuilderResume()) {
@@ -4253,6 +4367,17 @@ function updateResumePreviewScales(root = document) {
   });
 }
 
+function scheduleResumePreviewScales(root = document) {
+  pendingPreviewScaleRoots.add(root || document);
+  if (previewScaleRaf) return;
+  previewScaleRaf = window.requestAnimationFrame(() => {
+    previewScaleRaf = 0;
+    const roots = Array.from(pendingPreviewScaleRoots);
+    pendingPreviewScaleRoots.clear();
+    roots.forEach((item) => updateResumePreviewScales(item));
+  });
+}
+
 function updateBuilderLivePreview() {
   const frame = document.querySelector(".builder-preview-frame");
   if (!frame) return;
@@ -4263,6 +4388,28 @@ function updateBuilderLivePreview() {
   };
   frame.innerHTML = resumeDocument(selectedTemplateKey, selectedDocumentFormat, resume);
   updateResumePreviewScales(frame);
+}
+
+function scheduleBuilderLivePreview(delay = 90) {
+  if (builderPreviewTimer) window.clearTimeout(builderPreviewTimer);
+  builderPreviewTimer = window.setTimeout(() => {
+    builderPreviewTimer = null;
+    updateBuilderLivePreview();
+  }, delay);
+}
+
+function updateBuilderStatusFromCurrentFields() {
+  const resume = collectBuilderResume();
+  updateBuilderProgress(resume);
+  updateBuilderSectionNav(resume);
+}
+
+function scheduleBuilderStatusRefresh(delay = 120) {
+  if (builderStatusTimer) window.clearTimeout(builderStatusTimer);
+  builderStatusTimer = window.setTimeout(() => {
+    builderStatusTimer = null;
+    updateBuilderStatusFromCurrentFields();
+  }, delay);
 }
 
 function fillAdminTestResume() {
@@ -5150,7 +5297,7 @@ function assetPath(path) {
 
 function brandLogo(tag = "a", href = "#/", route = "/") {
   const attrs = tag === "a" ? `href="${href}" data-route="${route}" aria-label="Succeedora home"` : "";
-  return `<${tag} class="brand" ${attrs}><span class="brand-mark" aria-hidden="true"><img class="brand-logo-image" src="${assetPath("assets/brand/succeedora-logo-premium.png")}" alt="" decoding="async" /></span><span class="brand-word">Succeedora</span></${tag}>`;
+  return `<${tag} class="brand" ${attrs}><span class="brand-mark" aria-hidden="true"><img class="brand-logo-image" src="${assetPath("assets/brand/succeedora-logo-premium-96.png")}" width="48" height="48" alt="" decoding="async" fetchpriority="high" /></span><span class="brand-word">Succeedora</span></${tag}>`;
 }
 
 function localizedRoot(language = currentLanguage) {
@@ -5350,7 +5497,7 @@ function mount(html, seo = {}) {
   updateDocumentLanguage(seo);
   document.getElementById("app").innerHTML = html;
   bindInteractions();
-  window.requestAnimationFrame(() => updateResumePreviewScales(document.getElementById("app")));
+  scheduleResumePreviewScales(document.getElementById("app"));
   window.scrollTo({ top: 0, behavior: "auto" });
 }
 
@@ -5574,6 +5721,55 @@ function writeJsonStorage(key, value) {
   }
 }
 
+function normalizeCurrency(value) {
+  return String(value || "").trim().toUpperCase() === "USD" ? "USD" : "BRL";
+}
+
+function defaultCurrencyForLanguage(language = currentLanguage) {
+  return String(language || "").toLowerCase().startsWith("pt") ? "BRL" : "USD";
+}
+
+function getSelectedCurrency() {
+  try {
+    const stored = localStorage.getItem(CURRENCY_STORAGE_KEY);
+    if (stored) return normalizeCurrency(stored);
+  } catch (error) {
+    // Currency preference is optional.
+  }
+  return defaultCurrencyForLanguage();
+}
+
+function setSelectedCurrency(currency) {
+  const normalized = normalizeCurrency(currency);
+  try {
+    localStorage.setItem(CURRENCY_STORAGE_KEY, normalized);
+  } catch (error) {
+    // Currency preference is optional.
+  }
+  return normalized;
+}
+
+function formatCurrencyAmount(cents = 0, currency = getSelectedCurrency()) {
+  const normalized = normalizeCurrency(currency);
+  const value = (Number(cents) || 0) / 100;
+  if (normalized === "USD") return value === 0 ? "US$0" : `US$${value.toFixed(2)}`;
+  const hasDecimals = Math.abs(Number(cents) || 0) % 100 !== 0;
+  const amount = value.toLocaleString("pt-BR", {
+    minimumFractionDigits: hasDecimals ? 2 : 0,
+    maximumFractionDigits: hasDecimals ? 2 : 0,
+  });
+  return `R$${amount}`;
+}
+
+function productPriceCents(productType, currency = getSelectedCurrency()) {
+  const normalized = normalizeCurrency(currency);
+  return PAYMENT_PRODUCT_PRICES[normalized]?.[productType] ?? PAYMENT_PRODUCT_PRICES.BRL[productType] ?? 0;
+}
+
+function productPriceText(productType, currency = getSelectedCurrency()) {
+  return formatCurrencyAmount(productPriceCents(productType, currency), currency);
+}
+
 function formatCurrencyBRL(cents = 0) {
   return new Intl.NumberFormat(currentLanguage === "pt" ? "pt-BR" : "en-US", { style: "currency", currency: "BRL" }).format((Number(cents) || 0) / 100);
 }
@@ -5618,6 +5814,23 @@ function localizedPixProduct(productType) {
   };
 }
 
+function paymentProductDisplay(productType, currency = getSelectedCurrency()) {
+  const pix = localizedPixProduct(productType);
+  const planLabels = currentLanguage === "pt"
+    ? { plan_pro: "Plano Pro", plan_premium: "Plano Premium", plan_free: "Plano Grátis" }
+    : { plan_pro: "Pro plan", plan_premium: "Premium plan", plan_free: "Free plan" };
+  return {
+    productType,
+    productName: pix?.productName || planLabels[productType] || productType,
+    amount: productPriceCents(productType, currency),
+    currency: normalizeCurrency(currency),
+  };
+}
+
+function canShowPixForProduct(productType, currency = getSelectedCurrency()) {
+  return normalizeCurrency(currency) === "BRL" && (ONE_TIME_PRODUCT_TYPES.includes(productType) || AI_CREDIT_PRODUCT_TYPES.includes(productType));
+}
+
 function paymentStorageKey(account = currentAccount()) {
   return userScopedStorageKey(PAYMENT_REQUESTS_STORAGE_KEY, account);
 }
@@ -5637,7 +5850,8 @@ function normalizePaymentRequest(request) {
     productType: String(request.productType || ""),
     productName: String(request.productName || ""),
     amount: Number(request.amount || 0),
-    currency: request.currency || paymentConfig.currency,
+    amountTotal: Number(request.amountTotal || request.amount_total || request.amount || 0),
+    currency: normalizeCurrency(request.currency || paymentConfig.currency),
     paymentMethod: request.paymentMethod === "stripe" ? "stripe" : "pix",
     pixKey: String(request.pixKey || paymentConfig.pixKey),
     pixKeyType: String(request.pixKeyType || paymentConfig.pixKeyType),
@@ -5660,6 +5874,7 @@ function normalizePaymentRequest(request) {
     stripePaymentIntentId: String(request.stripePaymentIntentId || ""),
     stripeCustomerId: String(request.stripeCustomerId || ""),
     stripeSubscriptionId: String(request.stripeSubscriptionId || ""),
+    priceId: String(request.priceId || ""),
     receiptUrl: String(request.receiptUrl || ""),
   };
 }
@@ -7115,10 +7330,10 @@ function openFeatureLockModal(featureKey, context = {}) {
   const actions = [];
   actions.push({ label: copy.viewPlans, onClick: () => setRoute("/dashboard/billing") });
   if (rule.productType && rule.productType !== "ai_credits") {
-    actions.push({ label: copy.buyOneTime, className: "secondary-button", onClick: () => openPixPaymentModal(rule.productType, context) });
+    actions.push({ label: copy.buyOneTime, className: "secondary-button", onClick: () => openPaymentOption(rule.productType, context) });
   }
   if (rule.productType === "ai_credits" || rule.credits) {
-    actions.push({ label: copy.buyCredits, className: "secondary-button", onClick: () => openPixPaymentModal("ai_credits", context) });
+    actions.push({ label: copy.buyCredits, className: "secondary-button", onClick: () => openPaymentOption("ai_credits", context) });
   }
   actions.push({ label: copy.continueFree, className: "ghost-button" });
   const modernTemplateLockText = ["modern", "executive"].includes(context.templateKey) && normalized === "premium_templates"
@@ -7714,18 +7929,21 @@ function bindAdminInteractions() {
   const applyFilters = () => {
     const query = String(document.querySelector("[data-admin-filter]")?.value || "").trim().toLowerCase();
     const status = document.querySelector("[data-admin-status-filter]")?.value || "";
+    const currency = document.querySelector("[data-admin-currency-filter]")?.value || "";
     const category = document.querySelector("[data-admin-category-filter]")?.value || "";
     const priority = document.querySelector("[data-admin-priority-filter]")?.value || "";
     document.querySelectorAll("[data-admin-row]").forEach((row) => {
       const matchesQuery = !query || String(row.getAttribute("data-search") || "").includes(query);
       const matchesStatus = !status || row.getAttribute("data-status") === status;
+      const matchesCurrency = !currency || row.getAttribute("data-currency") === currency;
       const matchesCategory = !category || row.getAttribute("data-category") === category;
       const matchesPriority = !priority || row.getAttribute("data-priority") === priority;
-      row.hidden = !(matchesQuery && matchesStatus && matchesCategory && matchesPriority);
+      row.hidden = !(matchesQuery && matchesStatus && matchesCurrency && matchesCategory && matchesPriority);
     });
   };
   document.querySelector("[data-admin-filter]")?.addEventListener("input", applyFilters);
   document.querySelector("[data-admin-status-filter]")?.addEventListener("change", applyFilters);
+  document.querySelector("[data-admin-currency-filter]")?.addEventListener("change", applyFilters);
   document.querySelector("[data-admin-category-filter]")?.addEventListener("change", applyFilters);
   document.querySelector("[data-admin-priority-filter]")?.addEventListener("change", applyFilters);
   document.querySelectorAll("[data-admin-view-user]").forEach((button) => {
@@ -7986,10 +8204,9 @@ function bindInteractions() {
 
   document.querySelectorAll("[data-resume-experience-field]").forEach((field) => {
     field.addEventListener("input", () => {
-      updateBuilderLivePreview();
       scheduleAutoSave();
-      updateBuilderProgress();
-      updateBuilderSectionNav();
+      scheduleBuilderLivePreview();
+      scheduleBuilderStatusRefresh();
     });
   });
 
@@ -8026,10 +8243,9 @@ function bindInteractions() {
 
   document.querySelectorAll("[data-resume-education-field]").forEach((field) => {
     field.addEventListener("input", () => {
-      updateBuilderLivePreview();
       scheduleAutoSave();
-      updateBuilderProgress();
-      updateBuilderSectionNav();
+      scheduleBuilderLivePreview();
+      scheduleBuilderStatusRefresh();
     });
   });
 
@@ -8191,6 +8407,11 @@ function bindInteractions() {
         form.reportValidity();
         return;
       }
+      const originalSaveText = saveButton ? saveButton.innerHTML : "";
+      if (saveButton) {
+        saveButton.disabled = true;
+        saveButton.textContent = t().settings.saving || t().settings.saveChanges;
+      }
       const result = saveProfileDetailed(collect());
       const ok = result.ok;
       if (message) {
@@ -8202,6 +8423,11 @@ function bindInteractions() {
         initial = { ...initial, ...collect() };
         setDirty(false);
         if (initial.preferredLanguage && initial.preferredLanguage !== currentLanguage) setLanguagePreference(initial.preferredLanguage);
+      } else if (saveButton) {
+        saveButton.disabled = false;
+      }
+      if (saveButton) {
+        saveButton.innerHTML = originalSaveText;
       }
     });
   });
@@ -8274,6 +8500,13 @@ function bindInteractions() {
     });
   });
 
+  document.querySelectorAll("[data-currency-choice]").forEach((button) => {
+    button.addEventListener("click", () => {
+      setSelectedCurrency(button.getAttribute("data-currency-choice"));
+      render();
+    });
+  });
+
   document.querySelectorAll("[data-pricing-jump]").forEach((button) => {
     button.addEventListener("click", () => {
       const target = button.getAttribute("data-pricing-jump");
@@ -8291,7 +8524,7 @@ function bindInteractions() {
       if (!page) return;
       page.querySelectorAll("[data-builder-view]").forEach((item) => item.classList.toggle("active", item === tab));
       page.classList.toggle("show-preview", target === "preview");
-      updateResumePreviewScales(page);
+      scheduleResumePreviewScales(page);
     });
   });
 
@@ -8557,7 +8790,7 @@ function bindInteractions() {
       const matchesSearch = !query || search.includes(query);
       card.classList.toggle("is-hidden", !(matchesFilter && matchesSearch));
     });
-    window.requestAnimationFrame(() => updateResumePreviewScales());
+    scheduleResumePreviewScales();
   };
   document.querySelectorAll("[data-template-filter]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -8592,7 +8825,7 @@ function bindInteractions() {
       return new Date(b.dataset.resumeUpdated || 0) - new Date(a.dataset.resumeUpdated || 0);
     });
     sorted.forEach((card) => grid.appendChild(card));
-    window.requestAnimationFrame(() => updateResumePreviewScales(grid));
+    scheduleResumePreviewScales(grid);
   };
   [resumeSearch, resumeStatusFilter, resumeTemplateFilter, resumeSort].forEach((control) => {
     if (!control) return;
@@ -8615,7 +8848,7 @@ function bindInteractions() {
       preview.className = `resume-document professional-preview resume-template-${template} ${documentFormatClass()}`;
       preview.setAttribute("data-document-format-current", selectedDocumentFormat);
       scheduleAutoSave();
-      updateResumePreviewScales();
+      scheduleResumePreviewScales();
     });
   });
 
@@ -8627,7 +8860,7 @@ function bindInteractions() {
         item.classList.toggle("active", normalizeDocumentFormat(item.getAttribute("data-document-format")) === selectedDocumentFormat);
       });
       document.querySelectorAll(".resume-document, .resume-document-shell, .template-paper").forEach((item) => applyDocumentFormatClass(item));
-      updateResumePreviewScales();
+      scheduleResumePreviewScales();
       if (document.querySelector(".builder-page")) scheduleAutoSave();
     });
   });
@@ -8700,7 +8933,7 @@ function bindInteractions() {
       if (!frame) return;
       frame.classList.remove("zoom-in", "zoom-out", "zoom-fit");
       frame.classList.add(`zoom-${button.getAttribute("data-preview-zoom")}`);
-      updateResumePreviewScales();
+      scheduleResumePreviewScales();
     });
   });
 
@@ -9098,8 +9331,7 @@ function bindInteractions() {
     field.addEventListener("input", () => {
       updatePreviewName();
       scheduleAutoSave();
-      updateBuilderProgress();
-      updateBuilderSectionNav();
+      scheduleBuilderStatusRefresh();
     });
   });
   updatePreviewName();
@@ -9108,8 +9340,7 @@ function bindInteractions() {
     field.addEventListener("input", () => {
       syncPreviewField(field);
       scheduleAutoSave();
-      updateBuilderProgress();
-      updateBuilderSectionNav();
+      scheduleBuilderStatusRefresh();
     });
     syncPreviewField(field);
   });
@@ -9118,22 +9349,21 @@ function bindInteractions() {
     field.addEventListener("input", () => {
       updatePreviewContactLine();
       scheduleAutoSave();
-      updateBuilderProgress();
-      updateBuilderSectionNav();
+      scheduleBuilderStatusRefresh();
     });
   });
 
   document.querySelectorAll("[data-resume-field]:not([data-preview-target]):not([data-preview-source])").forEach((field) => {
     field.addEventListener("input", () => {
       scheduleAutoSave();
-      updateBuilderProgress();
-      updateBuilderSectionNav();
+      scheduleBuilderStatusRefresh();
     });
   });
   updatePreviewContactLine();
   updatePreviewPairSeparators();
 
-  updateResumePreviewScales();
+  hydrateLazyResumePreviews();
+  scheduleResumePreviewScales();
   applyScrollReveals();
 }
 
@@ -9226,6 +9456,11 @@ function openPaymentComingSoonModal() {
       { label: access.gotIt || access.continueFree },
     ],
   });
+}
+
+function openPaymentOption(productType, context = {}, button = null) {
+  if (canShowPixForProduct(productType)) return openPixPaymentModal(productType, context);
+  return startStripeCheckout(productType, context, button);
 }
 
 function createPixPaymentRequest(productType, context = {}, payer = {}) {
@@ -9338,6 +9573,7 @@ function stripeCheckoutReturnUrl() {
 
 async function startStripeCheckout(productType, context = {}, button = null) {
   const labels = t().payments;
+  const currency = getSelectedCurrency();
   if (!isLoggedIn()) {
     rememberIntendedRoute("/dashboard/billing");
     setRoute("/signin");
@@ -9357,6 +9593,7 @@ async function startStripeCheckout(productType, context = {}, button = null) {
         userId: account.id,
         userEmail: account.email,
         productType,
+        currency,
         productId: context.productId || "",
         resumeId: context.resumeId || currentResumeAccessId(),
         templateId: context.templateId || selectedTemplateKey || "",
@@ -9367,20 +9604,21 @@ async function startStripeCheckout(productType, context = {}, button = null) {
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok || !payload.success || !payload.checkoutUrl) throw new Error(payload.error || "stripe_checkout_failed");
-    const product = localizedPixProduct(productType);
-    const planLabels = currentLanguage === "pt" ? { plan_pro: "Plano Pro", plan_premium: "Plano Premium" } : { plan_pro: "Pro plan", plan_premium: "Premium plan" };
+    const product = paymentProductDisplay(productType, payload.currency || currency);
     upsertPaymentRequest({
       id: payload.sessionId || `stripe_${Date.now().toString(36)}`,
       userId: account.id,
       userName: account.profile?.fullName || account.email,
       userEmail: account.email,
       productType,
-      productName: product?.productName || planLabels[productType] || productType,
-      amount: product?.amount || 0,
-      currency: paymentConfig.currency,
+      productName: product.productName,
+      amount: product.amount,
+      amountTotal: product.amount,
+      currency: product.currency,
       paymentMethod: "stripe",
       status: "pending",
       stripeSessionId: payload.sessionId || "",
+      priceId: payload.priceId || "",
       resumeId: context.resumeId || currentResumeAccessId(),
       templateKey: context.templateId || selectedTemplateKey || "",
       creditAmount: AI_CREDIT_PRODUCT_AMOUNTS[productType] || 0,
@@ -9504,6 +9742,44 @@ function applyStripeCheckoutEntitlement(session) {
   return true;
 }
 
+function applyStripeWebhookPayment(payment = {}) {
+  const productType = payment.productType || payment.entitlement?.productType || "";
+  const planType = payment.planType || payment.entitlement?.planType || "";
+  const session = {
+    id: payment.stripeSessionId || payment.id || "",
+    mode: (planType || productType.startsWith("plan_")) ? "subscription" : "payment",
+    subscriptionStatus: payment.status || "",
+    currentPeriodEnd: payment.currentPeriodEnd || "",
+    stripeCustomerId: payment.stripeCustomerId || "",
+    stripeSubscriptionId: payment.stripeSubscriptionId || "",
+    metadata: {
+      userId: payment.userId || "",
+      userEmail: payment.userEmail || "",
+      productType,
+      planType,
+      resumeId: payment.resumeId || payment.entitlement?.resumeId || "",
+      templateId: payment.templateId || payment.entitlement?.templateId || "",
+      creditsAmount: payment.creditsAmount || payment.entitlement?.creditsAmount || "",
+    },
+  };
+  return applyStripeCheckoutEntitlement(session);
+}
+
+function wait(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+async function syncStripeWebhookEntitlement(sessionId, account, attempts = 5) {
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const response = await fetch(`/api/stripe/sync-entitlement?session_id=${encodeURIComponent(sessionId)}&user_id=${encodeURIComponent(account.id)}`);
+    const payload = await response.json().catch(() => ({}));
+    if (response.ok && payload.success && !payload.pending && payload.payment) return payload.payment;
+    if (response.status !== 202 && (!response.ok || !payload.pending)) throw new Error(payload.error || "stripe_sync_failed");
+    await wait(1400 + attempt * 700);
+  }
+  return null;
+}
+
 async function confirmStripeCheckoutFromUrl() {
   const account = currentAccount();
   const params = stripeCheckoutParams();
@@ -9520,29 +9796,40 @@ async function confirmStripeCheckoutFromUrl() {
       ? ["complete", "open"].includes(session.status) && ["paid", "no_payment_required"].includes(session.paymentStatus)
       : session.paymentStatus === "paid";
     if (!paid) throw new Error("payment_not_confirmed");
-    applyStripeCheckoutEntitlement(session);
-    const productType = session.metadata?.productType || "";
-    const product = localizedPixProduct(productType);
+    target.textContent = labels.waitingConfirmation || labels.waitingPayment;
+    const payment = await syncStripeWebhookEntitlement(sessionId, account);
+    if (!payment) {
+      target.textContent = currentLanguage === "pt"
+        ? "Pagamento confirmado pela Stripe. Aguardando webhook para liberar o recurso."
+        : "Stripe payment confirmed. Waiting for webhook before unlocking the feature.";
+      target.className = "settings-message";
+      return;
+    }
+    applyStripeWebhookPayment(payment);
+    const productType = payment.productType || session.metadata?.productType || "";
+    const product = paymentProductDisplay(productType, payment.currency || session.currency || getSelectedCurrency());
     upsertPaymentRequest({
-      id: session.id,
+      id: payment.stripeSessionId || session.id,
       userId: account.id,
       userName: account.profile?.fullName || account.email,
       userEmail: account.email,
       productType,
-      productName: product?.productName || stripePlanLabel(productType, session.metadata?.planType),
-      amount: stripeProductAmount(productType),
-      currency: paymentConfig.currency,
+      productName: product.productName || stripePlanLabel(productType, payment.planType || session.metadata?.planType),
+      amount: Number(payment.amount_total || payment.amountTotal || product.amount || 0),
+      amountTotal: Number(payment.amount_total || payment.amountTotal || product.amount || 0),
+      currency: payment.currency || product.currency,
       paymentMethod: "stripe",
-      status: "paid",
-      stripeSessionId: session.id,
-      stripePaymentIntentId: session.stripePaymentIntentId || "",
-      stripeCustomerId: session.stripeCustomerId || "",
-      stripeSubscriptionId: session.stripeSubscriptionId || "",
-      resumeId: session.metadata?.resumeId || "",
-      templateKey: session.metadata?.templateId || "",
-      creditAmount: AI_CREDIT_PRODUCT_TYPES.includes(productType) ? Math.max(1, Number(session.metadata?.creditsAmount || AI_CREDIT_PRODUCT_AMOUNTS[productType] || 10)) : 0,
-      approvedAt: isoNow(),
-      createdAt: isoNow(),
+      status: payment.status === "active" ? "paid" : payment.status || "paid",
+      stripeSessionId: payment.stripeSessionId || session.id,
+      stripePaymentIntentId: payment.stripePaymentIntentId || session.stripePaymentIntentId || "",
+      stripeCustomerId: payment.stripeCustomerId || session.stripeCustomerId || "",
+      stripeSubscriptionId: payment.stripeSubscriptionId || session.stripeSubscriptionId || "",
+      priceId: payment.priceId || session.priceId || "",
+      resumeId: payment.resumeId || session.metadata?.resumeId || "",
+      templateKey: payment.templateId || session.metadata?.templateId || "",
+      creditAmount: AI_CREDIT_PRODUCT_TYPES.includes(productType) ? Math.max(1, Number(payment.creditsAmount || session.metadata?.creditsAmount || AI_CREDIT_PRODUCT_AMOUNTS[productType] || 10)) : 0,
+      approvedAt: payment.approvedAt || isoNow(),
+      createdAt: payment.createdAt || isoNow(),
     });
     target.textContent = labels.approved || labels.successText;
     target.className = "settings-message";
@@ -9554,6 +9841,10 @@ async function confirmStripeCheckoutFromUrl() {
 
 function openPixPaymentModal(productType, context = {}) {
   const labels = t().payments;
+  if (!canShowPixForProduct(productType, getSelectedCurrency())) {
+    startStripeCheckout(productType, context);
+    return;
+  }
   if (!isLoggedIn()) {
     rememberIntendedRoute("/dashboard/billing");
     setRoute("/signin");
@@ -9817,8 +10108,7 @@ function openTemplatePreview(templateKey, context = "public") {
     </section>
   `;
   root.appendChild(modal);
-  updateResumePreviewScales(modal);
-  window.requestAnimationFrame(() => updateResumePreviewScales(modal));
+  scheduleResumePreviewScales(modal);
   modal.querySelectorAll("[data-modal-close]").forEach((button) => button.addEventListener("click", () => modal.remove()));
   modal.addEventListener("keydown", (event) => {
     if (event.key === "Escape") modal.remove();
@@ -9839,8 +10129,7 @@ function openTemplatePreview(templateKey, context = "public") {
         item.classList.toggle("active", normalizeDocumentFormat(item.getAttribute("data-document-format")) === selectedDocumentFormat);
       });
       document.querySelectorAll(".resume-document, .resume-document-shell, .template-paper").forEach((item) => applyDocumentFormatClass(item));
-      updateResumePreviewScales();
-      window.requestAnimationFrame(() => updateResumePreviewScales(modal));
+      scheduleResumePreviewScales(modal);
     });
   });
   modal.querySelectorAll("[data-modal-use-template]").forEach((button) => {
@@ -9882,8 +10171,7 @@ function openResumePreview(resumeId) {
     </section>
   `;
   root.appendChild(modal);
-  updateResumePreviewScales(modal);
-  window.requestAnimationFrame(() => updateResumePreviewScales(modal));
+  scheduleResumePreviewScales(modal);
   modal.querySelectorAll("[data-modal-close]").forEach((button) => button.addEventListener("click", () => modal.remove()));
   modal.addEventListener("keydown", (event) => {
     if (event.key === "Escape") modal.remove();
@@ -11315,7 +11603,7 @@ function renderHome() {
 
         <section id="pricing" class="section pricing-section">
           <div class="section-heading"><span class="eyebrow">${p.pricingEyebrow}</span><h2>${p.pricingTitle}</h2></div>
-          <div class="pricing-grid">${copy.pricing.plans.map((plan, index) => pricingCard(plan[0], plan[1], plan[2], index === 1, index === 1 ? copy.pricing.bestForMost : "", index, "home")).join("")}</div>
+          <div class="pricing-grid">${copy.pricing.plans.map((plan, index) => pricingCard(plan[0], productPriceText(planProductTypeForIndex(index)), plan[2], index === 1, index === 1 ? copy.pricing.bestForMost : "", index, "home")).join("")}</div>
           <div class="one-time-teaser">
             <div>
               <span class="eyebrow">${copy.pricing.oneTimeTitle}</span>
@@ -11365,7 +11653,57 @@ function templateCard(template, index, compact = true) {
 }
 
 function templateCardPreviewMarkup(templateKey, format = selectedDocumentFormat) {
-  return `<div class="resume-thumbnail template-sample-thumb">${sampleResumeDocument(templateKey, format)}</div>`;
+  return `<div class="resume-thumbnail template-sample-thumb lazy-resume-thumbnail" data-lazy-template-preview="${escapeHtml(templateKey)}" data-lazy-preview-format="${normalizeDocumentFormat(format)}">${resumePreviewSkeleton()}</div>`;
+}
+
+function resumeCardPreviewMarkup(resume) {
+  return `<div class="resume-thumbnail lazy-resume-thumbnail" data-lazy-resume-preview="${escapeHtml(resume.id)}">${resumePreviewSkeleton()}</div>`;
+}
+
+function resumePreviewSkeleton() {
+  return `
+    <div class="resume-preview-skeleton" aria-hidden="true">
+      <span></span>
+      <strong></strong>
+      <i></i><i></i><i></i>
+      <em></em>
+      <i></i><i></i><i></i><i></i>
+    </div>
+  `;
+}
+
+function hydrateLazyResumePreview(container) {
+  if (!container || container.dataset.lazyHydrated === "true") return;
+  container.dataset.lazyHydrated = "true";
+  const templateKey = container.getAttribute("data-lazy-template-preview");
+  const resumeId = container.getAttribute("data-lazy-resume-preview");
+  const format = normalizeDocumentFormat(container.getAttribute("data-lazy-preview-format") || selectedDocumentFormat);
+  if (templateKey) {
+    container.innerHTML = sampleResumeDocument(templateKey, format);
+  } else if (resumeId) {
+    const resume = findResume(resumeId);
+    if (!resume) return;
+    container.innerHTML = resumeDocument(resume.selectedTemplate, resume.documentFormat, resume);
+  }
+  scheduleResumePreviewScales(container);
+}
+
+function hydrateLazyResumePreviews(root = document) {
+  const previews = Array.from(root.querySelectorAll("[data-lazy-template-preview], [data-lazy-resume-preview]"))
+    .filter((item) => item.dataset.lazyHydrated !== "true");
+  if (!previews.length) return;
+  if (!("IntersectionObserver" in window)) {
+    previews.forEach(hydrateLazyResumePreview);
+    return;
+  }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      hydrateLazyResumePreview(entry.target);
+      observer.unobserve(entry.target);
+    });
+  }, { rootMargin: "360px 0px", threshold: 0.01 });
+  previews.forEach((preview) => observer.observe(preview));
 }
 
 function templatePreviewMarkup(style = "modern", format = selectedDocumentFormat) {
@@ -11398,6 +11736,27 @@ function planKeyForIndex(index) {
 function currentPlanText(access = getUserAccess()) {
   const expiry = accessPlanExpiryLabel(access);
   return `${t().pricing.currentPlanLabel}: ${accessPlanLabel(access)}${expiry ? ` · ${expiry}` : ""}`;
+}
+
+function currencySwitcherMarkup() {
+  const currency = getSelectedCurrency();
+  const label = currentLanguage === "pt" ? "Moeda" : "Currency";
+  const note = currency === "BRL"
+    ? (currentLanguage === "pt" ? "Pagamento em reais. Você pode trocar a moeda antes de finalizar a compra." : "Payment in BRL. You can change the currency before checkout.")
+    : (currentLanguage === "pt" ? "Pagamento em dólar. Você pode trocar a moeda antes de finalizar a compra." : "Payment in US dollars. You can change the currency before checkout.");
+  return `
+    <div class="currency-switcher" data-currency-switcher>
+      <span>${escapeHtml(label)}</span>
+      <div>
+        ${["BRL", "USD"].map((item) => `<button class="${currency === item ? "active" : ""}" type="button" data-currency-choice="${item}" aria-pressed="${currency === item}">${item}</button>`).join("")}
+      </div>
+      <small>${escapeHtml(note)}</small>
+    </div>
+  `;
+}
+
+function planProductTypeForIndex(index) {
+  return index === 1 ? "plan_pro" : index === 2 ? "plan_premium" : "plan_free";
 }
 
 function pricingActionButton(planKey, featured, mode, isCurrent) {
@@ -11443,18 +11802,23 @@ function pricingCard(name, price, items, featured, badge = "", index = 0, mode =
 
 function purchaseCard(name, price, label, items, featured = false, cta = "", productType = "premium_pdf") {
   const copy = t();
+  const currency = getSelectedCurrency();
   const pixButtonLabel = currentLanguage === "pt" ? "Pix Brasil" : "Brazil Pix";
   const stripeButton = stripeConfig.oneTimePaymentsEnabled ? `<button class="${featured ? "primary-button" : "secondary-button"} full payment-option-button stripe-option" type="button" data-stripe-checkout="${productType}">${icon("card")} <span>${escapeHtml(copy.payments.payWithCard)}</span></button>` : "";
+  const pixButton = canShowPixForProduct(productType, currency) ? `<button class="${featured ? "secondary-button" : "ghost-button"} full payment-option-button pix-option" type="button" data-one-time-purchase data-pix-product="${productType}">${brazilFlagIcon()} <span>${escapeHtml(pixButtonLabel)}</span></button>` : "";
+  const currencyNote = currency === "BRL"
+    ? (currentLanguage === "pt" ? "Pix disponível apenas para pagamentos únicos em reais." : "Pix is available only for one-time payments in BRL.")
+    : (currentLanguage === "pt" ? "Pagamento em dólar. Use cartão via Stripe." : "Payment in US dollars. Use card via Stripe.");
   return `
     <article class="price-card purchase-card ${featured ? "featured" : ""}">
       ${label ? `<div class="popular subtle">${label}</div>` : ""}
       <span class="plan-kicker">${copy.pricing.oneTime}</span>
       <h3>${name}</h3>
       <div class="price"><strong>${price}</strong></div>
-      <p class="planned-payment-note stripe-note">${copy.payments.secureStripe}${stripeConfig.installmentsEnabled ? ` ${copy.payments.cardInstallmentsNote}` : ""}</p>
+      <p class="planned-payment-note stripe-note">${escapeHtml(currencyNote)} ${copy.payments.secureStripe}${stripeConfig.installmentsEnabled ? ` ${copy.payments.cardInstallmentsNote}` : ""}</p>
       <ul>${items.map((item) => `<li>${icon("check")} ${item}</li>`).join("")}</ul>
       <div class="payment-action-stack">
-        <button class="${featured ? "secondary-button" : "ghost-button"} full payment-option-button pix-option" type="button" data-one-time-purchase data-pix-product="${productType}">${brazilFlagIcon()} <span>${escapeHtml(pixButtonLabel)}</span></button>
+        ${pixButton}
         ${stripeButton}
       </div>
     </article>
@@ -11463,8 +11827,13 @@ function purchaseCard(name, price, label, items, featured = false, cta = "", pro
 
 function creditCard(name, price, badge, items, featured = false, productType = "ai_credits_starter") {
   const copy = t();
+  const currency = getSelectedCurrency();
   const pixButtonLabel = currentLanguage === "pt" ? "Pix Brasil" : "Brazil Pix";
   const stripeButton = stripeConfig.oneTimePaymentsEnabled ? `<button class="${featured ? "primary-button" : "secondary-button"} full payment-option-button stripe-option" type="button" data-stripe-checkout="${productType}">${icon("card")} <span>${escapeHtml(copy.payments.payWithCard)}</span></button>` : "";
+  const pixButton = canShowPixForProduct(productType, currency) ? `<button class="${featured ? "secondary-button" : "ghost-button"} full payment-option-button pix-option" type="button" data-buy-credits data-pix-product="${productType}">${brazilFlagIcon()} <span>${escapeHtml(pixButtonLabel)}</span></button>` : "";
+  const currencyNote = currency === "BRL"
+    ? (currentLanguage === "pt" ? "Pix disponível apenas para pagamentos únicos em reais." : "Pix is available only for one-time payments in BRL.")
+    : (currentLanguage === "pt" ? "Pagamento em dólar. Use cartão via Stripe." : "Payment in US dollars. Use card via Stripe.");
   const creditAmount = AI_CREDIT_PRODUCT_AMOUNTS[productType] || AI_CREDIT_PRODUCT_AMOUNTS.ai_credits || 10;
   const creditLabel = currentLanguage === "pt" ? `${creditAmount} créditos de IA` : `${creditAmount} AI credits`;
   return `
@@ -11474,10 +11843,10 @@ function creditCard(name, price, badge, items, featured = false, productType = "
       <h3>${name}</h3>
       <div class="price"><strong>${price}</strong></div>
       <p class="credit-amount-pill">${escapeHtml(creditLabel)}</p>
-      <p class="planned-payment-note stripe-note">${copy.payments.secureStripe}${stripeConfig.installmentsEnabled ? ` ${copy.payments.cardInstallmentsNote}` : ""}</p>
+      <p class="planned-payment-note stripe-note">${escapeHtml(currencyNote)} ${copy.payments.secureStripe}${stripeConfig.installmentsEnabled ? ` ${copy.payments.cardInstallmentsNote}` : ""}</p>
       <ul>${items.map((item) => `<li>${icon("sparkles")} ${item}</li>`).join("")}</ul>
       <div class="payment-action-stack">
-        <button class="${featured ? "secondary-button" : "ghost-button"} full payment-option-button pix-option" type="button" data-buy-credits data-pix-product="${productType}">${brazilFlagIcon()} <span>${escapeHtml(pixButtonLabel)}</span></button>
+        ${pixButton}
         ${stripeButton}
       </div>
     </article>
@@ -11581,7 +11950,7 @@ function paymentHistorySection() {
                 <span>${escapeHtml(formatPaymentDate(request.createdAt))}</span>
               </div>
               <div>
-                <span>${escapeHtml(formatCurrencyBRL(request.amount))}</span>
+                <span>${escapeHtml(adminFormatPaymentAmount(request))}</span>
                 <small>${escapeHtml(labels.method)}: ${escapeHtml(request.paymentMethod === "stripe" ? labels.cardMethod : "Pix")}</small>
               </div>
               <em class="payment-status status-${escapeHtml(request.status)}">${escapeHtml(paymentStatusLabel(request.status))}</em>
@@ -11605,7 +11974,7 @@ function paymentDetailList(payment, { admin = false } = {}) {
   const rows = [
     [labels.orderId, `<code>${escapeHtml(payment.id)}</code>`],
     [labels.product, escapeHtml(payment.productName || adminPaymentLabel(payment))],
-    [labels.amount, escapeHtml(formatCurrencyBRL(payment.amount))],
+    [labels.amount, escapeHtml(adminFormatPaymentAmount(payment))],
     [labels.method, payment.paymentMethod === "stripe" ? escapeHtml(labels.cardMethod) : "Pix"],
     [labels.status, `<span class="payment-status status-${escapeHtml(payment.status)}">${escapeHtml(paymentStatusLabel(payment.status))}</span>`],
     [labels.date, escapeHtml(formatPaymentDate(payment.createdAt))],
@@ -11622,6 +11991,7 @@ function paymentDetailList(payment, { admin = false } = {}) {
   if (payment.rejectedBy) rows.push([labels.rejectedBy, escapeHtml(payment.rejectedBy)]);
   if (payment.rejectionReason) rows.push([labels.rejectionReason, escapeHtml(payment.rejectionReason)]);
   if (payment.stripeSessionId) rows.push(["Stripe Session", `<code>${escapeHtml(payment.stripeSessionId)}</code>`]);
+  if (payment.priceId) rows.push(["Stripe Price ID", `<code>${escapeHtml(payment.priceId)}</code>`]);
   if (payment.stripePaymentIntentId) rows.push(["Stripe PaymentIntent", `<code>${escapeHtml(payment.stripePaymentIntentId)}</code>`]);
   if (payment.stripeSubscriptionId) rows.push([labels.subscription, `<code>${escapeHtml(payment.stripeSubscriptionId)}</code>`]);
   if (payment.receiptUrl) rows.push([labels.receipt, `<a href="${escapeHtml(payment.receiptUrl)}" target="_blank" rel="noopener">${escapeHtml(labels.receipt)}</a>`]);
@@ -11727,15 +12097,20 @@ function monetizationSections(mode = "public", options = {}) {
   const pricing = copy.pricing;
   const showFaq = options.showFaq !== false;
   const pageClass = mode === "dashboard" ? "dashboard-monetization" : "public-monetization";
-  const planCards = `<div class="pricing-grid">${pricing.plans.map((plan, index) => pricingCard(plan[0], plan[1], plan[2], index === 1, index === 1 ? pricing.bestForMost : "", index, mode)).join("")}</div>`;
+  const currency = getSelectedCurrency();
+  const planCards = `<div class="pricing-grid">${pricing.plans.map((plan, index) => pricingCard(plan[0], productPriceText(planProductTypeForIndex(index), currency), plan[2], index === 1, index === 1 ? pricing.bestForMost : "", index, mode)).join("")}</div>`;
   if (mode === "public") {
     const monthlyNote = currentLanguage === "pt"
       ? "Assinatura para quem quer acesso recorrente a modelos, exportação, cartas e ferramentas de IA."
       : "Subscription access for users who want recurring templates, exports, cover letters and AI tools.";
     const productTypes = ["remove_watermark", "premium_pdf", "career_pack", "premium_template", "online_resume_link"];
-    const oneTimeCards = `<div class="option-grid public-one-time-grid">${pricing.oneTimeOptions.map((option, index) => purchaseCard(option[0], option[1], option[2], option[3], index === 2, index === 0 ? pricing.watermark.button : pricing.purchaseCtas[index - 1], productTypes[index] || "premium_pdf")).join("")}</div>`;
+    const oneTimeCards = `<div class="option-grid public-one-time-grid">${pricing.oneTimeOptions.map((option, index) => {
+      const productType = productTypes[index] || "premium_pdf";
+      return purchaseCard(option[0], productPriceText(productType, currency), option[2], option[3], index === 2, index === 0 ? pricing.watermark.button : pricing.purchaseCtas[index - 1], productType);
+    }).join("")}</div>`;
     return `
       <div class="monetization ${pageClass} premium-pricing-layout">
+        ${currencySwitcherMarkup()}
         <section class="monetization-block public-pricing-block one-time-pricing-block">
           <div class="pricing-section-head">
             <div>
@@ -11772,6 +12147,7 @@ function monetizationSections(mode = "public", options = {}) {
   }
   return `
     <div class="monetization ${pageClass}">
+      ${currencySwitcherMarkup()}
       <div class="pricing-tabs" role="tablist" aria-label="${pricing.viewAllOptions}">
         <button class="active" data-pricing-tab="monthly" type="button">${pricing.monthlyTitle}</button>
         <button data-pricing-tab="one-time" type="button">${pricing.oneTimeTitle}</button>
@@ -11792,7 +12168,10 @@ function monetizationSections(mode = "public", options = {}) {
           <span class="eyebrow">${pricing.oneTimeTitle}</span>
           <h2>${pricing.oneTimeSubtitle}</h2>
         </div>
-          <div class="option-grid">${pricing.oneTimeOptions.map((option, index) => purchaseCard(option[0], option[1], option[2], option[3], index === 2, index === 0 ? pricing.watermark.button : pricing.purchaseCtas[index - 1], ["remove_watermark", "premium_pdf", "career_pack", "premium_template", "online_resume_link"][index] || "premium_pdf")).join("")}</div>
+          <div class="option-grid">${pricing.oneTimeOptions.map((option, index) => {
+            const productType = ["remove_watermark", "premium_pdf", "career_pack", "premium_template", "online_resume_link"][index] || "premium_pdf";
+            return purchaseCard(option[0], productPriceText(productType, currency), option[2], option[3], index === 2, index === 0 ? pricing.watermark.button : pricing.purchaseCtas[index - 1], productType);
+          }).join("")}</div>
       </section>
 
       <section class="monetization-block credits-band pricing-tab-panel" data-pricing-panel="credits">
@@ -11804,7 +12183,10 @@ function monetizationSections(mode = "public", options = {}) {
             <div>${pricing.creditUses.map((use) => `<span>${use}</span>`).join("")}</div>
           </div>
         </div>
-        <div class="credits-grid">${pricing.creditPackages.map((pack, index) => creditCard(pack[0], pack[1], index === 1 ? pricing.bestValue : index === 2 ? pricing.multipleApplications : pack[2], pack[3], index === 1, AI_CREDIT_STRIPE_PRODUCTS[index] || "ai_credits_starter")).join("")}</div>
+        <div class="credits-grid">${pricing.creditPackages.map((pack, index) => {
+          const productType = AI_CREDIT_STRIPE_PRODUCTS[index] || "ai_credits_starter";
+          return creditCard(pack[0], productPriceText(productType, currency), index === 1 ? pricing.bestValue : index === 2 ? pricing.multipleApplications : pack[2], pack[3], index === 1, productType);
+        }).join("")}</div>
       </section>
 
       ${showFaq ? pricingFaqAccordion() : ""}
@@ -12505,6 +12887,11 @@ function adminFormatMoney(amount, currency = "BRL") {
   return new Intl.NumberFormat(currentLanguage === "pt" ? "pt-BR" : "en-US", { style: "currency", currency: currency || "BRL" }).format((Number(amount) || 0) / 100);
 }
 
+function adminFormatPaymentAmount(payment) {
+  const currency = normalizeCurrency(payment.currency || "BRL");
+  return `${adminFormatMoney(payment.amountTotal || payment.amount, currency)} ${currency}`;
+}
+
 function isPendingAdminPayment(payment) {
   return payment?.status === "pending_manual_confirmation";
 }
@@ -12664,18 +13051,19 @@ function adminPaymentRow(payment, options = {}) {
   const a = t().admin;
   const pending = isPendingAdminPayment(payment);
   return `
-    <tr data-admin-row data-search="${escapeHtml(`${payment.id} ${payment.accountName} ${payment.accountEmail} ${payment.payerName || ""} ${payment.payerEmail || ""} ${payment.payerTaxId || ""} ${adminPaymentLabel(payment)} ${payment.status}`.toLowerCase())}" data-status="${escapeHtml(payment.status)}">
+    <tr data-admin-row data-search="${escapeHtml(`${payment.id} ${payment.accountName} ${payment.accountEmail} ${payment.payerName || ""} ${payment.payerEmail || ""} ${payment.payerTaxId || ""} ${adminPaymentLabel(payment)} ${payment.status} ${payment.currency || ""} ${payment.priceId || ""}`.toLowerCase())}" data-status="${escapeHtml(payment.status)}" data-currency="${escapeHtml(normalizeCurrency(payment.currency))}">
       <td><code>${escapeHtml(payment.id)}</code></td>
       <td>${escapeHtml(payment.accountName || "-")}</td>
       <td>${escapeHtml(payment.accountEmail || payment.userEmail || "-")}</td>
       ${options.showPixKey ? `<td>${escapeHtml(payment.payerName || "-")}</td><td>${escapeHtml(payment.payerTaxId || "-")}</td>` : ""}
       <td>${escapeHtml(adminPaymentLabel(payment))}</td>
-      <td>${escapeHtml(adminFormatMoney(payment.amount, payment.currency))}</td>
-      <td>${escapeHtml(payment.currency)}</td>
+      <td>${escapeHtml(adminFormatPaymentAmount(payment))}</td>
+      <td>${escapeHtml(normalizeCurrency(payment.currency))}</td>
       <td>${escapeHtml(a.status[payment.paymentMethod] || payment.paymentMethod)}</td>
       <td>${adminStatusBadge(payment.status, "payment")}</td>
       <td>${escapeHtml(formatPaymentDate(payment.createdAt))}</td>
       <td>${payment.stripeSessionId ? `<code>${escapeHtml(payment.stripeSessionId)}</code>` : "-"}</td>
+      <td>${payment.priceId ? `<code>${escapeHtml(payment.priceId)}</code>` : "-"}</td>
       <td>${payment.stripeSubscriptionId ? `<code>${escapeHtml(payment.stripeSubscriptionId)}</code>` : "-"}</td>
       ${options.showPixKey ? `<td>${escapeHtml(payment.pixKey ? `${payment.pixKeyType || paymentConfig.pixKeyType} ${formatPixKeyValue(payment.pixKey)}` : "-")}</td>` : ""}
       ${options.showUnlocked ? `<td>${["approved", "paid"].includes(payment.status) ? a.status.yes : a.status.no}</td>` : ""}
@@ -12696,11 +13084,16 @@ function adminPaymentsTable(payments, options = {}) {
         <option value="">${t().admin.filters.all}</option>
         ${["pending_payment", "pending_manual_confirmation", "approved", "paid", "pending", "failed", "refunded", "rejected", "cancelled"].map((status) => `<option value="${status}">${t().admin.status[status]}</option>`).join("")}
       </select>
+      <select data-admin-currency-filter aria-label="${escapeHtml(h.currency)}">
+        <option value="">${t().admin.filters.all}</option>
+        <option value="BRL">BRL</option>
+        <option value="USD">USD</option>
+      </select>
     </div>
     <div class="admin-table-wrap">
       <table class="admin-table">
-        <thead><tr><th>${h.id}</th><th>${h.user}</th><th>${h.email}</th>${options.showPixKey ? `<th>${h.payerName}</th><th>${h.payerTaxId}</th>` : ""}<th>${h.product}</th><th>${h.amount}</th><th>${h.currency}</th><th>${h.method}</th><th>${h.status}</th><th>${h.date}</th><th>stripeSessionId</th><th>stripeSubscriptionId</th>${options.showPixKey ? `<th>${h.pixKey}</th>` : ""}${options.showUnlocked ? `<th>${h.unlocked}</th>` : ""}<th>${h.actions}</th></tr></thead>
-        <tbody>${payments.map((payment) => adminPaymentRow(payment, options)).join("") || `<tr><td colspan="${10 + extraColumns}">${t().admin.details.noData}</td></tr>`}</tbody>
+        <thead><tr><th>${h.id}</th><th>${h.user}</th><th>${h.email}</th>${options.showPixKey ? `<th>${h.payerName}</th><th>${h.payerTaxId}</th>` : ""}<th>${h.product}</th><th>${h.amount}</th><th>${h.currency}</th><th>${h.method}</th><th>${h.status}</th><th>${h.date}</th><th>stripeSessionId</th><th>stripePriceId</th><th>stripeSubscriptionId</th>${options.showPixKey ? `<th>${h.pixKey}</th>` : ""}${options.showUnlocked ? `<th>${h.unlocked}</th>` : ""}<th>${h.actions}</th></tr></thead>
+        <tbody>${payments.map((payment) => adminPaymentRow(payment, options)).join("") || `<tr><td colspan="${11 + extraColumns}">${t().admin.details.noData}</td></tr>`}</tbody>
       </table>
     </div>
   `;
@@ -13041,7 +13434,7 @@ function openAdminUserDetails(userId) {
   const labels = t().admin;
   const account = user.account;
   const effectivePlan = getEffectivePlan(account, { access: user.access });
-  const payments = user.payments.map((payment) => `<article><strong>${escapeHtml(adminPaymentLabel(payment))}</strong><span>${adminStatusBadge(payment.status, "payment")} ${escapeHtml(adminFormatMoney(payment.amount, payment.currency))}</span></article>`);
+  const payments = user.payments.map((payment) => `<article><strong>${escapeHtml(adminPaymentLabel(payment))}</strong><span>${adminStatusBadge(payment.status, "payment")} ${escapeHtml(adminFormatPaymentAmount(payment))}</span></article>`);
   const resumes = user.resumes.map((resume) => `<article><strong>${escapeHtml(resume.title || resume.name || "-")}</strong><span>${escapeHtml(formatPaymentDate(resume.updatedAt || resume.createdAt))}</span></article>`);
   const letters = user.letters.map((letter) => `<article><strong>${escapeHtml(letter.title || letter.role || "-")}</strong><span>${escapeHtml(formatPaymentDate(letter.updatedAt || letter.createdAt))}</span></article>`);
   const purchases = user.payments.filter((payment) => ["remove_watermark", "premium_pdf", "premium_template", "career_pack", "online_resume_link", ...AI_CREDIT_PRODUCT_TYPES].includes(payment.productType)).map((payment) => `<article><strong>${escapeHtml(adminPaymentLabel(payment))}</strong><span>${adminStatusBadge(payment.status, "payment")}</span></article>`);
@@ -13620,7 +14013,7 @@ function renderResumes() {
         const template = getTemplateByKey(resume.selectedTemplate);
         const statusKey = resumeStatusKey(resume);
         return `<article class="library-card resume-library-card" data-resume-card data-resume-search="${escapeHtml(resumeSearchText(resume))}" data-resume-status="${statusKey}" data-resume-template="${escapeHtml(resume.selectedTemplate)}" data-resume-progress="${Number(resume.completion || 0)}" data-resume-ats="${Number(resume.atsScore || 0)}" data-resume-title="${escapeHtml(String(resume.title || "").toLowerCase())}" data-resume-updated="${escapeHtml(resume.updatedAt || "")}">
-          <div class="resume-thumbnail">${resumeDocument(resume.selectedTemplate, resume.documentFormat, resume)}</div>
+          ${resumeCardPreviewMarkup(resume)}
           <div class="library-meta">
             <div class="resume-library-title-row"><h3>${escapeHtml(resume.title)}</h3><span class="resume-status-pill status-${statusKey}">${resumeStatusLabel(resume)}</span></div>
             <p>${lib.lastEdited}: ${formatResumeDate(resume.updatedAt)}</p>
@@ -15437,37 +15830,140 @@ function renderProfile() {
   const s = copy.settings;
   const b = copy.builder;
   const profile = loadProfile();
+  const account = currentAccount();
+  const access = getUserAccess();
+  const resumes = loadResumes();
+  const letters = loadCoverLetters();
+  const themeOptions = ["light", "dark", "system"].map((value) => [value, s.themeOptions[value]]);
+  const planLabel = accessPlanLabel(access);
+  const planExpiry = accessPlanExpiryLabel(access);
+  const accountVerified = account?.emailVerified === false ? false : true;
+  const accountStatusLabel = account?.status === "blocked" ? s.blockedAccount : s.activeAccount;
+  const sessionInfo = (() => {
+    try {
+      return JSON.parse(sessionStorage.getItem(SESSION_STORAGE_KEY) || localStorage.getItem(SESSION_STORAGE_KEY) || "{}");
+    } catch (error) {
+      return {};
+    }
+  })();
+  const formattedCreatedAt = account?.createdAt ? formatPaymentDate(account.createdAt) : "";
+  const formattedLastAccess = sessionInfo?.signedInAt ? formatPaymentDate(sessionInfo.signedInAt) : "";
+  const activityDates = [...resumes, ...letters]
+    .map((item) => item.updatedAt || item.createdAt)
+    .filter(Boolean)
+    .sort((a, bDate) => new Date(bDate) - new Date(a));
+  const lastActivity = activityDates[0] ? formatResumeDate(activityDates[0]) : "";
+  const formatValue = normalizeDocumentFormat(selectedDocumentFormat || defaultDocumentFormat());
+  const planBenefits = s.planBenefits?.[access.plan] || s.planBenefits?.free || [];
+  const planText = access.plan === "premium" ? s.premiumPlanText : access.plan === "free" ? s.freePlanText : s.paidPlanText;
+  const planButtonLabel = access.plan === "free" ? s.upgradeCta : s.manageSubscription;
+  const currencyLabel = getSelectedCurrency();
+  const summaryItems = [
+    ["file", s.resumesCreated, resumes.length],
+    ["mail", s.lettersCreated, letters.length],
+    ["sparkles", s.aiCredits, Number(access.aiCredits || 0)],
+    ["card", s.currentPlanTitle, planLabel],
+  ];
   dashboardShell("profile", `
     <main class="settings-page settings-page-premium profile-page">
-      <section class="settings-hero-card">
-        <div class="settings-avatar">${escapeHtml(profileInitials(profile))}</div>
-        <div>
-          <span class="eyebrow">${copy.dashboard.currentPlan}: ${escapeHtml(accessPlanLabel())}</span>
+      <section class="settings-hero-card profile-hero-card">
+        <div class="settings-avatar profile-hero-avatar">${escapeHtml(profileInitials(profile))}</div>
+        <div class="profile-hero-main">
+          <span class="eyebrow">${s.profileHeroEyebrow}</span>
           <h2>${escapeHtml(profile.fullName)}</h2>
-          <p>${escapeHtml(profile.title || s.professionalTitle)} · ${escapeHtml(profile.location || b.labels.location)}</p>
+          <p>${escapeHtml(profile.title || s.professionalTitle)} <span aria-hidden="true">|</span> ${escapeHtml(profile.location || b.labels.location)}</p>
+          <div class="profile-hero-badges">
+            <span>${icon("card")} ${copy.dashboard.currentPlan}: ${escapeHtml(planLabel)}</span>
+            <span>${icon(accountVerified ? "check" : "mail")} ${accountVerified ? s.verifiedAccount : s.unverifiedAccount}</span>
+            <span>${icon("shield")} ${escapeHtml(accountStatusLabel)}</span>
+            ${formattedCreatedAt ? `<span>${icon("file")} ${s.accountCreated}: ${escapeHtml(formattedCreatedAt)}</span>` : ""}
+          </div>
         </div>
       </section>
-      <form class="settings-card profile-settings-card" data-profile-form>
-        <div class="settings-card-head">
-          <div><span class="eyebrow">${s.profileTitle}</span><h2>${s.profileTitle}</h2></div>
-          <span class="settings-status" data-profile-status hidden>${s.unsaved}</span>
+      <section class="profile-account-layout">
+        <div class="profile-account-main">
+          <form class="settings-card profile-settings-card profile-form-card" data-profile-form>
+            <div class="settings-card-head">
+              <div><span class="eyebrow">${s.profileTitle}</span><h2>${s.personalInformation}</h2></div>
+              <span class="settings-status profile-unsaved-status" data-profile-status hidden>${s.unsaved}</span>
+            </div>
+            <div class="two-col profile-field-grid">
+              <label>${s.name}<input data-profile-field="fullName" value="${escapeHtml(profile.fullName)}" autocomplete="name" required /></label>
+              <label>${b.labels.email}<input data-profile-field="email" type="email" value="${escapeHtml(profile.email)}" autocomplete="email" required /></label>
+              <label>${s.phone}<input data-profile-field="phone" type="tel" value="${escapeHtml(profile.phone || "")}" autocomplete="tel" /></label>
+              <label>${b.labels.location}<input data-profile-field="location" value="${escapeHtml(profile.location)}" autocomplete="address-level2" /></label>
+              <label>${s.professionalTitle}<input data-profile-field="title" value="${escapeHtml(profile.title)}" autocomplete="organization-title" /></label>
+              <label>${s.preferredLanguage}<select data-profile-field="preferredLanguage"><option value="pt" ${profile.preferredLanguage === "pt" ? "selected" : ""}>${s.languageOptions.pt}</option><option value="en" ${profile.preferredLanguage === "en" ? "selected" : ""}>${s.languageOptions.en}</option></select></label>
+            </div>
+            <p class="settings-message" data-profile-message hidden></p>
+            <div class="section-actions profile-form-actions">
+              <button class="primary-button small" type="submit" data-profile-save disabled>${s.saveChanges}</button>
+              <button class="secondary-button small" type="button" data-profile-cancel disabled>${s.cancel}</button>
+            </div>
+          </form>
+
+          <article class="settings-card profile-summary-card">
+            <div class="settings-card-head">
+              <div><span class="eyebrow">Succeedora</span><h2>${s.accountSummaryTitle}</h2></div>
+            </div>
+            <div class="profile-metric-grid">
+              ${summaryItems.map(([iconName, label, value]) => `<div class="profile-metric">${icon(iconName)}<span>${escapeHtml(label)}</span><strong>${escapeHtml(String(value))}</strong></div>`).join("")}
+            </div>
+            <div class="profile-activity-row">
+              <span>${icon("check")} ${s.lastEdited}</span>
+              <strong>${escapeHtml(lastActivity || s.noActivityYet)}</strong>
+            </div>
+          </article>
         </div>
-        <div class="two-col">
-          <label>${s.name}<input data-profile-field="fullName" value="${escapeHtml(profile.fullName)}" autocomplete="name" required /></label>
-          <label>${b.labels.email}<input data-profile-field="email" type="email" value="${escapeHtml(profile.email)}" autocomplete="email" required /></label>
-          <label>${s.phone}<input data-profile-field="phone" type="tel" value="${escapeHtml(profile.phone || "")}" autocomplete="tel" /></label>
-          <label>${b.labels.location}<input data-profile-field="location" value="${escapeHtml(profile.location)}" autocomplete="address-level2" /></label>
-          <label>${s.professionalTitle}<input data-profile-field="title" value="${escapeHtml(profile.title)}" autocomplete="organization-title" /></label>
-          <label>${s.preferredLanguage}<select data-profile-field="preferredLanguage"><option value="pt" ${profile.preferredLanguage === "pt" ? "selected" : ""}>${s.languageOptions.pt}</option><option value="en" ${profile.preferredLanguage === "en" ? "selected" : ""}>${s.languageOptions.en}</option></select></label>
-        </div>
-        <p class="settings-message" data-profile-message hidden></p>
-        <div class="section-actions">
-          <button class="primary-button small" type="submit" data-profile-save disabled>${s.saveChanges}</button>
-          <button class="secondary-button small" type="button" data-password-prepared="#profile-password-message">${s.changePassword}</button>
-          <button class="secondary-button small" type="button" data-profile-cancel disabled>${s.cancel}</button>
-        </div>
-        <p class="settings-message" id="profile-password-message" hidden></p>
-      </form>
+        <aside class="profile-account-side">
+          <article class="settings-card profile-side-card profile-security-card">
+            <div class="settings-card-head">
+              <div><span class="eyebrow">${s.accountStatus}</span><h2>${s.accountSecurityTitle}</h2></div>
+            </div>
+            <div class="profile-detail-list">
+              <span>${icon("mail")} <small>${b.labels.email}</small><strong>${escapeHtml(profile.email)}</strong></span>
+              <span>${icon(accountVerified ? "check" : "shield")} <small>${s.accountStatus}</small><strong>${accountVerified ? s.verifiedAccount : s.unverifiedAccount}</strong></span>
+              <span>${icon("shield")} <small>${s.activeSession}</small><strong>${escapeHtml(formattedLastAccess || accountStatusLabel)}</strong></span>
+            </div>
+            <button class="secondary-button small" type="button" data-password-prepared="#profile-password-message">${icon("lock")} ${s.changePassword}</button>
+            <p class="settings-message" id="profile-password-message" hidden></p>
+          </article>
+
+          <article class="settings-card profile-side-card profile-preferences-card">
+            <div class="settings-card-head">
+              <div><span class="eyebrow">${s.accountPreferencesTitle}</span><h2>${s.accountPreferencesTitle}</h2></div>
+            </div>
+            <div class="profile-preference-stack">
+              <label>${s.languageTitle}<select data-settings-language><option value="pt" ${currentLanguage === "pt" ? "selected" : ""}>${s.languageOptions.pt}</option><option value="en" ${currentLanguage === "en" ? "selected" : ""}>${s.languageOptions.en}</option></select></label>
+              <label>${s.themeTitle}<select data-theme-choice>${themeOptions.map(([value, label]) => `<option value="${value}" ${selectedTheme === value ? "selected" : ""}>${label}</option>`).join("")}</select></label>
+              <div class="profile-preference-item">
+                <span>${s.defaultResumeFormat}</span>
+                <div class="profile-static-options"><strong class="${formatValue === "a4" ? "active" : ""}">${copy.builder.a4}</strong><strong class="${formatValue === "letter" ? "active" : ""}">${copy.builder.usLetter}</strong></div>
+              </div>
+              <div class="profile-preference-item">
+                <span>${s.preferredCurrency}</span>
+                <strong>${escapeHtml(currencyLabel)}</strong>
+                <small>${s.preparedPreference}</small>
+              </div>
+            </div>
+          </article>
+
+          <article class="settings-card profile-side-card profile-plan-card">
+            <div class="settings-card-head">
+              <div><span class="eyebrow">${s.planStatusActive}</span><h2>${s.currentPlanTitle}</h2></div>
+              <span class="profile-plan-badge">${escapeHtml(planLabel)}</span>
+            </div>
+            <p>${escapeHtml(planText)}</p>
+            <div class="profile-plan-meta">
+              <span>${icon("check")} ${s.planStatusActive}</span>
+              <span>${icon("file")} ${s.planValidity}: ${escapeHtml(planExpiry || s.noExpiration)}</span>
+              <span>${icon("sparkles")} ${s.aiCredits}: ${Number(access.aiCredits || 0)}</span>
+            </div>
+            <div class="profile-benefit-list">${planBenefits.map((benefit) => `<span>${icon("check")} ${escapeHtml(benefit)}</span>`).join("")}</div>
+            <button class="primary-button small full" type="button" data-route="/dashboard/billing">${access.plan === "free" ? icon("sparkles") : icon("card")} ${escapeHtml(planButtonLabel)}</button>
+          </article>
+        </aside>
+      </section>
     </main>
   `);
 }
@@ -15779,7 +16275,7 @@ function renderBilling() {
 
 window.addEventListener("hashchange", render);
 window.addEventListener("popstate", render);
-window.addEventListener("resize", () => updateResumePreviewScales());
+window.addEventListener("resize", () => scheduleResumePreviewScales());
 if (window.matchMedia) {
   const colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
   const handleSystemThemeChange = () => {

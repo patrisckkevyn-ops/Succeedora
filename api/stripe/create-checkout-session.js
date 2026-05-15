@@ -1,6 +1,6 @@
 const { json, readBody, parseJson } = require("../_lib/http");
 const { appendParam, appendMetadata, stripeRequest } = require("../_lib/stripe-api");
-const { stripeConfig, stripeProduct } = require("../_lib/stripe-config");
+const { stripeConfig, stripeProduct, normalizeCurrency } = require("../_lib/stripe-config");
 
 function cleanUrl(value, fallback) {
   const url = String(value || fallback || "").trim();
@@ -30,7 +30,10 @@ module.exports = async function handler(req, res) {
     const userId = String(body.userId || "").trim();
     const userEmail = String(body.userEmail || "").trim().toLowerCase();
     const productType = String(body.productType || "").trim();
-    const product = stripeProduct(productType);
+    const requestedCurrency = String(body.currency || "").trim().toUpperCase();
+    if (requestedCurrency && !["BRL", "USD"].includes(requestedCurrency)) return json(res, 400, { success: false, error: "invalid_currency" });
+    const currency = normalizeCurrency(requestedCurrency || "BRL");
+    const product = stripeProduct(productType, currency);
 
     if (!userId || !userEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userEmail)) {
       return json(res, 401, { success: false, error: "auth_required" });
@@ -48,6 +51,8 @@ module.exports = async function handler(req, res) {
       userId,
       userEmail,
       productType,
+      currency: product.currency,
+      priceId: product.priceId,
       planType: product.planType || "",
       resumeId: String(body.resumeId || body.productId || "").trim(),
       templateId: String(body.templateId || "").trim(),
@@ -75,7 +80,7 @@ module.exports = async function handler(req, res) {
     }
 
     const session = await stripeRequest("/checkout/sessions", params);
-    return json(res, 200, { success: true, checkoutUrl: session.url, sessionId: session.id, mode: stripeConfig.mode });
+    return json(res, 200, { success: true, checkoutUrl: session.url, sessionId: session.id, currency: product.currency, mode: product.mode });
   } catch (error) {
     console.error("[succeedora:stripe:create-checkout-session]", error.message);
     return json(res, error.statusCode || 500, { success: false, error: error.message || "checkout_session_failed" });

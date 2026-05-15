@@ -18,6 +18,10 @@ function stripePeriodEnd(object = {}) {
   return timestamp ? new Date(timestamp * 1000).toISOString() : "";
 }
 
+function firstPriceId(object = {}) {
+  return object.metadata?.priceId || object.lines?.data?.[0]?.price?.id || object.items?.data?.[0]?.price?.id || "";
+}
+
 async function subscriptionWithMetadata(subscriptionId) {
   if (!subscriptionId) return null;
   return stripeGet(`/subscriptions/${subscriptionId}`).catch(() => null);
@@ -33,6 +37,9 @@ async function processCheckoutSession(event, session) {
       stripeSessionId: session.id,
       stripeCustomerId: session.customer || "",
       stripePaymentIntentId: session.payment_intent || "",
+      amount_total: session.amount_total || 0,
+      currency: String(session.currency || metadata.currency || "").toUpperCase(),
+      priceId: metadata.priceId || "",
       receiptUrl: session.receipt_url || "",
       approvedAt: new Date().toISOString(),
     });
@@ -44,6 +51,9 @@ async function processCheckoutSession(event, session) {
       stripeSessionId: session.id,
       stripeCustomerId: session.customer || subscription?.customer || "",
       stripeSubscriptionId: session.subscription || "",
+      amount_total: session.amount_total || 0,
+      currency: String(session.currency || metadata.currency || "").toUpperCase(),
+      priceId: metadata.priceId || firstPriceId(subscription || {}),
       startedAt: new Date().toISOString(),
       currentPeriodEnd: stripePeriodEnd(subscription || {}),
     });
@@ -66,6 +76,8 @@ async function processSubscriptionEvent(event, subscription) {
     eventId: event.id,
     stripeCustomerId: subscription.customer || "",
     stripeSubscriptionId: subscription.id || "",
+    currency: String(subscription.currency || metadata.currency || "").toUpperCase(),
+    priceId: metadata.priceId || firstPriceId(subscription),
     currentPeriodEnd: stripePeriodEnd(subscription),
     status: subscription.status || "",
   });
@@ -79,6 +91,9 @@ async function processInvoiceEvent(event, invoice) {
     eventId: event.id,
     stripeCustomerId: invoice.customer || subscription?.customer || "",
     stripeSubscriptionId: subscriptionId,
+    amount_total: invoice.amount_paid || invoice.amount_due || 0,
+    currency: String(invoice.currency || metadata.currency || "").toUpperCase(),
+    priceId: metadata.priceId || firstPriceId(invoice) || firstPriceId(subscription || {}),
     currentPeriodEnd: stripePeriodEnd(invoice) || stripePeriodEnd(subscription || {}),
     status: invoice.status || "",
   };
