@@ -10,78 +10,97 @@ const TASKS = {
   generate_professional_summary: {
     maxTokens: 900,
     instruction: "Generate a concise professional resume summary from the supplied role, experience, skills, and target context. Return summary and suggestions.",
+    responseShape: '{ "summary": "string with 2-4 resume-ready sentences", "suggestions": ["string"] }',
   },
   improve_professional_summary: {
     maxTokens: 900,
     instruction: "Improve the supplied professional summary without inventing facts. Return summary and suggestions.",
+    responseShape: '{ "summary": "improved resume-ready string", "suggestions": ["string"] }',
   },
   rewrite_experience: {
     maxTokens: 1000,
     instruction: "Rewrite professional experience bullets using action verbs and truthful impact. If the experience field is empty but the user supplied a role, title, skills, or project context, create editable bullet templates grounded in that context. If metrics are missing, use placeholders like [result] and [percentage] instead of inventing numbers.",
+    responseShape: '{ "bullets": ["3-5 resume bullet strings"], "suggestions": ["string"] }',
   },
   suggest_skills: {
     maxTokens: 800,
     instruction: "Suggest relevant skills based on role, experience, existing skills, and job description. Group the answer into technicalSkills, softSkills, tools, atsKeywords, and suggestions. Do not invent certifications or companies.",
+    responseShape: '{ "technicalSkills": ["string"], "softSkills": ["string"], "tools": ["string"], "atsKeywords": ["string"], "skills": ["string"], "suggestions": ["string"] }',
   },
   improve_project_description: {
     maxTokens: 900,
     instruction: "Improve resume project descriptions using professional, truthful language. Do not invent scope, technologies, results, clients, companies, or metrics. Use placeholders like [result] only when suggesting measurable impact.",
+    responseShape: '{ "description": "resume-ready project description string", "suggestions": ["string"] }',
   },
   generate_cover_letter: {
     maxTokens: 1300,
     instruction: "Generate a tailored, editable cover letter using the provided resume, company, role, job description, strengths, tone, and language.",
+    responseShape: '{ "title": "short letter title", "body": "complete editable cover letter body", "suggestions": ["string"] }',
   },
   improve_cover_letter: {
     maxTokens: 1300,
     instruction: "Improve the supplied cover letter for clarity, specificity, and professional tone without inventing facts.",
+    responseShape: '{ "title": "optional short title", "body": "complete improved cover letter body", "suggestions": ["string"] }',
   },
   tailor_cover_letter_to_job: {
     maxTokens: 1400,
     instruction: "Tailor the supplied cover letter to the job description using only real user data. Keep it editable, professional, and truthful.",
+    responseShape: '{ "title": "optional short title", "body": "complete tailored cover letter body", "suggestions": ["string"] }',
   },
   formal_cover_letter: {
     maxTokens: 1300,
     instruction: "Rewrite the supplied cover letter in a more formal professional tone without inventing facts.",
+    responseShape: '{ "title": "optional short title", "body": "complete formal cover letter body", "suggestions": ["string"] }',
   },
   direct_cover_letter: {
     maxTokens: 1300,
     instruction: "Rewrite the supplied cover letter in a more concise and direct professional tone without inventing facts.",
+    responseShape: '{ "title": "optional short title", "body": "complete concise cover letter body", "suggestions": ["string"] }',
   },
   confident_cover_letter: {
     maxTokens: 1300,
     instruction: "Rewrite the supplied cover letter in a more confident professional tone without exaggerating or inventing facts.",
+    responseShape: '{ "title": "optional short title", "body": "complete confident cover letter body", "suggestions": ["string"] }',
   },
   analyze_resume_ats: {
     maxTokens: 1200,
     instruction: "Analyze the resume for ATS readability and completeness. Return an estimated score and concrete improvements. Never claim the score is official.",
+    responseShape: '{ "score": 0-100, "matchedKeywords": ["string"], "missingKeywords": ["string"], "summarySuggestions": ["string"], "experienceSuggestions": ["string"], "generalRecommendations": ["string"], "explanation": "string" }',
   },
   analyze_job_description: {
     maxTokens: 1200,
     instruction: "Analyze the job description against the resume. Return an estimated ATS score, matched keywords, missing keywords, and suggestions. Never claim the score is official.",
+    responseShape: '{ "score": 0-100, "matchedKeywords": ["string"], "missingKeywords": ["string"], "summarySuggestions": ["string"], "experienceSuggestions": ["string"], "generalRecommendations": ["string"], "explanation": "string" }',
   },
   suggest_ats_keywords: {
     maxTokens: 1000,
     instruction: "Suggest ATS keywords and honest ways to incorporate them naturally into the resume.",
+    responseShape: '{ "score": 0-100, "matchedKeywords": ["string"], "missingKeywords": ["string"], "summarySuggestions": ["string"], "experienceSuggestions": ["string"], "generalRecommendations": ["string"], "suggestions": ["string"], "explanation": "string" }',
   },
   ats_keyword_suggestions: {
     maxTokens: 1000,
     instruction: "Suggest ATS keywords and honest ways to incorporate them naturally into the resume.",
+    responseShape: '{ "score": 0-100, "matchedKeywords": ["string"], "missingKeywords": ["string"], "summarySuggestions": ["string"], "experienceSuggestions": ["string"], "generalRecommendations": ["string"], "suggestions": ["string"], "explanation": "string" }',
   },
   translate_resume: {
     maxTokens: 1600,
     instruction: "Translate the resume between Brazilian Portuguese and English while preserving structure, facts, names, dates, companies, and credentials.",
+    responseShape: '{ "resume": { "personal": {}, "summary": "string", "workExperience": [], "education": [], "skills": [], "languages": [], "certifications": [], "projects": [], "professionalLinks": [] }, "suggestions": ["string"] }',
   },
   tailor_resume_to_job: {
     maxTokens: 1600,
     instruction: "Suggest job-specific resume tailoring based on the job description. Improve summary and experience suggestions without inventing experience.",
+    responseShape: '{ "summary": "tailored summary string", "experienceBullets": ["string"], "keywords": ["string"], "suggestions": ["string"] }',
   },
   assistant_chat: {
     maxTokens: 1200,
     instruction: "Answer as Succeedora's career assistant using the supplied resume and job context. Be practical, concise, and honest.",
+    responseShape: '{ "answer": "helpful assistant answer string", "suggestions": ["string"] }',
   },
   recommend_resume_template: {
     maxTokens: 900,
     instruction: "Recommend resume templates from Succeedora based on the user's role, area, seniority, objective, country, and language. Return recommendedTemplates and explanation. Prefer honest, practical recommendations.",
+    responseShape: '{ "recommendedTemplates": ["template key or name"], "explanation": "string", "suggestions": ["string"] }',
   },
 };
 
@@ -279,7 +298,7 @@ module.exports = async function handler(req, res) {
     language,
     requiredResponseShape: {
       success: true,
-      result: "JSON object appropriate for this task",
+      result: task.responseShape,
     },
     data,
   };
@@ -293,7 +312,7 @@ module.exports = async function handler(req, res) {
       },
       body: JSON.stringify({
         model,
-        instructions: `${SYSTEM_PROMPT}\nTask instruction: ${task.instruction}`,
+        instructions: `${SYSTEM_PROMPT}\nTask instruction: ${task.instruction}\nRequired JSON shape for result: ${task.responseShape}\nReturn the result object directly, not wrapped in markdown. When the user supplied relevant context, do not return empty strings or empty arrays; use honest editable placeholders for missing metrics instead of inventing facts.`,
         input: JSON.stringify(input),
         max_output_tokens: task.maxTokens,
         text: { format: { type: "json_object" } },
