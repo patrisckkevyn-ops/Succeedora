@@ -210,6 +210,10 @@ function extractOutputText(payload) {
   return chunks.join("\n").trim();
 }
 
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function normalizeResult(taskType, parsed) {
   const result = parsed && typeof parsed === "object" ? (parsed.result && typeof parsed.result === "object" ? parsed.result : parsed) : {};
   const list = (value) => Array.isArray(value) ? value.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 12) : [];
@@ -305,20 +309,26 @@ module.exports = async function handler(req, res) {
   };
 
   try {
-    const response = await fetch(OPENAI_RESPONSES_ENDPOINT, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model,
-        instructions: `${SYSTEM_PROMPT}\nTask instruction: ${task.instruction}\nRequired JSON shape for result: ${task.responseShape}\nReturn the result object directly, not wrapped in markdown. When the user supplied relevant context, do not return empty strings or empty arrays; use honest editable placeholders for missing metrics instead of inventing facts.`,
-        input: JSON.stringify(input),
-        max_output_tokens: task.maxTokens,
-        text: { format: { type: "json_object" } },
-      }),
+    const requestPayload = JSON.stringify({
+      model,
+      instructions: `${SYSTEM_PROMPT}\nTask instruction: ${task.instruction}\nRequired JSON shape for result: ${task.responseShape}\nReturn the result object directly, not wrapped in markdown. When the user supplied relevant context, do not return empty strings or empty arrays; use honest editable placeholders for missing metrics instead of inventing facts.`,
+      input: JSON.stringify(input),
+      max_output_tokens: task.maxTokens,
+      text: { format: { type: "json_object" } },
     });
+    let response;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      response = await fetch(OPENAI_RESPONSES_ENDPOINT, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: requestPayload,
+      });
+      if (![429, 500, 502, 503, 504].includes(response.status)) break;
+      if (attempt < 2) await wait(1500 * (attempt + 1));
+    }
 
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
