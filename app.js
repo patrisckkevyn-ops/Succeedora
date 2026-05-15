@@ -8351,6 +8351,16 @@ function stripeMessage(message, type = "error") {
   target.appendChild(note);
 }
 
+function stripeCheckoutReturnUrl() {
+  const route = getRoute();
+  if (route === "/payment/success" || route === "/payment/cancel") {
+    return `${window.location.origin}${window.location.pathname}#/dashboard/billing`;
+  }
+  const hash = String(window.location.hash || "");
+  if (hash.startsWith("#/")) return `${window.location.origin}${window.location.pathname}${hash}`;
+  return `${window.location.origin}${window.location.pathname}#${route || "/dashboard/billing"}`;
+}
+
 async function startStripeCheckout(productType, context = {}, button = null) {
   const labels = t().payments;
   if (!isLoggedIn()) {
@@ -8377,7 +8387,7 @@ async function startStripeCheckout(productType, context = {}, button = null) {
         templateId: context.templateId || selectedTemplateKey || "",
         quantity: context.quantity || 1,
         successUrl: `${window.location.origin}${window.location.pathname}#/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${window.location.origin}${window.location.pathname}#/payment/cancel`,
+        cancelUrl: stripeCheckoutReturnUrl(),
       }),
     });
     const payload = await response.json().catch(() => ({}));
