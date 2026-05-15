@@ -17405,18 +17405,39 @@ select:focus-visible {
 }
 
 .builder-page {
-  grid-template-columns: clamp(210px, 16vw, 258px) minmax(460px, 640px) minmax(430px, 560px);
+  --builder-sidebar-w: 240px;
+  --builder-form-w: 640px;
+  --builder-preview-w: 560px;
+  --builder-gap: 16px;
+  --builder-pad-x: 14px;
+  --builder-pad-y: 12px;
+  box-sizing: border-box;
+  grid-template-columns: var(--builder-sidebar-w) var(--builder-form-w) var(--builder-preview-w);
   grid-template-rows: auto minmax(0, 1fr);
+  justify-self: center;
   justify-content: center;
-  gap: clamp(12px, 1.2vw, 18px);
-  width: 100%;
-  max-width: min(100%, 1500px);
+  gap: var(--builder-gap);
+  width: min(
+    100%,
+    calc(
+      var(--builder-sidebar-w) + var(--builder-form-w) + var(--builder-preview-w) +
+        var(--builder-gap) + var(--builder-gap) + var(--builder-pad-x) + var(--builder-pad-x)
+    )
+  );
+  inline-size: min(
+    100%,
+    calc(
+      var(--builder-sidebar-w) + var(--builder-form-w) + var(--builder-preview-w) +
+        var(--builder-gap) + var(--builder-gap) + var(--builder-pad-x) + var(--builder-pad-x)
+    )
+  );
+  max-inline-size: 100%;
   height: 100%;
   min-height: 0;
   align-items: stretch;
   overflow: hidden;
   margin: 0 auto;
-  padding: clamp(10px, 1.1vw, 16px);
+  padding: var(--builder-pad-y) var(--builder-pad-x);
 }
 
 .builder-exit-row {
@@ -17575,7 +17596,7 @@ select:focus-visible {
 .builder-exit-button {
   justify-self: center;
   width: 100%;
-  max-width: 258px;
+  max-width: var(--builder-sidebar-w);
   min-height: 30px;
   padding-inline: 10px 12px;
   border-radius: 999px;
@@ -17597,7 +17618,7 @@ select:focus-visible {
   gap: 8px;
   min-width: 0;
   width: 100%;
-  max-width: 258px;
+  max-width: var(--builder-sidebar-w);
   min-height: 0;
   overflow: hidden;
 }
@@ -17721,7 +17742,7 @@ select:focus-visible {
   gap: 10px;
   min-width: 0;
   width: 100%;
-  max-width: 640px;
+  max-width: var(--builder-form-w);
   min-height: 0;
   height: 100%;
   overflow-x: hidden;
@@ -17789,10 +17810,11 @@ select:focus-visible {
   justify-self: center;
   position: static;
   display: grid;
-  place-items: center;
+  justify-items: center;
+  align-items: start;
   min-width: 0;
   width: 100%;
-  max-width: 560px;
+  max-width: var(--builder-preview-w);
   min-height: 0;
   gap: 0;
   height: 100%;
@@ -17801,7 +17823,7 @@ select:focus-visible {
 
 .builder-preview-frame {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   width: 100%;
   overflow-x: hidden;
@@ -17914,23 +17936,25 @@ select:focus-visible {
   }
 
   .builder-page {
-    grid-template-columns: clamp(188px, 14vw, 220px) minmax(410px, 600px) minmax(420px, 540px);
-    max-width: min(100%, 1390px);
-    gap: 8px;
-    padding: 8px 12px;
+    --builder-sidebar-w: 210px;
+    --builder-form-w: 590px;
+    --builder-preview-w: 520px;
+    --builder-gap: 10px;
+    --builder-pad-x: 12px;
+    --builder-pad-y: 8px;
   }
 
   .builder-exit-button,
   .builder-flow-sidebar {
-    max-width: 220px;
+    max-width: var(--builder-sidebar-w);
   }
 
   .builder-form {
-    max-width: 600px;
+    max-width: var(--builder-form-w);
   }
 
   .builder-preview {
-    max-width: 540px;
+    max-width: var(--builder-preview-w);
   }
 
   .builder-exit-row {
@@ -18041,23 +18065,25 @@ select:focus-visible {
   }
 
   .builder-page {
-    grid-template-columns: clamp(176px, 13vw, 204px) minmax(380px, 560px) minmax(400px, 520px);
-    max-width: min(100%, 1310px);
-    gap: 7px;
-    padding: 7px 10px;
+    --builder-sidebar-w: 192px;
+    --builder-form-w: 540px;
+    --builder-preview-w: 500px;
+    --builder-gap: 8px;
+    --builder-pad-x: 10px;
+    --builder-pad-y: 7px;
   }
 
   .builder-exit-button,
   .builder-flow-sidebar {
-    max-width: 204px;
+    max-width: var(--builder-sidebar-w);
   }
 
   .builder-form {
-    max-width: 560px;
+    max-width: var(--builder-form-w);
   }
 
   .builder-preview {
-    max-width: 520px;
+    max-width: var(--builder-preview-w);
   }
 
   .builder-flow-sidebar {
@@ -18094,6 +18120,78 @@ select:focus-visible {
   .builder-flow-sidebar .builder-section-nav button {
     min-height: 22px;
     font-size: 10px;
+  }
+}
+
+@media (min-width: 1161px) and (max-width: 1500px) {
+  .builder-page {
+    --builder-sidebar-w: 190px;
+    --builder-form-w: 520px;
+    --builder-preview-w: 460px;
+    --builder-gap: 8px;
+    --builder-pad-x: 10px;
+    --builder-pad-y: 8px;
+  }
+
+  .builder-exit-button,
+  .builder-flow-sidebar {
+    max-width: var(--builder-sidebar-w);
+  }
+
+  .builder-form {
+    max-width: var(--builder-form-w);
+  }
+
+  .builder-preview {
+    max-width: var(--builder-preview-w);
+  }
+}
+
+@media (min-width: 1161px) and (max-width: 1280px) {
+  .builder-page {
+    --builder-sidebar-w: 168px;
+    --builder-form-w: 450px;
+    --builder-preview-w: 390px;
+    --builder-gap: 7px;
+    --builder-pad-x: 8px;
+    --builder-pad-y: 7px;
+  }
+
+  .builder-exit-button,
+  .builder-flow-sidebar {
+    max-width: var(--builder-sidebar-w);
+  }
+
+  .builder-form {
+    max-width: var(--builder-form-w);
+  }
+
+  .builder-preview {
+    max-width: var(--builder-preview-w);
+  }
+}
+
+@media (min-width: 1501px) and (max-width: 1800px) {
+  .builder-page {
+    --builder-sidebar-w: 220px;
+    --builder-form-w: 600px;
+    --builder-preview-w: 520px;
+    --builder-gap: 10px;
+    --builder-pad-x: 12px;
+    --builder-pad-y: 9px;
+  }
+
+  .builder-exit-button,
+  .builder-flow-sidebar {
+    max-width: var(--builder-sidebar-w);
+  }
+
+  .builder-form {
+    max-width: var(--builder-form-w);
+  }
+
+  .builder-preview {
+    max-width: var(--builder-preview-w);
   }
 }
 
