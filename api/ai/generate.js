@@ -2,6 +2,9 @@ const OPENAI_RESPONSES_ENDPOINT = "https://api.openai.com/v1/responses";
 const DEFAULT_MODEL = "gpt-5.1-mini";
 const MAX_BODY_BYTES = 64 * 1024;
 const MAX_TEXT_CHARS = 14000;
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 20;
+const rateLimitBuckets = new Map();
 
 const TASKS = {
   generate_professional_summary: {
@@ -18,7 +21,11 @@ const TASKS = {
   },
   suggest_skills: {
     maxTokens: 800,
-    instruction: "Suggest relevant skills based on role, experience, existing skills, and job description. Do not invent certifications or companies.",
+    instruction: "Suggest relevant skills based on role, experience, existing skills, and job description. Group the answer into technicalSkills, softSkills, tools, atsKeywords, and suggestions. Do not invent certifications or companies.",
+  },
+  improve_project_description: {
+    maxTokens: 900,
+    instruction: "Improve resume project descriptions using professional, truthful language. Do not invent scope, technologies, results, clients, companies, or metrics. Use placeholders like [result] only when suggesting measurable impact.",
   },
   generate_cover_letter: {
     maxTokens: 1300,
@@ -28,9 +35,33 @@ const TASKS = {
     maxTokens: 1300,
     instruction: "Improve the supplied cover letter for clarity, specificity, and professional tone without inventing facts.",
   },
+  tailor_cover_letter_to_job: {
+    maxTokens: 1400,
+    instruction: "Tailor the supplied cover letter to the job description using only real user data. Keep it editable, professional, and truthful.",
+  },
+  formal_cover_letter: {
+    maxTokens: 1300,
+    instruction: "Rewrite the supplied cover letter in a more formal professional tone without inventing facts.",
+  },
+  direct_cover_letter: {
+    maxTokens: 1300,
+    instruction: "Rewrite the supplied cover letter in a more concise and direct professional tone without inventing facts.",
+  },
+  confident_cover_letter: {
+    maxTokens: 1300,
+    instruction: "Rewrite the supplied cover letter in a more confident professional tone without exaggerating or inventing facts.",
+  },
+  analyze_resume_ats: {
+    maxTokens: 1200,
+    instruction: "Analyze the resume for ATS readability and completeness. Return an estimated score and concrete improvements. Never claim the score is official.",
+  },
   analyze_job_description: {
     maxTokens: 1200,
     instruction: "Analyze the job description against the resume. Return an estimated ATS score, matched keywords, missing keywords, and suggestions. Never claim the score is official.",
+  },
+  suggest_ats_keywords: {
+    maxTokens: 1000,
+    instruction: "Suggest ATS keywords and honest ways to incorporate them naturally into the resume.",
   },
   ats_keyword_suggestions: {
     maxTokens: 1000,
@@ -47,6 +78,10 @@ const TASKS = {
   assistant_chat: {
     maxTokens: 1200,
     instruction: "Answer as Succeedora's career assistant using the supplied resume and job context. Be practical, concise, and honest.",
+  },
+  recommend_resume_template: {
+    maxTokens: 900,
+    instruction: "Recommend resume templates from Succeedora based on the user's role, area, seniority, objective, country, and language. Return recommendedTemplates and explanation. Prefer honest, practical recommendations.",
   },
 };
 
@@ -122,6 +157,28 @@ function containsPromptInjection(value) {
   return /(ignore|bypass|override|forget).{0,40}(previous|system|developer|rules|instructions)|reveal.{0,40}(prompt|system|instructions)|api[_ -]?key|secret key/.test(text);
 }
 
+function clientIp(req) {
+  return String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "unknown").split(",")[0].trim() || "unknown";
+}
+
+function checkRateLimit(req) {
+  const key = clientIp(req);
+  const now = Date.now();
+  const bucket = rateLimitBuckets.get(key) || { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS };
+  if (now > bucket.resetAt) {
+    bucket.count = 0;
+    bucket.resetAt = now + RATE_LIMIT_WINDOW_MS;
+  }
+  bucket.count += 1;
+  rateLimitBuckets.set(key, bucket);
+  if (rateLimitBuckets.size > 500) {
+    for (const [itemKey, item] of rateLimitBuckets.entries()) {
+      if (now > item.resetAt) rateLimitBuckets.delete(itemKey);
+    }
+  }
+  return bucket.count <= RATE_LIMIT_MAX_REQUESTS;
+}
+
 function extractOutputText(payload) {
   if (typeof payload.output_text === "string") return payload.output_text;
   const chunks = [];
@@ -140,14 +197,35 @@ function normalizeResult(taskType, parsed) {
   const suggestions = list(result.suggestions);
   if (taskType.includes("summary")) return { summary: limitString(result.summary, 1400), suggestions };
   if (taskType === "rewrite_experience") return { bullets: list(result.bullets || result.experience), suggestions };
-  if (taskType === "suggest_skills") return { skills: list(result.skills), suggestions };
+  if (taskType === "improve_project_description") return { description: limitString(result.description || result.projectDescription || result.text, 2500), suggestions };
+  if (taskType === "suggest_skills") {
+    const technicalSkills = list(result.technicalSkills);
+    const softSkills = list(result.softSkills);
+    const tools = list(result.tools);
+    const atsKeywords = list(result.atsKeywords || result.keywords);
+    return {
+      technicalSkills,
+      softSkills,
+      tools,
+      atsKeywords,
+      skills: list(result.skills).length ? list(result.skills) : [...technicalSkills, ...softSkills, ...tools, ...atsKeywords].slice(0, 28),
+      suggestions,
+    };
+  }
   if (taskType.includes("cover_letter")) return { title: limitString(result.title, 160), body: limitString(result.body || result.coverLetter, 6000), suggestions };
-  if (taskType === "analyze_job_description" || taskType === "ats_keyword_suggestions") {
+  if (taskType === "analyze_resume_ats" || taskType === "analyze_job_description" || taskType === "ats_keyword_suggestions" || taskType === "suggest_ats_keywords") {
     return {
       score: Math.max(0, Math.min(100, Number(result.score) || 0)),
       matchedKeywords: list(result.matchedKeywords || result.foundKeywords),
       missingKeywords: list(result.missingKeywords),
-      suggestions,
+      summarySuggestions: list(result.summarySuggestions),
+      experienceSuggestions: list(result.experienceSuggestions),
+      generalRecommendations: list(result.generalRecommendations || result.recommendations),
+      suggestions: suggestions.length ? suggestions : [
+        ...list(result.summarySuggestions),
+        ...list(result.experienceSuggestions),
+        ...list(result.generalRecommendations || result.recommendations),
+      ].slice(0, 12),
       explanation: limitString(result.explanation, 1200),
     };
   }
@@ -160,6 +238,13 @@ function normalizeResult(taskType, parsed) {
       suggestions,
     };
   }
+  if (taskType === "recommend_resume_template") {
+    return {
+      recommendedTemplates: list(result.recommendedTemplates || result.templates),
+      explanation: limitString(result.explanation || result.reason, 1600),
+      suggestions,
+    };
+  }
   return { answer: limitString(result.answer || result.message || "", 4000), suggestions };
 }
 
@@ -168,6 +253,7 @@ module.exports = async function handler(req, res) {
     res.setHeader("Allow", "POST");
     return json(res, 405, { success: false, error: "method_not_allowed" });
   }
+  if (!checkRateLimit(req)) return json(res, 429, { success: false, error: "rate_limited" });
 
   const apiKey = process.env.OPENAI_API_KEY;
   const model = process.env.OPENAI_MODEL || DEFAULT_MODEL;

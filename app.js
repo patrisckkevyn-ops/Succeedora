@@ -63,13 +63,21 @@ const AI_TASK_CREDITS = {
   improve_professional_summary: 1,
   rewrite_experience: 1,
   suggest_skills: 1,
+  improve_project_description: 1,
   generate_cover_letter: 2,
   improve_cover_letter: 2,
+  tailor_cover_letter_to_job: 2,
+  formal_cover_letter: 2,
+  direct_cover_letter: 2,
+  confident_cover_letter: 2,
+  analyze_resume_ats: 2,
   analyze_job_description: 2,
   ats_keyword_suggestions: 2,
+  suggest_ats_keywords: 2,
   assistant_chat: 2,
   translate_resume: 3,
   tailor_resume_to_job: 4,
+  recommend_resume_template: 1,
 };
 const BRAZIL_TIMEZONES = new Set([
   "America/Sao_Paulo",
@@ -162,7 +170,7 @@ const I18N = {
       templatesTitle: "Professional templates for every career stage",
       templatesSubtitle: "Choose from clean, modern and job-ready resume designs.",
       templatesCtaTitle: "Choose a template and start building your resume now.",
-      viewTemplate: "View template",
+      viewTemplate: "Preview",
       pricingEyebrow: "Pricing",
       pricingTitle: "Start free, upgrade when you need more career power.",
       faqEyebrow: "FAQ",
@@ -625,7 +633,7 @@ const I18N = {
       templatesTitle: "Modelos profissionais para cada etapa da sua carreira",
       templatesSubtitle: "Escolha entre modelos limpos, modernos e compatíveis com candidaturas reais.",
       templatesCtaTitle: "Escolha um modelo e comece seu currículo agora.",
-      viewTemplate: "Ver modelo",
+      viewTemplate: "Visualizar",
       pricingEyebrow: "Preços",
       pricingTitle: "Comece grátis e evolua quando quiser aumentar suas chances de entrevista.",
       faqEyebrow: "Dúvidas",
@@ -839,7 +847,7 @@ const I18N = {
       },
       resumes: { intro: "Gerencie versões do currículo para diferentes vagas, mercados e idiomas.", newResume: "Novo currículo", items: ["Currículo de Product Manager", "Currículo de tecnologia", "Currículo em inglês", "Currículo executivo"], primary: "Currículo principal", draft: "Versão em rascunho", open: "Abrir" },
       library: { createNew: "Criar novo currículo", actions: ["Editar", "Visualizar", "Baixar"], lastEdited: "Última edição", completion: "completo", template: "Modelo" },
-      templateFilters: ["Todos", "Gratuitos", "Pro", "Moderno", "Minimalista", "Executivo", "Criativo", "Estudante", "Internacional", "Clássico", "Corporativo", "Tech", "ATS simples", "Elegante", "Primeiro emprego"],
+      templateFilters: ["Todos", "Gratuitos", "Pro", "Moderno", "Minimalista", "Executivo", "Criativo", "Estudante", "Internacional", "Clássico", "Corporativo", "Tech", "Simple ATS", "Elegante", "Primeiro emprego"],
       useTemplate: "Usar modelo",
       previewTemplate: "Visualizar",
       useThisTemplate: "Usar este modelo",
@@ -1108,7 +1116,7 @@ Object.assign(I18N.en, {
     note: "Note",
     generatePix: "Generate Pix QR Code",
     dataHelp: "Use correct information to help us manually confirm your payment.",
-    requiredError: "Fill in the required information to generate the Pix payment.",
+    requiredError: "Fill in full name, email and CPF or CNPJ to generate the Pix payment.",
     afterPayInstruction: "After paying, click 'I have completed the payment'.",
     checkingTitle: "Checking your confirmation...",
     checkingText: "We are registering your request for manual review.",
@@ -1244,7 +1252,7 @@ Object.assign(I18N.pt, {
     note: "Observação",
     generatePix: "Gerar QR Code Pix",
     dataHelp: "Use dados corretos para facilitar a confirmação manual do pagamento.",
-    requiredError: "Preencha os dados obrigatórios para gerar o Pix.",
+    requiredError: "Preencha nome, e-mail e CPF ou CNPJ para gerar o Pix.",
     afterPayInstruction: "Após pagar, clique em 'Já realizei o pagamento'.",
     checkingTitle: "Verificando sua confirmação...",
     checkingText: "Estamos registrando sua solicitação para análise manual.",
@@ -2127,44 +2135,80 @@ const RESUME_TEMPLATES = [
     name: "Modern",
     icon: "file",
     category: "Modern",
+    categories: {
+      en: "Modern / Professional",
+      pt: "Moderno / Profissional",
+    },
     access: "pro",
     descriptions: {
-      en: "A polished modern resume style for general professional use.",
-      pt: "Um modelo moderno e polido para uso profissional geral.",
+      en: "Modern and versatile template with a premium structure for professional resumes.",
+      pt: "Modelo moderno e versátil, com estrutura premium para currículos profissionais.",
+    },
+    previewDescriptions: {
+      en: "A Pro template with a modern layout, two information areas and a premium look for professionals who want to stand out clearly.",
+      pt: "Um modelo Pro com layout moderno, duas áreas de informação e visual premium para profissionais que querem se destacar com clareza.",
     },
     bestFor: {
-      en: "Marketing, tech, administration, sales and customer service",
-      pt: "Marketing, tecnologia, administração, vendas e atendimento",
+      en: "Administrative professionals, analysts, coordinators, corporate roles and career transitions",
+      pt: "Profissionais administrativos, analistas, coordenadores, áreas corporativas e transição de carreira",
+    },
+    idealFor: {
+      en: ["administrative professionals", "analysts", "coordinators", "corporate roles", "career transitions", "users who want a modern resume without excess"],
+      pt: ["profissionais administrativos", "analistas", "coordenadores", "áreas corporativas", "profissionais em transição", "usuários que querem um currículo moderno sem exageros"],
     },
   },
   {
     key: "minimal",
-    name: "Minimal",
+    name: "Minimal ATS",
     icon: "shield",
-    category: "Minimal",
+    category: "ATS",
     access: "free",
     descriptions: {
-      en: "A very clean resume focused on readability and ATS systems.",
-      pt: "Um currículo muito limpo, focado em leitura fácil e sistemas ATS.",
+      en: "Clean and direct template, ideal for ATS systems and traditional applications.",
+      pt: "Modelo limpo e direto, ideal para sistemas ATS e candidaturas tradicionais.",
+    },
+    previewDescriptions: {
+      en: "A simple, clean and highly readable template, ideal for applications that require clarity and ATS compatibility.",
+      pt: "Um modelo simples, limpo e altamente legível, ideal para candidaturas que exigem clareza e compatibilidade com sistemas de recrutamento.",
     },
     bestFor: {
       en: "Most job applications and ATS systems",
       pt: "A maioria das candidaturas e sistemas ATS",
     },
+    idealFor: {
+      en: ["corporate roles", "administrative positions", "traditional applications", "ATS systems", "users who prefer a direct resume"],
+      pt: ["vagas corporativas", "cargos administrativos", "candidaturas tradicionais", "sistemas ATS", "usuários que preferem currículo direto"],
+    },
   },
   {
     key: "executive",
     name: "Executive",
+    names: {
+      en: "Executive",
+      pt: "Executivo",
+    },
     icon: "layout",
     category: "Executive",
+    categories: {
+      en: "Executive / Leadership",
+      pt: "Executivo / Liderança",
+    },
     access: "pro",
     descriptions: {
-      en: "A premium resume style for experienced professionals and leaders.",
-      pt: "Um modelo premium para profissionais experientes e liderança.",
+      en: "Premium executive template for leadership, management and corporate roles.",
+      pt: "Modelo executivo e premium para profissionais de liderança, gestão e cargos corporativos.",
+    },
+    previewDescriptions: {
+      en: "A Pro template with a corporate look, strong header and focus on leadership, experience and professional results.",
+      pt: "Um modelo Pro com aparência corporativa, cabeçalho forte e foco em liderança, experiência e resultados profissionais.",
     },
     bestFor: {
       en: "Managers, coordinators, senior professionals and leadership roles",
       pt: "Gestores, coordenadores, profissionais seniores e liderança",
+    },
+    idealFor: {
+      en: ["supervisors", "coordinators", "managers", "team leaders", "corporate professionals", "senior administrative roles"],
+      pt: ["supervisores", "coordenadores", "gerentes", "líderes de equipe", "profissionais corporativos", "cargos administrativos seniores"],
     },
   },
   {
@@ -2172,7 +2216,15 @@ const RESUME_TEMPLATES = [
     name: "Creative",
     icon: "sparkles",
     category: "Creative",
+    categories: {
+      en: "Creative / Portfolio",
+      pt: "Criativo / Portfolio",
+    },
     access: "pro",
+    previewDescriptions: {
+      en: "A creative Pro layout with stronger personality, visible projects and polished visual hierarchy without losing professional restraint.",
+      pt: "Um layout Pro criativo, com mais personalidade, projetos visiveis e hierarquia visual refinada sem perder seriedade profissional.",
+    },
     descriptions: {
       en: "A tasteful visual resume with modern structure and professional restraint.",
       pt: "Um currículo visual, moderno e profissional, sem exageros.",
@@ -2187,14 +2239,26 @@ const RESUME_TEMPLATES = [
     name: "Student",
     icon: "pen",
     category: "Student",
+    categories: {
+      en: "Student / First job",
+      pt: "Estudante / Primeiro emprego",
+    },
     access: "free",
     descriptions: {
-      en: "A friendly professional style for early-career resumes.",
-      pt: "Um modelo profissional e acessível para início de carreira.",
+      en: "Light and professional template for students, internships and first opportunities.",
+      pt: "Modelo leve e profissional para estudantes, estágios e primeiras oportunidades.",
+    },
+    previewDescriptions: {
+      en: "A template designed for people starting their career, highlighting education, skills, courses and projects even with limited work experience.",
+      pt: "Um modelo pensado para quem está começando a carreira, valorizando formação, habilidades, cursos e projetos mesmo com pouca experiência profissional.",
     },
     bestFor: {
-      en: "Students, interns, junior candidates and first job seekers",
-      pt: "Estudantes, estagiários, juniores e primeiro emprego",
+      en: "Students, internships, first jobs, young professionals and recent graduates",
+      pt: "Estudantes, estágios, primeiro emprego, jovens profissionais e recém-formados",
+    },
+    idealFor: {
+      en: ["students", "internships", "first jobs", "young professionals", "recent graduates"],
+      pt: ["estudantes", "estágios", "primeiro emprego", "jovens profissionais", "recém-formados"],
     },
   },
   {
@@ -2202,7 +2266,15 @@ const RESUME_TEMPLATES = [
     name: "International",
     icon: "globe",
     category: "International",
+    categories: {
+      en: "International / Remote",
+      pt: "Internacional / Remoto",
+    },
     access: "pro",
+    previewDescriptions: {
+      en: "A globally readable template with a refined profile area, language visibility and clean structure for cross-border applications.",
+      pt: "Um modelo de leitura global, com perfil refinado, idiomas visiveis e estrutura limpa para candidaturas internacionais.",
+    },
     descriptions: {
       en: "A clean global format for English resumes, remote roles and bilingual profiles.",
       pt: "Um formato global para currículos em inglês, vagas remotas e perfis bilíngues.",
@@ -2217,7 +2289,15 @@ const RESUME_TEMPLATES = [
     name: "Classic",
     icon: "file",
     category: "Classic",
+    categories: {
+      en: "Classic / Formal",
+      pt: "Classico / Formal",
+    },
     access: "pro",
+    previewDescriptions: {
+      en: "A sober classic format for conservative applications, with strong readability, centered header and no unnecessary decoration.",
+      pt: "Um formato classico e sobrio para candidaturas tradicionais, com alta legibilidade, cabecalho centralizado e sem decoracao excessiva.",
+    },
     descriptions: {
       en: "A timeless resume with familiar hierarchy and careful spacing.",
       pt: "Um currículo tradicional, com hierarquia familiar e espaçamento cuidadoso.",
@@ -2232,7 +2312,15 @@ const RESUME_TEMPLATES = [
     name: "Corporate",
     icon: "shield",
     category: "Corporate",
+    categories: {
+      en: "Corporate / Business",
+      pt: "Corporativo / Negocios",
+    },
     access: "pro",
+    previewDescriptions: {
+      en: "A polished corporate resume for office, operations, finance and management roles, built to feel serious and business-ready.",
+      pt: "Um curriculo corporativo polido para escritorio, operacoes, financas e gestao, com aparencia seria e pronta para empresas.",
+    },
     descriptions: {
       en: "A restrained corporate layout for business and consulting roles.",
       pt: "Um layout corporativo discreto para negócios, consultoria e gestão.",
@@ -2247,7 +2335,15 @@ const RESUME_TEMPLATES = [
     name: "Tech",
     icon: "settings",
     category: "Tech",
+    categories: {
+      en: "Technology / Projects",
+      pt: "Tecnologia / Projetos",
+    },
     access: "pro",
+    previewDescriptions: {
+      en: "A modern technical resume for software, data, product and IT profiles, with clear space for stack, projects and links.",
+      pt: "Um curriculo tecnico moderno para software, dados, produto e TI, com espaco claro para stack, projetos e links.",
+    },
     descriptions: {
       en: "A crisp technology resume with strong skills visibility.",
       pt: "Um currículo de tecnologia com habilidades bem destacadas.",
@@ -2261,15 +2357,23 @@ const RESUME_TEMPLATES = [
     key: "simple-ats",
     name: "Simple ATS",
     icon: "target",
-    category: "Simple ATS",
+    category: "ATS",
     access: "free",
     descriptions: {
-      en: "A highly readable one-column format built for ATS compatibility.",
-      pt: "Um formato de uma coluna, muito legível e pensado para ATS.",
+      en: "Direct and traditional template designed for maximum compatibility with recruiting systems.",
+      pt: "Modelo direto e tradicional, criado para máxima compatibilidade com sistemas de recrutamento.",
+    },
+    previewDescriptions: {
+      en: "An extremely direct and ATS-compatible template, ideal for traditional applications, job platforms and companies using screening systems.",
+      pt: "Um modelo extremamente direto e compatível com ATS, ideal para candidaturas tradicionais, plataformas de vagas e empresas que usam sistemas de triagem.",
     },
     bestFor: {
-      en: "Online applications, ATS uploads and conservative hiring processes",
-      pt: "Candidaturas online, uploads em ATS e processos seletivos conservadores",
+      en: "Traditional applications, large companies, job platforms and ATS-based hiring processes",
+      pt: "Candidaturas tradicionais, grandes empresas, plataformas de vagas e processos seletivos com ATS",
+    },
+    idealFor: {
+      en: ["traditional applications", "large companies", "job platforms", "ATS-based hiring processes", "users who want maximum simplicity"],
+      pt: ["candidaturas tradicionais", "grandes empresas", "plataformas de vagas", "processos seletivos com ATS", "usuários que querem máxima simplicidade"],
     },
   },
   {
@@ -2277,7 +2381,15 @@ const RESUME_TEMPLATES = [
     name: "Elegant",
     icon: "sparkles",
     category: "Elegant",
+    categories: {
+      en: "Elegant / Premium",
+      pt: "Elegante / Premium",
+    },
     access: "pro",
+    previewDescriptions: {
+      en: "A refined resume for professionals who want a polished, elegant and mature presentation without looking overly decorative.",
+      pt: "Um curriculo refinado para profissionais que querem uma apresentacao elegante, madura e premium sem excesso visual.",
+    },
     descriptions: {
       en: "A polished premium template with refined accents and calm structure.",
       pt: "Um modelo premium polido, com detalhes refinados e estrutura calma.",
@@ -2290,19 +2402,69 @@ const RESUME_TEMPLATES = [
   {
     key: "first-job",
     name: "First Job",
+    names: {
+      en: "First Job",
+      pt: "First Job / Primeiro Emprego",
+    },
     icon: "pen",
     category: "First Job",
+    categories: {
+      en: "First job",
+      pt: "Primeiro emprego",
+    },
     access: "free",
     descriptions: {
-      en: "A supportive layout for candidates with limited work history.",
-      pt: "Um layout acolhedor para quem tem pouca experiência profissional.",
+      en: "Ideal template for people looking for their first professional opportunity.",
+      pt: "Modelo ideal para quem está buscando a primeira oportunidade profissional.",
+    },
+    previewDescriptions: {
+      en: "A template designed for people entering the job market, highlighting career objective, skills, courses and willingness to learn.",
+      pt: "Um modelo pensado para quem está entrando no mercado de trabalho, valorizando objetivo profissional, habilidades, cursos e disposição para aprender.",
     },
     bestFor: {
-      en: "First job, internships, apprenticeships and career transitions",
-      pt: "Primeiro emprego, estágio, jovem aprendiz e transição de carreira",
+      en: "First job, young apprenticeships, entry-level internships, administrative assistant roles and customer service",
+      pt: "Primeiro emprego, jovem aprendiz, estágio inicial, auxiliar administrativo e atendimento",
+    },
+    idealFor: {
+      en: ["first job", "young apprenticeships", "entry-level internships", "administrative assistant roles", "customer service", "users with limited experience"],
+      pt: ["primeiro emprego", "jovem aprendiz", "estágio inicial", "auxiliar administrativo", "atendimento", "usuários com pouca experiência"],
     },
   },
 ];
+
+const ADDITIONAL_RESUME_TEMPLATES = [
+  ["professional", "Professional", "Profissional", "Corporate", "Corporativo", "pro", ["pro", "corporate"], "A split-header professional layout with contact card, timeline experience and strong lower grid.", "Um layout profissional com cabeçalho dividido, card de contato, timeline de experiência e grid inferior.", "Best for administrative roles", "Ideal para cargos administrativos"],
+  ["clean-pro", "Clean Pro", "Clean Pro", "ATS", "ATS", "pro", ["pro", "ats", "corporate"], "A minimal premium layout with generous spacing, refined bullets and discreet skill chips.", "Um layout minimalista premium, com respiro, bullets refinados e chips discretos.", "ATS-focused with premium polish", "Focado em ATS com acabamento premium"],
+  ["modern-ats", "Modern ATS", "ATS moderno", "ATS", "ATS", "pro", ["pro", "ats", "technology"], "ATS-safe structure with a sharper modern header and a separated skills band.", "Estrutura segura para ATS, com cabeçalho moderno e faixa de habilidades destacada.", "Online applications and ATS uploads", "Candidaturas online e uploads em ATS"],
+  ["senior-executive", "Senior Executive", "Executivo senior", "Executive", "Executivo", "premium", ["premium", "executive", "corporate"], "A boardroom-ready premium resume with dark header, executive summary and strategic side rail.", "Um currículo premium de diretoria, com cabeçalho escuro, resumo executivo e lateral estratégica.", "For senior professionals", "Para profissionais seniores"],
+  ["marketing", "Marketing", "Marketing", "Creative", "Criativo", "pro", ["pro", "creative", "corporate"], "A results-first layout for campaigns, brand and growth profiles.", "Um layout orientado a resultados para campanhas, marca e crescimento.", "For marketing and growth roles", "Para marketing e growth"],
+  ["sales", "Sales", "Vendas", "Corporate", "Corporativo", "pro", ["pro", "corporate"], "A metrics-driven resume for revenue, account and commercial roles.", "Um curriculo orientado a metricas para vendas, contas e area comercial.", "Best for sales and customer-facing roles", "Ideal para vendas e relacionamento com clientes"],
+  ["developer", "Developer", "Desenvolvedor", "Technology", "Tecnologia", "premium", ["premium", "technology", "ats"], "A premium technical resume with stack sidebar, project-first structure and visible engineering links.", "Um currículo técnico premium, com sidebar de stack, projetos em destaque e links de engenharia visíveis.", "For tech and product", "Para tecnologia e produto"],
+  ["designer", "Designer", "Designer", "Creative", "Criativo", "premium", ["premium", "creative", "technology"], "A refined visual layout for design, UX and portfolio-driven careers.", "Um layout visual refinado para design, UX e carreiras orientadas a portfólio.", "Creative modern layout", "Visual criativo e moderno"],
+  ["healthcare", "Healthcare", "Saude", "Corporate", "Corporativo", "pro", ["pro", "corporate", "ats"], "A trustworthy clinical resume for healthcare and care operations.", "Um curriculo confiavel para saude, clinica e operacoes de cuidado.", "For healthcare professionals", "Para profissionais de saude"],
+  ["legal", "Legal", "Juridico", "Corporate", "Corporativo", "pro", ["pro", "corporate", "executive"], "A formal layout for legal, compliance and advisory careers.", "Um layout formal para juridico, compliance e consultoria.", "For legal and compliance roles", "Para juridico e compliance"],
+  ["finance", "Finance", "Financas", "Corporate", "Corporativo", "pro", ["pro", "corporate", "executive"], "A precise, numbers-led template for finance and accounting.", "Um modelo preciso e orientado a numeros para financas e contabilidade.", "For finance and accounting", "Para financas e contabilidade"],
+  ["academic", "Academic", "Academico", "International", "Internacional", "pro", ["pro", "international", "corporate"], "A structured academic format for education, research and teaching.", "Um formato academico para educacao, pesquisa e docencia.", "For education and research", "Para educacao e pesquisa"],
+  ["remote-work", "Remote Work", "Trabalho remoto", "International", "Internacional", "premium", ["premium", "international", "technology"], "A premium global resume for remote, async and distributed teams.", "Um currículo global premium para vagas remotas, assíncronas e times distribuídos.", "International remote applications", "Candidaturas remotas internacionais"],
+  ["operations", "Operations", "Operacoes", "Corporate", "Corporativo", "pro", ["pro", "corporate", "ats"], "A process-focused resume for logistics, operations and delivery.", "Um curriculo focado em processos para logistica, operacoes e entrega.", "Best for operations roles", "Ideal para operacoes"],
+  ["customer-service", "Customer Service", "Atendimento", "Corporate", "Corporativo", "free", ["free", "corporate", "first-job"], "A clear service resume for support, success and client care.", "Um curriculo claro para suporte, sucesso do cliente e atendimento.", "Best for customer service", "Ideal para atendimento ao cliente"],
+  ["graduate", "Graduate", "Recem-formado", "First job", "Primeiro emprego", "free", ["free", "first-job", "ats"], "A confident early-career layout for new graduates.", "Um layout confiante para recem-formados e inicio de carreira.", "Good for first jobs", "Bom para primeiro emprego"],
+  ["manager", "Manager", "Gerente", "Executive", "Executivo", "premium", ["premium", "executive", "corporate"], "A premium leadership resume for managers, coordinators and team leads.", "Um currículo premium de liderança para gerentes, coordenadores e líderes.", "For managers and team leads", "Para gerentes e lideranças"],
+  ["consultant", "Consultant", "Consultor", "Corporate", "Corporativo", "premium", ["premium", "corporate", "executive"], "A strategic premium consulting resume with specialty cards and project-led hierarchy.", "Um currículo premium de consultoria, com cards de especialidade e hierarquia orientada a projetos.", "For consultants and advisors", "Para consultores e assessores"],
+  ["startup", "Startup", "Startup", "Technology", "Tecnologia", "premium", ["premium", "technology", "creative"], "A high-energy premium layout for builders, operators and startup teams.", "Um layout premium dinâmico para builders, operações e times de startup.", "For startup and product roles", "Para startups e produto"],
+  ["global", "Global", "Global", "International", "Internacional", "premium", ["premium", "international", "executive"], "A refined premium international profile for global careers and cross-border roles.", "Um perfil internacional premium refinado para carreiras globais e vagas fora do país.", "Global premium applications", "Candidaturas globais premium"],
+].map(([key, name, ptName, category, ptCategory, access, filterGroups, enDescription, ptDescription, enBestFor, ptBestFor]) => ({
+  key,
+  name,
+  icon: filterGroups.includes("technology") ? "settings" : filterGroups.includes("creative") ? "sparkles" : filterGroups.includes("international") ? "globe" : filterGroups.includes("executive") ? "layout" : "file",
+  category,
+  access,
+  filterGroups,
+  names: { en: name, pt: ptName },
+  categories: { en: category, pt: ptCategory },
+  descriptions: { en: enDescription, pt: ptDescription },
+  bestFor: { en: enBestFor, pt: ptBestFor },
+}));
 
 const LOGO_DIRECTIONS = [
   {
@@ -2330,6 +2492,7 @@ let sidebarCollapsed = true;
 let sidebarManuallySet = false;
 let sidebarAutoCollapsedForBuilder = false;
 let sidebarStateBeforeBuilder = false;
+let paymentHistoryPage = 1;
 let coverLetterBuilderOpen = false;
 let currentCoverLetterId = null;
 let coverLetterDraft = null;
@@ -2393,6 +2556,26 @@ function prepareCollapsedDashboardEntry() {
   sidebarManuallySet = false;
   sidebarAutoCollapsedForBuilder = false;
   sidebarStateBeforeBuilder = false;
+}
+
+function syncSidebarCollapsedState() {
+  const shell = document.querySelector(".app-shell");
+  if (shell) shell.classList.toggle("sidebar-collapsed", sidebarCollapsed);
+  document.querySelector(".sidebar")?.classList.remove("open");
+  document.querySelectorAll("[data-sidebar-collapse]").forEach((control) => {
+    control.setAttribute("aria-label", sidebarCollapsed ? t().dashboard.expandSidebar : t().dashboard.collapseSidebar);
+    control.setAttribute("title", sidebarCollapsed ? t().dashboard.expandSidebar : t().dashboard.collapseSidebar);
+    control.setAttribute("aria-expanded", String(!sidebarCollapsed));
+  });
+}
+
+function setSidebarCollapsed(nextCollapsed, options = {}) {
+  sidebarCollapsed = Boolean(nextCollapsed);
+  if (options.manual) {
+    sidebarManuallySet = true;
+    sidebarAutoCollapsedForBuilder = false;
+  }
+  syncSidebarCollapsedState();
 }
 
 function routeToDashboardEntry(route = "/dashboard") {
@@ -2523,6 +2706,119 @@ function documentFormatSwitch(activeFormat = selectedDocumentFormat, scope = "bu
       </div>
     </div>
   `;
+  /*
+  const templateProfile = {
+    creative: { layout: "portfolio-left", tone: "creative", accent: "visual" },
+    marketing: { layout: "portfolio-left", tone: "marketing", accent: "campaigns" },
+    designer: { layout: "portfolio-left", tone: "designer", accent: "portfolio" },
+    tech: { layout: "tech-left", tone: "tech", accent: "stack" },
+    developer: { layout: "tech-left", tone: "developer", accent: "code" },
+    startup: { layout: "tech-left", tone: "startup", accent: "impact" },
+    international: { layout: "global-right", tone: "international", accent: "global" },
+    "remote-work": { layout: "global-right", tone: "remote", accent: "remote" },
+    global: { layout: "global-right", tone: "global", accent: "global" },
+    elegant: { layout: "elegant-right", tone: "elegant", accent: "refined" },
+    finance: { layout: "precision-right", tone: "finance", accent: "metrics" },
+    corporate: { layout: "corporate-rail", tone: "corporate", accent: "business" },
+    professional: { layout: "professional-split", tone: "professional", accent: "versatile" },
+    sales: { layout: "corporate-rail", tone: "sales", accent: "performance" },
+    operations: { layout: "corporate-rail", tone: "operations", accent: "process" },
+    healthcare: { layout: "care-rail", tone: "healthcare", accent: "trust" },
+    "senior-executive": { layout: "executive-premium", tone: "senior", accent: "leadership" },
+    manager: { layout: "executive-premium", tone: "manager", accent: "teams" },
+    consultant: { layout: "consultant-premium", tone: "consultant", accent: "strategy" },
+    classic: { layout: "formal-flow", tone: "classic", accent: "formal" },
+    legal: { layout: "formal-flow", tone: "legal", accent: "law" },
+    academic: { layout: "academic-flow", tone: "academic", accent: "research" },
+    "clean-pro": { layout: "clean-flow", tone: "clean", accent: "clarity" },
+    "modern-ats": { layout: "ats-pro-flow", tone: "modern-ats", accent: "ats" },
+    "customer-service": { layout: "service-grid", tone: "service", accent: "support" },
+    graduate: { layout: "graduate-grid", tone: "graduate", accent: "growth" },
+  }[template] || { layout: "professional-split", tone: "professional", accent: "versatile" };
+  const curatedLabels = currentLanguage === "pt"
+    ? {
+      summary: ["senior-executive", "manager", "consultant"].includes(template) ? "Resumo executivo" : "Perfil profissional",
+      experience: "Experiência profissional",
+      education: "Formação",
+      skills: ["tech", "developer", "startup"].includes(template) ? "Stack e habilidades" : "Competências",
+      languages: "Idiomas",
+      certifications: "Certificações",
+      projects: ["creative", "designer", "marketing", "developer", "startup", "consultant", "academic"].includes(template) ? "Projetos em destaque" : "Projetos",
+      links: ["tech", "developer", "designer", "startup"].includes(template) ? "Links profissionais" : "Links",
+    }
+    : {
+      summary: ["senior-executive", "manager", "consultant"].includes(template) ? "Executive Summary" : "Professional Profile",
+      experience: "Professional Experience",
+      education: "Education",
+      skills: ["tech", "developer", "startup"].includes(template) ? "Stack and Skills" : "Core Skills",
+      languages: "Languages",
+      certifications: "Certifications",
+      projects: ["creative", "designer", "marketing", "developer", "startup", "consultant", "academic"].includes(template) ? "Featured Projects" : "Projects",
+      links: ["tech", "developer", "designer", "startup"].includes(template) ? "Professional Links" : "Links",
+    };
+  const curatedHasText = (item) => String(item || "").trim().length > 0;
+  const curatedHasList = (items) => normalizeTextList(items).length > 0;
+  const curatedOptional = (className, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3>${title}</h3>${body}</section>`;
+  const curatedParagraphs = (items, fieldName) => `<div class="curated-text-list" data-preview-field="${fieldName}" data-preview-empty="">${normalizeTextList(items).map((item) => `<p>${escapeHtml(item)}</p>`).join("")}</div>`;
+  const curatedLines = (items) => normalizeTextList(items).map(escapeHtml).join("<br>");
+  const curatedContactItems = [displayLocation, personal.email, personal.phone, normalizeTextList(data.professionalLinks)[0]].filter(Boolean);
+  const curatedContact = curatedContactItems.join(" | ") || b.document.header;
+  const curatedExperiences = (data.workExperience || []).filter((item) => curatedHasText(item.role) || curatedHasText(item.company) || curatedHasText(item.location) || curatedHasText(item.period) || curatedHasList(item.achievements));
+  const curatedPrimaryExperience = curatedExperiences[0] || experience;
+  const curatedExperienceEntries = (curatedExperiences.length ? curatedExperiences : [curatedPrimaryExperience]).map((item, index) => `
+    <div class="curated-experience-item">
+      <div class="curated-entry-head">
+        <strong ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>
+        <span ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</span>
+      </div>
+      <p class="curated-entry-meta">
+        <span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>${curatedHasText(item.company) && curatedHasText(item.location) ? " - " : ""}<span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span>
+      </p>
+      <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
+    </div>
+  `).join("");
+  const curatedEducationItems = (data.education || []).filter((item) => curatedHasText(item.degree) || curatedHasText(item.school) || curatedHasText(item.period));
+  const curatedEducationEntries = (curatedEducationItems.length ? curatedEducationItems : [education]).map((item, index) => `
+    <p class="curated-compact-item">
+      <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
+      <span ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</span>
+      ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
+    </p>
+  `).join("");
+  return `
+    <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+      <div class="resume-page-scale-wrapper">
+        <div class="resume-document professional-preview resume-template-${template} curated-resume curated-layout-${templateProfile.layout} curated-tone-${templateProfile.tone} curated-accent-${templateProfile.accent} ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+          <header class="curated-header">
+            <div class="curated-header-mark" aria-hidden="true"></div>
+            <div>
+              <h2 data-preview-field="name" data-preview-empty="Amanda Silva">${display(displayName, "Amanda Silva")}</h2>
+              <strong data-preview-field="title" data-preview-empty="${b.values.professionalTitle}">${display(personal.title, b.values.professionalTitle)}</strong>
+            </div>
+            <p class="resume-contact-line curated-contact-line" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(curatedContact, b.document.header)}</p>
+          </header>
+          ${curatedOptional("curated-summary curated-main-section", curatedLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, curatedHasText(data.summary))}
+          ${curatedOptional("curated-experience curated-main-section", curatedLabels.experience, curatedExperienceEntries, curatedExperiences.length > 0)}
+          ${curatedOptional("curated-projects curated-main-section", curatedLabels.projects, curatedParagraphs(data.projects, "projects"), curatedHasList(data.projects))}
+          ${curatedOptional("curated-skills curated-side-section", curatedLabels.skills, `<div class="resume-skill-list curated-skill-list" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, curatedHasList(data.skills))}
+          ${curatedOptional("curated-education curated-side-section", curatedLabels.education, curatedEducationEntries, curatedEducationItems.length > 0)}
+          ${curatedOptional("curated-certifications curated-side-section", curatedLabels.certifications, `<p data-preview-field="certifications" data-preview-empty="">${curatedLines(data.certifications)}</p>`, curatedHasList(data.certifications))}
+          ${curatedOptional("curated-languages curated-side-section", curatedLabels.languages, `<p data-preview-field="languages" data-preview-empty="">${curatedLines(data.languages)}</p>`, curatedHasList(data.languages))}
+          ${curatedOptional("curated-links curated-side-section", curatedLabels.links, `<div class="resume-link-list curated-link-list" data-preview-field="links" data-preview-empty="">${paragraphList(data.professionalLinks, "")}</div>`, curatedHasList(data.professionalLinks))}
+        </div>
+      </div>
+    </div>
+  `;
+  return `
+    <div class="document-format-switch" data-format-scope="${scope}">
+      <strong>${label}</strong>
+      <div>
+        <button class="${active === "a4" ? "active" : ""}" type="button" data-document-format="a4">${b.a4}</button>
+        <button class="${active === "letter" ? "active" : ""}" type="button" data-document-format="letter">${b.usLetter}</button>
+      </div>
+    </div>
+  `;
+  */
 }
 
 function builderReturnRouteFor(route = getRoute(), context = "") {
@@ -2552,6 +2848,20 @@ function resumeLabels() {
     duplicate: "Duplicar",
     downloadPdf: "Baixar PDF",
     createFirst: "Criar meu primeiro currículo",
+    chooseTemplate: "Escolher modelo",
+    emptyTitle: "Você ainda não criou nenhum currículo",
+    emptyText: "Escolha um modelo profissional e comece a criar seu currículo em poucos minutos.",
+    searchPlaceholder: "Buscar currículos...",
+    statusFilter: "Filtrar por status",
+    modelFilter: "Filtrar por modelo",
+    sortLabel: "Ordenar por",
+    allStatuses: "Todos os status",
+    allModels: "Todos os modelos",
+    sortRecent: "Mais recente",
+    sortProgress: "Maior progresso",
+    sortAts: "Melhor nota ATS",
+    sortName: "Nome",
+    statuses: { draft: "Rascunho", review: "Em revisão", ready: "Pronto para exportar", exported: "Exportado" },
     suggestedMissing: {
       personal: "Adicione seus dados pessoais",
       summary: "Adicione um resumo profissional",
@@ -2570,6 +2880,20 @@ function resumeLabels() {
     duplicate: "Duplicate",
     downloadPdf: "Download PDF",
     createFirst: "Create my first resume",
+    chooseTemplate: "Choose template",
+    emptyTitle: "You haven\u2019t created any resumes yet",
+    emptyText: "Choose a professional template and start building your resume in minutes.",
+    searchPlaceholder: "Search resumes...",
+    statusFilter: "Filter by status",
+    modelFilter: "Filter by template",
+    sortLabel: "Sort by",
+    allStatuses: "All statuses",
+    allModels: "All templates",
+    sortRecent: "Most recent",
+    sortProgress: "Highest progress",
+    sortAts: "Best ATS score",
+    sortName: "Name",
+    statuses: { draft: "Draft", review: "In review", ready: "Ready to export", exported: "Exported" },
     suggestedMissing: {
       personal: "Add your personal information",
       summary: "Add a professional summary",
@@ -3126,6 +3450,30 @@ function nextResumeAction(resume) {
   return missing.ready;
 }
 
+function resumeStatusKey(resume = {}) {
+  if (resume.exportedAt) return "exported";
+  const completion = Number(resume.completion || 0);
+  if (completion >= 90) return "ready";
+  if (completion >= 45) return "review";
+  return "draft";
+}
+
+function resumeStatusLabel(resume = {}) {
+  return resumeLabels().statuses[resumeStatusKey(resume)] || resumeLabels().statuses.draft;
+}
+
+function resumeSearchText(resume = {}) {
+  const template = getTemplateByKey(resume.selectedTemplate);
+  return [
+    resume.title,
+    resume.personal?.title,
+    resume.personal?.fullName,
+    template.name,
+    template.category,
+    resumeStatusLabel(resume),
+  ].filter(Boolean).join(" ").toLowerCase();
+}
+
 function startNewResume(template = selectedTemplateKey) {
   currentBuilderResumeId = null;
   pendingTemplateChangeDraft = null;
@@ -3316,27 +3664,29 @@ function pageHeightForFormat(format) {
 
 function updateResumePreviewScales(root = document) {
   root.querySelectorAll(".resume-document-shell").forEach((shell) => {
-    if (shell.closest(".resume-thumbnail")) {
-      shell.removeAttribute("data-preview-scaled");
-      shell.style.removeProperty("--preview-scale");
-      shell.style.removeProperty("--resume-page-width");
-      shell.style.removeProperty("--resume-page-height");
-      shell.style.removeProperty("--scaled-page-width");
-      shell.style.removeProperty("--scaled-page-height");
-      return;
-    }
     const format = shell.getAttribute("data-document-format-current") || selectedDocumentFormat;
     const pageWidth = pageWidthForFormat(format);
     const pageHeight = pageHeightForFormat(format);
-    const container = shell.closest(".builder-preview-frame, .template-preview-content") || shell.parentElement;
+    const container = shell.closest(".resume-thumbnail, .builder-preview-frame, .template-preview-content") || shell.parentElement;
     if (!container) return;
     const styles = window.getComputedStyle(container);
     const horizontalPadding = parseFloat(styles.paddingLeft || "0") + parseFloat(styles.paddingRight || "0");
+    const verticalPadding = parseFloat(styles.paddingTop || "0") + parseFloat(styles.paddingBottom || "0");
     const isBuilderFrame = container.classList.contains("builder-preview-frame");
+    const isThumbnail = container.classList.contains("resume-thumbnail");
+    const isTemplatePreview = container.classList.contains("template-preview-content");
+    const isResumeOnlyPreview = Boolean(container.closest(".template-preview-resume-only-dialog"));
     const scrollbarAllowance = isBuilderFrame ? 18 : 0;
-    const availableWidth = Math.max(1, container.clientWidth - horizontalPadding - scrollbarAllowance);
-    const maxScale = shell.closest(".template-preview-content") ? 1.08 : 1;
-    const scale = Math.max(0.05, Math.min(maxScale, availableWidth / pageWidth));
+    const containerRect = container.getBoundingClientRect();
+    const containerWidth = containerRect.width || container.clientWidth;
+    const containerHeight = containerRect.height || container.clientHeight;
+    const availableWidth = Math.max(1, containerWidth - horizontalPadding - scrollbarAllowance);
+    const availableHeight = Math.max(1, containerHeight - verticalPadding);
+    const maxScale = isResumeOnlyPreview ? 1 : isTemplatePreview ? 0.98 : 1;
+    const widthScale = availableWidth / pageWidth;
+    const heightFill = isResumeOnlyPreview ? 0.995 : isTemplatePreview ? 0.985 : 1;
+    const heightScale = (isThumbnail || isTemplatePreview) ? (availableHeight * heightFill) / pageHeight : maxScale;
+    const scale = Math.max(0.05, Math.min(maxScale, widthScale, heightScale));
     shell.dataset.previewScaled = "true";
     shell.style.setProperty("--resume-page-width", `${pageWidth}px`);
     shell.style.setProperty("--resume-page-height", `${pageHeight}px`);
@@ -3432,7 +3782,7 @@ function resumeTemplates() {
   const localizedNames = {
     pt: {
       modern: "Moderno",
-      minimal: "Minimalista",
+      minimal: "Minimal ATS",
       executive: "Executivo",
       creative: "Criativo",
       student: "Estudante",
@@ -3440,21 +3790,70 @@ function resumeTemplates() {
       classic: "Clássico",
       corporate: "Corporativo",
       tech: "Tech",
-      "simple-ats": "ATS simples",
+      "simple-ats": "Simple ATS",
       elegant: "Elegante",
       "first-job": "Primeiro emprego",
     },
   };
-  return RESUME_TEMPLATES.map((template) => ({
+  const localizedCategories = {
+    pt: {
+      Modern: "Moderno",
+      Minimal: "Minimal ATS",
+      ATS: "ATS",
+      Executive: "Executivo",
+      Creative: "Criativo",
+      Student: "Primeiro emprego",
+      International: "Internacional",
+      Classic: "Corporativo",
+      Corporate: "Corporativo",
+      Tech: "Tecnologia",
+      "Simple ATS": "ATS",
+      Elegant: "Executivo",
+      "First Job": "Primeiro emprego",
+    },
+  };
+  return [...RESUME_TEMPLATES, ...ADDITIONAL_RESUME_TEMPLATES].map((template) => ({
     ...template,
     name: template.names?.[currentLanguage] || localizedNames[currentLanguage]?.[template.key] || template.name,
+    category: template.categories?.[currentLanguage] || localizedCategories[currentLanguage]?.[template.category] || template.category,
     description: template.descriptions[currentLanguage],
+    previewDescription: template.previewDescriptions?.[currentLanguage] || template.descriptions[currentLanguage],
     bestForText: template.bestFor[currentLanguage],
+    idealForText: template.idealFor?.[currentLanguage] || [],
+    filterGroups: Array.from(new Set([...(template.filterGroups || []), ...templateFilterGroups(template)])),
   }));
 }
 
 function getTemplateByKey(key) {
   return resumeTemplates().find((template) => template.key === key) || resumeTemplates()[0];
+}
+
+function allResumeTemplateDefinitions() {
+  return [...RESUME_TEMPLATES, ...ADDITIONAL_RESUME_TEMPLATES];
+}
+
+function templateFilterGroups(template = {}) {
+  const key = String(template.key || "").toLowerCase();
+  const category = String(template.category || "").toLowerCase();
+  const groups = new Set([template.access || "pro"]);
+  if (key.includes("ats") || category.includes("ats") || key === "minimal") groups.add("ats");
+  if (key.includes("executive") || ["manager", "consultant", "elegant"].includes(key) || category.includes("executive")) groups.add("executive");
+  if (["creative", "designer", "marketing", "startup"].includes(key) || category.includes("creative")) groups.add("creative");
+  if (["student", "first-job", "graduate", "customer-service"].includes(key)) groups.add("first-job");
+  if (["tech", "developer", "startup", "remote-work", "modern-ats"].includes(key) || category.includes("tech") || category.includes("technology")) groups.add("technology");
+  if (["international", "remote-work", "academic", "global"].includes(key) || category.includes("international")) groups.add("international");
+  if (["corporate", "classic", "professional", "sales", "operations", "legal", "finance", "healthcare", "consultant"].includes(key) || category.includes("corporate")) groups.add("corporate");
+  if (["healthcare"].includes(key) || category.includes("health")) groups.add("healthcare");
+  if (["legal"].includes(key) || category.includes("legal")) groups.add("legal");
+  if (["finance"].includes(key) || category.includes("finance")) groups.add("finance");
+  if (["academic"].includes(key) || category.includes("academic")) groups.add("academic");
+  return Array.from(groups);
+}
+
+function templateFilterOptions() {
+  return currentLanguage === "pt"
+    ? [["all", "Todos"], ["free", "Gratuitos"], ["pro", "Pro"], ["premium", "Premium"], ["ats", "ATS"], ["executive", "Executivo"], ["creative", "Criativo"], ["technology", "Tecnologia"], ["international", "Internacional"], ["first-job", "Primeiro emprego"], ["corporate", "Corporativo"], ["healthcare", "Saúde"], ["legal", "Jurídico"], ["finance", "Finanças"], ["academic", "Acadêmico"]]
+    : [["all", "All"], ["free", "Free"], ["pro", "Pro"], ["premium", "Premium"], ["ats", "ATS"], ["executive", "Executive"], ["creative", "Creative"], ["technology", "Technology"], ["international", "International"], ["first-job", "First job"], ["corporate", "Corporate"], ["healthcare", "Healthcare"], ["legal", "Legal"], ["finance", "Finance"], ["academic", "Academic"]];
 }
 
 function sampleResumeData() {
@@ -3496,6 +3895,436 @@ function sampleResumeData() {
     projects: [["Customer onboarding improvement project", "Increased activation through better onboarding flows and clearer product communication."]],
     links: ["linkedin.com/in/amanda-silva", "amandasilva.com"],
   };
+}
+
+function modernSampleResume() {
+  if (currentLanguage === "pt") {
+    return createBlankResume({
+      selectedTemplate: "modern",
+      personal: {
+        fullName: "Patrick Justino",
+        title: "Supervisor Administrativo",
+        email: "patrick@email.com",
+        phone: "+55 27 99999-9999",
+        city: "Serra",
+        state: "ES",
+      },
+      summary: "Supervisor administrativo com experiência em rotinas corporativas, acompanhamento de indicadores, organização de processos e apoio a equipes. Perfil orientado a produtividade, comunicação clara e melhoria contínua em ambientes dinâmicos.",
+      workExperience: [
+        {
+          role: "Supervisor Administrativo",
+          company: "Empresa Exemplo",
+          location: "Serra, ES",
+          period: "Jan 2023 - Atual",
+          achievements: [
+            "Coordenei rotinas administrativas e acompanhei indicadores internos.",
+            "Organizei processos para melhorar produtividade e controle.",
+            "Apoiei equipes na comunicação entre áreas e resolução de demandas.",
+          ],
+        },
+        {
+          role: "Assistente Administrativo",
+          company: "Grupo Corporativo",
+          location: "Vitoria, ES",
+          period: "2019 - 2022",
+          achievements: [
+            "Padronizei controles de documentos e reduzi retrabalho operacional.",
+            "Atendi clientes internos e externos com foco em prazos e qualidade.",
+          ],
+        },
+      ],
+      education: [{ degree: "Administração", school: "Universidade Exemplo", period: "2020 - 2024" }],
+      skills: ["Liderança", "Organização", "Comunicação", "Gestão de processos", "Pacote Office", "Atendimento ao cliente"],
+      languages: ["Português - Nativo", "Inglês - Intermediário"],
+      certifications: ["Excel para Gestão Administrativa - 2024", "Fundamentos de Liderança - 2023"],
+      projects: ["Projeto de melhoria de controles internos - Reorganização de planilhas e fluxos para acompanhamento de demandas administrativas."],
+      professionalLinks: ["LinkedIn"],
+    });
+  }
+  return createBlankResume({
+    selectedTemplate: "modern",
+    personal: {
+      fullName: "Patrick Justino",
+      title: "Administrative Supervisor",
+      email: "patrick@email.com",
+      phone: "+55 27 99999-9999",
+      city: "Serra",
+      state: "ES",
+    },
+    summary: "Administrative supervisor experienced in corporate routines, KPI tracking, process organization and team support. Practical profile focused on productivity, clear communication and continuous improvement in fast-moving environments.",
+    workExperience: [
+      {
+        role: "Administrative Supervisor",
+        company: "Example Company",
+        location: "Serra, ES",
+        period: "Jan 2023 - Present",
+        achievements: [
+          "Coordinated administrative routines and tracked internal indicators.",
+          "Organized processes to improve productivity and operational control.",
+          "Supported teams with cross-functional communication and issue resolution.",
+        ],
+      },
+      {
+        role: "Administrative Assistant",
+        company: "Corporate Group",
+        location: "Vitoria, ES",
+        period: "2019 - 2022",
+        achievements: [
+          "Standardized document controls and reduced operational rework.",
+          "Supported internal and external customers with focus on deadlines and quality.",
+        ],
+      },
+    ],
+    education: [{ degree: "Business Administration", school: "Example University", period: "2020 - 2024" }],
+    skills: ["Leadership", "Organization", "Communication", "Process management", "Microsoft Office", "Customer service"],
+    languages: ["Portuguese - Native", "English - Intermediate"],
+    certifications: ["Excel for Administrative Management - 2024", "Leadership Fundamentals - 2023"],
+    projects: ["Internal controls improvement project - Reorganized spreadsheets and workflows for administrative demand tracking."],
+    professionalLinks: ["LinkedIn"],
+  });
+}
+
+function executiveSampleResume() {
+  if (currentLanguage === "pt") {
+    return createBlankResume({
+      selectedTemplate: "executive",
+      personal: {
+        fullName: "Patrick Justino",
+        title: "Supervisor Administrativo",
+        email: "patrick@email.com",
+        phone: "+55 27 99999-9999",
+        city: "Serra",
+        state: "ES",
+      },
+      summary: "Profissional com experiência em liderança de equipes, organização de processos, acompanhamento de indicadores e melhoria de rotinas operacionais. Perfil orientado a resultados, comunicação clara e tomada de decisão prática em ambientes corporativos.",
+      workExperience: [
+        {
+          role: "Supervisor Administrativo",
+          company: "Empresa Exemplo",
+          location: "Serra, ES",
+          period: "Jan 2022 - Atual",
+          achievements: [
+            "Coordenei rotinas administrativas e acompanhei indicadores de produtividade.",
+            "Liderei equipe em processos internos, distribuição de demandas e controle operacional.",
+            "Implementei melhorias para reduzir retrabalho e aumentar a organização das atividades.",
+            "Apoiei a comunicação entre setores e tomada de decisões operacionais.",
+          ],
+        },
+        {
+          role: "Assistente Administrativo Senior",
+          company: "Grupo Corporativo",
+          location: "Vitoria, ES",
+          period: "2018 - 2021",
+          achievements: [
+            "Padronizei controles internos e fortaleci a rotina de acompanhamento de prazos.",
+            "Apoiei lideranças na organização de equipes, documentos e fluxos administrativos.",
+          ],
+        },
+      ],
+      education: [{ degree: "Administração de Empresas", school: "Universidade Exemplo", period: "2016 - 2020" }],
+      skills: ["Liderança de equipes", "Gestão de processos", "Indicadores de desempenho", "Comunicação corporativa", "Organização operacional", "Tomada de decisão"],
+      languages: ["Português - Nativo", "Inglês - Intermediário"],
+      certifications: ["Gestão de Pessoas - Instituição Exemplo, 2024", "Excel para Gestão Administrativa - 2023"],
+      projects: ["Revisão de processos internos - Padronização de rotinas administrativas para reduzir retrabalho e melhorar o acompanhamento de demandas."],
+      professionalLinks: ["LinkedIn", "linkedin.com/in/patrickjustino"],
+    });
+  }
+  return createBlankResume({
+    selectedTemplate: "executive",
+    personal: {
+      fullName: "Patrick Justino",
+      title: "Administrative Supervisor",
+      email: "patrick@email.com",
+      phone: "+55 27 99999-9999",
+      city: "Serra",
+      state: "ES",
+    },
+    summary: "Professional experienced in team leadership, process organization, indicator tracking and operational routine improvement. Results-oriented profile with clear communication and practical decision making in corporate environments.",
+    workExperience: [
+      {
+        role: "Administrative Supervisor",
+        company: "Example Company",
+        location: "Serra, ES",
+        period: "Jan 2022 - Present",
+        achievements: [
+          "Coordinated administrative routines and tracked productivity indicators.",
+          "Led internal processes, demand distribution and operational control.",
+          "Implemented improvements to reduce rework and increase activity organization.",
+          "Supported cross-department communication and operational decision making.",
+        ],
+      },
+      {
+        role: "Senior Administrative Assistant",
+        company: "Corporate Group",
+        location: "Vitoria, ES",
+        period: "2018 - 2021",
+        achievements: [
+          "Standardized internal controls and strengthened deadline follow-up routines.",
+          "Supported leadership with team organization, documents and administrative workflows.",
+        ],
+      },
+    ],
+    education: [{ degree: "Business Administration", school: "Example University", period: "2016 - 2020" }],
+    skills: ["Team leadership", "Process management", "Performance indicators", "Corporate communication", "Operational organization", "Decision making"],
+    languages: ["Portuguese - Native", "English - Intermediate"],
+    certifications: ["People Management - Example Institution, 2024", "Excel for Administrative Management - 2023"],
+    projects: ["Internal process review - Standardized administrative routines to reduce rework and improve demand tracking."],
+    professionalLinks: ["LinkedIn", "linkedin.com/in/patrickjustino"],
+  });
+}
+
+function minimalAtsSampleResume() {
+  if (currentLanguage === "pt") {
+    return createBlankResume({
+      selectedTemplate: "minimal",
+      personal: {
+        fullName: "Patrick Justino",
+        title: "Supervisor Administrativo",
+        email: "patrick@email.com",
+        phone: "+55 27 99999-9999",
+        city: "Serra",
+        state: "ES",
+      },
+      summary: "Supervisor Administrativo com experiência em rotinas operacionais, organização de processos, atendimento a demandas internas e acompanhamento de indicadores. Perfil prático, comunicativo e orientado a controle, produtividade e melhoria contínua.",
+      workExperience: [{
+        role: "Supervisor de Operações",
+        company: "Empresa Exemplo",
+        location: "Serra, ES",
+        period: "Jan 2023 - Atual",
+        achievements: [
+          "Coordenei rotinas operacionais e acompanhei indicadores de desempenho.",
+          "Organizei processos internos para melhorar produtividade e controle.",
+          "Apoiei equipes na resolução de problemas e atendimento a demandas diárias.",
+        ],
+      }],
+      education: [{ degree: "Administração", school: "Universidade Exemplo" }],
+      skills: ["Liderança", "Comunicação", "Organização", "Gestão de equipes", "Controle de processos", "Atendimento ao cliente"],
+      languages: ["Português - Nativo", "Inglês - Intermediário"],
+      certifications: ["Gestão de Pessoas - Instituição Exemplo, 2024"],
+      projects: ["Padronização de processos internos - Estruturou fluxos de acompanhamento para reduzir retrabalho e melhorar a comunicação entre áreas."],
+      professionalLinks: ["linkedin.com/in/patrickjustino"],
+    });
+  }
+  return createBlankResume({
+    selectedTemplate: "minimal",
+    personal: {
+      fullName: "Patrick Justino",
+      title: "Administrative Supervisor",
+      email: "patrick@email.com",
+      phone: "+55 27 99999-9999",
+      city: "Serra",
+      state: "ES",
+    },
+    summary: "Administrative Supervisor experienced in operational routines, process organization, internal support and performance tracking. Practical, communicative and focused on control, productivity and continuous improvement.",
+    workExperience: [{
+      role: "Operations Supervisor",
+      company: "Example Company",
+      location: "Serra, ES",
+      period: "Jan 2023 - Present",
+      achievements: [
+        "Coordinated operational routines and monitored performance indicators.",
+        "Organized internal processes to improve productivity and control.",
+        "Supported teams with problem solving and daily business requests.",
+      ],
+    }],
+    education: [{ degree: "Business Administration", school: "Example University" }],
+    skills: ["Leadership", "Communication", "Organization", "Team management", "Process control", "Customer service"],
+    languages: ["Portuguese - Native", "English - Intermediate"],
+    certifications: ["People Management - Example Institution, 2024"],
+    projects: ["Internal process standardization - Structured follow-up flows to reduce rework and improve communication between teams."],
+    professionalLinks: ["linkedin.com/in/patrickjustino"],
+  });
+}
+
+function studentSampleResume() {
+  if (currentLanguage === "pt") {
+    return createBlankResume({
+      selectedTemplate: "student",
+      personal: {
+        fullName: "Patrick Justino",
+        title: "Estudante de Administração | Buscando estágio",
+        email: "patrick@email.com",
+        phone: "+55 27 99999-9999",
+        city: "Serra",
+        state: "ES",
+      },
+      summary: "Estudante em busca de oportunidade para desenvolver habilidades profissionais, contribuir com organização, atendimento e aprendizado rápido em ambiente corporativo.",
+      workExperience: [{
+        role: "Auxiliar Administrativo",
+        company: "Empresa Exemplo",
+        location: "Serra, ES",
+        period: "Jan 2024 - Jun 2024",
+        achievements: [
+          "Apoiei rotinas administrativas e organização de documentos.",
+          "Realizei atendimento básico e controle de informações.",
+          "Colaborei com a equipe em tarefas operacionais.",
+        ],
+      }],
+      education: [{ degree: "Administração - 2022 a 2026", school: "Universidade Exemplo" }],
+      skills: ["Comunicação", "Organização", "Trabalho em equipe", "Pacote Office", "Atendimento ao cliente", "Aprendizado rápido"],
+      languages: ["Português - Nativo", "Inglês - Básico"],
+      certifications: ["Excel Básico ao Intermediário - Instituição Exemplo, 2024", "Atendimento ao Cliente - Curso Online, 2023"],
+      projects: ["Projeto de Pesquisa em Gestão - Universidade Exemplo - Desenvolvi análise sobre organização de processos administrativos, com foco em produtividade e comunicação interna."],
+      professionalLinks: ["LinkedIn", "Portfólio acadêmico"],
+    });
+  }
+  return createBlankResume({
+    selectedTemplate: "student",
+    personal: {
+      fullName: "Patrick Justino",
+      title: "Business Student | Seeking an internship",
+      email: "patrick@email.com",
+      phone: "+55 27 99999-9999",
+      city: "Serra",
+      state: "ES",
+    },
+    summary: "Student seeking an opportunity to develop professional skills, contribute with organization, customer service and fast learning in a corporate environment.",
+    workExperience: [{
+      role: "Administrative Assistant",
+      company: "Example Company",
+      location: "Serra, ES",
+      period: "Jan 2024 - Jun 2024",
+      achievements: [
+        "Supported administrative routines and document organization.",
+        "Handled basic service tasks and information control.",
+        "Collaborated with the team on daily operational activities.",
+      ],
+    }],
+    education: [{ degree: "Business Administration - 2022 to 2026", school: "Example University" }],
+    skills: ["Communication", "Organization", "Teamwork", "Microsoft Office", "Customer Service", "Fast learning"],
+    languages: ["Portuguese - Native", "English - Basic"],
+    certifications: ["Basic to Intermediate Excel - Example Institution, 2024", "Customer Service - Online Course, 2023"],
+    projects: ["Management Research Project - Example University - Developed an analysis of administrative processes focused on productivity and internal communication."],
+    professionalLinks: ["LinkedIn", "Academic portfolio"],
+  });
+}
+
+function firstJobSampleResume() {
+  if (currentLanguage === "pt") {
+    return createBlankResume({
+      selectedTemplate: "first-job",
+      personal: {
+        fullName: "Patrick Justino",
+        title: "Buscando primeira oportunidade como Auxiliar Administrativo",
+        email: "patrick@email.com",
+        phone: "+55 27 99999-9999",
+        city: "Serra",
+        state: "ES",
+      },
+      summary: "Busco minha primeira oportunidade profissional para desenvolver habilidades, aprender com a equipe e contribuir com responsabilidade, organização e disposição para crescer.",
+      initialProfile: "Pessoa comunicativa, organizada e com facilidade para aprender. Interesse em atuar em ambiente profissional, apoiar rotinas da equipe e desenvolver novas competências.",
+      workExperience: [{
+        role: "Atendimento informal em comércio familiar",
+        company: "Loja familiar",
+        location: "Serra, ES",
+        period: "2023 - 2024",
+        achievements: [
+          "Apoiei no atendimento a clientes e organização de produtos.",
+          "Auxiliei em tarefas simples de controle e rotina diária.",
+          "Desenvolvi responsabilidade, comunicação e pontualidade.",
+        ],
+      }],
+      education: [{ degree: "Ensino Médio Completo", school: "Escola Exemplo - Concluído em 2024" }],
+      skills: ["Comunicação", "Organização", "Pontualidade", "Trabalho em equipe", "Facilidade de aprendizagem", "Atendimento ao cliente", "Pacote Office básico", "Responsabilidade"],
+      languages: ["Português - Nativo", "Inglês - Básico"],
+      certifications: ["Informática Básica - Instituição Exemplo, 2024", "Atendimento ao Cliente - Instituição Exemplo, 2024"],
+      projects: ["Projeto escolar de empreendedorismo - Desenvolvi, com colegas, uma apresentação sobre organização financeira e atendimento ao cliente."],
+      professionalLinks: ["linkedin.com/in/patrickjustino"],
+    });
+  }
+  return createBlankResume({
+    selectedTemplate: "first-job",
+    personal: {
+      fullName: "Patrick Justino",
+      title: "Seeking a first opportunity as an Administrative Assistant",
+      email: "patrick@email.com",
+      phone: "+55 27 99999-9999",
+      city: "Serra",
+      state: "ES",
+    },
+    summary: "I am seeking my first professional opportunity to develop skills, learn from the team and contribute with responsibility, organization and willingness to grow.",
+    initialProfile: "Communicative, organized and quick to learn. Interested in joining a professional environment, supporting team routines and developing new competencies.",
+    workExperience: [{
+      role: "Informal customer service in a family business",
+      company: "Family store",
+      location: "Serra, ES",
+      period: "2023 - 2024",
+      achievements: [
+        "Supported customer service and product organization.",
+        "Helped with simple control tasks and daily routines.",
+        "Developed responsibility, communication and punctuality.",
+      ],
+    }],
+    education: [{ degree: "High School Diploma", school: "Example School - Completed in 2024" }],
+    skills: ["Communication", "Organization", "Punctuality", "Teamwork", "Fast learning", "Customer service", "Basic Microsoft Office", "Responsibility"],
+    languages: ["Portuguese - Native", "English - Basic"],
+    certifications: ["Basic Computer Skills - Example Institution, 2024", "Customer Service - Example Institution, 2024"],
+    projects: ["School entrepreneurship project - Worked with classmates on a presentation about financial organization and customer service."],
+    professionalLinks: ["linkedin.com/in/patrickjustino"],
+  });
+}
+
+function simpleAtsSampleResume() {
+  if (currentLanguage === "pt") {
+    return createBlankResume({
+      selectedTemplate: "simple-ats",
+      personal: {
+        fullName: "Patrick Justino",
+        title: "Supervisor Administrativo",
+        email: "patrick@email.com",
+        phone: "+55 27 99999-9999",
+        city: "Serra",
+        state: "ES",
+      },
+      summary: "Profissional com experiência em rotinas administrativas, organização de processos, atendimento a demandas internas e acompanhamento de indicadores. Perfil comunicativo, prático e focado em eficiência operacional.",
+      workExperience: [{
+        role: "Supervisor Administrativo",
+        company: "Empresa Exemplo",
+        location: "Serra - ES",
+        period: "Jan 2023 - Atual",
+        achievements: [
+          "Organizei rotinas administrativas e acompanhei indicadores internos.",
+          "Apoiei equipes na distribuição de demandas e controle de processos.",
+          "Realizei atendimento interno e comunicação entre áreas.",
+        ],
+      }],
+      education: [{ degree: "Administração - 2020 a 2024", school: "Universidade Exemplo" }],
+      skills: ["Liderança", "Comunicação", "Organização", "Pacote Office", "Atendimento ao cliente", "Gestão de processos"],
+      languages: ["Português - Nativo", "Inglês - Intermediário"],
+      certifications: ["Excel Intermediário - Instituição Exemplo, 2024"],
+      projects: ["Padronização de processos internos - Estruturei fluxos de acompanhamento para reduzir retrabalho e melhorar a comunicação entre áreas."],
+      professionalLinks: ["LinkedIn: linkedin.com/in/patrickjustino"],
+    });
+  }
+  return createBlankResume({
+    selectedTemplate: "simple-ats",
+    personal: {
+      fullName: "Patrick Justino",
+      title: "Administrative Supervisor",
+      email: "patrick@email.com",
+      phone: "+55 27 99999-9999",
+      city: "Serra",
+      state: "ES",
+    },
+    summary: "Professional with experience in administrative routines, process organization, internal request support and performance tracking. Communicative, practical and focused on operational efficiency.",
+    workExperience: [{
+      role: "Administrative Supervisor",
+      company: "Example Company",
+      location: "Serra - ES",
+      period: "Jan 2023 - Present",
+      achievements: [
+        "Organized administrative routines and monitored internal indicators.",
+        "Supported teams with task distribution and process control.",
+        "Handled internal service requests and communication between departments.",
+      ],
+    }],
+    education: [{ degree: "Business Administration - 2020 to 2024", school: "Example University" }],
+    skills: ["Leadership", "Communication", "Organization", "Microsoft Office", "Customer service", "Process management"],
+    languages: ["Portuguese - Native", "English - Intermediate"],
+    certifications: ["Intermediate Excel - Example Institution, 2024"],
+    projects: ["Internal process standardization - Structured follow-up flows to reduce rework and improve communication between departments."],
+    professionalLinks: ["LinkedIn: linkedin.com/in/patrickjustino"],
+  });
 }
 
 function icon(name, cls = "") {
@@ -3742,6 +4571,7 @@ function mount(html, seo = {}) {
   updateDocumentLanguage(seo);
   document.getElementById("app").innerHTML = html;
   bindInteractions();
+  window.requestAnimationFrame(() => updateResumePreviewScales(document.getElementById("app")));
   window.scrollTo({ top: 0, behavior: "auto" });
 }
 
@@ -5214,6 +6044,7 @@ function currentResumeAccessId() {
 const FEATURE_RULES = {
   unlimited_resumes: { plan: "pro" },
   premium_templates: { plan: "pro", oneTime: "premiumTemplates", productType: "premium_template", target: "templateKey" },
+  premium_template_library: { plan: "premium", oneTime: "premiumTemplates", productType: "premium_template", target: "templateKey" },
   watermark_free_pdf: { plan: "pro", oneTime: ["watermarkRemoval", "premiumPdf", "careerPack"], productType: "remove_watermark", target: "resumeId" },
   cover_letters_unlimited: { plan: "pro" },
   ai_resume_improvement: { plan: "pro", credits: true, productType: "ai_credits" },
@@ -5271,14 +6102,32 @@ function canExportWithoutBranding(resumeId = currentResumeAccessId(), access = g
 }
 
 function canUseTemplate(templateKey, access = getUserAccess()) {
-  const template = RESUME_TEMPLATES.find((item) => item.key === templateKey);
+  const template = allResumeTemplateDefinitions().find((item) => item.key === templateKey);
   if (!template || template.access === "free") return true;
-  return canUseFeature("premium_templates", { templateKey, access });
+  if (isAdminAccount()) return true;
+  if (hasOneTime("premiumTemplates", templateKey, access)) return true;
+  if (template.access === "premium") return planRank(access.plan) >= planRank("premium");
+  return planRank(access.plan) >= planRank("pro");
+}
+
+function templateAccessLabel(template = {}) {
+  const copy = t().dashboard;
+  if (template.access === "premium") return copy.premium || "Premium";
+  if (template.access === "pro") return copy.pro || "Pro";
+  return copy.free || "Free";
+}
+
+function templateAccessClass(template = {}) {
+  return template.access === "premium" ? "premium" : template.access === "free" ? "free" : "pro";
+}
+
+function templateLockFeature(template = {}) {
+  return template.access === "premium" ? "premium_template_library" : "premium_templates";
 }
 
 function availableTemplateKey(preferred = selectedTemplateKey) {
   if (canUseTemplate(preferred)) return preferred;
-  return RESUME_TEMPLATES.find((template) => template.access === "free")?.key || "minimal";
+  return allResumeTemplateDefinitions().find((template) => template.access === "free")?.key || "minimal";
 }
 
 function openProTemplateModal() {
@@ -5339,6 +6188,7 @@ function featureAccessCopy() {
     resumeLimitText: "Seu plano gratuito permite criar 1 currículo. Faça upgrade para criar mais versões.",
     watermarkText: "PDF sem marca está disponível no Pro ou como compra única.",
     templateText: "Este modelo está disponível no Pro ou como compra única.",
+    premiumTemplateText: "Este modelo Premium está disponível no Premium ou como compra única.",
     aiCreditsText: "Você precisa de créditos de IA para usar esta ação.",
     aiFeatureText: "Este recurso está disponível no Pro, Premium ou com créditos de IA.",
     atsPremiumText: "Análise ATS avançada está disponível no Premium.",
@@ -5346,6 +6196,7 @@ function featureAccessCopy() {
     featureNames: {
       unlimited_resumes: "Currículos ilimitados",
       premium_templates: "Modelo premium",
+      premium_template_library: "Modelo Premium",
       watermark_free_pdf: "PDF sem marca",
       cover_letters_unlimited: "Cartas de apresentação",
       ai_resume_improvement: "Melhorias com IA",
@@ -5378,6 +6229,7 @@ function featureAccessCopy() {
     resumeLimitText: "Your free plan allows 1 resume. Upgrade to create more versions.",
     watermarkText: "Watermark-free PDF is available with Pro or as a one-time purchase.",
     templateText: "This template is available with Pro or as a one-time purchase.",
+    premiumTemplateText: "This Premium template is available with Premium or as a one-time purchase.",
     aiCreditsText: "You need AI credits to use this action.",
     aiFeatureText: "This feature is available with Pro, Premium or AI credits.",
     atsPremiumText: "Advanced ATS analysis is available with Premium.",
@@ -5385,6 +6237,7 @@ function featureAccessCopy() {
     featureNames: {
       unlimited_resumes: "Unlimited resumes",
       premium_templates: "Premium template",
+      premium_template_library: "Premium template",
       watermark_free_pdf: "Watermark-free PDF",
       cover_letters_unlimited: "Cover letters",
       ai_resume_improvement: "AI improvements",
@@ -5428,6 +6281,7 @@ function featureModalText(featureKey) {
   if (normalized === "unlimited_resumes") return copy.resumeLimitText;
   if (normalized === "watermark_free_pdf" || normalized === "premium_pdf" || normalized === "remove_watermark") return copy.watermarkText;
   if (normalized === "premium_templates") return copy.templateText;
+  if (normalized === "premium_template_library") return copy.premiumTemplateText;
   if (normalized === "ai_credits") return copy.aiCreditsText;
   if (normalized.startsWith("ai_") || normalized === "resume_translation") return copy.aiFeatureText;
   if (normalized === "ats_advanced" || normalized === "job_tailoring") return copy.atsPremiumText;
@@ -5439,6 +6293,7 @@ function featureBenefits(featureKey) {
   const copy = currentLanguage === "pt"
     ? {
         premium_templates: ["Modelos mais sofisticados", "Visual mais profissional", "Mais opções para vagas internacionais"],
+        premium_template_library: ["Layouts Premium exclusivos", "Estrutura mais sofisticada", "Maior valor visual para candidaturas importantes"],
         watermark_free_pdf: ["PDF sem marca da Succeedora", "Arquivo mais profissional", "Opção de upgrade ou compra única"],
         premium_pdf: ["PDF sem marca da Succeedora", "Arquivo mais profissional", "Opção de upgrade ou compra única"],
         remove_watermark: ["PDF sem marca da Succeedora", "Arquivo mais profissional", "Opção de upgrade ou compra única"],
@@ -5454,6 +6309,7 @@ function featureBenefits(featureKey) {
       }
     : {
         premium_templates: ["More polished templates", "More professional presentation", "More options for global roles"],
+        premium_template_library: ["Exclusive Premium layouts", "More sophisticated structure", "Higher visual value for important applications"],
         watermark_free_pdf: ["PDF without Succeedora branding", "More professional file", "Upgrade or one-time unlock"],
         premium_pdf: ["PDF without Succeedora branding", "More professional file", "Upgrade or one-time unlock"],
         remove_watermark: ["PDF without Succeedora branding", "More professional file", "Upgrade or one-time unlock"],
@@ -5485,9 +6341,12 @@ function openFeatureLockModal(featureKey, context = {}) {
     actions.push({ label: copy.buyCredits, className: "secondary-button", onClick: () => openPixPaymentModal("ai_credits", context) });
   }
   actions.push({ label: copy.continueFree, className: "ghost-button" });
+  const modernTemplateLockText = ["modern", "executive"].includes(context.templateKey) && normalized === "premium_templates"
+    ? (currentLanguage === "pt" ? "Este modelo está disponível no plano Pro." : "This template is available with the Pro plan.")
+    : "";
   openAccessModal({
     title: copy.unlockTitle,
-    text: featureModalText(normalized),
+    text: modernTemplateLockText || featureModalText(normalized),
     featureName,
     requirement: featureRequirementLabel(normalized),
     benefits: featureBenefits(normalized),
@@ -5691,10 +6550,21 @@ function aiTaskFeature(taskType = "ai") {
     improve_professional_summary: "ai_resume_improvement",
     rewrite_experience: "ai_resume_improvement",
     suggest_skills: "ai_resume_improvement",
+    improve_project_description: "ai_resume_improvement",
     generate_cover_letter: "ai_cover_letter",
+    improve_cover_letter: "ai_cover_letter",
+    tailor_cover_letter_to_job: "ai_cover_letter",
+    formal_cover_letter: "ai_cover_letter",
+    direct_cover_letter: "ai_cover_letter",
+    confident_cover_letter: "ai_cover_letter",
     translate_resume: "resume_translation",
+    analyze_resume_ats: "ats_advanced",
     analyze_job_description: "ats_advanced",
+    ats_keyword_suggestions: "ats_advanced",
+    suggest_ats_keywords: "ats_advanced",
     tailor_resume_to_job: "job_tailoring",
+    recommend_resume_template: "ai_resume_improvement",
+    assistant_chat: "ai_resume_improvement",
   };
   return map[taskType] || "ai_resume_improvement";
 }
@@ -5705,12 +6575,20 @@ function aiCopy() {
     improveSummary: "Melhorar com IA",
     improveExperience: "Melhorar descrição com IA",
     suggestSkills: "Sugerir habilidades",
+    improveProject: "Melhorar projetos",
     generateLetter: "Gerar carta com IA",
+    improveLetter: "Melhorar carta",
+    tailorLetter: "Adaptar para vaga",
+    formalLetter: "Mais formal",
+    directLetter: "Mais direta",
+    confidentLetter: "Mais confiante",
     translateResume: "Traduzir currículo",
     tailorJob: "Adaptar para esta vaga",
     generating: "Gerando com IA...",
     analyzing: "Analisando vaga...",
     improving: "Melhorando texto...",
+    translating: "Traduzindo currÃ­culo...",
+    suggesting: "Sugerindo habilidades...",
     fallbackError: "Não foi possível gerar a resposta agora. Tente novamente em instantes.",
     noCredits: "Você não tem créditos de IA suficientes para esta ação.",
     apply: "Aplicar",
@@ -5726,12 +6604,20 @@ function aiCopy() {
     improveSummary: "Improve with AI",
     improveExperience: "Improve description with AI",
     suggestSkills: "Suggest skills",
+    improveProject: "Improve projects",
     generateLetter: "Generate letter with AI",
+    improveLetter: "Improve letter",
+    tailorLetter: "Tailor to job",
+    formalLetter: "More formal",
+    directLetter: "More direct",
+    confidentLetter: "More confident",
     translateResume: "Translate resume",
     tailorJob: "Tailor to this job",
     generating: "Generating with AI...",
     analyzing: "Analyzing job...",
     improving: "Improving text...",
+    translating: "Translating resume...",
+    suggesting: "Suggesting skills...",
     fallbackError: "Could not generate the response right now. Please try again shortly.",
     noCredits: "You do not have enough AI credits for this action.",
     apply: "Apply",
@@ -5775,7 +6661,7 @@ function loadAiUsageLog() {
   return Array.isArray(records) ? records : [];
 }
 
-function recordAiUsage(taskType, creditsUsed = aiTaskCredits(taskType)) {
+function recordAiUsage(taskType, creditsUsed = aiTaskCredits(taskType), status = "success", error = "") {
   const account = currentAccount();
   const records = loadAiUsageLog();
   records.unshift({
@@ -5784,6 +6670,8 @@ function recordAiUsage(taskType, creditsUsed = aiTaskCredits(taskType)) {
     email: normalizeEmail(account?.email || ""),
     taskType,
     creditsUsed: Number(creditsUsed || 0),
+    status,
+    error: String(error || "").slice(0, 160),
     createdAt: isoNow(),
   });
   writeJsonStorage(AI_USAGE_STORAGE_KEY, records.slice(0, 500));
@@ -5797,12 +6685,23 @@ async function requestAiGeneration(taskType, data = {}) {
   const response = await fetch("/api/ai/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ taskType, language: currentLanguage, data }),
+    body: JSON.stringify({
+      taskType,
+      language: currentLanguage,
+      data,
+      user: {
+        id: currentAccount()?.id || "",
+        email: normalizeEmail(currentAccount()?.email || ""),
+      },
+    }),
   });
   const payload = await response.json().catch(() => ({}));
-  if (!response.ok || !payload.success) throw new Error(payload.error || "ai_generation_failed");
+  if (!response.ok || !payload.success) {
+    recordAiUsage(taskType, 0, "error", payload.error || "ai_generation_failed");
+    throw new Error(payload.error || "ai_generation_failed");
+  }
   const used = consumeAiCredits(taskType);
-  recordAiUsage(taskType, used || aiTaskCredits(taskType));
+  recordAiUsage(taskType, used || aiTaskCredits(taskType), "success");
   return payload.result || {};
 }
 
@@ -6121,6 +7020,7 @@ function bindInteractions() {
         if (mode === "signin") {
           const account = findAccountByEmail(form.email.value);
           if (account) {
+            prepareCollapsedDashboardEntry();
             const remember = form.rememberUser?.checked !== false;
             setSession(account, remember);
             if (remember) rememberAuthPassword(form.password.value);
@@ -6143,6 +7043,7 @@ function bindInteractions() {
             password: form.password.value,
           });
           if (account) {
+            prepareCollapsedDashboardEntry();
             const result = await issueVerificationCode(account);
             if (!result.ok) {
               deleteAccount(account.id);
@@ -6267,6 +7168,7 @@ function bindInteractions() {
         setRoute("/");
         return;
       }
+      if (el.closest(".sidebar")) setSidebarCollapsed(true, { manual: true });
       setRoute(el.getAttribute("data-route"));
     });
   });
@@ -6426,16 +7328,7 @@ function bindInteractions() {
 
   document.querySelectorAll("[data-sidebar-collapse]").forEach((button) => {
     button.addEventListener("click", () => {
-      sidebarManuallySet = true;
-      sidebarAutoCollapsedForBuilder = false;
-      sidebarCollapsed = !sidebarCollapsed;
-      const shell = document.querySelector(".app-shell");
-      if (shell) shell.classList.toggle("sidebar-collapsed", sidebarCollapsed);
-      document.querySelectorAll("[data-sidebar-collapse]").forEach((control) => {
-        control.setAttribute("aria-label", sidebarCollapsed ? t().dashboard.expandSidebar : t().dashboard.collapseSidebar);
-        control.setAttribute("title", sidebarCollapsed ? t().dashboard.expandSidebar : t().dashboard.collapseSidebar);
-        control.setAttribute("aria-expanded", String(!sidebarCollapsed));
-      });
+      setSidebarCollapsed(!sidebarCollapsed, { manual: true });
     });
   });
 
@@ -6566,6 +7459,47 @@ function bindInteractions() {
     });
   });
 
+  document.querySelectorAll("[data-cover-letter-ai]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const taskType = button.getAttribute("data-cover-letter-ai") || "improve_cover_letter";
+      const draft = updateCoverLetterDraftFromForm();
+      const message = document.querySelector("[data-cover-letter-message]");
+      if (!draft.body && taskType !== "tailor_cover_letter_to_job") {
+        if (message) {
+          message.textContent = coverLetterLabels().validationBody;
+          message.hidden = false;
+        }
+        return;
+      }
+      if (taskType === "tailor_cover_letter_to_job" && !draft.jobDescription) {
+        if (message) {
+          message.textContent = coverLetterLabels().validationBody;
+          message.hidden = false;
+        }
+        return;
+      }
+      if (!canUseAiTask(taskType)) {
+        openFeatureLockModal("ai_cover_letter");
+        return;
+      }
+      const restore = setButtonLoading(button, taskType === "tailor_cover_letter_to_job" ? aiCopy().analyzing : aiCopy().improving);
+      try {
+        const result = await requestAiGeneration(taskType, {
+          letter: draft,
+          resume: draft.resumeId ? findResume(draft.resumeId) : selectedAiResume(),
+        });
+        draft.body = result.body || draft.body;
+        coverLetterSaveMessage = result.suggestions?.length ? result.suggestions.join(" ") : "";
+      } catch (error) {
+        if (error.message !== "insufficient_credits") coverLetterSaveMessage = aiCopy().fallbackError;
+      } finally {
+        restore();
+      }
+      coverLetterDraft = draft;
+      routes["/dashboard/cover-letters"]();
+    });
+  });
+
   document.querySelectorAll("[data-cover-letter-save]").forEach((button) => {
     button.addEventListener("click", () => {
       const labels = coverLetterLabels();
@@ -6682,24 +7616,64 @@ function bindInteractions() {
     });
   });
 
+  const templateSearch = document.querySelector("[data-template-search]");
+  const applyTemplateFilters = () => {
+    const activeFilter = document.querySelector("[data-template-filter].active")?.getAttribute("data-template-filter") || "all";
+    const query = String(templateSearch?.value || "").trim().toLowerCase();
+    document.querySelectorAll("[data-template-category]").forEach((card) => {
+      const groups = String(card.getAttribute("data-template-groups") || "").split(/\s+/);
+      const search = String(card.getAttribute("data-template-search") || "");
+      const matchesFilter = activeFilter === "all" || groups.includes(activeFilter) || card.getAttribute("data-template-access") === activeFilter;
+      const matchesSearch = !query || search.includes(query);
+      card.classList.toggle("is-hidden", !(matchesFilter && matchesSearch));
+    });
+    window.requestAnimationFrame(() => updateResumePreviewScales());
+  };
   document.querySelectorAll("[data-template-filter]").forEach((button) => {
     button.addEventListener("click", () => {
-      const filter = button.getAttribute("data-template-filter");
       document.querySelectorAll("[data-template-filter]").forEach((item) => item.classList.toggle("active", item === button));
-      document.querySelectorAll("[data-template-category]").forEach((card) => {
-        const category = card.getAttribute("data-template-category");
-        const access = card.getAttribute("data-template-access");
-        const isVisible = filter === "all" || category === filter || access === filter;
-        card.classList.toggle("is-hidden", !isVisible);
-      });
+      applyTemplateFilters();
     });
+  });
+  if (templateSearch) templateSearch.addEventListener("input", applyTemplateFilters);
+
+  const resumeSearch = document.querySelector("[data-resume-search]");
+  const resumeStatusFilter = document.querySelector("[data-resume-status-filter]");
+  const resumeTemplateFilter = document.querySelector("[data-resume-template-filter]");
+  const resumeSort = document.querySelector("[data-resume-sort]");
+  const applyResumeLibraryControls = () => {
+    const query = String(resumeSearch?.value || "").trim().toLowerCase();
+    const status = resumeStatusFilter?.value || "";
+    const template = resumeTemplateFilter?.value || "";
+    const sort = resumeSort?.value || "recent";
+    const cards = Array.from(document.querySelectorAll("[data-resume-card]"));
+    cards.forEach((card) => {
+      const matchesQuery = !query || String(card.getAttribute("data-resume-search") || "").includes(query);
+      const matchesStatus = !status || card.getAttribute("data-resume-status") === status;
+      const matchesTemplate = !template || card.getAttribute("data-resume-template") === template;
+      card.hidden = !(matchesQuery && matchesStatus && matchesTemplate);
+    });
+    const grid = document.querySelector(".resume-library");
+    if (!grid) return;
+    const sorted = cards.sort((a, b) => {
+      if (sort === "progress") return Number(b.dataset.resumeProgress || 0) - Number(a.dataset.resumeProgress || 0);
+      if (sort === "ats") return Number(b.dataset.resumeAts || 0) - Number(a.dataset.resumeAts || 0);
+      if (sort === "name") return String(a.dataset.resumeTitle || "").localeCompare(String(b.dataset.resumeTitle || ""));
+      return new Date(b.dataset.resumeUpdated || 0) - new Date(a.dataset.resumeUpdated || 0);
+    });
+    sorted.forEach((card) => grid.appendChild(card));
+    window.requestAnimationFrame(() => updateResumePreviewScales(grid));
+  };
+  [resumeSearch, resumeStatusFilter, resumeTemplateFilter, resumeSort].forEach((control) => {
+    if (!control) return;
+    control.addEventListener(control.tagName === "INPUT" ? "input" : "change", applyResumeLibraryControls);
   });
 
   document.querySelectorAll("[data-resume-template]").forEach((button) => {
     button.addEventListener("click", () => {
       const template = button.getAttribute("data-resume-template");
       if (!canUseTemplate(template)) {
-        openFeatureLockModal("premium_templates", { templateKey: template });
+        openFeatureLockModal(templateLockFeature(getTemplateByKey(template)), { templateKey: template });
         return;
       }
       selectedTemplateKey = template;
@@ -6742,7 +7716,7 @@ function bindInteractions() {
         return;
       }
       if (!canUseTemplate(templateKey)) {
-        openFeatureLockModal("premium_templates", { templateKey });
+        openFeatureLockModal(templateLockFeature(getTemplateByKey(templateKey)), { templateKey });
         return;
       }
       if (!pendingTemplateChangeDraft && !canUseFeature("unlimited_resumes") && loadResumes().length >= 1) {
@@ -6844,6 +7818,16 @@ function bindInteractions() {
     button.addEventListener("click", () => openPaymentDetailsModal(button.getAttribute("data-payment-details")));
   });
 
+  document.querySelectorAll("[data-payment-history-page]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+      paymentHistoryPage = Math.max(1, Number(button.getAttribute("data-payment-history-page")) || 1);
+      render();
+      window.requestAnimationFrame(() => window.scrollTo({ top: scrollTop, behavior: "auto" }));
+    });
+  });
+
   document.querySelectorAll("[data-plan-placeholder]").forEach((button) => {
     button.addEventListener("click", () => openPaymentComingSoonModal());
   });
@@ -6873,7 +7857,14 @@ function bindInteractions() {
         return;
       }
       const copy = aiCopy();
-      const restore = setButtonLoading(button, taskType === "rewrite_experience" ? copy.improving : copy.generating);
+      const loadingLabel = taskType === "rewrite_experience" || taskType === "improve_project_description"
+        ? copy.improving
+        : taskType === "suggest_skills"
+          ? copy.suggesting
+          : taskType === "translate_resume"
+            ? copy.translating
+            : copy.generating;
+      const restore = setButtonLoading(button, loadingLabel);
       const resume = collectBuilderResume();
       const setField = (name, value) => {
         const field = document.querySelector(`[data-resume-field="${name}"]`);
@@ -6898,11 +7889,24 @@ function bindInteractions() {
             onApply: (value) => setField("experience", value),
           });
         } else if (taskType === "suggest_skills") {
-          const skills = result.skills?.length ? result.skills : ruleBasedSkillSuggestions(resume);
+          const groupedSkills = [
+            ...(result.technicalSkills || []),
+            ...(result.softSkills || []),
+            ...(result.tools || []),
+            ...(result.atsKeywords || []),
+          ];
+          const skills = result.skills?.length ? result.skills : groupedSkills.length ? groupedSkills : ruleBasedSkillSuggestions(resume);
           openAiSuggestionModal({
             title: copy.suggestSkills,
             text: skills.join(", "),
             onApply: (value) => setField("skills", value),
+          });
+        } else if (taskType === "improve_project_description") {
+          const projectText = result.description || result.suggestions?.join("\n") || normalizeTextList(resume.projects).join("\n");
+          openAiSuggestionModal({
+            title: copy.improveProject,
+            text: projectText,
+            onApply: (value) => setField("projects", value),
           });
         } else if (taskType === "translate_resume") {
           const translated = result.resume && Object.keys(result.resume).length ? result.resume : resume;
@@ -6927,6 +7931,8 @@ function bindInteractions() {
             openAiSuggestionModal({ title: copy.suggestionTitle, text: ruleBasedExperienceBullets(resume).join("\n"), onApply: (value) => setField("experience", value) });
           } else if (taskType === "suggest_skills") {
             openAiSuggestionModal({ title: copy.suggestionTitle, text: ruleBasedSkillSuggestions(resume).join(", "), onApply: (value) => setField("skills", value) });
+          } else if (taskType === "improve_project_description") {
+            openAiSuggestionModal({ title: copy.suggestionTitle, text: normalizeTextList(resume.projects).join("\n"), onApply: (value) => setField("projects", value) });
           } else {
             showAiInlineMessage(copy.fallbackError);
           }
@@ -7047,15 +8053,27 @@ function bindInteractions() {
     return document.querySelector(".builder-preview .resume-document") || document.querySelector(".resume-document");
   }
 
+  function refreshOptionalResumeSections(root = previewRoot()) {
+    if (!root) return;
+    root.querySelectorAll("[data-optional-section]").forEach((section) => {
+      const clone = section.cloneNode(true);
+      clone.querySelector("h3")?.remove();
+      section.hidden = clone.textContent.replace(/\s+/g, " ").trim().length === 0;
+    });
+  }
+
   function syncPreviewField(field) {
     const targetName = field.getAttribute("data-preview-target");
     const root = previewRoot();
-    const target = root ? root.querySelector(`[data-preview-field="${targetName}"]`) : null;
-    if (!target) return;
+    const targets = root ? Array.from(root.querySelectorAll(`[data-preview-field="${targetName}"]`)) : [];
+    if (!targets.length) return;
     const value = field.value.trim();
-    const displayValue = value || target.getAttribute("data-preview-empty") || "";
-    if (targetName === "skills") {
+    targets.forEach((target) => {
+      const displayValue = value || target.getAttribute("data-preview-empty") || "";
+      if (targetName === "skills") {
       target.innerHTML = displayValue.split(",").map((skill) => skill.trim()).filter(Boolean).map((skill) => `<span>${escapeHtml(skill)}</span>`).join("");
+    } else if (targetName === "certifications" && (target.closest(".student-courses") || target.closest(".simple-ats-certifications") || target.closest(".executive-certifications"))) {
+      target.innerHTML = displayValue.split(/,|\n/).map((item) => item.trim()).filter(Boolean).map((item) => `<p>${escapeHtml(item)}</p>`).join("");
     } else if (["languages", "certifications"].includes(targetName)) {
       target.innerHTML = displayValue.split(/,|\n/).map((item) => item.trim()).filter(Boolean).map(escapeHtml).join("<br>");
     } else if (targetName === "projects") {
@@ -7067,7 +8085,9 @@ function bindInteractions() {
     } else {
       target.textContent = displayValue;
     }
+    });
     updatePreviewContactLine();
+    refreshOptionalResumeSections(root);
   }
 
   function updatePreviewContactLine() {
@@ -7082,7 +8102,11 @@ function bindInteractions() {
       postalCode: getSource("postalCode"),
       location: getSource("location"),
     });
-    const values = [location, getSource("email"), getSource("phone")].filter(Boolean);
+    const showLinkInContact = root?.classList?.contains("student-resume") || root?.classList?.contains("simple-ats-resume") || root?.classList?.contains("executive-resume");
+    const studentLink = showLinkInContact
+      ? normalizeTextList(document.querySelector('[data-resume-field="links"]')?.value || "")[0]
+      : "";
+    const values = [location, getSource("email"), getSource("phone"), studentLink].filter(Boolean);
     contact.textContent = values.length ? values.join(" | ") : contact.getAttribute("data-preview-empty") || "";
   }
 
@@ -7312,7 +8336,7 @@ function readPixPaymentForm(form, product) {
 }
 
 function validatePixPaymentData(data) {
-  return Boolean(data.productName && data.amount > 0 && data.payerName && data.payerEmail && validEmail(data.payerEmail));
+  return Boolean(data.productName && data.amount > 0 && data.payerName && data.payerEmail && validEmail(data.payerEmail) && data.payerTaxId);
 }
 
 function stripeMessage(message, type = "error") {
@@ -7610,8 +8634,7 @@ function openPixPaymentModal(productType, context = {}) {
         <div class="pix-form-grid">
           <label>${escapeHtml(labels.fullName)}<input name="payerName" value="${escapeHtml(initialData.fullName)}" autocomplete="name" required /></label>
           <label>${escapeHtml(labels.contactEmail)}<input name="payerEmail" type="email" value="${escapeHtml(initialData.email)}" autocomplete="email" required /></label>
-          <label>${escapeHtml(labels.taxId)} <small>${escapeHtml(labels.optional)}</small><input name="payerTaxId" inputmode="numeric" autocomplete="off" /></label>
-          <label class="pix-note-field">${escapeHtml(labels.note)} <small>${escapeHtml(labels.optional)}</small><textarea name="payerNote" rows="3"></textarea></label>
+          <label>${escapeHtml(labels.taxId)}<input name="payerTaxId" inputmode="numeric" autocomplete="off" required /></label>
         </div>
         <p class="pix-payment-warning">${escapeHtml(labels.dataHelp)}</p>
         <p class="auth-error pix-payment-message" data-pix-error hidden></p>
@@ -7795,35 +8818,26 @@ function openTemplatePreview(templateKey, context = "public") {
   if (existing) existing.remove();
   const currentResume = context === "builder" ? document.querySelector(".builder-preview .resume-document-shell") : null;
   const resumeMarkup = currentResume ? currentResume.outerHTML : sampleResumeDocument(template.key, selectedDocumentFormat);
+  const previewTitle = template.key === "first-job" && currentLanguage === "pt" ? "Primeiro Emprego" : template.name;
   const modal = document.createElement("div");
-  modal.className = "template-preview-modal";
+  modal.className = "template-preview-modal resume-only-preview-modal";
   modal.innerHTML = `
     <div class="template-preview-backdrop" data-modal-close></div>
-    <section class="template-preview-dialog" role="dialog" aria-modal="true" aria-label="${template.name}">
-      <header class="template-preview-header">
-        <div>
-          <div class="template-card-badges">
-            <span>${template.category}</span>
-            <span class="${template.access === "free" ? "free" : "pro"}">${template.access === "free" ? copy.dashboard.free : copy.dashboard.pro}</span>
-          </div>
-          <h2>${template.name}</h2>
-          <p>${template.description}</p>
-          ${documentFormatSwitch(selectedDocumentFormat, "modal")}
-        </div>
-        <button class="icon-button" type="button" data-modal-close aria-label="${copy.dashboard.close}">${icon("close")}</button>
-      </header>
+    <section class="template-preview-dialog template-preview-premium-dialog template-preview-resume-only-dialog" role="dialog" aria-modal="true" aria-label="${previewTitle}">
+      <button class="icon-button template-preview-floating-close" type="button" data-modal-close aria-label="${copy.dashboard.close}">${icon("close")}</button>
       <div class="template-preview-content">
         ${resumeMarkup}
       </div>
-      <footer class="template-preview-footer">
-        <button class="secondary-button" type="button" data-modal-close>${context === "builder" ? copy.builder.continueEditing : copy.dashboard.close}</button>
-        ${context === "builder" ? `<span class="pdf-export-status modal-pdf-status" data-pdf-status role="status" aria-live="polite"></span><button class="secondary-button" type="button" data-pdf-export>${icon("download")} ${copy.builder.download}</button><button class="primary-button" type="button" data-modal-close>${copy.builder.changeTemplate}</button>` : `<button class="primary-button" type="button" data-modal-use-template="${template.key}" data-preview-context="${context}">${copy.dashboard.useThisTemplate}</button>`}
-      </footer>
     </section>
   `;
   root.appendChild(modal);
   updateResumePreviewScales(modal);
+  window.requestAnimationFrame(() => updateResumePreviewScales(modal));
   modal.querySelectorAll("[data-modal-close]").forEach((button) => button.addEventListener("click", () => modal.remove()));
+  modal.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") modal.remove();
+  });
+  modal.querySelector(".template-preview-floating-close")?.focus();
   modal.querySelectorAll("[data-pdf-export]").forEach((button) => {
     button.addEventListener("click", () => exportResumePdf(button));
   });
@@ -7835,6 +8849,7 @@ function openTemplatePreview(templateKey, context = "public") {
       });
       document.querySelectorAll(".resume-document, .resume-document-shell, .template-paper").forEach((item) => applyDocumentFormatClass(item));
       updateResumePreviewScales();
+      window.requestAnimationFrame(() => updateResumePreviewScales(modal));
     });
   });
   modal.querySelectorAll("[data-modal-use-template]").forEach((button) => {
@@ -7846,7 +8861,7 @@ function openTemplatePreview(templateKey, context = "public") {
         return;
       }
       if (!canUseTemplate(selectedTemplateKey)) {
-        openFeatureLockModal("premium_templates", { templateKey: selectedTemplateKey });
+        openFeatureLockModal(templateLockFeature(getTemplateByKey(selectedTemplateKey)), { templateKey: selectedTemplateKey });
         return;
       }
       if (!pendingTemplateChangeDraft && !canUseFeature("unlimited_resumes") && loadResumes().length >= 1) {
@@ -8073,37 +9088,114 @@ async function exportCoverLetterPdf(letter, button) {
   }
 }
 
-function sampleResumeDocument(template = "modern", format = selectedDocumentFormat) {
+function curatedSampleResume(template = "professional") {
+  if (template === "creative") {
+    return createBlankResume({
+      selectedTemplate: template,
+      personal: {
+        fullName: "Amanda Silva",
+        title: currentLanguage === "pt" ? "Estrategista de Conteudo" : "Content Strategist",
+        email: "amanda@email.com",
+        phone: "+55 11 90000-0000",
+        location: currentLanguage === "pt" ? "Sao Paulo, Brasil" : "Sao Paulo, Brazil",
+      },
+      summary: currentLanguage === "pt"
+        ? "Profissional criativa com experiencia em conteudo, marca e campanhas digitais. Atua na criacao de narrativas, organizacao de projetos e desenvolvimento de materiais para fortalecer presenca de marca e gerar engajamento."
+        : "Creative professional experienced in content, brand and digital campaigns. Skilled at shaping narratives, organizing creative projects and developing assets that strengthen brand presence and engagement.",
+      workExperience: currentLanguage === "pt"
+        ? [
+          {
+            role: "Estrategista de Conteudo",
+            company: "Studio Aurora",
+            location: "Sao Paulo, Brasil",
+            period: "2021 - Atual",
+            achievements: [
+              "Planejou campanhas editoriais para redes sociais, blog e materiais de marca.",
+              "Organizou calendarios de conteudo e alinhou entregas com design, produto e marketing.",
+              "Criou narrativas para lancamentos, apresentacoes comerciais e acoes de relacionamento.",
+            ],
+          },
+          {
+            role: "Analista de Marketing Criativo",
+            company: "Bright Media",
+            location: "Sao Paulo, Brasil",
+            period: "2018 - 2021",
+            achievements: [
+              "Apoiou campanhas digitais com foco em comunicacao clara e identidade visual.",
+              "Produziu briefings, pecas de conteudo e relatorios para otimizacao criativa.",
+            ],
+          },
+        ]
+        : [
+          {
+            role: "Content Strategist",
+            company: "Studio Aurora",
+            location: "Sao Paulo, Brazil",
+            period: "2021 - Present",
+            achievements: [
+              "Planned editorial campaigns for social, blog and brand assets.",
+              "Managed content calendars and aligned deliverables with design, product and marketing.",
+              "Created narratives for launches, sales presentations and relationship campaigns.",
+            ],
+          },
+          {
+            role: "Creative Marketing Analyst",
+            company: "Bright Media",
+            location: "Sao Paulo, Brazil",
+            period: "2018 - 2021",
+            achievements: [
+              "Supported digital campaigns focused on clear communication and visual identity.",
+              "Produced briefs, content pieces and reports for creative optimization.",
+            ],
+          },
+        ],
+      education: [{ degree: currentLanguage === "pt" ? "Publicidade e Propaganda" : "Advertising and Communications", school: currentLanguage === "pt" ? "Universidade Exemplo" : "Example University", period: "2014 - 2018" }],
+      skills: currentLanguage === "pt"
+        ? ["Estrategia de Conteudo", "Branding", "Campanhas Digitais", "Storytelling", "Redes Sociais", "Briefing Criativo"]
+        : ["Content Strategy", "Branding", "Digital Campaigns", "Storytelling", "Social Media", "Creative Briefing"],
+      languages: currentLanguage === "pt" ? ["Portugues - Nativo", "Ingles - Avancado"] : ["Portuguese - Native", "English - Advanced"],
+      certifications: currentLanguage === "pt" ? ["Brand Strategy - 2024", "Marketing de Conteudo - 2023"] : ["Brand Strategy - 2024", "Content Marketing - 2023"],
+      projects: currentLanguage === "pt"
+        ? ["Campanha de reposicionamento de marca - Desenvolvimento de narrativa, linha editorial e pecas para canais digitais."]
+        : ["Brand repositioning campaign - Developed narrative, editorial direction and assets for digital channels."],
+      professionalLinks: ["Portfolio", "LinkedIn"],
+    });
+  }
   const sample = sampleResumeData();
-  const b = t().builder;
-  return `
-    <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
-      <div class="resume-page-scale-wrapper">
-        <div class="resume-document sample-resume-document resume-template-${template} ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
-          <header>
-            <div>
-              <h2>${sample.name}</h2>
-              <strong>${sample.role}</strong>
-            </div>
-            <p class="resume-contact-line">${sample.location} | ${sample.email} | ${sample.phone}</p>
-          </header>
-          <section><h3>${b.document.summaryTitle}</h3><p>${sample.summary}</p></section>
-          <section>
-            <h3>${b.document.experienceTitle}</h3>
-            ${sample.experiences.map(([role, company, period, bullets]) => `<div class="resume-entry"><strong>${role}, ${company}</strong><span>${period}</span></div><ul>${bullets.map((item) => `<li>${item}</li>`).join("")}</ul>`).join("")}
-          </section>
-          <section><h3>${b.document.educationTitle}</h3><p><strong>${sample.education[0]}</strong><br>${sample.education[1]} | ${sample.education[2]}</p></section>
-          <section><h3>${b.document.skillsTitle}</h3><div class="resume-skill-list">${sample.skills.map((skill) => `<span>${skill}</span>`).join("")}</div></section>
-          <section class="resume-two-column-section">
-            <div><h3>${b.labels.languages}</h3><p>${sample.languages.join("<br>")}</p></div>
-            <div><h3>${b.labels.certifications}</h3><p>${sample.certifications.join("<br>")}</p></div>
-          </section>
-          <section><h3>${b.labels.projects}</h3>${sample.projects.map(([name, text]) => `<p><strong>${name}</strong><br>${text}</p>`).join("")}</section>
-          <section><h3>${b.labels.links}</h3><div class="resume-link-list">${sample.links.map((link) => `<p>${link}</p>`).join("")}</div></section>
-        </div>
-      </div>
-    </div>
-  `;
+  return createBlankResume({
+    selectedTemplate: template,
+    personal: {
+      fullName: sample.name,
+      title: sample.role,
+      email: sample.email,
+      phone: sample.phone,
+      location: sample.location,
+    },
+    summary: sample.summary,
+    workExperience: sample.experiences.map(([role, company, period, bullets]) => ({
+      role,
+      company,
+      period,
+      location: currentLanguage === "pt" ? "Sao Paulo, Brasil" : "Sao Paulo, Brazil",
+      achievements: bullets,
+    })),
+    education: [{ degree: sample.education[0], school: sample.education[1], period: sample.education[2] }],
+    skills: sample.skills,
+    languages: sample.languages,
+    certifications: sample.certifications,
+    projects: sample.projects.map(([name, text]) => `${name} - ${text}`),
+    professionalLinks: sample.links,
+  });
+}
+
+function sampleResumeDocument(template = "modern", format = selectedDocumentFormat) {
+  if (template === "modern") return resumeDocument("modern", format, modernSampleResume());
+  if (template === "executive") return resumeDocument("executive", format, executiveSampleResume());
+  if (template === "minimal") return resumeDocument("minimal", format, minimalAtsSampleResume());
+  if (template === "student") return resumeDocument("student", format, studentSampleResume());
+  if (template === "first-job") return resumeDocument("first-job", format, firstJobSampleResume());
+  if (template === "simple-ats") return resumeDocument("simple-ats", format, simpleAtsSampleResume());
+  return resumeDocument(template, format, curatedSampleResume(template));
 }
 
 function loadHtml2Pdf() {
@@ -8507,6 +9599,7 @@ async function exportResumeDataPdf(resumeId, button, options = {}) {
     });
     wrapper = exportJob.stage;
     await savePdfExport(exportJob.stage, format, exportJob.filename);
+    upsertResume({ ...resume, exportedAt: isoNow(), updatedAt: resume.updatedAt || isoNow() });
     setPdfStatus(button, b.pdfSuccess, "success");
   } catch (error) {
     setPdfStatus(button, b.pdfError, "error");
@@ -8563,6 +9656,9 @@ function renderHome() {
   const seo = localizedSeo("home");
   const trustIcons = ["shield", "globe", "download"];
   const heroProductChips = currentLanguage === "pt" ? ["ATS", "Keywords", "Resumo", "Carta"] : ["ATS", "Keywords", "Summary", "Cover Letter"];
+  const homeTemplateKeys = ["minimal", "modern", "executive", "tech", "creative", "global"];
+  const homeTemplates = homeTemplateKeys.map(getTemplateByKey);
+  const viewAllTemplatesLabel = currentLanguage === "pt" ? "Ver todos os modelos" : "View all templates";
   mount(`
     <div class="public-shell home-shell">
       ${publicHeader()}
@@ -8665,9 +9761,10 @@ function renderHome() {
 
         <section id="templates" class="section">
           <div class="section-heading"><span class="eyebrow">${p.templatesEyebrow}</span><h2>${p.templatesTitle}</h2><p>${p.templatesSubtitle}</p></div>
-          <div class="template-grid">${resumeTemplates().map((template, index) => templateCard(template, index, false)).join("")}</div>
+          <div class="template-grid">${homeTemplates.map((template, index) => templateCard(template, index, false)).join("")}</div>
           <div class="templates-cta">
             <h3>${p.templatesCtaTitle}</h3>
+            <a class="secondary-button" href="#/templates" data-route="/templates">${viewAllTemplatesLabel}</a>
             <a class="primary-button" href="#/signup" data-route="/signup">${p.primaryCta} ${icon("arrow")}</a>
           </div>
         </section>
@@ -8703,14 +9800,16 @@ function renderHome() {
 function templateCard(template, index, compact = true) {
   const copy = t();
   const p = copy.public;
-  const accessLabel = template.access === "free" ? copy.dashboard.free : copy.dashboard.pro;
+  const accessLabel = templateAccessLabel(template);
+  const accessClass = templateAccessClass(template);
+  const searchText = `${template.name} ${template.category} ${template.description} ${template.bestForText} ${template.access}`.toLowerCase();
   return `
-    <article class="template-card resume-template-card template-${template.key}">
+    <article class="template-card resume-template-card template-${template.key}" data-template-category="${template.key}" data-template-access="${template.access}" data-template-groups="${template.filterGroups.join(" ")}" data-template-search="${escapeHtml(searchText)}">
       ${templateCardPreviewMarkup(template.key)}
       <div class="template-card-meta">
         <div class="template-card-badges">
           <span>${template.category}</span>
-          <span class="${template.access === "free" ? "free" : "pro"}">${accessLabel}</span>
+          <span class="${accessClass}">${accessLabel}</span>
         </div>
         <h3>${template.name}</h3>
         <p>${template.description}</p>
@@ -8808,7 +9907,6 @@ function purchaseCard(name, price, label, items, featured = false, cta = "", pro
       <span class="plan-kicker">${copy.pricing.oneTime}</span>
       <h3>${name}</h3>
       <div class="price"><strong>${price}</strong></div>
-      <p class="planned-payment-note">${copy.pricing.oneTimePaymentNote}</p>
       <p class="planned-payment-note stripe-note">${copy.payments.secureStripe}${stripeConfig.installmentsEnabled ? ` ${copy.payments.cardInstallmentsNote}` : ""}</p>
       <ul>${items.map((item) => `<li>${icon("check")} ${item}</li>`).join("")}</ul>
       <div class="payment-action-stack">
@@ -8823,17 +9921,19 @@ function creditCard(name, price, badge, items, featured = false, productType = "
   const copy = t();
   const pixButtonLabel = currentLanguage === "pt" ? "Pix Brasil" : "Brazil Pix";
   const stripeButton = stripeConfig.oneTimePaymentsEnabled ? `<button class="${featured ? "primary-button" : "secondary-button"} full payment-option-button stripe-option" type="button" data-stripe-checkout="${productType}">${icon("card")} <span>${escapeHtml(copy.payments.payWithCard)}</span></button>` : "";
+  const creditAmount = AI_CREDIT_PRODUCT_AMOUNTS[productType] || AI_CREDIT_PRODUCT_AMOUNTS.ai_credits || 10;
+  const creditLabel = currentLanguage === "pt" ? `${creditAmount} créditos de IA` : `${creditAmount} AI credits`;
   return `
     <article class="price-card credit-card ${featured ? "featured" : ""}">
       ${badge ? `<div class="popular">${badge}</div>` : ""}
       <span class="plan-kicker">${copy.pricing.creditsTitle}</span>
       <h3>${name}</h3>
       <div class="price"><strong>${price}</strong></div>
-      <p class="planned-payment-note">${copy.pricing.creditPaymentNote}</p>
+      <p class="credit-amount-pill">${escapeHtml(creditLabel)}</p>
       <p class="planned-payment-note stripe-note">${copy.payments.secureStripe}${stripeConfig.installmentsEnabled ? ` ${copy.payments.cardInstallmentsNote}` : ""}</p>
       <ul>${items.map((item) => `<li>${icon("sparkles")} ${item}</li>`).join("")}</ul>
       <div class="payment-action-stack">
-        <button class="${featured ? "secondary-button" : "ghost-button"} full payment-option-button pix-option" type="button" data-buy-credits data-pix-product="ai_credits">${brazilFlagIcon()} <span>${escapeHtml(pixButtonLabel)}</span></button>
+        <button class="${featured ? "secondary-button" : "ghost-button"} full payment-option-button pix-option" type="button" data-buy-credits data-pix-product="${productType}">${brazilFlagIcon()} <span>${escapeHtml(pixButtonLabel)}</span></button>
         ${stripeButton}
       </div>
     </article>
@@ -8915,6 +10015,14 @@ function pricingFaqAccordion() {
 function paymentHistorySection() {
   const labels = t().payments;
   const requests = loadPaymentRequests();
+  const pageSize = 5;
+  const pageCount = Math.max(1, Math.ceil(requests.length / pageSize));
+  paymentHistoryPage = Math.min(Math.max(1, paymentHistoryPage), pageCount);
+  const pageStart = (paymentHistoryPage - 1) * pageSize;
+  const visibleRequests = requests.slice(pageStart, pageStart + pageSize);
+  const pageLabel = currentLanguage === "pt"
+    ? `P\u00e1gina ${paymentHistoryPage} de ${pageCount}`
+    : `Page ${paymentHistoryPage} of ${pageCount}`;
   return `
     <section class="settings-card payment-history-card">
       <div class="settings-card-head">
@@ -8922,7 +10030,7 @@ function paymentHistorySection() {
       </div>
       ${requests.length ? `
         <div class="payment-history-list">
-          ${requests.map((request) => `
+          ${visibleRequests.map((request) => `
             <article class="payment-history-item">
               <div>
                 <strong>${escapeHtml(request.productName)}</strong>
@@ -8937,6 +10045,11 @@ function paymentHistorySection() {
             </article>
           `).join("")}
         </div>
+        ${pageCount > 1 ? `<div class="payment-history-pagination">
+          <button class="icon-button" type="button" data-payment-history-page="${paymentHistoryPage - 1}" ${paymentHistoryPage <= 1 ? "disabled" : ""} aria-label="${currentLanguage === "pt" ? "P\u00e1gina anterior" : "Previous page"}">${icon("arrowLeft")}</button>
+          <span>${escapeHtml(pageLabel)}</span>
+          <button class="icon-button" type="button" data-payment-history-page="${paymentHistoryPage + 1}" ${paymentHistoryPage >= pageCount ? "disabled" : ""} aria-label="${currentLanguage === "pt" ? "Pr\u00f3xima p\u00e1gina" : "Next page"}">${icon("arrow")}</button>
+        </div>` : ""}
       ` : `<p>${labels.historyEmpty}</p>`}
     </section>
   `;
@@ -8982,9 +10095,14 @@ function openPaymentDetailsModal(paymentId) {
   const labels = t().payments;
   const payment = loadPaymentRequests().find((request) => request.id === paymentId);
   if (!payment) return;
+  const canConfirmPixPayment = payment.paymentMethod !== "stripe" && payment.status === "pending_payment";
   closeAccessModal();
   const modal = document.createElement("div");
   modal.className = "template-preview-modal access-modal payment-detail-modal";
+  const closeDetailModal = () => {
+    closeAccessModal();
+    if (getRoute() === "/dashboard/billing") render();
+  };
   modal.innerHTML = `
     <div class="template-preview-backdrop" data-access-close></div>
     <section class="template-preview-dialog payment-detail-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(labels.viewDetails)}">
@@ -9003,16 +10121,60 @@ function openPaymentDetailsModal(paymentId) {
         </label>
       </div>
       <footer class="template-preview-footer access-actions">
+        ${canConfirmPixPayment ? `<button class="primary-button" type="button" data-payment-confirm>${escapeHtml(labels.completed)}</button>` : ""}
         <button class="secondary-button" type="button" data-pix-copy>${escapeHtml(labels.copyCode)}</button>
         <button class="ghost-button" type="button" data-access-close>${escapeHtml(labels.cancel)}</button>
       </footer>
     </section>
   `;
   document.body.appendChild(modal);
-  modal.querySelectorAll("[data-access-close]").forEach((item) => item.addEventListener("click", () => closeAccessModal()));
+  modal.querySelectorAll("[data-access-close]").forEach((item) => item.addEventListener("click", closeDetailModal));
   modal.querySelector("[data-pix-copy]")?.addEventListener("click", async (event) => {
     await copyTextToClipboard(payment.pixPayload || "");
     event.currentTarget.textContent = labels.codeCopied;
+  });
+  modal.querySelector("[data-payment-confirm]")?.addEventListener("click", () => {
+    upsertPaymentRequest({
+      ...payment,
+      status: "pending_manual_confirmation",
+      confirmedByUserAt: isoNow(),
+    });
+    modal.innerHTML = `
+      <div class="template-preview-backdrop" data-access-close></div>
+      <section class="template-preview-dialog payment-detail-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(labels.checkingTitle)}">
+        <header class="template-preview-header">
+          <div><span class="eyebrow">${escapeHtml(labels.historyTitle)}</span><h2>${escapeHtml(labels.checkingTitle)}</h2></div>
+          <button class="icon-button" type="button" data-access-close aria-label="${t().dashboard.close}">${icon("close")}</button>
+        </header>
+        <div class="pix-loading-state">
+          <div class="pix-spinner" aria-hidden="true"></div>
+          <h3>${escapeHtml(labels.checkingTitle)}</h3>
+          <p>${escapeHtml(labels.checkingText)}</p>
+        </div>
+      </section>
+    `;
+    modal.querySelectorAll("[data-access-close]").forEach((item) => item.addEventListener("click", closeDetailModal));
+    window.setTimeout(() => {
+      modal.innerHTML = `
+        <div class="template-preview-backdrop" data-access-close></div>
+        <section class="template-preview-dialog payment-detail-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(labels.reviewTitle)}">
+          <header class="template-preview-header">
+            <div><span class="eyebrow">${escapeHtml(labels.historyTitle)}</span><h2>${escapeHtml(labels.reviewTitle)}</h2></div>
+            <button class="icon-button" type="button" data-access-close aria-label="${t().dashboard.close}">${icon("close")}</button>
+          </header>
+          <div class="pix-review-state">
+            ${icon("check")}
+            <h3>${escapeHtml(labels.reviewTitle)}</h3>
+            <p>${escapeHtml(labels.reviewText)}</p>
+            <small>${escapeHtml(labels.reviewNote)}</small>
+          </div>
+          <footer class="template-preview-footer access-actions">
+            <button class="primary-button" type="button" data-access-close>${escapeHtml(labels.viewMyPayments)}</button>
+          </footer>
+        </section>
+      `;
+      modal.querySelectorAll("[data-access-close]").forEach((item) => item.addEventListener("click", closeDetailModal));
+    }, 1200);
   });
 }
 
@@ -9293,12 +10455,20 @@ function renderPublicTemplatesPage() {
   const copy = t();
   const p = copy.public;
   const seo = localizedSeo("templates");
+  const labels = currentLanguage === "pt"
+    ? { search: "Buscar modelos..." }
+    : { search: "Search templates..." };
+  const templates = resumeTemplates();
   mount(`
     <div class="public-shell">
       ${publicHeader()}
       <main class="section public-templates-page">
         <div class="section-heading"><span class="eyebrow">${p.templatesEyebrow}</span><h1>${p.templatesTitle}</h1><p>${p.templatesSubtitle}</p></div>
-        <div class="template-grid">${resumeTemplates().map((template, index) => templateCard(template, index, false)).join("")}</div>
+        <div class="template-catalog-tools">
+          <label class="template-search">${icon("file")}<input type="search" data-template-search placeholder="${labels.search}" /></label>
+          <div class="template-filter-row">${templateFilterOptions().map(([key, label], index) => `<button class="${index === 0 ? "active" : ""}" type="button" data-template-filter="${key}">${label}</button>`).join("")}</div>
+        </div>
+        <div class="template-grid">${templates.map((template, index) => templateCard(template, index, false)).join("")}</div>
       </main>
       <footer class="site-footer">${brandLogo("div")}<p>${copy.public.footer}</p>${legalFooterLinks()}</footer>
     </div>
@@ -9880,15 +11050,17 @@ function adminAiUsageTable(records = []) {
   return `
     <div class="admin-table-wrap">
       <table class="admin-table">
-        <thead><tr><th>${t().admin.table.email}</th><th>${copy.action}</th><th>${copy.creditsUsed}</th><th>${t().admin.table.date}</th></tr></thead>
+        <thead><tr><th>${t().admin.table.email}</th><th>${copy.action}</th><th>Status</th><th>${copy.creditsUsed}</th><th>Erro</th><th>${t().admin.table.date}</th></tr></thead>
         <tbody>${sorted.map((record) => `
-          <tr data-admin-row data-search="${escapeHtml(`${record.email} ${record.taskType}`.toLowerCase())}">
+          <tr data-admin-row data-search="${escapeHtml(`${record.email} ${record.taskType} ${record.status} ${record.error}`.toLowerCase())}">
             <td>${escapeHtml(record.email || "-")}</td>
             <td>${escapeHtml(record.taskType || "-")}</td>
+            <td>${escapeHtml(record.status || "success")}</td>
             <td>${Number(record.creditsUsed || 0)}</td>
+            <td>${escapeHtml(record.error || "-")}</td>
             <td>${escapeHtml(formatPaymentDate(record.createdAt))}</td>
           </tr>
-        `).join("") || `<tr><td colspan="4">${t().admin.details.noData}</td></tr>`}</tbody>
+        `).join("") || `<tr><td colspan="6">${t().admin.details.noData}</td></tr>`}</tbody>
       </table>
     </div>
   `;
@@ -10871,17 +12043,40 @@ function renderResumes() {
   const r = copy.dashboard.resumes;
   const lib = copy.dashboard.library;
   const labels = resumeLabels();
-  const resumes = loadResumes();
+  const resumes = loadResumes().sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
   const actions = lib.actions;
+  const templates = resumeTemplates();
   dashboardShell("resumes", `
-    <main class="dashboard-content">
-      <div class="page-actions"><p>${r.intro}</p><button class="primary-button" data-new-resume data-route="/dashboard/builder">${icon("pen")} ${lib.createNew}</button></div>
-      ${resumes.length ? `<div class="resume-library">${resumes.map((resume) => {
+    <main class="dashboard-content resume-library-page">
+      <section class="resume-library-hero">
+        <div><span class="eyebrow">${copy.dashboard.nav.resumes}</span><h1>${copy.dashboard.nav.resumes}</h1><p>${r.intro}</p></div>
+        <button class="primary-button" data-new-resume data-route="/dashboard/builder">${icon("pen")} ${lib.createNew}</button>
+      </section>
+      ${resumes.length ? `
+      <div class="resume-library-controls">
+        <label class="dashboard-search resume-library-search">${icon("file")}<input type="search" data-resume-search placeholder="${labels.searchPlaceholder}" /></label>
+        <select data-resume-status-filter aria-label="${labels.statusFilter}">
+          <option value="">${labels.allStatuses}</option>
+          ${Object.entries(labels.statuses).map(([key, label]) => `<option value="${key}">${label}</option>`).join("")}
+        </select>
+        <select data-resume-template-filter aria-label="${labels.modelFilter}">
+          <option value="">${labels.allModels}</option>
+          ${templates.map((template) => `<option value="${template.key}">${template.name}</option>`).join("")}
+        </select>
+        <select data-resume-sort aria-label="${labels.sortLabel}">
+          <option value="recent">${labels.sortRecent}</option>
+          <option value="progress">${labels.sortProgress}</option>
+          <option value="ats">${labels.sortAts}</option>
+          <option value="name">${labels.sortName}</option>
+        </select>
+      </div>
+      <div class="resume-library">${resumes.map((resume) => {
         const template = getTemplateByKey(resume.selectedTemplate);
-        return `<article class="library-card resume-library-card">
+        const statusKey = resumeStatusKey(resume);
+        return `<article class="library-card resume-library-card" data-resume-card data-resume-search="${escapeHtml(resumeSearchText(resume))}" data-resume-status="${statusKey}" data-resume-template="${escapeHtml(resume.selectedTemplate)}" data-resume-progress="${Number(resume.completion || 0)}" data-resume-ats="${Number(resume.atsScore || 0)}" data-resume-title="${escapeHtml(String(resume.title || "").toLowerCase())}" data-resume-updated="${escapeHtml(resume.updatedAt || "")}">
           <div class="resume-thumbnail">${resumeDocument(resume.selectedTemplate, resume.documentFormat, resume)}</div>
           <div class="library-meta">
-            <h3>${escapeHtml(resume.title)}</h3>
+            <div class="resume-library-title-row"><h3>${escapeHtml(resume.title)}</h3><span class="resume-status-pill status-${statusKey}">${resumeStatusLabel(resume)}</span></div>
             <p>${lib.lastEdited}: ${formatResumeDate(resume.updatedAt)}</p>
             <div class="resume-meta">
               <span>${lib.template}: ${template.name}</span>
@@ -10901,8 +12096,8 @@ function renderResumes() {
         </article>`;
       }).join("")}</div>` : `<section class="empty-resume-state premium-empty">
         <div class="feature-icon">${icon("file")}</div>
-        <div><h3>${copy.dashboard.home.emptyTitle}</h3><p>${copy.dashboard.home.emptyText}</p></div>
-        <button class="primary-button" data-new-resume data-route="/dashboard/builder">${labels.createFirst}</button>
+        <div><h3>${labels.emptyTitle}</h3><p>${labels.emptyText}</p></div>
+        <button class="primary-button" data-route="/dashboard/templates">${labels.chooseTemplate}</button>
       </section>`}
     </main>
   `);
@@ -10982,17 +12177,25 @@ function renderBuilderTemplateSelection() {
       <section class="builder-template-grid">
         ${templates.map((template) => {
           const locked = !canUseTemplate(template.key);
+          const accessClass = templateAccessClass(template);
+          const accessLabel = templateAccessLabel(template);
+          const lockFeature = templateLockFeature(template);
+          const availabilityLabel = template.access === "free"
+            ? labels.freeLabel
+            : template.access === "premium"
+              ? (currentLanguage === "pt" ? "Disponível no Premium" : "Available with Premium")
+              : labels.proLabel;
           return `
-            <article class="template-card dashboard-template-card builder-template-card template-${template.key} ${locked ? "locked-feature" : ""}" data-template-category="${template.key}" data-template-access="${template.access}">
+            <article class="template-card dashboard-template-card builder-template-card template-${template.key} ${locked ? "locked-feature" : ""}" data-template-category="${template.key}" data-template-access="${template.access}" data-template-groups="${template.filterGroups.join(" ")}">
               <div class="template-card-topline">
                 <span class="template-badge">${template.category}</span>
-                <span class="template-badge ${template.access === "free" ? "free" : "pro"}">${template.access === "free" ? copy.dashboard.free : copy.dashboard.pro}</span>
-                ${locked ? lockedBadge("premium_templates") : ""}
+                <span class="template-badge ${accessClass}">${accessLabel}</span>
+                ${locked ? lockedBadge(lockFeature) : ""}
               </div>
               ${templateCardPreviewMarkup(template.key)}
               <div class="builder-template-meta">
                 <h3>${template.name}</h3>
-                <p>${template.access === "free" ? labels.freeLabel : labels.proLabel}</p>
+                <p>${availabilityLabel}</p>
               </div>
               <div class="template-actions">
                 <button class="ghost-button small" type="button" data-template-preview="${template.key}" data-preview-context="dashboard">${copy.dashboard.previewTemplate}</button>
@@ -11007,23 +12210,11 @@ function renderBuilderTemplateSelection() {
 }
 
 function templateSelectorButton(template) {
-  const isPro = template.access === "pro";
-  const locked = isPro && !canUseTemplate(template.key);
-  return `
-    <button class="template-choice ${template.key === selectedTemplateKey ? "active" : ""} ${locked ? "locked" : ""}" type="button" data-resume-template="${template.key}">
-      ${templatePreviewMarkup(template.key, selectedDocumentFormat)}
-      <span>${template.name}${locked ? ` · ${t().dashboard.pro}` : ""}</span>
-    </button>
-  `;
-}
-
-function templateSelectorButton(template) {
-  const isPro = template.access === "pro";
-  const locked = isPro && !canUseTemplate(template.key);
+  const locked = !canUseTemplate(template.key);
   return `
     <button class="template-choice ${template.key === selectedTemplateKey ? "active" : ""} ${locked ? "locked" : ""}" type="button" data-resume-template="${template.key}" aria-pressed="${template.key === selectedTemplateKey}">
       <span>${template.name}</span>
-      ${locked ? `<em>${icon("lock")} ${featureAccessCopy().pro}</em>` : isPro ? `<em>${t().dashboard.pro}</em>` : ""}
+      ${locked ? `<em>${icon("lock")} ${templateAccessLabel(template)}</em>` : template.access !== "free" ? `<em>${templateAccessLabel(template)}</em>` : ""}
     </button>
   `;
 }
@@ -11142,6 +12333,8 @@ function builderSectionPanel(title, index) {
       ? aiButtonMarkup("rewrite_experience", ai.improveExperience)
       : index === 4
         ? aiButtonMarkup("suggest_skills", ai.suggestSkills)
+        : index === 7
+          ? aiButtonMarkup("improve_project_description", ai.improveProject)
         : index === 9
           ? `<div class="ai-action-row">${aiButtonMarkup("translate_resume", ai.translateResume, "globe")}</div>`
           : "";
@@ -11157,7 +12350,7 @@ function builderSectionPanel(title, index) {
   } else if (index === 1) {
     content = `<label>${b.labels.summary}<textarea data-resume-field="summary" data-preview-target="summary" placeholder="${b.placeholders.summary}">${value(resume.summary)}</textarea></label>`;
   } else if (index === 2) {
-    content = `<div class="two-col"><label>${b.labels.company}<input data-resume-field="experienceCompany" data-preview-target="experienceCompany" value="${value(experience.company)}" placeholder="Company name" /></label><label>${b.labels.role}<input data-resume-field="experienceRole" data-preview-target="experienceRole" value="${value(experience.role)}" placeholder="Role title" /></label><label>${b.labels.period}<input data-resume-field="experiencePeriod" data-preview-target="experiencePeriod" value="${value(experience.period)}" placeholder="2021 - Present" /></label><label>${b.labels.location}<input data-resume-field="experienceLocation" value="${value(experience.location)}" placeholder="${b.labels.location}" /></label></div><label>${b.labels.achievements}<textarea data-resume-field="experience" data-preview-target="experience" placeholder="${b.placeholders.achievements}">${listValue(experience.achievements)}</textarea></label>`;
+    content = `<div class="two-col"><label>${b.labels.company}<input data-resume-field="experienceCompany" data-preview-target="experienceCompany" value="${value(experience.company)}" placeholder="Company name" /></label><label>${b.labels.role}<input data-resume-field="experienceRole" data-preview-target="experienceRole" value="${value(experience.role)}" placeholder="Role title" /></label><label>${b.labels.period}<input data-resume-field="experiencePeriod" data-preview-target="experiencePeriod" value="${value(experience.period)}" placeholder="2021 - Present" /></label><label>${b.labels.location}<input data-resume-field="experienceLocation" data-preview-target="experienceLocation" value="${value(experience.location)}" placeholder="${b.labels.location}" /></label></div><label>${b.labels.achievements}<textarea data-resume-field="experience" data-preview-target="experience" placeholder="${b.placeholders.achievements}">${listValue(experience.achievements)}</textarea></label>`;
     actions = `<div class="section-actions"><button class="secondary-button small">${icon("pen")} ${b.addExperience}</button><button class="ghost-button small">${b.remove}</button></div>`;
   } else if (index === 3) {
     content = `<div class="two-col"><label>${b.labels.school}<input data-resume-field="educationSchool" data-preview-target="educationSchool" value="${value(education.school)}" /></label><label>${b.labels.degree}<input data-resume-field="educationDegree" data-preview-target="educationDegree" value="${value(education.degree)}" /></label></div>`;
@@ -11216,6 +12409,598 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
   const displayName = personal.fullName || [personal.firstName, personal.lastName].filter(Boolean).join(" ");
   const displayLocation = resumeContactLocation(personal);
   const contact = [displayLocation, personal.email, personal.phone].filter(Boolean).join(" | ") || b.document.header;
+  if (template === "modern") {
+    const hasText = (item) => String(item || "").trim().length > 0;
+    const hasList = (items) => normalizeTextList(items).length > 0;
+    const labels = currentLanguage === "pt"
+      ? {
+        summary: "Resumo profissional",
+        experience: "Experiência profissional",
+        projects: "Projetos",
+        skills: "Habilidades",
+        education: "Formação",
+        languages: "Idiomas",
+        certifications: "Certificações",
+        links: "Links",
+      }
+      : {
+        summary: "Professional Summary",
+        experience: "Work Experience",
+        projects: "Projects",
+        skills: "Skills",
+        education: "Education",
+        languages: "Languages",
+        certifications: "Certifications",
+        links: "Links",
+      };
+    const optional = (className, title, body, hasContent) => `
+      <section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}>
+        <h3>${title}</h3>
+        ${body}
+      </section>
+    `;
+    const contactItems = [displayLocation, personal.email, personal.phone, normalizeTextList(data.professionalLinks)[0]].filter(Boolean);
+    const experiences = (data.workExperience || []).filter((item) => hasText(item.role) || hasText(item.company) || hasText(item.location) || hasText(item.period) || hasList(item.achievements));
+    const primaryExperience = experiences[0] || experience;
+    const experienceBody = (experiences.length ? experiences : [primaryExperience]).map((item, index) => `
+      <div class="modern-experience-item">
+        <div class="modern-entry-title">
+          <strong ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>
+          <span ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</span>
+        </div>
+        <p class="modern-entry-meta">
+          <span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>${hasText(item.company) && hasText(item.location) ? " - " : ""}<span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span>
+        </p>
+        <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
+      </div>
+    `).join("");
+    const educationItems = (data.education || []).filter((item) => hasText(item.degree) || hasText(item.school));
+    const educationBody = (educationItems.length ? educationItems : [education]).map((item, index) => `
+      <p class="modern-compact-item">
+        <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
+        <span ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</span>
+        ${hasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
+      </p>
+    `).join("");
+    const modernParagraphs = (items, fieldName) => `<div class="modern-text-list" data-preview-field="${fieldName}" data-preview-empty="">${normalizeTextList(items).map((item) => `<p>${escapeHtml(item)}</p>`).join("")}</div>`;
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-modern modern-resume ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="modern-header">
+              <div class="modern-identity">
+                <span class="modern-accent" aria-hidden="true"></span>
+                <h2 data-preview-field="name" data-preview-empty="Patrick Justino">${display(displayName, "Patrick Justino")}</h2>
+                <strong data-preview-field="title" data-preview-empty="${currentLanguage === "pt" ? "Supervisor Administrativo" : "Administrative Supervisor"}">${display(personal.title, currentLanguage === "pt" ? "Supervisor Administrativo" : "Administrative Supervisor")}</strong>
+              </div>
+              <p class="resume-contact-line modern-contact-line" data-preview-field="contact" data-preview-empty="${b.document.header}">${contactItems.length ? contactItems.map((item) => `<span>${escapeHtml(item)}</span>`).join("") : display(contact, b.document.header)}</p>
+            </header>
+            <div class="modern-main-column">
+              ${optional("modern-summary modern-primary-section", labels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, hasText(data.summary))}
+              ${optional("modern-experience modern-primary-section", labels.experience, experienceBody, experiences.length > 0)}
+              ${optional("modern-projects modern-primary-section", labels.projects, modernParagraphs(data.projects, "projects"), hasList(data.projects))}
+            </div>
+            <div class="modern-sidebar">
+              ${optional("modern-skills modern-sidebar-section", labels.skills, `<div class="resume-skill-list modern-skill-list" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, hasList(data.skills))}
+              ${optional("modern-education modern-sidebar-section", labels.education, educationBody, educationItems.length > 0)}
+              ${optional("modern-languages modern-sidebar-section", labels.languages, `<p data-preview-field="languages" data-preview-empty="">${brList(data.languages, "")}</p>`, hasList(data.languages))}
+              ${optional("modern-certifications modern-sidebar-section", labels.certifications, modernParagraphs(data.certifications, "certifications"), hasList(data.certifications))}
+              ${optional("modern-links modern-sidebar-section", labels.links, `<div class="resume-link-list modern-link-list" data-preview-field="links" data-preview-empty="">${paragraphList(data.professionalLinks, "")}</div>`, hasList(data.professionalLinks))}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (template === "executive") {
+    const hasText = (item) => String(item || "").trim().length > 0;
+    const hasList = (items) => normalizeTextList(items).length > 0;
+    const labels = currentLanguage === "pt"
+      ? {
+        summary: "Resumo executivo",
+        strengths: "Principais competências",
+        experience: "Experiência profissional",
+        education: "Formação",
+        certifications: "Certificações",
+        skills: "Habilidades estratégicas",
+        languages: "Idiomas",
+        links: "Links",
+        results: "Resultados e projetos",
+      }
+      : {
+        summary: "Executive Summary",
+        strengths: "Core Strengths",
+        experience: "Professional Experience",
+        education: "Education",
+        certifications: "Certifications",
+        skills: "Strategic Skills",
+        languages: "Languages",
+        links: "Links",
+        results: "Results and Projects",
+      };
+    const optional = (className, title, body, hasContent) => `
+      <section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}>
+        <h3>${title}</h3>
+        ${body}
+      </section>
+    `;
+    const contactItems = [displayLocation, personal.email, personal.phone, normalizeTextList(data.professionalLinks)[0]].filter(Boolean);
+    const experiences = (data.workExperience || []).filter((item) => hasText(item.role) || hasText(item.company) || hasText(item.location) || hasText(item.period) || hasList(item.achievements));
+    const primaryExperience = experiences[0] || experience;
+    const experienceBody = (experiences.length ? experiences : [primaryExperience]).map((item, index) => `
+      <div class="executive-experience-item">
+        <div class="executive-entry-head">
+          <strong ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>
+          <span ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</span>
+        </div>
+        <p class="executive-entry-meta">
+          <span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>${hasText(item.company) && hasText(item.location) ? " — " : ""}<span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span>
+        </p>
+        <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
+      </div>
+    `).join("");
+    const educationItems = (data.education || []).filter((item) => hasText(item.degree) || hasText(item.school) || hasText(item.period));
+    const educationBody = (educationItems.length ? educationItems : [education]).map((item, index) => `
+      <p class="executive-compact-item">
+        <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
+        <span ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</span>
+        ${hasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
+      </p>
+    `).join("");
+    const executiveParagraphs = (items, fieldName) => `<div class="executive-text-list" data-preview-field="${fieldName}" data-preview-empty="">${normalizeTextList(items).map((item) => `<p>${escapeHtml(item)}</p>`).join("")}</div>`;
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-executive executive-resume ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="executive-header">
+              <div class="executive-identity">
+                <h2 data-preview-field="name" data-preview-empty="Patrick Justino">${display(displayName, "Patrick Justino")}</h2>
+                <strong data-preview-field="title" data-preview-empty="${currentLanguage === "pt" ? "Supervisor Administrativo" : "Administrative Supervisor"}">${display(personal.title, currentLanguage === "pt" ? "Supervisor Administrativo" : "Administrative Supervisor")}</strong>
+              </div>
+              <p class="resume-contact-line executive-contact-line" data-preview-field="contact" data-preview-empty="${b.document.header}">${contactItems.length ? contactItems.map((item) => `<span>${escapeHtml(item)}</span>`).join("") : display(contact, b.document.header)}</p>
+            </header>
+            ${optional("executive-summary", labels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, hasText(data.summary))}
+            <div class="executive-main-column">
+              ${optional("executive-strengths executive-main-section", labels.strengths, `<div class="resume-skill-list executive-strength-list" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, hasList(data.skills))}
+              ${optional("executive-experience executive-main-section", labels.experience, experienceBody, experiences.length > 0)}
+              ${optional("executive-results executive-main-section", labels.results, executiveParagraphs(data.projects, "projects"), hasList(data.projects))}
+            </div>
+            <div class="executive-sidebar">
+              ${optional("executive-education executive-side-section", labels.education, educationBody, educationItems.length > 0)}
+              ${optional("executive-certifications executive-side-section", labels.certifications, executiveParagraphs(data.certifications, "certifications"), hasList(data.certifications))}
+              ${optional("executive-languages executive-side-section", labels.languages, `<p data-preview-field="languages" data-preview-empty="">${brList(data.languages, "")}</p>`, hasList(data.languages))}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (template === "student") {
+    const hasText = (item) => String(item || "").trim().length > 0;
+    const hasList = (items) => normalizeTextList(items).length > 0;
+    const studentLabels = currentLanguage === "pt"
+      ? {
+        objective: "Objetivo profissional",
+        education: "Formação acadêmica",
+        skills: "Habilidades",
+        projects: "Projetos acadêmicos",
+        courses: "Cursos e certificações",
+        experience: "Experiência e atividades",
+        languages: "Idiomas",
+        links: "Links",
+      }
+      : {
+        objective: "Professional Objective",
+        education: "Education",
+        skills: "Skills",
+        projects: "Academic Projects",
+        courses: "Courses and Certifications",
+        experience: "Experience and Activities",
+        languages: "Languages",
+        links: "Links",
+      };
+    const contactItems = [displayLocation, personal.email, personal.phone, normalizeTextList(data.professionalLinks)[0]].filter(Boolean);
+    const studentContact = contactItems.join(" | ") || b.document.header;
+    const optional = (className, title, body, hasContent) => `
+      <section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}>
+        <h3>${title}</h3>
+        ${body}
+      </section>
+    `;
+    const educationItems = (data.education || []).filter((item) => hasText(item.degree) || hasText(item.school));
+    const hasEducation = educationItems.length > 0;
+    const educationBody = (hasEducation ? educationItems : [education]).map((item, index) => `
+      <div class="student-education-item">
+        <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
+        <span ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</span>
+      </div>
+    `).join("");
+    const experiences = (data.workExperience || []).filter((item) => hasText(item.role) || hasText(item.company) || hasText(item.location) || hasText(item.period) || hasList(item.achievements));
+    const primaryExperience = experiences[0] || experience;
+    const hasExperience = experiences.length > 0;
+    const experienceBody = (hasExperience ? experiences : [primaryExperience]).map((item, index) => `
+      <div class="student-experience-item">
+        <div class="student-entry-head">
+          <strong ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>
+          <span ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</span>
+        </div>
+        <p class="student-entry-meta">
+          <span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>
+          <span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span>
+        </p>
+        <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
+      </div>
+    `).join("");
+    const studentParagraphs = (items, fieldName) => `<div class="student-text-list" data-preview-field="${fieldName}" data-preview-empty="">${normalizeTextList(items).map((item) => `<p>${escapeHtml(item)}</p>`).join("")}</div>`;
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-student student-resume ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="student-header">
+              <div>
+                <h2 data-preview-field="name" data-preview-empty="Patrick Justino">${display(displayName, "Patrick Justino")}</h2>
+                <strong data-preview-field="title" data-preview-empty="${currentLanguage === "pt" ? "Estudante de Administração | Buscando estágio" : "Business Student | Seeking an internship"}">${display(personal.title, currentLanguage === "pt" ? "Estudante de Administração | Buscando estágio" : "Business Student | Seeking an internship")}</strong>
+              </div>
+              <p class="resume-contact-line student-contact-line" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(studentContact, b.document.header)}</p>
+            </header>
+            ${optional("student-objective", studentLabels.objective, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, hasText(data.summary))}
+            ${optional("student-education", studentLabels.education, educationBody, hasEducation)}
+            ${optional("student-skills", studentLabels.skills, `<div class="resume-skill-list student-skill-list" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, hasList(data.skills))}
+            ${optional("student-projects", studentLabels.projects, studentParagraphs(data.projects, "projects"), hasList(data.projects))}
+            ${optional("student-courses", studentLabels.courses, studentParagraphs(data.certifications, "certifications"), hasList(data.certifications))}
+            ${optional("student-experience", studentLabels.experience, experienceBody, hasExperience)}
+            ${optional("student-languages", studentLabels.languages, `<p data-preview-field="languages" data-preview-empty="">${brList(data.languages, "")}</p>`, hasList(data.languages))}
+            ${optional("student-links", studentLabels.links, `<div class="resume-link-list" data-preview-field="links" data-preview-empty="">${paragraphList(data.professionalLinks, "")}</div>`, hasList(data.professionalLinks))}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (template === "first-job") {
+    const hasText = (item) => String(item || "").trim().length > 0;
+    const hasList = (items) => normalizeTextList(items).length > 0;
+    const firstJobLabels = currentLanguage === "pt"
+      ? {
+        objective: "Objetivo profissional",
+        profile: "Perfil",
+        skills: "Habilidades principais",
+        education: "Formação",
+        courses: "Cursos e certificações",
+        activities: "Experiência e atividades",
+        projects: "Projetos",
+        languages: "Idiomas",
+        links: "Links",
+      }
+      : {
+        objective: "Career Objective",
+        profile: "Profile",
+        skills: "Key Skills",
+        education: "Education",
+        courses: "Courses and Certifications",
+        activities: "Experience and Activities",
+        projects: "Projects",
+        languages: "Languages",
+        links: "Links",
+      };
+    const contactItems = [displayLocation, personal.email, personal.phone].filter(Boolean);
+    const firstJobContact = contactItems.join(" | ") || b.document.header;
+    const profileText = data.initialProfile || data.profileSummary || data.profile || data.personal?.profile || "";
+    const optional = (className, title, body, hasContent) => `
+      <section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}>
+        <h3>${title}</h3>
+        ${body}
+      </section>
+    `;
+    const educationItems = (data.education || []).filter((item) => hasText(item.degree) || hasText(item.school));
+    const educationBody = (educationItems.length ? educationItems : [education]).map((item, index) => `
+      <div class="first-job-education-item">
+        <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
+        <span ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</span>
+      </div>
+    `).join("");
+    const experiences = (data.workExperience || []).filter((item) => hasText(item.role) || hasText(item.company) || hasText(item.location) || hasText(item.period) || hasList(item.achievements));
+    const firstJobExperienceBody = experiences.map((item, index) => `
+      <div class="first-job-activity-item">
+        <div class="first-job-entry-head">
+          <strong ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>
+          <span ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</span>
+        </div>
+        <p class="first-job-entry-meta">
+          <span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>
+          <span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span>
+        </p>
+        <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
+      </div>
+    `).join("");
+    const firstJobParagraphs = (items, fieldName) => `<div class="first-job-text-list" data-preview-field="${fieldName}" data-preview-empty="">${normalizeTextList(items).map((item) => `<p>${escapeHtml(item)}</p>`).join("")}</div>`;
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-first-job first-job-resume ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="first-job-header">
+              <h2 data-preview-field="name" data-preview-empty="Patrick Justino">${display(displayName, "Patrick Justino")}</h2>
+              <strong data-preview-field="title" data-preview-empty="${currentLanguage === "pt" ? "Buscando primeira oportunidade como Auxiliar Administrativo" : "Seeking a first opportunity as an Administrative Assistant"}">${display(personal.title, currentLanguage === "pt" ? "Buscando primeira oportunidade como Auxiliar Administrativo" : "Seeking a first opportunity as an Administrative Assistant")}</strong>
+              <p class="resume-contact-line first-job-contact-line" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(firstJobContact, b.document.header)}</p>
+            </header>
+            ${optional("first-job-objective", firstJobLabels.objective, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, hasText(data.summary))}
+            ${optional("first-job-profile", firstJobLabels.profile, `<p>${display(profileText, "")}</p>`, hasText(profileText))}
+            ${optional("first-job-skills", firstJobLabels.skills, `<div class="resume-skill-list first-job-skill-list" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, hasList(data.skills))}
+            ${optional("first-job-education", firstJobLabels.education, educationBody, educationItems.length > 0)}
+            ${optional("first-job-courses", firstJobLabels.courses, firstJobParagraphs(data.certifications, "certifications"), hasList(data.certifications))}
+            ${optional("first-job-activities", firstJobLabels.activities, firstJobExperienceBody, experiences.length > 0)}
+            ${optional("first-job-projects", firstJobLabels.projects, firstJobParagraphs(data.projects, "projects"), hasList(data.projects))}
+            ${optional("first-job-languages", firstJobLabels.languages, `<p data-preview-field="languages" data-preview-empty="">${brList(data.languages, "")}</p>`, hasList(data.languages))}
+            ${optional("first-job-links", firstJobLabels.links, `<div class="resume-link-list first-job-link-list" data-preview-field="links" data-preview-empty="">${paragraphList(data.professionalLinks, "")}</div>`, hasList(data.professionalLinks))}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (template === "simple-ats") {
+    const hasText = (item) => String(item || "").trim().length > 0;
+    const hasList = (items) => normalizeTextList(items).length > 0;
+    const simpleLabels = currentLanguage === "pt"
+      ? {
+        summary: "Resumo profissional",
+        experience: "Experiência profissional",
+        education: "Formação",
+        skills: "Habilidades",
+        certifications: "Certificações",
+        languages: "Idiomas",
+        projects: "Projetos",
+        links: "Links",
+      }
+      : {
+        summary: "Professional Summary",
+        experience: "Work Experience",
+        education: "Education",
+        skills: "Skills",
+        certifications: "Certifications",
+        languages: "Languages",
+        projects: "Projects",
+        links: "Links",
+      };
+    const contactItems = [displayLocation, personal.email, personal.phone, normalizeTextList(data.professionalLinks)[0]].filter(Boolean);
+    const simpleContact = contactItems.join(" | ") || b.document.header;
+    const optional = (className, title, body, hasContent) => `
+      <section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}>
+        <h3>${title}</h3>
+        ${body}
+      </section>
+    `;
+    const experiences = (data.workExperience || []).filter((item) => hasText(item.role) || hasText(item.company) || hasText(item.location) || hasText(item.period) || hasList(item.achievements));
+    const primaryExperience = experiences[0] || experience;
+    const experienceBody = (experiences.length ? experiences : [primaryExperience]).map((item, index) => `
+      <div class="simple-ats-experience-item">
+        <strong ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>
+        <p class="simple-ats-company-line">
+          <span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>${hasText(item.company) && hasText(item.location) ? ", " : ""}<span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span>
+        </p>
+        <p class="simple-ats-period" ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</p>
+        <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
+      </div>
+    `).join("");
+    const educationItems = (data.education || []).filter((item) => hasText(item.degree) || hasText(item.school));
+    const educationBody = (educationItems.length ? educationItems : [education]).map((item, index) => `
+      <p class="simple-ats-education-item">
+        <strong data-preview-field="${index === 0 ? "educationDegree" : ""}" data-preview-empty="">${display(item.degree, "")}</strong>
+        <span data-preview-field="${index === 0 ? "educationSchool" : ""}" data-preview-empty="">${display(item.school, "")}</span>
+      </p>
+    `).join("");
+    const simpleParagraphs = (items, fieldName) => `<div class="simple-ats-text-list" data-preview-field="${fieldName}" data-preview-empty="">${normalizeTextList(items).map((item) => `<p>${escapeHtml(item)}</p>`).join("")}</div>`;
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-simple-ats simple-ats-resume ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="simple-ats-header">
+              <h2 data-preview-field="name" data-preview-empty="Patrick Justino">${display(displayName, "Patrick Justino")}</h2>
+              <strong data-preview-field="title" data-preview-empty="${currentLanguage === "pt" ? "Supervisor Administrativo" : "Administrative Supervisor"}">${display(personal.title, currentLanguage === "pt" ? "Supervisor Administrativo" : "Administrative Supervisor")}</strong>
+              <p class="resume-contact-line simple-ats-contact-line" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(simpleContact, b.document.header)}</p>
+            </header>
+            ${optional("simple-ats-summary", simpleLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, hasText(data.summary))}
+            ${optional("simple-ats-experience", simpleLabels.experience, experienceBody, experiences.length > 0)}
+            ${optional("simple-ats-education", simpleLabels.education, educationBody, educationItems.length > 0)}
+            ${optional("simple-ats-skills", simpleLabels.skills, `<div class="resume-skill-list simple-ats-skill-text" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, hasList(data.skills))}
+            ${optional("simple-ats-certifications", simpleLabels.certifications, simpleParagraphs(data.certifications, "certifications"), hasList(data.certifications))}
+            ${optional("simple-ats-languages", simpleLabels.languages, `<p data-preview-field="languages" data-preview-empty="">${brList(data.languages, "")}</p>`, hasList(data.languages))}
+            ${optional("simple-ats-projects", simpleLabels.projects, simpleParagraphs(data.projects, "projects"), hasList(data.projects))}
+            ${optional("simple-ats-links", simpleLabels.links, `<div class="resume-link-list" data-preview-field="links" data-preview-empty="">${paragraphList(data.professionalLinks, "")}</div>`, hasList(data.professionalLinks))}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (template === "minimal") {
+    const hasText = (item) => String(item || "").trim().length > 0;
+    const hasList = (items) => normalizeTextList(items).length > 0;
+    const optional = (className, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3>${title}</h3>${body}</section>`;
+    const simpleLines = (items) => normalizeTextList(items).map(escapeHtml).join("<br>");
+    const textParagraphs = (items) => normalizeTextList(items).map((item) => `<p>${escapeHtml(item)}</p>`).join("");
+    const experiences = (data.workExperience || []).filter((item) => hasText(item.role) || hasText(item.company) || hasText(item.location) || hasText(item.period) || hasList(item.achievements));
+    const primaryExperience = experiences[0] || experience;
+    const hasExperience = experiences.length > 0;
+    const experienceEntries = (hasExperience ? experiences : [primaryExperience]).map((item, index) => `
+      <div class="minimal-ats-experience">
+        <div class="minimal-ats-entry-head">
+          <strong ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>
+          <span ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</span>
+        </div>
+        <p class="minimal-ats-company-line">
+          <span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>
+          <span class="minimal-ats-location" ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span>
+        </p>
+        <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
+      </div>
+    `).join("");
+    const hasEducation = hasText(education.degree) || hasText(education.school);
+    const hasSkills = hasList(data.skills);
+    const hasLanguages = hasList(data.languages);
+    const hasCertifications = hasList(data.certifications);
+    const hasProjects = hasList(data.projects);
+    const hasLinks = hasList(data.professionalLinks);
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-${template} ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header>
+              <div>
+                <h2 data-preview-field="name" data-preview-empty="Amanda Silva">${display(displayName, "Amanda Silva")}</h2>
+                <strong data-preview-field="title" data-preview-empty="${b.values.professionalTitle}">${display(personal.title, b.values.professionalTitle)}</strong>
+              </div>
+              <p class="resume-contact-line" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(contact, b.document.header)}</p>
+            </header>
+            ${optional("minimal-ats-summary", b.document.summaryTitle, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, hasText(data.summary))}
+            ${optional("minimal-ats-experience-section", b.document.experienceTitle, experienceEntries, hasExperience)}
+            ${optional("minimal-ats-education", b.document.educationTitle, `<p><strong data-preview-field="educationDegree" data-preview-empty="">${display(education.degree, "")}</strong><br><span data-preview-field="educationSchool" data-preview-empty="">${display(education.school, "")}</span></p>`, hasEducation)}
+            ${optional("minimal-ats-skills", b.document.skillsTitle, `<div class="resume-skill-list" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, hasSkills)}
+            ${optional("minimal-ats-languages", b.labels.languages, `<p data-preview-field="languages" data-preview-empty="">${simpleLines(data.languages)}</p>`, hasLanguages)}
+            ${optional("minimal-ats-certifications", b.labels.certifications, `<p data-preview-field="certifications" data-preview-empty="">${simpleLines(data.certifications)}</p>`, hasCertifications)}
+            ${optional("minimal-ats-projects", b.labels.projects, `<div data-preview-field="projects" data-preview-empty="">${textParagraphs(data.projects)}</div>`, hasProjects)}
+            ${optional("minimal-ats-links", b.labels.links, `<div class="resume-link-list" data-preview-field="links" data-preview-empty="">${textParagraphs(data.professionalLinks)}</div>`, hasLinks)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  const templateProfile = {
+    creative: { layout: "portfolio-left", tone: "creative", accent: "visual" },
+    marketing: { layout: "portfolio-left", tone: "marketing", accent: "campaigns" },
+    designer: { layout: "portfolio-left", tone: "designer", accent: "portfolio" },
+    tech: { layout: "tech-left", tone: "tech", accent: "stack" },
+    developer: { layout: "tech-left", tone: "developer", accent: "code" },
+    startup: { layout: "tech-left", tone: "startup", accent: "impact" },
+    international: { layout: "global-right", tone: "international", accent: "global" },
+    "remote-work": { layout: "global-right", tone: "remote", accent: "remote" },
+    global: { layout: "global-right", tone: "global", accent: "global" },
+    elegant: { layout: "elegant-right", tone: "elegant", accent: "refined" },
+    finance: { layout: "precision-right", tone: "finance", accent: "metrics" },
+    corporate: { layout: "corporate-rail", tone: "corporate", accent: "business" },
+    professional: { layout: "professional-split", tone: "professional", accent: "versatile" },
+    sales: { layout: "corporate-rail", tone: "sales", accent: "performance" },
+    operations: { layout: "corporate-rail", tone: "operations", accent: "process" },
+    healthcare: { layout: "care-rail", tone: "healthcare", accent: "trust" },
+    "senior-executive": { layout: "executive-premium", tone: "senior", accent: "leadership" },
+    manager: { layout: "executive-premium", tone: "manager", accent: "teams" },
+    consultant: { layout: "consultant-premium", tone: "consultant", accent: "strategy" },
+    classic: { layout: "formal-flow", tone: "classic", accent: "formal" },
+    legal: { layout: "formal-flow", tone: "legal", accent: "law" },
+    academic: { layout: "academic-flow", tone: "academic", accent: "research" },
+    "clean-pro": { layout: "clean-flow", tone: "clean", accent: "clarity" },
+    "modern-ats": { layout: "ats-pro-flow", tone: "modern-ats", accent: "ats" },
+    "customer-service": { layout: "service-grid", tone: "service", accent: "support" },
+    graduate: { layout: "graduate-grid", tone: "graduate", accent: "growth" },
+  }[template] || { layout: "professional-split", tone: "professional", accent: "versatile" };
+  const curatedLabels = currentLanguage === "pt"
+    ? {
+      summary: ["senior-executive", "manager", "consultant"].includes(template) ? "Resumo executivo" : "Perfil profissional",
+      experience: "Experiência profissional",
+      education: "Formação",
+      skills: ["tech", "developer", "startup"].includes(template) ? "Stack e habilidades" : "Competências",
+      languages: "Idiomas",
+      certifications: "Certificações",
+      projects: ["creative", "designer", "marketing", "developer", "startup", "consultant", "academic"].includes(template) ? "Projetos em destaque" : "Projetos",
+      links: ["tech", "developer", "designer", "startup"].includes(template) ? "Links profissionais" : "Links",
+    }
+    : {
+      summary: ["senior-executive", "manager", "consultant"].includes(template) ? "Executive Summary" : "Professional Profile",
+      experience: "Professional Experience",
+      education: "Education",
+      skills: ["tech", "developer", "startup"].includes(template) ? "Stack and Skills" : "Core Skills",
+      languages: "Languages",
+      certifications: "Certifications",
+      projects: ["creative", "designer", "marketing", "developer", "startup", "consultant", "academic"].includes(template) ? "Featured Projects" : "Projects",
+      links: ["tech", "developer", "designer", "startup"].includes(template) ? "Professional Links" : "Links",
+    };
+  const curatedHasText = (item) => String(item || "").trim().length > 0;
+  const curatedHasList = (items) => normalizeTextList(items).length > 0;
+  const curatedOptional = (className, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3>${title}</h3>${body}</section>`;
+  const curatedParagraphs = (items, fieldName) => `<div class="curated-text-list" data-preview-field="${fieldName}" data-preview-empty="">${normalizeTextList(items).map((item) => `<p>${escapeHtml(item)}</p>`).join("")}</div>`;
+  const curatedLines = (items) => normalizeTextList(items).map(escapeHtml).join("<br>");
+  const curatedContactItems = [displayLocation, personal.email, personal.phone, normalizeTextList(data.professionalLinks)[0]].filter(Boolean);
+  const curatedContact = curatedContactItems.join(" | ") || b.document.header;
+  const curatedExperiences = (data.workExperience || []).filter((item) => curatedHasText(item.role) || curatedHasText(item.company) || curatedHasText(item.location) || curatedHasText(item.period) || curatedHasList(item.achievements));
+  const curatedPrimaryExperience = curatedExperiences[0] || experience;
+  const curatedExperienceEntries = (curatedExperiences.length ? curatedExperiences : [curatedPrimaryExperience]).map((item, index) => `
+    <div class="curated-experience-item">
+      <div class="curated-entry-head">
+        <strong ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>
+        <span ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</span>
+      </div>
+      <p class="curated-entry-meta">
+        <span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>${curatedHasText(item.company) && curatedHasText(item.location) ? " - " : ""}<span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span>
+      </p>
+      <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
+    </div>
+  `).join("");
+  const curatedEducationItems = (data.education || []).filter((item) => curatedHasText(item.degree) || curatedHasText(item.school) || curatedHasText(item.period));
+  const curatedEducationEntries = (curatedEducationItems.length ? curatedEducationItems : [education]).map((item, index) => `
+    <p class="curated-compact-item">
+      <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
+      <span ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</span>
+      ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
+    </p>
+  `).join("");
+  if (template === "international") {
+    const internationalSection = (className, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3>${title}</h3>${body}</section>`;
+    const internationalSideSections = [
+      internationalSection("international-card international-skills", curatedLabels.skills, `<div class="resume-skill-list curated-skill-list" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, curatedHasList(data.skills)),
+      internationalSection("international-card international-education", curatedLabels.education, curatedEducationEntries, curatedEducationItems.length > 0),
+      internationalSection("international-card international-certifications", curatedLabels.certifications, `<p data-preview-field="certifications" data-preview-empty="">${curatedLines(data.certifications)}</p>`, curatedHasList(data.certifications)),
+      internationalSection("international-card international-languages", curatedLabels.languages, `<p data-preview-field="languages" data-preview-empty="">${curatedLines(data.languages)}</p>`, curatedHasList(data.languages)),
+      internationalSection("international-card international-links", curatedLabels.links, `<div class="resume-link-list curated-link-list" data-preview-field="links" data-preview-empty="">${paragraphList(data.professionalLinks, "")}</div>`, curatedHasList(data.professionalLinks)),
+    ].join("");
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-international international-resume curated-resume curated-tone-international ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="international-header">
+              <div class="international-mark" aria-hidden="true"></div>
+              <div class="international-identity">
+                <span class="international-kicker">${currentLanguage === "pt" ? "Perfil global" : "Global profile"}</span>
+                <h2 data-preview-field="name" data-preview-empty="Amanda Silva">${display(displayName, "Amanda Silva")}</h2>
+                <strong data-preview-field="title" data-preview-empty="${b.values.professionalTitle}">${display(personal.title, b.values.professionalTitle)}</strong>
+              </div>
+              <p class="resume-contact-line international-contact" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(curatedContact, b.document.header)}</p>
+            </header>
+            <div class="international-body">
+              <main class="international-main">
+                ${internationalSection("international-profile", curatedLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, curatedHasText(data.summary))}
+                ${internationalSection("international-experience", curatedLabels.experience, curatedExperienceEntries, curatedExperiences.length > 0)}
+                ${internationalSection("international-projects", curatedLabels.projects, curatedParagraphs(data.projects, "projects"), curatedHasList(data.projects))}
+              </main>
+              <aside class="international-sidebar">
+                ${internationalSideSections}
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  return `
+    <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+      <div class="resume-page-scale-wrapper">
+        <div class="resume-document professional-preview resume-template-${template} curated-resume curated-layout-${templateProfile.layout} curated-tone-${templateProfile.tone} curated-accent-${templateProfile.accent} ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+          <header class="curated-header">
+            <div class="curated-header-mark" aria-hidden="true"></div>
+            <div>
+              <h2 data-preview-field="name" data-preview-empty="Amanda Silva">${display(displayName, "Amanda Silva")}</h2>
+              <strong data-preview-field="title" data-preview-empty="${b.values.professionalTitle}">${display(personal.title, b.values.professionalTitle)}</strong>
+            </div>
+            <p class="resume-contact-line curated-contact-line" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(curatedContact, b.document.header)}</p>
+          </header>
+          ${curatedOptional("curated-summary curated-main-section", curatedLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, curatedHasText(data.summary))}
+          ${curatedOptional("curated-experience curated-main-section", curatedLabels.experience, curatedExperienceEntries, curatedExperiences.length > 0)}
+          ${curatedOptional("curated-projects curated-main-section", curatedLabels.projects, curatedParagraphs(data.projects, "projects"), curatedHasList(data.projects))}
+          ${curatedOptional("curated-skills curated-side-section", curatedLabels.skills, `<div class="resume-skill-list curated-skill-list" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, curatedHasList(data.skills))}
+          ${curatedOptional("curated-education curated-side-section", curatedLabels.education, curatedEducationEntries, curatedEducationItems.length > 0)}
+          ${curatedOptional("curated-certifications curated-side-section", curatedLabels.certifications, `<p data-preview-field="certifications" data-preview-empty="">${curatedLines(data.certifications)}</p>`, curatedHasList(data.certifications))}
+          ${curatedOptional("curated-languages curated-side-section", curatedLabels.languages, `<p data-preview-field="languages" data-preview-empty="">${curatedLines(data.languages)}</p>`, curatedHasList(data.languages))}
+          ${curatedOptional("curated-links curated-side-section", curatedLabels.links, `<div class="resume-link-list curated-link-list" data-preview-field="links" data-preview-empty="">${paragraphList(data.professionalLinks, "")}</div>`, curatedHasList(data.professionalLinks))}
+        </div>
+      </div>
+    </div>
+  `;
   return `
     <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
       <div class="resume-page-scale-wrapper">
@@ -11738,7 +13523,14 @@ function renderCoverLetters() {
         </div>
         <div class="letter-editor-head">
           <label>${c.fields.body}</label>
-          <button class="secondary-button small ${!canUseAiTask("generate_cover_letter") ? "locked-action" : ""}" type="button" data-cover-letter-generate>${icon(canUseAiTask("generate_cover_letter") ? "sparkles" : "lock")} ${aiCopy().generateLetter}</button>
+          <div class="ai-action-row">
+            <button class="secondary-button small ${!canUseAiTask("generate_cover_letter") ? "locked-action" : ""}" type="button" data-cover-letter-generate>${icon(canUseAiTask("generate_cover_letter") ? "sparkles" : "lock")} ${aiCopy().generateLetter}</button>
+            <button class="ghost-button small ${!canUseAiTask("improve_cover_letter") ? "locked-action" : ""}" type="button" data-cover-letter-ai="improve_cover_letter">${icon(canUseAiTask("improve_cover_letter") ? "sparkles" : "lock")} ${aiCopy().improveLetter}</button>
+            <button class="ghost-button small ${!canUseAiTask("tailor_cover_letter_to_job") ? "locked-action" : ""}" type="button" data-cover-letter-ai="tailor_cover_letter_to_job">${icon(canUseAiTask("tailor_cover_letter_to_job") ? "target" : "lock")} ${aiCopy().tailorLetter}</button>
+            <button class="ghost-button small ${!canUseAiTask("formal_cover_letter") ? "locked-action" : ""}" type="button" data-cover-letter-ai="formal_cover_letter">${icon(canUseAiTask("formal_cover_letter") ? "pen" : "lock")} ${aiCopy().formalLetter}</button>
+            <button class="ghost-button small ${!canUseAiTask("direct_cover_letter") ? "locked-action" : ""}" type="button" data-cover-letter-ai="direct_cover_letter">${icon(canUseAiTask("direct_cover_letter") ? "pen" : "lock")} ${aiCopy().directLetter}</button>
+            <button class="ghost-button small ${!canUseAiTask("confident_cover_letter") ? "locked-action" : ""}" type="button" data-cover-letter-ai="confident_cover_letter">${icon(canUseAiTask("confident_cover_letter") ? "pen" : "lock")} ${aiCopy().confidentLetter}</button>
+          </div>
         </div>
         <textarea class="cover-letter-body-editor" data-letter-field="body">${escapeHtml(draft.body)}</textarea>
         <p class="settings-message" data-cover-letter-message ${coverLetterSaveMessage ? "" : "hidden"}>${escapeHtml(coverLetterSaveMessage)}</p>
@@ -11788,19 +13580,42 @@ function renderCoverLetters() {
 
 function renderTemplatesPage() {
   const copy = t();
-  const filterKeys = ["all", "free", "pro", "modern", "minimal", "executive", "creative", "student", "international", "classic", "corporate", "tech", "simple-ats", "elegant", "first-job"];
+  const labels = currentLanguage === "pt"
+    ? {
+        eyebrow: "Modelos profissionais",
+        title: "Escolha um currículo com presença global.",
+        text: "Filtre por área, plano e objetivo para encontrar o modelo certo antes de abrir o criador.",
+        search: "Buscar modelos...",
+      }
+    : {
+        eyebrow: "Professional templates",
+        title: "Choose a resume with global polish.",
+        text: "Filter by field, plan and goal to find the right template before opening the builder.",
+        search: "Search templates...",
+      };
   const templates = resumeTemplates();
   dashboardShell("templates", `
-    <main class="dashboard-content">
-      <div class="template-filter-row">${copy.dashboard.templateFilters.map((filter, index) => `<button class="${index === 0 ? "active" : ""}" type="button" data-template-filter="${filterKeys[index]}">${filter}</button>`).join("")}</div>
+    <main class="dashboard-content templates-catalog-page">
+      <section class="templates-catalog-hero">
+        <div>
+          <span class="eyebrow">${labels.eyebrow}</span>
+          <h1>${labels.title}</h1>
+          <p>${labels.text}</p>
+        </div>
+        <label class="template-search">${icon("file")}<input type="search" data-template-search placeholder="${labels.search}" /></label>
+      </section>
+      <div class="template-filter-row">${templateFilterOptions().map(([key, label], index) => `<button class="${index === 0 ? "active" : ""}" type="button" data-template-filter="${key}">${label}</button>`).join("")}</div>
       <div class="template-grid dashboard-templates">${templates.map((template, index) => {
         const locked = !canUseTemplate(template.key);
+        const accessClass = templateAccessClass(template);
+        const accessLabel = templateAccessLabel(template);
+        const lockFeature = templateLockFeature(template);
         return `
-        <article class="template-card dashboard-template-card template-${template.key} ${locked ? "locked-feature" : ""}" data-template-category="${template.key}" data-template-access="${template.access}">
+        <article class="template-card dashboard-template-card template-${template.key} ${locked ? "locked-feature" : ""}" data-template-category="${template.key}" data-template-access="${template.access}" data-template-groups="${template.filterGroups.join(" ")}" data-template-search="${escapeHtml(`${template.name} ${template.category} ${template.description} ${template.bestForText}`.toLowerCase())}">
           <div class="template-card-topline">
             <span class="template-badge">${template.category}</span>
-            <span class="template-badge ${template.access === "free" ? "free" : "pro"}">${template.access === "free" ? copy.dashboard.free : copy.dashboard.pro}</span>
-            ${locked ? lockedBadge("premium_templates") : ""}
+            <span class="template-badge ${accessClass}">${accessLabel}</span>
+            ${locked ? lockedBadge(lockFeature) : ""}
           </div>
           ${templateCardPreviewMarkup(template.key)}
           <h3>${template.name}</h3>
