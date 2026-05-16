@@ -2322,8 +2322,8 @@ const TEMPLATE_STATUS_BY_KEY = Object.freeze({
   international: TEMPLATE_STATUS.active,
   classic: TEMPLATE_STATUS.active,
   corporate: TEMPLATE_STATUS.active,
-  elegant: TEMPLATE_STATUS.hidden,
-  "senior-executive": TEMPLATE_STATUS.hidden,
+  elegant: TEMPLATE_STATUS.active,
+  "senior-executive": TEMPLATE_STATUS.active,
   marketing: TEMPLATE_STATUS.hidden,
   developer: TEMPLATE_STATUS.hidden,
   designer: TEMPLATE_STATUS.hidden,
@@ -2336,6 +2336,7 @@ const TEMPLATE_STATUS_BY_KEY = Object.freeze({
   manager: TEMPLATE_STATUS.hidden,
   consultant: TEMPLATE_STATUS.hidden,
   startup: TEMPLATE_STATUS.hidden,
+  "global-impact": TEMPLATE_STATUS.active,
   global: TEMPLATE_STATUS.hidden,
   "clean-pro": TEMPLATE_STATUS.disabled,
   "modern-ats": TEMPLATE_STATUS.disabled,
@@ -2695,6 +2696,7 @@ const RESUME_TEMPLATES = [
 ];
 
 const ADDITIONAL_RESUME_TEMPLATES = [
+  ["global-impact", "Global Impact", "Global Impact", "Global / Executive", "Global / Executivo moderno", "premium", ["premium", "international", "executive", "corporate", "technology"], "A Premium global resume with a sophisticated navy header, strategic sidebar and refined timeline for high-value international applications.", "Modelo Premium com layout global, cabecalho sofisticado, sidebar estrategica e experiencia em timeline refinada. Ideal para transmitir alto valor e presenca internacional.", "International professionals, managers, product leaders, consultants, remote roles and technology careers", "Profissionais internacionais, gerentes, product managers, consultores, tecnologia, lideres e vagas remotas"],
   ["professional", "Professional", "Profissional", "Corporate / Professional", "Corporativo / Profissional", "pro", ["pro", "corporate"], "A modern corporate Pro template with a strong contact card, clean timeline and organized sidebar.", "Um modelo Pro corporativo moderno, com card de contato forte, timeline limpa e sidebar organizada.", "Best for corporate, administrative and marketing roles", "Ideal para areas corporativas, administrativas e marketing"],
   ["clean-pro", "Clean Pro", "Clean Pro", "ATS", "ATS", "pro", ["pro", "ats", "corporate"], "A minimal premium layout with generous spacing, refined bullets and discreet skill chips.", "Um layout minimalista premium, com respiro, bullets refinados e chips discretos.", "ATS-focused with premium polish", "Focado em ATS com acabamento premium"],
   ["modern-ats", "Modern ATS", "ATS moderno", "ATS", "ATS", "pro", ["pro", "ats", "technology"], "ATS-safe structure with a sharper modern header and a separated skills band.", "Estrutura segura para ATS, com cabeçalho moderno e faixa de habilidades destacada.", "Online applications and ATS uploads", "Candidaturas online e uploads em ATS"],
@@ -2725,7 +2727,15 @@ const ADDITIONAL_RESUME_TEMPLATES = [
   names: { en: name, pt: ptName },
   categories: { en: category, pt: ptCategory },
   descriptions: { en: enDescription, pt: ptDescription },
+  previewDescriptions: key === "global-impact" ? {
+    en: "Premium resume with an international visual system, sophisticated navy header, strategic sidebar, career highlight cards and refined experience timeline.",
+    pt: "Curriculo Premium com visual internacional, cabecalho navy sofisticado, sidebar estrategica, cards de destaque e timeline refinada de experiencia.",
+  } : undefined,
   bestFor: { en: enBestFor, pt: ptBestFor },
+  idealFor: key === "global-impact" ? {
+    en: ["international professionals", "managers", "coordinators", "product managers", "consultants", "technology professionals", "remote candidates", "team leaders", "global roles"],
+    pt: ["profissionais internacionais", "gerentes", "coordenadores", "product managers", "consultores", "profissionais de tecnologia", "profissionais remotos", "lideres de equipe", "vagas globais"],
+  } : undefined,
 }));
 
 const LOGO_DIRECTIONS = [
@@ -4841,12 +4851,12 @@ function templateFilterGroups(template = {}) {
   const category = String(template.category || "").toLowerCase();
   const groups = new Set([template.access || "pro"]);
   if (key.includes("ats") || category.includes("ats") || key === "minimal") groups.add("ats");
-  if (key.includes("executive") || ["manager", "consultant", "elegant"].includes(key) || category.includes("executive")) groups.add("executive");
+  if (key.includes("executive") || ["manager", "consultant", "elegant", "global-impact"].includes(key) || category.includes("executive")) groups.add("executive");
   if (["creative", "designer", "marketing", "startup"].includes(key) || category.includes("creative")) groups.add("creative");
   if (["student", "first-job", "graduate", "customer-service"].includes(key)) groups.add("first-job");
-  if (["tech", "developer", "startup", "remote-work", "modern-ats"].includes(key) || category.includes("tech") || category.includes("technology")) groups.add("technology");
-  if (["international", "remote-work", "academic", "global"].includes(key) || category.includes("international")) groups.add("international");
-  if (["corporate", "classic", "professional", "sales", "operations", "legal", "finance", "healthcare", "consultant"].includes(key) || category.includes("corporate")) groups.add("corporate");
+  if (["tech", "developer", "startup", "remote-work", "modern-ats", "global-impact"].includes(key) || category.includes("tech") || category.includes("technology")) groups.add("technology");
+  if (["international", "remote-work", "academic", "global", "global-impact"].includes(key) || category.includes("international")) groups.add("international");
+  if (["corporate", "classic", "professional", "sales", "operations", "legal", "finance", "healthcare", "consultant", "global-impact"].includes(key) || category.includes("corporate")) groups.add("corporate");
   if (["healthcare"].includes(key) || category.includes("health")) groups.add("healthcare");
   if (["legal"].includes(key) || category.includes("legal")) groups.add("legal");
   if (["finance"].includes(key) || category.includes("finance")) groups.add("finance");
@@ -8098,7 +8108,7 @@ function aiCopy() {
     generating: "Gerando com IA...",
     analyzing: "Analisando vaga...",
     improving: "Melhorando texto...",
-    translating: "Traduzindo currÃ­culo...",
+    translating: "Traduzindo currículo...",
     suggesting: "Sugerindo habilidades...",
     fallbackError: "Não foi possível gerar a resposta agora. Tente novamente em instantes.",
     noCredits: "Você não tem créditos de IA suficientes para esta ação.",
@@ -8781,6 +8791,20 @@ function tailoringCopy() {
     jobDescription: "Cole a descri\u00e7\u00e3o da vaga antes de adaptar o curr\u00edculo.",
     success: "Adapta\u00e7\u00e3o aplicada. Revise e salve as altera\u00e7\u00f5es.",
     undone: "Adapta\u00e7\u00e3o desfeita.",
+    applying: "Aplicando...",
+    applyingSummary: "Aplicando resumo...",
+    applyingExperiences: "Aplicando experi\u00eancias...",
+    addingSkills: "Adicionando habilidades...",
+    undoing: "Desfazendo...",
+    applied: "Aplicado",
+    skillsAddedButton: "Adicionadas",
+    successAll: "Adapta\u00e7\u00e3o aplicada com sucesso.",
+    successSummary: "Resumo aplicado com sucesso.",
+    successExperiences: "Experi\u00eancias aplicadas com sucesso.",
+    successSkills: "Habilidades adicionadas com sucesso.",
+    skillsAdded: (count) => `${count} ${count === 1 ? "nova habilidade adicionada" : "novas habilidades adicionadas"}.`,
+    skillsAlreadyAdded: "Essas habilidades j\u00e1 estavam no curr\u00edculo.",
+    applyError: "N\u00e3o foi poss\u00edvel aplicar as altera\u00e7\u00f5es. Tente novamente.",
     nothing: "A IA n\u00e3o retornou altera\u00e7\u00f5es aplic\u00e1veis para este curr\u00edculo.",
   } : {
     title: "Resume tailored to this job",
@@ -8804,6 +8828,20 @@ function tailoringCopy() {
     jobDescription: "Paste the job description before tailoring your resume.",
     success: "Tailoring applied. Review and save your changes.",
     undone: "Tailoring undone.",
+    applying: "Applying...",
+    applyingSummary: "Applying summary...",
+    applyingExperiences: "Applying experiences...",
+    addingSkills: "Adding skills...",
+    undoing: "Undoing...",
+    applied: "Applied",
+    skillsAddedButton: "Added",
+    successAll: "Tailoring applied successfully.",
+    successSummary: "Summary applied successfully.",
+    successExperiences: "Experiences applied successfully.",
+    successSkills: "Skills added successfully.",
+    skillsAdded: (count) => `${count} new ${count === 1 ? "skill" : "skills"} added.`,
+    skillsAlreadyAdded: "These skills were already in the resume.",
+    applyError: "Could not apply the changes. Please try again.",
     nothing: "AI did not return applicable changes for this resume.",
   };
 }
@@ -8976,6 +9014,25 @@ function applyTailoredResume(resume, tailoring, mode = "all") {
   return applied;
 }
 
+function countAddedTailoringSkills(beforeResume = {}, afterResume = {}) {
+  const before = new Set(normalizeTextList(beforeResume.skills).map((item) => normalizeAiText(item)));
+  return normalizeTextList(afterResume.skills).filter((item) => {
+    const key = normalizeAiText(item);
+    return key && !before.has(key);
+  }).length;
+}
+
+function tailoredResumeSuccessMessage(mode, beforeResume, afterResume) {
+  const copy = tailoringCopy();
+  if (mode === "summary") return copy.successSummary;
+  if (mode === "experiences") return copy.successExperiences;
+  if (mode === "skills") {
+    const addedCount = countAddedTailoringSkills(beforeResume, afterResume);
+    return addedCount ? copy.skillsAdded(addedCount) : copy.skillsAlreadyAdded;
+  }
+  return copy.successAll;
+}
+
 function undoLastTailoring() {
   if (!lastTailoredResumeBackup?.resume) return null;
   const restored = syncTailoredResumeState({ ...lastTailoredResumeBackup.resume, updatedAt: isoNow() }, tailoringCopy().undone);
@@ -9036,34 +9093,134 @@ function openTailoredResumeModal(resume, rawResult) {
   `;
   document.body.appendChild(modal);
   const close = () => modal.remove();
+  let tailoringActionInProgress = false;
+  let closeTimer = 0;
+  const status = modal.querySelector("[data-tailoring-status]");
+  if (status) {
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+  }
+  const allActionButtons = () => Array.from(modal.querySelectorAll("[data-tailoring-apply], [data-tailoring-undo], [data-tailoring-close]"));
+  const buttonLabels = new Map(allActionButtons().map((button) => [button, button.innerHTML]));
+  const loadingLabels = {
+    all: copy.applying,
+    summary: copy.applyingSummary,
+    experiences: copy.applyingExperiences,
+    skills: copy.addingSkills,
+    undo: copy.undoing,
+  };
+  const successLabels = {
+    all: copy.applied,
+    summary: copy.applied,
+    experiences: copy.applied,
+    skills: copy.skillsAddedButton,
+    undo: copy.applied,
+  };
+  const setStatus = (message, type = "success") => {
+    if (!status) return;
+    status.textContent = message;
+    status.hidden = false;
+    status.classList.remove("success", "error", "is-visible");
+    void status.offsetWidth;
+    status.classList.add(type, "is-visible");
+  };
+  const setBusyState = (activeButton, actionKey) => {
+    tailoringActionInProgress = true;
+    allActionButtons().forEach((button) => {
+      button.disabled = true;
+      button.classList.toggle("is-loading", button === activeButton);
+    });
+    activeButton.innerHTML = `<span class="button-spinner" aria-hidden="true"></span><span>${escapeHtml(loadingLabels[actionKey] || copy.applying)}</span>`;
+  };
+  const finishBusyState = (activeButton, actionKey, keepButtonDisabled = false) => {
+    activeButton.classList.remove("is-loading");
+    activeButton.classList.add("is-applied");
+    activeButton.innerHTML = `${icon("check")} <span>${escapeHtml(successLabels[actionKey] || copy.applied)}</span>`;
+    window.setTimeout(() => {
+      if (!activeButton.isConnected) return;
+      activeButton.classList.remove("is-applied");
+      if (!keepButtonDisabled) activeButton.innerHTML = buttonLabels.get(activeButton) || activeButton.innerHTML;
+    }, 1000);
+    allActionButtons().forEach((button) => {
+      const shouldStayDisabled = button === activeButton && keepButtonDisabled;
+      if (!shouldStayDisabled && !button.hasAttribute("hidden")) button.disabled = false;
+      button.classList.remove("is-loading");
+    });
+    activeButton.disabled = keepButtonDisabled;
+    tailoringActionInProgress = false;
+  };
+  const failBusyState = (activeButton) => {
+    allActionButtons().forEach((button) => {
+      if (!button.hasAttribute("hidden")) button.disabled = false;
+      button.classList.remove("is-loading", "is-applied");
+    });
+    activeButton.innerHTML = buttonLabels.get(activeButton) || activeButton.innerHTML;
+    tailoringActionInProgress = false;
+    setStatus(copy.applyError, "error");
+  };
+  const pulsePreview = () => {
+    const frame = document.querySelector(".builder-preview-frame");
+    if (!frame) return;
+    frame.classList.remove("tailoring-preview-updated");
+    void frame.offsetWidth;
+    frame.classList.add("tailoring-preview-updated");
+    window.setTimeout(() => frame.classList.remove("tailoring-preview-updated"), 900);
+  };
+  const runTailoringAction = (activeButton, actionKey, action) => {
+    if (tailoringActionInProgress) return;
+    if (closeTimer) window.clearTimeout(closeTimer);
+    setBusyState(activeButton, actionKey);
+    window.setTimeout(() => {
+      try {
+        const result = action();
+        setStatus(result.message, result.type || "success");
+        if (actionKey !== "undo") modal.querySelector("[data-tailoring-undo]")?.removeAttribute("hidden");
+        pulsePreview();
+        finishBusyState(activeButton, actionKey, Boolean(result.keepButtonDisabled));
+        if (result.closeAfter) closeTimer = window.setTimeout(close, result.closeAfter);
+      } catch (error) {
+        failBusyState(activeButton);
+      }
+    }, 180);
+  };
   modal.addEventListener("click", (event) => {
     const closeButton = event.target.closest("[data-tailoring-close]");
     const applyButton = event.target.closest("[data-tailoring-apply]");
     const undoButton = event.target.closest("[data-tailoring-undo]");
+    if (tailoringActionInProgress) {
+      event.preventDefault();
+      return;
+    }
     if (event.target === modal || closeButton) {
       close();
       return;
     }
     if (applyButton) {
       const mode = applyButton.getAttribute("data-tailoring-apply") || "all";
-      applyTailoredResume(findResume(resume.id) || resume, tailoring, mode);
-      const status = modal.querySelector("[data-tailoring-status]");
-      if (status) {
-        status.textContent = copy.success;
-        status.hidden = false;
-      }
-      modal.querySelector("[data-tailoring-undo]")?.removeAttribute("hidden");
-      if (!isBuilderRouteActive()) render();
+      runTailoringAction(applyButton, mode, () => {
+        const beforeResume = tailoringBaseResume(findResume(resume.id) || resume);
+        const applied = applyTailoredResume(findResume(resume.id) || resume, tailoring, mode);
+        const message = tailoredResumeSuccessMessage(mode, beforeResume, applied);
+        if (!isBuilderRouteActive()) render();
+        return {
+          message,
+          keepButtonDisabled: mode === "skills",
+          closeAfter: mode === "all" ? 1000 : 0,
+        };
+      });
     }
     if (undoButton) {
-      undoLastTailoring();
-      const status = modal.querySelector("[data-tailoring-status]");
-      if (status) {
-        status.textContent = copy.undone;
-        status.hidden = false;
-      }
-      undoButton.setAttribute("hidden", "");
-      if (!isBuilderRouteActive()) render();
+      runTailoringAction(undoButton, "undo", () => {
+        undoLastTailoring();
+        undoButton.setAttribute("hidden", "");
+        const skillsButton = modal.querySelector('[data-tailoring-apply="skills"]');
+        if (skillsButton && tailoring.suggestedSkills.length) {
+          skillsButton.disabled = false;
+          skillsButton.innerHTML = buttonLabels.get(skillsButton) || skillsButton.innerHTML;
+        }
+        if (!isBuilderRouteActive()) render();
+        return { message: copy.undone };
+      });
     }
   });
 }
@@ -11878,6 +12035,99 @@ async function exportCoverLetterPdf(letter, button) {
 }
 
 function curatedSampleResume(template = "professional") {
+  if (template === "global-impact") {
+    return createBlankResume({
+      selectedTemplate: template,
+      previewMode: "template-sample",
+      personal: {
+        fullName: "Amanda Silva",
+        title: currentLanguage === "pt" ? "Product Manager | Digital Product Strategist" : "Product Manager | Digital Product Strategist",
+        email: "amanda.silva@email.com",
+        phone: "+55 11 90000-0000",
+        location: currentLanguage === "pt" ? "Sao Paulo, Brasil" : "Sao Paulo, Brazil",
+      },
+      summary: currentLanguage === "pt"
+        ? "Product Manager com experiencia em estrategia de produto, pesquisa com usuarios, priorizacao de roadmap e colaboracao com times globais. Perfil orientado a dados, comunicacao clara e foco em entregar solucoes digitais que geram impacto para o negocio."
+        : "Product Manager experienced in product strategy, user research, roadmap prioritization and collaboration with global teams. Data-oriented profile with clear communication and focus on digital solutions that create business impact.",
+      workExperience: currentLanguage === "pt"
+        ? [
+          {
+            role: "Senior Product Manager",
+            company: "NovaTech Digital",
+            location: "Sao Paulo, Brasil",
+            period: "Mar 2021 - Atual",
+            achievements: [
+              "Liderou roadmap de produto com base em pesquisa, metricas de uso e objetivos de negocio.",
+              "Priorizou funcionalidades em colaboracao com design, engenharia, marketing e atendimento.",
+              "Acompanhou indicadores de adocao, retencao e satisfacao para orientar melhorias continuas.",
+              "Coordenou entregas em ciclos ageis, garantindo alinhamento entre stakeholders e equipe tecnica.",
+            ],
+          },
+          {
+            role: "Product Analyst",
+            company: "Bright Apps",
+            location: "Remoto",
+            period: "Jun 2018 - Fev 2021",
+            achievements: [
+              "Analisou feedbacks de usuarios e dados de comportamento para identificar oportunidades de melhoria.",
+              "Criou documentacao de requisitos, historias de usuario e criterios de aceite para novas funcionalidades.",
+              "Apoiou testes de usabilidade e validacao de hipoteses com clientes reais.",
+            ],
+          },
+        ]
+        : [
+          {
+            role: "Senior Product Manager",
+            company: "NovaTech Digital",
+            location: "Sao Paulo, Brazil",
+            period: "Mar 2021 - Present",
+            achievements: [
+              "Led product roadmap definition based on research, usage metrics and business objectives.",
+              "Prioritized features with design, engineering, marketing and customer support teams.",
+              "Tracked adoption, retention and satisfaction indicators to guide continuous improvement.",
+              "Coordinated agile delivery cycles, aligning stakeholders and technical teams.",
+            ],
+          },
+          {
+            role: "Product Analyst",
+            company: "Bright Apps",
+            location: "Remote",
+            period: "Jun 2018 - Feb 2021",
+            achievements: [
+              "Analyzed user feedback and behavior data to identify improvement opportunities.",
+              "Created requirements documentation, user stories and acceptance criteria for new features.",
+              "Supported usability testing and hypothesis validation with real customers.",
+            ],
+          },
+        ],
+      education: currentLanguage === "pt"
+        ? [
+          { degree: "MBA em Gestao de Produtos Digitais", school: "FIAP", location: "Sao Paulo, Brasil", period: "2020 - 2021" },
+          { degree: "Administracao de Empresas", school: "Universidade de Sao Paulo", period: "2012 - 2016" },
+        ]
+        : [
+          { degree: "MBA in Digital Product Management", school: "FIAP", location: "Sao Paulo, Brazil", period: "2020 - 2021" },
+          { degree: "Business Administration", school: "University of Sao Paulo", period: "2012 - 2016" },
+        ],
+      skills: currentLanguage === "pt"
+        ? ["Product Strategy", "User Research", "Roadmap Planning", "Data Analysis", "Stakeholder Management", "Agile Delivery", "UX Collaboration", "Business Communication", "Figma", "Jira", "Notion", "Power BI", "SQL"]
+        : ["Product Strategy", "User Research", "Roadmap Planning", "Data Analysis", "Stakeholder Management", "Agile Delivery", "UX Collaboration", "Business Communication", "Figma", "Jira", "Notion", "Power BI", "SQL"],
+      languages: currentLanguage === "pt" ? ["Portugues - Nativo", "Ingles - Avancado", "Espanhol - Intermediario"] : ["Portuguese - Native", "English - Advanced", "Spanish - Intermediate"],
+      certifications: currentLanguage === "pt"
+        ? ["Product Management Professional - Product School, 2023", "Scrum Foundation - CertiProf, 2022", "UX Research Basics - Google, 2021"]
+        : ["Product Management Professional - Product School, 2023", "Scrum Foundation - CertiProf, 2022", "UX Research Basics - Google, 2021"],
+      projects: currentLanguage === "pt"
+        ? [
+          "Redesign do Onboarding de Usuarios - Liderou estudo de comportamento e redesenho do fluxo inicial do produto, reduzindo friccoes e melhorando a ativacao de novos usuarios.",
+          "Dashboard de Metricas de Produto - Criou estrutura de indicadores para acompanhar adocao, retencao, conversao e satisfacao dos usuarios em tempo real.",
+        ]
+        : [
+          "User Onboarding Redesign - Led behavior research and redesigned the initial product flow, reducing friction and improving new user activation.",
+          "Product Metrics Dashboard - Created an indicator structure to track adoption, retention, conversion and user satisfaction in real time.",
+        ],
+      professionalLinks: ["linkedin.com/in/amandasilva", "amandasilva.com", "github.com/amandasilva"],
+    });
+  }
   if (template === "tech") {
     return createBlankResume({
       selectedTemplate: template,
@@ -13150,7 +13400,8 @@ function templateCard(template, index, compact = true) {
   const p = copy.public;
   const accessLabel = templateAccessLabel(template);
   const accessClass = templateAccessClass(template);
-  const searchText = `${template.name} ${template.category} ${template.description} ${template.bestForText} ${template.access}`.toLowerCase();
+  const cardDescription = templateCatalogDescription(template);
+  const searchText = `${template.name} ${template.category} ${cardDescription} ${template.bestForText} ${template.access}`.toLowerCase();
   return `
     <article class="template-card resume-template-card template-${template.key}" data-template-category="${template.key}" data-template-access="${template.access}" data-template-status="${template.status}" data-template-groups="${template.filterGroups.join(" ")}" data-template-search="${escapeHtml(searchText)}">
       ${templateCardPreviewMarkup(template.key)}
@@ -13160,12 +13411,49 @@ function templateCard(template, index, compact = true) {
           <span class="${accessClass}">${accessLabel}</span>
         </div>
         <h3>${template.name}</h3>
-        <p>${template.description}</p>
+        <p>${cardDescription}</p>
         ${compact ? "" : `<p class="template-best"><strong>${copy.dashboard.bestFor}:</strong> ${template.bestForText}</p>`}
         ${compact ? "" : `<div class="template-actions"><button class="ghost-button small" type="button" data-template-preview="${template.key}" data-preview-context="public">${p.viewTemplate}</button><button class="secondary-button small" type="button" data-use-template="${template.key}" data-template-destination="signup">${copy.dashboard.useTemplate}</button></div>`}
       </div>
     </article>
   `;
+}
+
+function templateCatalogDescription(template = {}) {
+  const descriptions = currentLanguage === "pt" ? {
+    "clean-start-ats": "Modelo limpo, direto e compatível com ATS, ideal para candidaturas tradicionais e currículos objetivos.",
+    modern: "Layout profissional com duas áreas de informação, ideal para um currículo mais visual sem perder clareza.",
+    "simple-ats": "Estrutura simples, objetiva e compatível com plataformas de recrutamento e processos seletivos tradicionais.",
+    executive: "Modelo corporativo com cabeçalho forte, competências em destaque e estrutura voltada para liderança.",
+    international: "Formato global com leitura clara, contato valorizado e boa organização para vagas remotas ou internacionais.",
+    corporate: "Visual sóbrio e profissional para áreas administrativas, negócios, operações e ambientes corporativos.",
+    classic: "Modelo formal e confiável para candidaturas conservadoras, com excelente legibilidade e hierarquia clara.",
+    elegant: "Currículo refinado com acabamento premium discreto, ideal para consultores, analistas e perfis corporativos.",
+    "senior-executive": "Modelo Premium para liderança, com assinatura visual forte, sidebar estratégica e foco em resultados.",
+    "global-impact": "Currículo Premium com visual internacional, cabeçalho sofisticado e estrutura estratégica de alto impacto.",
+    sales: "Modelo Pro para vendas e relacionamento comercial, com foco em métricas, resultados e crescimento de receita.",
+    tech: "Layout moderno para tecnologia, produto e dados, com stack, projetos e experiência em destaque.",
+    creative: "Visual com mais personalidade para portfólio, marketing e criação sem perder credibilidade profissional.",
+    student: "Modelo leve para estágio, trainee e início de carreira, valorizando formação, cursos e projetos.",
+    "first-job": "Estrutura clara para primeiro emprego, destacando objetivo, habilidades, cursos e disposição para aprender.",
+  } : {
+    "clean-start-ats": "Clean, direct and ATS-friendly template for traditional applications and objective resumes.",
+    modern: "Professional two-area layout for a more visual resume without losing clarity.",
+    "simple-ats": "Simple and objective structure for recruiting platforms and traditional hiring processes.",
+    executive: "Corporate template with a strong header, highlighted strengths and leadership-focused structure.",
+    international: "Global format with clear readability, visible contact details and organization for remote or international roles.",
+    corporate: "Sober professional look for administration, business, operations and corporate environments.",
+    classic: "Formal and trustworthy template for conservative applications, with strong readability and clear hierarchy.",
+    elegant: "Refined resume with discreet premium polish for consultants, analysts and corporate profiles.",
+    "senior-executive": "Premium leadership model with a strong signature look, strategic sidebar and results focus.",
+    "global-impact": "Premium resume with international polish, sophisticated header and high-impact strategic structure.",
+    sales: "Pro template for sales and commercial relationships, focused on metrics, results and revenue growth.",
+    tech: "Modern layout for technology, product and data, with stack, projects and experience in focus.",
+    creative: "More expressive visual style for portfolio, marketing and creative roles while keeping credibility.",
+    student: "Light template for internships, trainees and early career profiles, highlighting education, courses and projects.",
+    "first-job": "Clear first-job structure that highlights objective, skills, courses and willingness to learn.",
+  };
+  return descriptions[template.key] || template.previewDescription || template.description || "";
 }
 
 function templateCardPreviewMarkup(templateKey, format = selectedDocumentFormat) {
@@ -16457,7 +16745,7 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
             ${optional("clean-start-summary", cleanLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, hasText(data.summary))}
             ${optional("clean-start-experience", cleanLabels.experience, experienceBody, experiences.length > 0)}
             ${optional("clean-start-education", cleanLabels.education, educationBody, educationItems.length > 0)}
-            ${optional("clean-start-skills", cleanLabels.skills, `<p class="clean-start-skill-line" data-preview-field="skills" data-preview-empty="">${escapeHtml(normalizeTextList(data.skills).join(", "))}</p>`, hasList(data.skills))}
+            ${optional("clean-start-skills", cleanLabels.skills, `<div class="resume-skill-list clean-start-skill-line" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, hasList(data.skills))}
             ${optional("clean-start-certifications", cleanLabels.certifications, cleanLineList(data.certifications, "certifications"), hasList(data.certifications))}
             ${optional("clean-start-languages", cleanLabels.languages, cleanLineList(data.languages, "languages"), hasList(data.languages))}
             ${optional("clean-start-projects", cleanLabels.projects, `<div class="clean-start-project-list" data-preview-field="projects" data-preview-empty="">${cleanProjects}</div>`, hasList(data.projects))}
@@ -16678,6 +16966,211 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
       ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
     </p>
   `).join("");
+  if (template === "global-impact") {
+    const globalLabels = currentLanguage === "pt"
+      ? {
+        contact: "Contato",
+        skills: "Habilidades principais",
+        tools: "Ferramentas",
+        languages: "Idiomas",
+        certifications: "Certificacoes",
+        links: "Links",
+        profile: "Perfil profissional",
+        highlights: "Destaques de carreira",
+        experience: "Experiencia profissional",
+        projects: "Projetos selecionados",
+        education: "Formacao academica",
+        footer: "Presenca global",
+      }
+      : {
+        contact: "Contact",
+        skills: "Core skills",
+        tools: "Tools",
+        languages: "Languages",
+        certifications: "Certifications",
+        links: "Links",
+        profile: "Professional profile",
+        highlights: "Career highlights",
+        experience: "Professional experience",
+        projects: "Selected projects",
+        education: "Education",
+        footer: "Global presence",
+      };
+    const globalIsTemplateSamplePreview = data.previewMode === "template-sample";
+    const globalLimit = (items, fullLimit, previewLimit = fullLimit) => {
+      const source = Array.isArray(items) ? items.filter(Boolean) : normalizeTextList(items);
+      return source.slice(0, globalIsTemplateSamplePreview ? previewLimit : fullLimit);
+    };
+    const globalSection = (className, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3>${title}</h3>${body}</section>`;
+    const globalInitials = (displayName || "Amanda Silva").split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part.charAt(0)).join("").toUpperCase() || "AS";
+    const globalLinks = normalizeTextList(data.professionalLinks);
+    const globalPrimaryLink = globalLinks.find((item) => /linkedin/i.test(item)) || globalLinks[0];
+    const globalContactRowsFull = [
+      [currentLanguage === "pt" ? "Email" : "Email", personal.email, "contact"],
+      [currentLanguage === "pt" ? "Telefone" : "Phone", personal.phone, ""],
+      [currentLanguage === "pt" ? "Localizacao" : "Location", displayLocation, ""],
+      ["LinkedIn", globalLinks.find((item) => /linkedin/i.test(item)), ""],
+      ["Portfolio", globalLinks.find((item) => !/linkedin|github/i.test(item)), ""],
+      ["GitHub", globalLinks.find((item) => /github/i.test(item)), ""],
+    ].filter((item) => curatedHasText(item[1]));
+    const globalContactRowsPreview = [
+      [currentLanguage === "pt" ? "Email" : "Email", personal.email, "contact"],
+      [currentLanguage === "pt" ? "Localizacao" : "Location", displayLocation, ""],
+      ["LinkedIn", globalPrimaryLink, ""],
+    ].filter((item) => curatedHasText(item[1]));
+    const globalContactRows = globalIsTemplateSamplePreview ? globalContactRowsPreview : globalContactRowsFull;
+    const globalContactList = globalContactRows.map(([label, value, field]) => `
+      <p ${field ? `data-preview-field="${field}" data-preview-empty="${b.document.header}"` : ""}>
+        <span>${escapeHtml(label)}</span>
+        <strong>${escapeHtml(value)}</strong>
+      </p>
+    `).join("");
+    const globalHeaderContactItems = globalIsTemplateSamplePreview
+      ? [displayLocation, personal.email, globalPrimaryLink]
+      : [displayLocation, personal.email, personal.phone, globalLinks[0]];
+    const globalHeaderContact = globalHeaderContactItems.filter(Boolean).map((item) => `<span>${escapeHtml(item)}</span>`).join("");
+    const globalSkills = normalizeTextList(data.skills);
+    const globalToolPattern = /figma|jira|notion|analytics|power\s*bi|sql|slack|trello|excel|tableau|github|git\b|salesforce|hubspot|miro|asana|looker|ga4|google analytics/i;
+    const globalToolCandidates = globalSkills.filter((skill) => globalToolPattern.test(skill));
+    const globalCoreSkillCandidates = globalSkills.filter((skill) => !globalToolPattern.test(skill));
+    const globalTools = globalLimit(globalToolCandidates, 10, 4);
+    const globalCoreSkills = globalLimit(globalCoreSkillCandidates.length ? globalCoreSkillCandidates : globalSkills, 10, 6);
+    const globalSkillChips = globalCoreSkills.map((skill) => `<span>${escapeHtml(skill)}</span>`).join("");
+    const globalToolList = globalTools.map((tool) => `<span>${escapeHtml(tool)}</span>`).join("");
+    const globalLanguageItems = globalLimit(data.languages, Infinity, 2);
+    const globalLanguageList = globalLanguageItems.map((item) => {
+      const parts = item.split(/\s[-:|]\s|\s[-:|]|[-:|]\s/);
+      const language = parts.shift() || item;
+      const level = parts.join(" ").trim();
+      return `<p><strong>${escapeHtml(language.trim())}</strong>${level ? `<span>${escapeHtml(level)}</span>` : ""}</p>`;
+    }).join("");
+    const splitTitleText = (item) => {
+      const parts = String(item || "").split(/\s+-\s+|\s+\u2014\s+|\s+\u2013\s+/);
+      const title = (parts.shift() || item || "").trim();
+      const text = parts.join(" - ").trim();
+      return { title, text };
+    };
+    const globalImpactCompactText = (value, maxLength = 170) => {
+      const text = String(value || "").replace(/\s+/g, " ").trim();
+      if (text.length <= maxLength) return text;
+      const safeLimit = Math.max(20, maxLength - 3);
+      const sliced = text.slice(0, safeLimit);
+      const clean = sliced.includes(" ") ? sliced.replace(/\s+\S*$/, "").trim() : sliced.trim();
+      return `${clean || sliced.trim()}...`;
+    };
+    const globalCertificationItems = globalLimit(data.certifications, Infinity, 2);
+    const globalCertifications = globalCertificationItems.map((item) => {
+      const { title, text } = splitTitleText(item);
+      return `<p><strong>${escapeHtml(title)}</strong>${text ? `<span>${escapeHtml(text)}</span>` : ""}</p>`;
+    }).join("");
+    const globalVisibleLinks = globalIsTemplateSamplePreview
+      ? globalLinks.filter((item) => item !== globalPrimaryLink).slice(0, 1)
+      : globalLimit(globalLinks, Infinity, 2);
+    const globalLinksMarkup = globalVisibleLinks.map((item) => {
+      const label = /linkedin/i.test(item) ? "LinkedIn" : /github/i.test(item) ? "GitHub" : /portfolio|portf/i.test(item) ? "Portfolio" : currentLanguage === "pt" ? "Link profissional" : "Professional link";
+      return `<p><span>${escapeHtml(label)}</span><strong>${escapeHtml(item)}</strong></p>`;
+    }).join("");
+    const highlightTexts = [
+      ...curatedExperiences.flatMap((item) => normalizeTextList(item.achievements)),
+      ...normalizeTextList(data.projects),
+      data.summary,
+    ].filter(Boolean);
+    const fallbackHighlightTitles = currentLanguage === "pt"
+      ? ["Estrategia e impacto", "Experiencia do usuario", "Entrega global"]
+      : ["Strategy and impact", "User experience", "Global delivery"];
+    const highlightItems = highlightTexts.slice(0, globalIsTemplateSamplePreview ? 2 : 3).map((text, index) => ({
+      title: globalImpactCompactText(globalCoreSkills[index] || fallbackHighlightTitles[index] || fallbackHighlightTitles[0], 46),
+      text: globalImpactCompactText(text, globalIsTemplateSamplePreview ? 112 : 175),
+    }));
+    const globalHighlights = highlightItems.map((item, index) => `
+      <article class="global-impact-highlight-card">
+        <span>${String(index + 1).padStart(2, "0")}</span>
+        <strong>${escapeHtml(item.title)}</strong>
+        <p>${escapeHtml(item.text)}</p>
+      </article>
+    `).join("");
+    const globalExperienceSource = globalIsTemplateSamplePreview
+      ? (curatedExperiences.length ? curatedExperiences : [curatedPrimaryExperience]).slice(0, 2)
+      : (curatedExperiences.length ? curatedExperiences : [curatedPrimaryExperience]);
+    const globalExperienceEntries = globalExperienceSource.map((item, index) => {
+      const achievementItems = globalIsTemplateSamplePreview
+        ? normalizeTextList(item.achievements).slice(0, index === 0 ? 2 : 1).map((achievement) => globalImpactCompactText(achievement, 132))
+        : item.achievements;
+      return `
+      <article class="global-impact-experience-item">
+        <div class="global-impact-entry-head">
+          <div>
+            <strong ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>
+            <p>
+              <span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>${curatedHasText(item.company) && curatedHasText(item.location) ? " - " : ""}<span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span>
+            </p>
+          </div>
+          <em ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</em>
+        </div>
+        <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(achievementItems, "")}</ul>
+      </article>
+    `;
+    }).join("");
+    const globalProjectItems = globalLimit(data.projects, Infinity, 1);
+    const globalProjects = globalProjectItems.map((item, index) => {
+      const { title, text } = splitTitleText(item);
+      return `
+        <article class="global-impact-project-item">
+          <span>${String(index + 1).padStart(2, "0")}</span>
+          <div>
+            <strong>${escapeHtml(title)}</strong>
+            ${text ? `<p>${escapeHtml(globalIsTemplateSamplePreview ? globalImpactCompactText(text, 118) : text)}</p>` : ""}
+          </div>
+        </article>
+      `;
+    }).join("");
+    const globalEducationSource = globalIsTemplateSamplePreview
+      ? (curatedEducationItems.length ? curatedEducationItems : [education]).slice(0, 1)
+      : (curatedEducationItems.length ? curatedEducationItems : [education]);
+    const globalEducation = globalEducationSource.map((item, index) => `
+      <article class="global-impact-education-item">
+        <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
+        <p><span ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</span>${curatedHasText(item.school) && curatedHasText(item.location) ? " - " : ""}${curatedHasText(item.location) ? `<span>${display(item.location, "")}</span>` : ""}</p>
+        ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
+      </article>
+    `).join("");
+    const globalProfileText = globalIsTemplateSamplePreview ? globalImpactCompactText(data.summary, 165) : data.summary;
+    const globalFooterText = [displayName, personal.title, displayLocation].filter(Boolean).join(" - ") || globalLabels.footer;
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-global-impact global-impact-resume ${globalIsTemplateSamplePreview ? "global-impact-sample-preview" : ""} ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="global-impact-header">
+              <div class="global-impact-monogram" aria-hidden="true">${escapeHtml(globalInitials)}</div>
+              <div class="global-impact-identity">
+                <h2 data-preview-field="name" data-preview-empty="Amanda Silva">${display(displayName, "Amanda Silva")}</h2>
+                <strong data-preview-field="title" data-preview-empty="${b.values.professionalTitle}">${display(personal.title, b.values.professionalTitle)}</strong>
+              </div>
+              <p class="resume-contact-line global-impact-header-contact" data-preview-field="contact" data-preview-empty="${b.document.header}">${globalHeaderContact || display(curatedContact, b.document.header)}</p>
+            </header>
+            <div class="global-impact-body">
+              <aside class="global-impact-sidebar">
+                ${globalSection("global-impact-side-section global-impact-contact", globalLabels.contact, `<div class="global-impact-contact-list">${globalContactList}</div>`, globalContactRows.length > 0)}
+                ${globalSection("global-impact-side-section global-impact-skills", globalLabels.skills, `<div class="resume-skill-list global-impact-chip-list" data-preview-field="skills" data-preview-empty="">${globalSkillChips}</div>`, globalCoreSkills.length > 0)}
+                ${globalSection("global-impact-side-section global-impact-tools", globalLabels.tools, `<div class="global-impact-tool-list">${globalToolList}</div>`, globalTools.length > 0)}
+                ${globalSection("global-impact-side-section global-impact-languages", globalLabels.languages, `<div class="global-impact-language-list" data-preview-field="languages" data-preview-empty="">${globalLanguageList}</div>`, globalLanguageItems.length > 0)}
+                ${globalSection("global-impact-side-section global-impact-certifications", globalLabels.certifications, `<div class="global-impact-cert-list" data-preview-field="certifications" data-preview-empty="">${globalCertifications}</div>`, globalCertificationItems.length > 0)}
+                ${globalSection("global-impact-side-section global-impact-links", globalLabels.links, `<div class="resume-link-list global-impact-link-list" data-preview-field="links" data-preview-empty="">${globalLinksMarkup}</div>`, globalVisibleLinks.length > 0)}
+              </aside>
+              <main class="global-impact-main">
+                ${globalSection("global-impact-profile", globalLabels.profile, `<p data-preview-field="summary" data-preview-empty="">${display(globalProfileText, "")}</p>`, curatedHasText(globalProfileText))}
+                ${globalSection("global-impact-highlights", globalLabels.highlights, `<div class="global-impact-highlight-grid">${globalHighlights}</div>`, highlightItems.length > 0)}
+                ${globalSection("global-impact-experience", globalLabels.experience, globalExperienceEntries, globalExperienceSource.length > 0)}
+                ${globalSection("global-impact-projects", globalLabels.projects, `<div class="global-impact-project-list" data-preview-field="projects" data-preview-empty="">${globalProjects}</div>`, globalProjectItems.length > 0)}
+                ${globalSection("global-impact-education", globalLabels.education, `<div class="global-impact-education-list">${globalEducation}</div>`, globalEducationSource.length > 0)}
+              </main>
+            </div>
+            <footer class="global-impact-footer">${escapeHtml(globalFooterText)}</footer>
+          </div>
+        </div>
+      </div>
+    `;
+  }
   if (template === "corporate") {
     const corporateSidebar = [
       curatedOptional("curated-skills curated-side-section", curatedLabels.skills, `<div class="resume-skill-list curated-skill-list" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, curatedHasList(data.skills)),
@@ -16945,8 +17438,8 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
       ["link", normalizeTextList(data.professionalLinks)[0]],
     ].filter((item) => curatedHasText(item[1]));
     const executiveContacts = executiveContactItems.length
-      ? executiveContactItems.map(([iconName, value], index) => `<p ${index === 0 ? `data-preview-field="contact" data-preview-empty="${b.document.header}"` : ""}><span>${icon(iconName)}</span>${escapeHtml(value)}</p>`).join("")
-      : `<p data-preview-field="contact" data-preview-empty="${b.document.header}"><span>${icon("mail")}</span>${display(curatedContact, b.document.header)}</p>`;
+      ? executiveContactItems.map(([iconName, value], index) => `<p ${index === 0 ? `data-preview-field="contact" data-preview-empty="${b.document.header}"` : ""}><span class="exec-contact-icon">${icon(iconName)}</span><span class="exec-contact-value">${escapeHtml(value)}</span></p>`).join("")
+      : `<p data-preview-field="contact" data-preview-empty="${b.document.header}"><span class="exec-contact-icon">${icon("mail")}</span><span class="exec-contact-value">${display(curatedContact, b.document.header)}</span></p>`;
     const executiveSkills = normalizeTextList(data.skills);
     const executiveSkillList = (executiveSkills.length ? executiveSkills : normalizeTextList(b.values.skills)).map((skill, index) => {
       const width = [96, 91, 88, 94, 86, 82, 90, 78][index % 8];
@@ -17962,8 +18455,14 @@ function renderTemplatesPage() {
         const accessClass = templateAccessClass(template);
         const accessLabel = templateAccessLabel(template);
         const lockFeature = templateLockFeature(template);
+        const cardDescription = templateCatalogDescription(template);
+        const useLabel = locked
+          ? (template.access === "premium"
+            ? (currentLanguage === "pt" ? "Desbloquear Premium" : "Unlock Premium")
+            : (currentLanguage === "pt" ? "Desbloquear Pro" : "Unlock Pro"))
+          : copy.dashboard.useTemplate;
         return `
-        <article class="template-card dashboard-template-card template-${template.key} ${locked ? "locked-feature" : ""}" data-template-category="${template.key}" data-template-access="${template.access}" data-template-status="${template.status}" data-template-groups="${template.filterGroups.join(" ")}" data-template-search="${escapeHtml(`${template.name} ${template.category} ${template.description} ${template.bestForText}`.toLowerCase())}">
+        <article class="template-card dashboard-template-card template-${template.key} ${locked ? "locked-feature" : ""}" data-template-category="${template.key}" data-template-access="${template.access}" data-template-status="${template.status}" data-template-groups="${template.filterGroups.join(" ")}" data-template-search="${escapeHtml(`${template.name} ${template.category} ${cardDescription} ${template.bestForText}`.toLowerCase())}">
           <div class="template-card-topline">
             <span class="template-badge">${template.category}</span>
             <span class="template-badge ${accessClass}">${accessLabel}</span>
@@ -17971,11 +18470,11 @@ function renderTemplatesPage() {
           </div>
           ${templateCardPreviewMarkup(template.key)}
           <h3>${template.name}</h3>
-          <p>${template.description}</p>
+          <p>${cardDescription}</p>
           <p class="template-best"><strong>${copy.dashboard.bestFor}:</strong> ${template.bestForText}</p>
           <div class="template-actions">
             <button class="ghost-button small" type="button" data-template-preview="${template.key}" data-preview-context="dashboard">${copy.dashboard.previewTemplate}</button>
-            <button class="secondary-button small ${locked ? "locked-action" : ""}" type="button" data-use-template="${template.key}" data-template-destination="builder">${locked ? `${icon("lock")} ${featureAccessCopy().locked}` : copy.dashboard.useTemplate}</button>
+            <button class="secondary-button small ${locked ? "locked-action" : ""}" type="button" data-use-template="${template.key}" data-template-destination="builder">${locked ? `${icon("lock")} ${useLabel}` : useLabel}</button>
           </div>
         </article>
       `;
