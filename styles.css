@@ -28573,13 +28573,28 @@ select:focus-visible {
 
   .home-shell .hero-actions,
   .home-shell .trust-row,
-  .home-shell .hero-visual,
   .home-shell .hero-value-strip {
     justify-self: start;
     width: min(100%, 334px);
     max-width: min(100%, 334px);
     margin-right: 0;
     margin-left: 0;
+  }
+
+  .home-shell .hero-visual {
+    justify-self: stretch;
+    width: 100%;
+    max-width: 100%;
+    margin-right: 0;
+    margin-left: 0;
+  }
+
+  .home-shell .editor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-shell .resume-preview.mini {
+    width: 100%;
   }
 
   .home-shell .hero-actions .primary-button,
@@ -31149,6 +31164,103 @@ select:focus-visible {
 
   .save-state {
     min-height: 28px;
+  }
+}
+
+@media (max-width: 560px) {
+  .app-shell:not(.builder-workspace) .dashboard-topbar {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px 10px;
+  }
+
+  .app-shell:not(.builder-workspace) .dashboard-topbar .sidebar-toggle {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    border-radius: 14px;
+  }
+
+  .app-shell:not(.builder-workspace) .dashboard-topbar > div:nth-of-type(1) {
+    min-width: 0;
+  }
+
+  .app-shell:not(.builder-workspace) .dashboard-topbar .eyebrow {
+    display: block;
+    overflow: hidden;
+    color: var(--blue);
+    font-size: 9px;
+    line-height: 1.05;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app-shell:not(.builder-workspace) .dashboard-topbar h1 {
+    margin-top: 2px;
+    overflow: hidden;
+    font-size: 18px;
+    line-height: 1.05;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app-shell:not(.builder-workspace) .topbar-actions {
+    display: flex;
+    grid-column: 3;
+    grid-row: 1;
+    align-items: center;
+    justify-content: flex-end;
+    width: auto;
+    gap: 0;
+  }
+
+  .app-shell:not(.builder-workspace) .dashboard-guide-link {
+    display: none;
+  }
+
+  .app-shell:not(.builder-workspace) .dashboard-topbar .dashboard-preferences {
+    min-height: 34px;
+    padding: 2px;
+    gap: 2px;
+  }
+
+  .app-shell:not(.builder-workspace) .dashboard-topbar .dashboard-preferences .language-switch {
+    min-height: 28px;
+  }
+
+  .app-shell:not(.builder-workspace) .dashboard-topbar .dashboard-preferences .language-switch button {
+    min-width: 30px;
+    min-height: 24px;
+    padding: 0 6px;
+    font-size: 10.5px;
+  }
+
+  .app-shell:not(.builder-workspace) .dashboard-topbar .dashboard-preferences .theme-toggle,
+  .app-shell:not(.builder-workspace) .dashboard-topbar .dashboard-preferences .ai-quick-toggle {
+    width: 28px;
+    height: 28px;
+    min-height: 28px;
+  }
+
+  .app-shell:not(.builder-workspace) .dashboard-topbar .dashboard-preferences .icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .app-shell:not(.builder-workspace) .dashboard-search {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    order: initial;
+    width: 100%;
+    min-height: 38px;
+    padding: 0 12px;
+  }
+
+  .app-shell:not(.builder-workspace) .dashboard-search input {
+    padding: 8px 0;
+    font-size: 13px;
   }
 }
 
