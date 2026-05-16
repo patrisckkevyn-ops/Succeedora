@@ -1968,12 +1968,12 @@ const NOINDEX_ROUTES = new Set([
 const SEO_META = {
   home: {
     pt: {
-      title: "Succeedora — Criador de Currículos Profissionais",
-      description: "Crie currículos profissionais, cartas de apresentação e organize suas candidaturas com modelos modernos e ferramentas inteligentes.",
+      title: "Succeedora — Criador de Currículos com IA",
+      description: "Crie currículos profissionais, cartas de apresentação e candidaturas melhores com IA. Use modelos modernos, análise ATS, tradução e exportação em PDF.",
     },
     en: {
-      title: "Succeedora — Professional Resume Builder",
-      description: "Create professional resumes, cover letters and organize your job applications with modern templates and smart tools.",
+      title: "Succeedora — AI Resume Builder",
+      description: "Create professional resumes, cover letters and smarter job applications with AI. Use modern templates, ATS analysis, translation and PDF export.",
     },
   },
   blog: {
@@ -2357,6 +2357,7 @@ const TEMPLATE_STATUS = Object.freeze({
 
 const TEMPLATE_STATUS_BY_KEY = Object.freeze({
   "clean-start-ats": TEMPLATE_STATUS.active,
+  "clean-basic-free": TEMPLATE_STATUS.active,
   modern: TEMPLATE_STATUS.active,
   "simple-ats": TEMPLATE_STATUS.active,
   sales: TEMPLATE_STATUS.active,
@@ -2372,8 +2373,8 @@ const TEMPLATE_STATUS_BY_KEY = Object.freeze({
   corporate: TEMPLATE_STATUS.active,
   elegant: TEMPLATE_STATUS.active,
   "senior-executive": TEMPLATE_STATUS.active,
-  marketing: TEMPLATE_STATUS.hidden,
-  developer: TEMPLATE_STATUS.hidden,
+  marketing: TEMPLATE_STATUS.active,
+  developer: TEMPLATE_STATUS.active,
   designer: TEMPLATE_STATUS.hidden,
   healthcare: TEMPLATE_STATUS.hidden,
   legal: TEMPLATE_STATUS.hidden,
@@ -2385,6 +2386,7 @@ const TEMPLATE_STATUS_BY_KEY = Object.freeze({
   consultant: TEMPLATE_STATUS.hidden,
   startup: TEMPLATE_STATUS.hidden,
   "global-impact": TEMPLATE_STATUS.active,
+  "global-executive-signature": TEMPLATE_STATUS.active,
   global: TEMPLATE_STATUS.hidden,
   "clean-pro": TEMPLATE_STATUS.disabled,
   "modern-ats": TEMPLATE_STATUS.disabled,
@@ -2431,6 +2433,38 @@ const RESUME_TEMPLATES = [
     idealFor: {
       en: ["traditional applications", "corporate roles", "administrative areas", "first professional resume", "users who want clarity", "ATS systems"],
       pt: ["candidaturas tradicionais", "vagas corporativas", "\u00e1reas administrativas", "primeiro curr\u00edculo profissional", "usu\u00e1rios que querem clareza", "sistemas ATS"],
+    },
+  },
+  {
+    key: "clean-basic-free",
+    name: "Clean Basic Free",
+    names: {
+      en: "Clean Basic Free",
+      pt: "Clean Basic Free",
+    },
+    icon: "file",
+    category: "Basic Professional",
+    categories: {
+      en: "Basic Professional / Simple / Free",
+      pt: "Profissional b\u00e1sico / Simples / Gratuito",
+    },
+    access: "free",
+    filterGroups: ["free", "ats", "corporate", "first-job"],
+    descriptions: {
+      en: "Free, clean and professional resume, ideal for creating a simple, organized and easy-to-read application.",
+      pt: "Curr\u00edculo gratuito, limpo e profissional, ideal para criar uma candidatura simples, organizada e f\u00e1cil de ler.",
+    },
+    previewDescriptions: {
+      en: "A free one-column resume with navy headings, subtle divider lines and a clear structure for everyday applications.",
+      pt: "Um curr\u00edculo gratuito em uma coluna, com t\u00edtulos navy, linhas discretas e estrutura clara para candidaturas do dia a dia.",
+    },
+    bestFor: {
+      en: "Entry-level candidates, students, administrative roles, customer service, sales, marketing and simple professional applications",
+      pt: "Candidatos iniciantes, estudantes, administrativo, atendimento, vendas, marketing e candidaturas profissionais simples",
+    },
+    idealFor: {
+      en: ["first resumes", "students", "administrative roles", "customer service", "sales", "marketing", "simple ATS-friendly applications"],
+      pt: ["primeiro curr\u00edculo", "estudantes", "administrativo", "atendimento", "vendas", "marketing", "candidaturas simples compat\u00edveis com ATS"],
     },
   },
   {
@@ -2745,6 +2779,7 @@ const RESUME_TEMPLATES = [
 
 const ADDITIONAL_RESUME_TEMPLATES = [
   ["global-impact", "Global Impact", "Global Impact", "Global / Executive", "Global / Executivo moderno", "premium", ["premium", "international", "executive", "corporate", "technology"], "A Premium global resume with a sophisticated navy header, strategic sidebar and refined timeline for high-value international applications.", "Modelo Premium com layout global, cabecalho sofisticado, sidebar estrategica e experiencia em timeline refinada. Ideal para transmitir alto valor e presenca internacional.", "International professionals, managers, product leaders, consultants, remote roles and technology careers", "Profissionais internacionais, gerentes, product managers, consultores, tecnologia, lideres e vagas remotas"],
+  ["global-executive-signature", "Global Executive Signature", "Global Executive Signature", "Executive / Leadership / International / Premium", "Executivo / Lideranca / Internacional / Premium", "premium", ["premium", "executive", "international", "corporate", "technology"], "Executive premium resume with sidebar, monogram, refined hierarchy and a global leadership style.", "Curriculo Premium executivo com sidebar navy, monograma, hierarquia refinada e estilo global para lideranca.", "Experienced professionals, managers, senior technology leaders, consultants, directors, international and remote leadership roles", "Profissionais experientes, gestores, lideres de tecnologia senior, consultores, diretores e vagas internacionais ou remotas de lideranca"],
   ["professional", "Professional", "Profissional", "Corporate / Professional", "Corporativo / Profissional", "pro", ["pro", "corporate"], "A modern corporate Pro template with a strong contact card, clean timeline and organized sidebar.", "Um modelo Pro corporativo moderno, com card de contato forte, timeline limpa e sidebar organizada.", "Best for corporate, administrative and marketing roles", "Ideal para areas corporativas, administrativas e marketing"],
   ["clean-pro", "Clean Pro", "Clean Pro", "ATS", "ATS", "pro", ["pro", "ats", "corporate"], "A minimal premium layout with generous spacing, refined bullets and discreet skill chips.", "Um layout minimalista premium, com respiro, bullets refinados e chips discretos.", "ATS-focused with premium polish", "Focado em ATS com acabamento premium"],
   ["modern-ats", "Modern ATS", "ATS moderno", "ATS", "ATS", "pro", ["pro", "ats", "technology"], "ATS-safe structure with a sharper modern header and a separated skills band.", "Estrutura segura para ATS, com cabeçalho moderno e faixa de habilidades destacada.", "Online applications and ATS uploads", "Candidaturas online e uploads em ATS"],
@@ -2768,7 +2803,7 @@ const ADDITIONAL_RESUME_TEMPLATES = [
 ].map(([key, name, ptName, category, ptCategory, access, filterGroups, enDescription, ptDescription, enBestFor, ptBestFor]) => ({
   key,
   name,
-  icon: filterGroups.includes("technology") ? "settings" : filterGroups.includes("creative") ? "sparkles" : filterGroups.includes("international") ? "globe" : filterGroups.includes("executive") ? "layout" : "file",
+  icon: key === "global-executive-signature" ? "globe" : filterGroups.includes("technology") ? "settings" : filterGroups.includes("creative") ? "sparkles" : filterGroups.includes("international") ? "globe" : filterGroups.includes("executive") ? "layout" : "file",
   category,
   access,
   filterGroups,
@@ -2778,12 +2813,19 @@ const ADDITIONAL_RESUME_TEMPLATES = [
   previewDescriptions: key === "global-impact" ? {
     en: "Premium resume with an international visual system, sophisticated navy header, strategic sidebar, career highlight cards and refined experience timeline.",
     pt: "Curriculo Premium com visual internacional, cabecalho navy sofisticado, sidebar estrategica, cards de destaque e timeline refinada de experiencia.",
+  } : key === "global-executive-signature" ? {
+    en: "Executive premium resume with sidebar, monogram, refined hierarchy and a global leadership style.",
+    pt: "Curriculo Premium executivo com sidebar navy, monograma, hierarquia refinada e estilo global para lideranca.",
   } : undefined,
   bestFor: { en: enBestFor, pt: ptBestFor },
   idealFor: key === "global-impact" ? {
     en: ["international professionals", "managers", "coordinators", "product managers", "consultants", "technology professionals", "remote candidates", "team leaders", "global roles"],
     pt: ["profissionais internacionais", "gerentes", "coordenadores", "product managers", "consultores", "profissionais de tecnologia", "profissionais remotos", "lideres de equipe", "vagas globais"],
+  } : key === "global-executive-signature" ? {
+    en: ["experienced professionals", "managers", "coordinators", "executives", "consultants", "senior technology professionals", "remote leadership roles", "international applications"],
+    pt: ["profissionais experientes", "gestores", "coordenadores", "executivos", "consultores", "profissionais senior de tecnologia", "lideranca remota", "candidaturas internacionais"],
   } : undefined,
+  premiumPlanOnly: key === "global-executive-signature",
 }));
 
 const LOGO_DIRECTIONS = [
@@ -4901,12 +4943,12 @@ function templateFilterGroups(template = {}) {
   const category = String(template.category || "").toLowerCase();
   const groups = new Set([template.access || "pro"]);
   if (key.includes("ats") || category.includes("ats") || key === "minimal") groups.add("ats");
-  if (key.includes("executive") || ["manager", "consultant", "elegant", "global-impact"].includes(key) || category.includes("executive")) groups.add("executive");
+  if (key.includes("executive") || ["manager", "consultant", "elegant", "global-impact", "global-executive-signature"].includes(key) || category.includes("executive")) groups.add("executive");
   if (["creative", "designer", "marketing", "startup"].includes(key) || category.includes("creative")) groups.add("creative");
   if (["student", "first-job", "graduate", "customer-service"].includes(key)) groups.add("first-job");
-  if (["tech", "developer", "startup", "remote-work", "modern-ats", "global-impact"].includes(key) || category.includes("tech") || category.includes("technology")) groups.add("technology");
-  if (["international", "remote-work", "academic", "global", "global-impact"].includes(key) || category.includes("international")) groups.add("international");
-  if (["corporate", "classic", "professional", "sales", "operations", "legal", "finance", "healthcare", "consultant", "global-impact"].includes(key) || category.includes("corporate")) groups.add("corporate");
+  if (["tech", "developer", "startup", "remote-work", "modern-ats", "global-impact", "global-executive-signature"].includes(key) || category.includes("tech") || category.includes("technology")) groups.add("technology");
+  if (["international", "remote-work", "academic", "global", "global-impact", "global-executive-signature"].includes(key) || category.includes("international")) groups.add("international");
+  if (["corporate", "classic", "professional", "sales", "operations", "legal", "finance", "healthcare", "consultant", "global-impact", "global-executive-signature"].includes(key) || category.includes("corporate")) groups.add("corporate");
   if (["healthcare"].includes(key) || category.includes("health")) groups.add("healthcare");
   if (["legal"].includes(key) || category.includes("legal")) groups.add("legal");
   if (["finance"].includes(key) || category.includes("finance")) groups.add("finance");
@@ -5270,6 +5312,101 @@ function cleanStartAtsSampleResume() {
     certifications: ["Product Management Professional \u2014 Product School, 2023"],
     projects: ["User Onboarding Redesign - Redesigned the initial product flow to reduce activation friction."],
     professionalLinks: ["linkedin.com/in/amandasilva", "amandasilva.com"],
+  });
+}
+
+function cleanBasicFreeSampleResume() {
+  if (currentLanguage === "pt") {
+    return createBlankResume({
+      selectedTemplate: "clean-basic-free",
+      personal: {
+        fullName: "Mariana Oliveira da Silva",
+        title: "Analista de Marketing Digital",
+        email: "mariana.oliveira@email.com",
+        phone: "(11) 98765-4321",
+        location: "S\u00e3o Paulo, SP",
+      },
+      summary: "Analista de Marketing Digital com experi\u00eancia em estrat\u00e9gias de aquisi\u00e7\u00e3o, conte\u00fado e performance. Focada em gerar resultados por meio de campanhas orientadas por dados, otimiza\u00e7\u00e3o de convers\u00e3o e an\u00e1lise de m\u00e9tricas.",
+      workExperience: [
+        {
+          role: "Analista de Marketing Digital",
+          company: "Ag\u00eancia Conecta",
+          location: "S\u00e3o Paulo, SP",
+          period: "Jun 2022 - Atual",
+          achievements: [
+            "Planejei e executei campanhas de tr\u00e1fego pago, aumentando convers\u00f5es e qualificando leads.",
+            "Produzi relat\u00f3rios e dashboards para acompanhamento de KPIs e tomada de decis\u00e3o.",
+            "Otimizei p\u00e1ginas de destino, melhorando a taxa de convers\u00e3o em campanhas digitais.",
+          ],
+        },
+        {
+          role: "Assistente de Marketing",
+          company: "Loja Estilo",
+          location: "S\u00e3o Paulo, SP",
+          period: "Jan 2021 - Mai 2022",
+          achievements: [
+            "Apoiei a gest\u00e3o de redes sociais e a cria\u00e7\u00e3o de conte\u00fado para campanhas.",
+            "Conduzi pesquisas de mercado e an\u00e1lise de concorrentes para apoiar decis\u00f5es estrat\u00e9gicas.",
+          ],
+        },
+      ],
+      education: [
+        { degree: "Bacharelado em Marketing", school: "Universidade Presbiteriana Mackenzie", location: "S\u00e3o Paulo, SP", period: "Fev 2017 - Dez 2020" },
+      ],
+      skills: ["Marketing Digital", "Google Ads", "Meta Ads", "SEO", "An\u00e1lise de Dados", "Google Analytics", "Excel", "Comunica\u00e7\u00e3o", "Organiza\u00e7\u00e3o"],
+      languages: ["Portugu\u00eas - Nativo", "Ingl\u00eas - Intermedi\u00e1rio", "Espanhol - B\u00e1sico"],
+      certifications: ["Google Ads - Pesquisa", "Google Analytics Individual Qualification", "Meta Blueprint - Planejamento de M\u00eddia"],
+      projects: [
+        "Redesign de Landing Page - Redesenhei uma landing page focada em gera\u00e7\u00e3o de leads e melhoria de convers\u00e3o.",
+        "Conte\u00fado que Converte - Planejei uma estrat\u00e9gia de conte\u00fado para blog e redes sociais.",
+      ],
+      professionalLinks: ["linkedin.com/in/marianaoliveira", "marianaoliveira.com.br", "github.com/marianaoliveira"],
+    });
+  }
+  return createBlankResume({
+    selectedTemplate: "clean-basic-free",
+    personal: {
+      fullName: "Mariana Oliveira",
+      title: "Digital Marketing Analyst",
+      email: "mariana.oliveira@email.com",
+      phone: "+55 11 98765-4321",
+      location: "Sao Paulo, Brazil",
+    },
+    summary: "Digital Marketing Analyst with experience in acquisition, content and performance strategies. Focused on generating results through data-driven campaigns, conversion optimization and metrics analysis.",
+    workExperience: [
+      {
+        role: "Digital Marketing Analyst",
+        company: "Conecta Agency",
+        location: "Sao Paulo, Brazil",
+        period: "Jun 2022 - Present",
+        achievements: [
+          "Planned and executed paid traffic campaigns to improve conversions and qualify leads.",
+          "Created reports and dashboards to track KPIs and support decision-making.",
+          "Optimized landing pages to improve conversion rates in digital campaigns.",
+        ],
+      },
+      {
+        role: "Marketing Assistant",
+        company: "Loja Estilo",
+        location: "Sao Paulo, Brazil",
+        period: "Jan 2021 - May 2022",
+        achievements: [
+          "Supported social media management and content creation for campaigns.",
+          "Conducted market research and competitor analysis to support strategic decisions.",
+        ],
+      },
+    ],
+    education: [
+      { degree: "Bachelor's Degree in Marketing", school: "Mackenzie Presbyterian University", location: "Sao Paulo, Brazil", period: "Feb 2017 - Dec 2020" },
+    ],
+    skills: ["Digital Marketing", "Google Ads", "Meta Ads", "SEO", "Data Analysis", "Google Analytics", "Excel", "Communication", "Organization"],
+    languages: ["Portuguese - Native", "English - Intermediate", "Spanish - Basic"],
+    certifications: ["Google Ads - Search", "Google Analytics Individual Qualification", "Meta Blueprint - Media Planning"],
+    projects: [
+      "Landing Page Redesign - Redesigned a lead generation landing page to improve conversion.",
+      "Content That Converts - Planned a content strategy for blog and social media.",
+    ],
+    professionalLinks: ["linkedin.com/in/marianaoliveira", "marianaoliveira.com.br", "github.com/marianaoliveira"],
   });
 }
 
@@ -5689,7 +5826,7 @@ function setHreflangLinks(route, canonical, seo = {}) {
   if (route === "/" || route === "/pt" || route === "/en") {
     setMetaLink("alternate", seoUrl("/pt"), "pt-BR");
     setMetaLink("alternate", seoUrl("/en"), "en");
-    setMetaLink("alternate", seoUrl("/"), "x-default");
+    setMetaLink("alternate", seoUrl("/en"), "x-default");
   }
 }
 
@@ -5699,7 +5836,7 @@ function updateDocumentLanguage(seo = {}) {
   const route = getRoute();
   const title = seo.title || copy.metaTitle;
   const metaDescription = seo.description || copy.metaDescription;
-  const canonical = seo.canonical || seoUrl(route === "/pt" || route === "/en" ? "/" : route);
+  const canonical = seo.canonical || seoUrl(route);
   const noindex = typeof seo.noindex === "boolean" ? seo.noindex : routeShouldNoindex(route);
   document.documentElement.lang = currentLanguage === "pt" ? "pt-BR" : "en";
   document.title = title;
@@ -7513,6 +7650,7 @@ const FEATURE_RULES = {
   unlimited_resumes: { plan: "pro" },
   premium_templates: { plan: "pro", oneTime: "premiumTemplates", productType: "premium_template", target: "templateKey" },
   premium_template_library: { plan: "premium", oneTime: "premiumTemplates", productType: "premium_template", target: "templateKey" },
+  premium_template_plan_only: { plan: "premium" },
   watermark_free_pdf: { plan: "pro", oneTime: ["watermarkRemoval", "premiumPdf", "careerPack"], productType: "remove_watermark", target: "resumeId" },
   cover_letters_unlimited: { plan: "pro" },
   ai_resume_improvement: { plan: "pro", credits: true, productType: "ai_credits" },
@@ -7622,6 +7760,7 @@ function canUseTemplate(templateKey, access = getUserAccess()) {
   if (!template || !isTemplateActive(template)) return false;
   if (template.access === "free") return true;
   if (isAdminAccount()) return true;
+  if (template.premiumPlanOnly) return planRank(effectiveAccess.plan) >= planRank("premium");
   if (hasOneTime("premiumTemplates", templateKey, effectiveAccess)) return true;
   if (template.access === "premium") return planRank(effectiveAccess.plan) >= planRank("premium");
   return planRank(effectiveAccess.plan) >= planRank("pro");
@@ -7639,6 +7778,7 @@ function templateAccessClass(template = {}) {
 }
 
 function templateLockFeature(template = {}) {
+  if (template.premiumPlanOnly) return "premium_template_plan_only";
   return template.access === "premium" ? "premium_template_library" : "premium_templates";
 }
 
@@ -7706,6 +7846,7 @@ function featureAccessCopy() {
     watermarkText: "PDF sem marca está disponível no Pro ou como compra única.",
     templateText: "Este modelo está disponível no Pro ou como compra única.",
     premiumTemplateText: "Este modelo Premium está disponível no Premium ou como compra única.",
+    premiumTemplatePlanOnlyText: "Unlock this executive resume design with a Premium plan.",
     aiCreditsText: "Você precisa de créditos de IA para usar esta ação.",
     aiFeatureText: "Este recurso está disponível no Pro, Premium ou com créditos de IA.",
     atsPremiumText: "Análise ATS avançada está disponível no Premium.",
@@ -7714,6 +7855,7 @@ function featureAccessCopy() {
       unlimited_resumes: "Currículos ilimitados",
       premium_templates: "Modelo premium",
       premium_template_library: "Modelo Premium",
+      premium_template_plan_only: "Premium template",
       watermark_free_pdf: "PDF sem marca",
       cover_letters_unlimited: "Cartas de apresentação",
       ai_resume_improvement: "Melhorias com IA",
@@ -7747,6 +7889,7 @@ function featureAccessCopy() {
     watermarkText: "Watermark-free PDF is available with Pro or as a one-time purchase.",
     templateText: "This template is available with Pro or as a one-time purchase.",
     premiumTemplateText: "This Premium template is available with Premium or as a one-time purchase.",
+    premiumTemplatePlanOnlyText: "Unlock this executive resume design with a Premium plan.",
     aiCreditsText: "You need AI credits to use this action.",
     aiFeatureText: "This feature is available with Pro, Premium or AI credits.",
     atsPremiumText: "Advanced ATS analysis is available with Premium.",
@@ -7755,6 +7898,7 @@ function featureAccessCopy() {
       unlimited_resumes: "Unlimited resumes",
       premium_templates: "Premium template",
       premium_template_library: "Premium template",
+      premium_template_plan_only: "Premium template",
       watermark_free_pdf: "Watermark-free PDF",
       cover_letters_unlimited: "Cover letters",
       ai_resume_improvement: "AI improvements",
@@ -7799,6 +7943,7 @@ function featureModalText(featureKey) {
   if (normalized === "watermark_free_pdf" || normalized === "premium_pdf" || normalized === "remove_watermark") return copy.watermarkText;
   if (normalized === "premium_templates") return copy.templateText;
   if (normalized === "premium_template_library") return copy.premiumTemplateText;
+  if (normalized === "premium_template_plan_only") return copy.premiumTemplatePlanOnlyText;
   if (normalized === "ai_credits") return copy.aiCreditsText;
   if (normalized.startsWith("ai_") || normalized === "resume_translation") return copy.aiFeatureText;
   if (normalized === "ats_advanced" || normalized === "job_tailoring") return copy.atsPremiumText;
@@ -7811,6 +7956,7 @@ function featureBenefits(featureKey) {
     ? {
         premium_templates: ["Modelos mais sofisticados", "Visual mais profissional", "Mais opções para vagas internacionais"],
         premium_template_library: ["Layouts Premium exclusivos", "Estrutura mais sofisticada", "Maior valor visual para candidaturas importantes"],
+        premium_template_plan_only: ["Design executivo exclusivo", "Sidebar premium com monograma", "Layout global para cargos de lideranca"],
         watermark_free_pdf: ["PDF sem marca da Succeedora", "Arquivo mais profissional", "Opção de upgrade ou compra única"],
         premium_pdf: ["PDF sem marca da Succeedora", "Arquivo mais profissional", "Opção de upgrade ou compra única"],
         remove_watermark: ["PDF sem marca da Succeedora", "Arquivo mais profissional", "Opção de upgrade ou compra única"],
@@ -7827,6 +7973,7 @@ function featureBenefits(featureKey) {
     : {
         premium_templates: ["More polished templates", "More professional presentation", "More options for global roles"],
         premium_template_library: ["Exclusive Premium layouts", "More sophisticated structure", "Higher visual value for important applications"],
+        premium_template_plan_only: ["Exclusive executive design", "Premium monogram sidebar", "Global layout for leadership roles"],
         watermark_free_pdf: ["PDF without Succeedora branding", "More professional file", "Upgrade or one-time unlock"],
         premium_pdf: ["PDF without Succeedora branding", "More professional file", "Upgrade or one-time unlock"],
         remove_watermark: ["PDF without Succeedora branding", "More professional file", "Upgrade or one-time unlock"],
@@ -10888,7 +11035,11 @@ function bindInteractions() {
       updateBuilderLivePreview();
       return;
     }
-    if ((root?.classList.contains("simple-ats-resume") || root?.classList.contains("clean-start-ats-resume")) && ["skills", "certifications", "projects", "links", "languages"].includes(targetName)) {
+    if (root?.classList.contains("global-executive-signature-resume") && ["title", "summary", "experience", "skills", "certifications", "projects", "languages", "links"].includes(targetName)) {
+      updateBuilderLivePreview();
+      return;
+    }
+    if ((root?.classList.contains("simple-ats-resume") || root?.classList.contains("clean-start-ats-resume") || root?.classList.contains("clean-basic-free-resume")) && ["skills", "certifications", "projects", "links", "languages"].includes(targetName)) {
       updateBuilderLivePreview();
       return;
     }
@@ -10953,8 +11104,12 @@ function bindInteractions() {
       refreshOptionalResumeSections(root);
       return;
     }
+    if (root.classList.contains("global-executive-signature-resume")) {
+      updateBuilderLivePreview();
+      return;
+    }
     if (!contact) return;
-    const showLinkInContact = root?.classList?.contains("student-resume") || root?.classList?.contains("simple-ats-resume") || root?.classList?.contains("clean-start-ats-resume") || root?.classList?.contains("executive-resume");
+    const showLinkInContact = root?.classList?.contains("student-resume") || root?.classList?.contains("simple-ats-resume") || root?.classList?.contains("clean-start-ats-resume") || root?.classList?.contains("clean-basic-free-resume") || root?.classList?.contains("executive-resume");
     const studentLink = showLinkInContact
       ? normalizeTextList(document.querySelector('[data-resume-field="links"]')?.value || "")[0]
       : "";
@@ -10966,6 +11121,10 @@ function bindInteractions() {
     const root = previewRoot();
     const target = root ? root.querySelector('[data-preview-field="name"]') : null;
     if (!target) return;
+    if (root.classList.contains("global-executive-signature-resume")) {
+      updateBuilderLivePreview();
+      return;
+    }
     const first = document.querySelector('[data-preview-name-part="first"]')?.value.trim() || "";
     const last = document.querySelector('[data-preview-name-part="last"]')?.value.trim() || "";
     const full = [first, last].filter(Boolean).join(" ");
@@ -12113,6 +12272,101 @@ async function exportCoverLetterPdf(letter, button) {
 }
 
 function curatedSampleResume(template = "professional") {
+  if (template === "global-executive-signature") {
+    return createBlankResume({
+      selectedTemplate: template,
+      previewMode: "template-sample",
+      personal: {
+        fullName: "Rafael Moreira",
+        title: "Senior Operations Manager",
+        email: "rafael.moreira@email.com",
+        phone: "+55 11 90000-0000",
+        location: currentLanguage === "pt" ? "Sao Paulo, Brasil" : "Sao Paulo, Brazil",
+      },
+      summary: currentLanguage === "pt"
+        ? "Lider operacional senior com experiencia em eficiencia de processos, performance de equipes e execucao escalavel de negocios em ambientes dinamicos. Atua na lideranca de times multifuncionais, gestao de indicadores, redesenho de fluxos internos e melhoria continua para apoiar decisoes executivas e crescimento sustentavel."
+        : "Senior operations leader with experience improving process efficiency, team performance and scalable business execution in fast-paced environments. Skilled in cross-functional leadership, KPI management, workflow redesign and continuous improvement to support executive decisions and sustainable growth.",
+      workExperience: currentLanguage === "pt"
+        ? [
+          {
+            role: "Senior Operations Manager",
+            company: "NovaBridge Solutions",
+            location: "Sao Paulo, Brasil",
+            period: "Jan 2021 - Atual",
+            achievements: [
+              "Liderou 18 profissionais em operacoes, suporte ao cliente e controle de processos internos.",
+              "Aumentou a eficiencia operacional em 32% ao redesenhar distribuicao de tarefas e rotinas de reporte.",
+              "Implementou indicadores de performance para melhorar decisoes executivas e responsabilizacao das equipes.",
+              "Coordenou iniciativas com financas, vendas e customer success para reduzir gargalos operacionais.",
+              "Reduziu atrasos em 24% ao padronizar comunicacao interna e processos de escalonamento.",
+            ],
+          },
+          {
+            role: "Operations Coordinator",
+            company: "BrightWay Group",
+            location: "Remoto",
+            period: "Mar 2018 - Dez 2020",
+            achievements: [
+              "Gerenciou fluxos diarios de atendimento e operacoes com foco em qualidade e consistencia.",
+              "Criou dashboards de produtividade para acompanhar volume, prazos e principais gargalos.",
+              "Apoiou expansao para duas novas regioes de atendimento com processos documentados.",
+            ],
+          },
+        ]
+        : [
+          {
+            role: "Senior Operations Manager",
+            company: "NovaBridge Solutions",
+            location: "Sao Paulo, Brazil",
+            period: "Jan 2021 - Present",
+            achievements: [
+              "Led a team of 18 professionals across daily operations, customer support and internal process control.",
+              "Increased operational efficiency by 32% through task distribution redesign and clearer reporting routines.",
+              "Implemented performance indicators to improve executive decision-making and team accountability.",
+              "Coordinated cross-functional initiatives with finance, sales and customer success teams to remove bottlenecks.",
+              "Reduced operational delays by 24% by standardizing internal communication and escalation processes.",
+            ],
+          },
+          {
+            role: "Operations Coordinator",
+            company: "BrightWay Group",
+            location: "Remote",
+            period: "Mar 2018 - Dec 2020",
+            achievements: [
+              "Managed daily service and operations workflows with a focus on quality and consistency.",
+              "Created productivity dashboards to monitor service volume, deadlines and operational bottlenecks.",
+              "Supported expansion into two new service regions through documented operating processes.",
+            ],
+          },
+        ],
+      education: currentLanguage === "pt"
+        ? [
+          { degree: "MBA em Gestao de Negocios", school: "Fundacao Getulio Vargas", period: "2022" },
+          { degree: "Bacharelado em Administracao", school: "Universidade Paulista", period: "2017" },
+        ]
+        : [
+          { degree: "MBA in Business Management", school: "Fundacao Getulio Vargas", period: "2022" },
+          { degree: "Bachelor of Business Administration", school: "Universidade Paulista", period: "2017" },
+        ],
+      skills: currentLanguage === "pt"
+        ? ["Team Management", "Decision-Making", "Strategic Planning", "Performance Tracking", "Process Optimization", "Workflow Design", "KPI Management", "Budget Management", "Excel", "Power BI", "CRM Systems", "Project Management Tools"]
+        : ["Team Management", "Decision-Making", "Strategic Planning", "Performance Tracking", "Process Optimization", "Workflow Design", "KPI Management", "Budget Management", "Excel", "Power BI", "CRM Systems", "Project Management Tools"],
+      languages: currentLanguage === "pt" ? ["Portugues - Nativo", "Ingles - Avancado", "Espanhol - Intermediario"] : ["Portuguese - Native", "English - Advanced", "Spanish - Intermediate"],
+      certifications: currentLanguage === "pt"
+        ? ["Leadership and Management Certificate - 2023", "Advanced Excel for Business - 2022", "Project Management Fundamentals - 2021"]
+        : ["Leadership and Management Certificate - 2023", "Advanced Excel for Business - 2022", "Project Management Fundamentals - 2021"],
+      projects: currentLanguage === "pt"
+        ? [
+          "Operational Dashboard Implementation - Desenvolveu dashboard de performance para monitorar produtividade, volume de servicos e gargalos operacionais, ampliando a visibilidade para decisoes de lideranca.",
+          "Customer Support Process Redesign - Liderou melhoria de processos que reduziu solicitacoes repetidas e aumentou a consistencia das respostas internas.",
+        ]
+        : [
+          "Operational Dashboard Implementation - Designed and implemented a performance dashboard to monitor team productivity, service volume and operational bottlenecks, improving visibility for leadership decisions.",
+          "Customer Support Process Redesign - Led a process improvement initiative that reduced repeated support requests and improved internal response consistency.",
+        ],
+      professionalLinks: ["linkedin.com/in/rafaelmoreira", "rafaelmoreira.com"],
+    });
+  }
   if (template === "global-impact") {
     return createBlankResume({
       selectedTemplate: template,
@@ -12694,6 +12948,7 @@ function curatedSampleResume(template = "professional") {
 
 function sampleResumeDocument(template = "modern", format = selectedDocumentFormat) {
   if (template === "clean-start-ats") return resumeDocument("clean-start-ats", format, cleanStartAtsSampleResume());
+  if (template === "clean-basic-free") return resumeDocument("clean-basic-free", format, cleanBasicFreeSampleResume());
   if (template === "modern") return resumeDocument("modern", format, modernSampleResume());
   if (template === "executive") return resumeDocument("executive", format, executiveSampleResume());
   if (template === "minimal") return resumeDocument("minimal", format, minimalAtsSampleResume());
@@ -13468,7 +13723,7 @@ function renderHome() {
     </div>
   `, {
     ...seo,
-    canonical: seoUrl("/"),
+    canonical: seoUrl(getRoute() === "/pt" ? "/pt" : "/en"),
     ogTitle: seo.title,
     ogDescription: seo.description,
   });
@@ -13510,6 +13765,7 @@ function templateCatalogDescription(template = {}) {
     elegant: "Currículo refinado com acabamento premium discreto, ideal para consultores, analistas e perfis corporativos.",
     "senior-executive": "Modelo Premium para liderança, com assinatura visual forte, sidebar estratégica e foco em resultados.",
     "global-impact": "Currículo Premium com visual internacional, cabeçalho sofisticado e estrutura estratégica de alto impacto.",
+    "global-executive-signature": "Curriculo Premium executivo com sidebar navy, monograma, hierarquia refinada e estilo global para lideranca.",
     sales: "Modelo Pro para vendas e relacionamento comercial, com foco em métricas, resultados e crescimento de receita.",
     tech: "Layout moderno para tecnologia, produto e dados, com stack, projetos e experiência em destaque.",
     creative: "Visual com mais personalidade para portfólio, marketing e criação sem perder credibilidade profissional.",
@@ -13526,6 +13782,7 @@ function templateCatalogDescription(template = {}) {
     elegant: "Refined resume with discreet premium polish for consultants, analysts and corporate profiles.",
     "senior-executive": "Premium leadership model with a strong signature look, strategic sidebar and results focus.",
     "global-impact": "Premium resume with international polish, sophisticated header and high-impact strategic structure.",
+    "global-executive-signature": "Executive premium resume with sidebar, monogram, refined hierarchy and a global leadership style.",
     sales: "Pro template for sales and commercial relationships, focused on metrics, results and revenue growth.",
     tech: "Modern layout for technology, product and data, with stack, projects and experience in focus.",
     creative: "More expressive visual style for portfolio, marketing and creative roles while keeping credibility.",
@@ -16834,6 +17091,100 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
       </div>
     `;
   }
+  if (template === "clean-basic-free") {
+    const hasText = (item) => String(item || "").trim().length > 0;
+    const hasList = (items) => normalizeTextList(items).length > 0;
+    const labels = currentLanguage === "pt"
+      ? {
+        summary: "Resumo profissional",
+        experience: "Experi\u00eancia",
+        education: "Forma\u00e7\u00e3o",
+        skills: "Habilidades",
+        languages: "Idiomas",
+        certifications: "Certifica\u00e7\u00f5es",
+        projects: "Projetos",
+        links: "Links",
+      }
+      : {
+        summary: "Professional Summary",
+        experience: "Experience",
+        education: "Education",
+        skills: "Skills",
+        languages: "Languages",
+        certifications: "Certifications",
+        projects: "Projects",
+        links: "Links",
+      };
+    const optional = (className, title, body, hasContent) => `
+      <section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}>
+        <h3>${title}</h3>
+        ${body}
+      </section>
+    `;
+    const contactLinks = normalizeTextList(data.professionalLinks);
+    const headerLink = contactLinks[0] || "";
+    const remainingLinks = contactLinks.slice(1);
+    const contactItems = [displayLocation, personal.email, personal.phone, headerLink].filter(Boolean);
+    const cleanBasicContact = contactItems.join(" | ") || b.document.header;
+    const inlineList = (items, fieldName) => `<p class="clean-basic-inline-list" data-preview-field="${fieldName}" data-preview-empty="">${normalizeTextList(items).map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</p>`;
+    const experiences = (data.workExperience || []).filter((item) => hasText(item.role) || hasText(item.company) || hasText(item.location) || hasText(item.period) || hasList(item.achievements));
+    const primaryExperience = experiences[0] || experience;
+    const experienceBody = (experiences.length ? experiences : [primaryExperience]).map((item, index) => `
+      <article class="clean-basic-entry clean-basic-experience-item">
+        <div class="clean-basic-entry-head">
+          <p>
+            <strong ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>${hasText(item.role) && hasText(item.company) ? " \u2022 " : ""}<span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>
+          </p>
+          <em ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</em>
+        </div>
+        ${hasText(item.location) ? `<p class="clean-basic-meta" ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</p>` : ""}
+        <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
+      </article>
+    `).join("");
+    const educationItems = (data.education || []).filter((item) => hasText(item.degree) || hasText(item.school) || hasText(item.location) || hasText(item.period));
+    const educationBody = (educationItems.length ? educationItems : [education]).map((item, index) => `
+      <article class="clean-basic-entry clean-basic-education-item">
+        <div class="clean-basic-entry-head">
+          <p>
+            <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>${hasText(item.degree) && hasText(item.school) ? " \u2022 " : ""}<span ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</span>
+          </p>
+          ${hasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
+        </div>
+        ${hasText(item.location) ? `<p class="clean-basic-meta">${display(item.location, "")}</p>` : ""}
+      </article>
+    `).join("");
+    const projectBody = normalizeTextList(data.projects).map((item) => {
+      const parts = item.split(" - ").map((part) => part.trim()).filter(Boolean);
+      const title = parts.shift() || item;
+      return `
+        <article class="clean-basic-project-item">
+          <strong>${escapeHtml(title)}</strong>
+          ${parts.length ? `<p>${escapeHtml(parts.join(" - "))}</p>` : ""}
+        </article>
+      `;
+    }).join("");
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-clean-basic-free clean-basic-free-resume ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="clean-basic-header">
+              <h2 data-preview-field="name" data-preview-empty="Mariana Oliveira">${display(displayName, "Mariana Oliveira")}</h2>
+              <strong data-preview-field="title" data-preview-empty="${b.values.professionalTitle}">${display(personal.title, b.values.professionalTitle)}</strong>
+              <p class="resume-contact-line clean-basic-contact-line" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(cleanBasicContact, b.document.header)}</p>
+            </header>
+            ${optional("clean-basic-summary", labels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, hasText(data.summary))}
+            ${optional("clean-basic-experience", labels.experience, experienceBody, experiences.length > 0)}
+            ${optional("clean-basic-education", labels.education, educationBody, educationItems.length > 0)}
+            ${optional("clean-basic-skills", labels.skills, `<div class="resume-skill-list clean-basic-skill-line" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, hasList(data.skills))}
+            ${optional("clean-basic-languages", labels.languages, inlineList(data.languages, "languages"), hasList(data.languages))}
+            ${optional("clean-basic-certifications", labels.certifications, inlineList(data.certifications, "certifications"), hasList(data.certifications))}
+            ${optional("clean-basic-projects", labels.projects, `<div class="clean-basic-project-list" data-preview-field="projects" data-preview-empty="">${projectBody}</div>`, hasList(data.projects))}
+            ${optional("clean-basic-links", labels.links, inlineList(remainingLinks, "links"), remainingLinks.length > 0)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
   if (template === "simple-ats") {
     const hasText = (item) => String(item || "").trim().length > 0;
     const hasList = (items) => normalizeTextList(items).length > 0;
@@ -17045,6 +17396,203 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
       ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
     </p>
   `).join("");
+  if (template === "global-executive-signature") {
+    const signatureLabels = currentLanguage === "pt"
+      ? {
+        contact: "Contato",
+        leadership: "Lideranca",
+        operations: "Operacoes",
+        tools: "Business tools",
+        languages: "Idiomas",
+        certifications: "Certificacoes",
+        links: "Links",
+        summary: "Executive Summary",
+        experience: "Professional Experience",
+        achievements: "Key Achievements",
+        education: "Education",
+        projects: "Selected Projects",
+        footer: "Global Executive Signature",
+      }
+      : {
+        contact: "Contact",
+        leadership: "Leadership",
+        operations: "Operations",
+        tools: "Business Tools",
+        languages: "Languages",
+        certifications: "Certifications",
+        links: "Links",
+        summary: "Executive Summary",
+        experience: "Professional Experience",
+        achievements: "Key Achievements",
+        education: "Education",
+        projects: "Selected Projects",
+        footer: "Global Executive Signature",
+      };
+    const signatureIsTemplateSamplePreview = data.previewMode === "template-sample";
+    const signatureLimit = (items, fullLimit, previewLimit = fullLimit) => {
+      const source = Array.isArray(items) ? items.filter(Boolean) : normalizeTextList(items);
+      return source.slice(0, signatureIsTemplateSamplePreview ? previewLimit : fullLimit);
+    };
+    const signatureCompactText = (value, maxLength = 155) => {
+      const text = String(value || "").replace(/\s+/g, " ").trim();
+      if (text.length <= maxLength) return text;
+      const safeLimit = Math.max(24, maxLength - 3);
+      const sliced = text.slice(0, safeLimit);
+      const clean = sliced.includes(" ") ? sliced.replace(/\s+\S*$/, "").trim() : sliced.trim();
+      return `${clean || sliced.trim()}...`;
+    };
+    const signatureSection = (className, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><h3>${title}</h3>${body}</section>`;
+    const splitTitleText = (item) => {
+      const parts = String(item || "").split(/\s+-\s+|\s+\u2014\s+|\s+\u2013\s+/);
+      const title = (parts.shift() || item || "").trim();
+      const text = parts.join(" - ").trim();
+      return { title, text };
+    };
+    const signatureName = displayName || "Rafael Moreira";
+    const signatureInitial = signatureName.trim().charAt(0).toUpperCase() || "R";
+    const summaryText = String(data.summary || "").replace(/\s+/g, " ").trim();
+    const summaryFirstSentence = summaryText.match(/^[^.!?]+[.!?]?/)?.[0] || "";
+    const signatureTagline = signatureCompactText(summaryFirstSentence || (currentLanguage === "pt"
+      ? "Lideranca operacional focada em eficiencia de processos, performance de equipes e execucao escalavel."
+      : "Operational leader focused on process efficiency, team performance and scalable business execution."), 150);
+    const signatureLinks = normalizeTextList(data.professionalLinks);
+    const signaturePrimaryLink = signatureLinks.find((item) => /linkedin/i.test(item)) || signatureLinks[0] || "";
+    const signatureContactRows = [
+      [currentLanguage === "pt" ? "Email" : "Email", personal.email, "contact"],
+      [currentLanguage === "pt" ? "Telefone" : "Phone", personal.phone, ""],
+      [currentLanguage === "pt" ? "Localizacao" : "Location", displayLocation, ""],
+      ["LinkedIn", signaturePrimaryLink, ""],
+    ].filter((item) => curatedHasText(item[1]));
+    const signatureContactMarkup = signatureContactRows.map(([label, value, field]) => `
+      <p ${field ? `data-preview-field="${field}" data-preview-empty="${b.document.header}"` : ""}>
+        <span>${escapeHtml(label)}</span>
+        <strong>${escapeHtml(value)}</strong>
+      </p>
+    `).join("");
+    const signatureSkills = normalizeTextList(data.skills);
+    const assignedSkills = new Set();
+    const pickSkills = (pattern, limit) => {
+      const picked = [];
+      signatureSkills.forEach((skill) => {
+        const key = skill.toLowerCase();
+        if (assignedSkills.has(key) || !pattern.test(skill) || picked.length >= limit) return;
+        assignedSkills.add(key);
+        picked.push(skill);
+      });
+      return picked;
+    };
+    const signatureLeadershipSkills = pickSkills(/lead|lider|team|gest|management|strategy|strategic|decision|stakeholder|negotiation|comunica|planning|planejamento/i, 6);
+    const signatureOperationSkills = pickSkills(/operation|operac|process|workflow|kpi|indicator|performance|report|budget|finance|cost|efficien|quality|compliance|resource|resource allocation|optimization|otimiz/i, 6);
+    const signatureToolSkills = pickSkills(/excel|power\s*bi|crm|salesforce|hubspot|jira|notion|sql|tableau|looker|project|microsoft|google|analytics|sap|erp|asana|trello/i, 6);
+    const remainingSkills = signatureSkills.filter((skill) => !assignedSkills.has(skill.toLowerCase()));
+    remainingSkills.forEach((skill) => {
+      if (signatureLeadershipSkills.length < 4) signatureLeadershipSkills.push(skill);
+      else if (signatureOperationSkills.length < 4) signatureOperationSkills.push(skill);
+      else if (signatureToolSkills.length < 4) signatureToolSkills.push(skill);
+    });
+    const skillTags = (items) => signatureLimit(items, Infinity, 5).map((skill) => `<span>${escapeHtml(skill)}</span>`).join("");
+    const allAchievementBullets = curatedExperiences.flatMap((item) => normalizeTextList(item.achievements));
+    const metricAchievementPattern = /\d|%|\$|R\$|reduced|increased|improved|managed|led|implemented|expanded|optimized|otimiz|reduz|aument|lider|implant|gerenci|melhor/i;
+    const signatureKeyAchievementSource = [
+      ...allAchievementBullets.filter((item) => metricAchievementPattern.test(item)),
+      ...allAchievementBullets,
+    ].filter((item, index, source) => source.findIndex((candidate) => candidate.toLowerCase() === item.toLowerCase()) === index);
+    const signatureKeyAchievements = signatureLimit(signatureKeyAchievementSource, 5, 4);
+    const signatureAchievementsMarkup = `<ul>${linesMarkup(signatureKeyAchievements.map((item) => signatureCompactText(item, signatureIsTemplateSamplePreview ? 122 : 190)), "")}</ul>`;
+    const signatureExperienceSource = signatureIsTemplateSamplePreview
+      ? (curatedExperiences.length ? curatedExperiences : [curatedPrimaryExperience]).slice(0, 2)
+      : (curatedExperiences.length ? curatedExperiences : [curatedPrimaryExperience]);
+    const signatureExperienceEntries = signatureExperienceSource.map((item, index) => {
+      const achievementItems = signatureIsTemplateSamplePreview
+        ? normalizeTextList(item.achievements).slice(0, index === 0 ? 3 : 2).map((achievement) => signatureCompactText(achievement, 126))
+        : item.achievements;
+      return `
+        <article class="signature-experience-item">
+          <div class="signature-entry-head">
+            <div>
+              <strong ${index === 0 ? `data-preview-field="experienceRole" data-preview-empty=""` : ""}>${display(item.role, "")}</strong>
+              <p><span ${index === 0 ? `data-preview-field="experienceCompany" data-preview-empty=""` : ""}>${display(item.company, "")}</span>${curatedHasText(item.company) && curatedHasText(item.location) ? " - " : ""}<span ${index === 0 ? `data-preview-field="experienceLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span></p>
+            </div>
+            ${curatedHasText(item.period) ? `<em ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</em>` : ""}
+          </div>
+          <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(achievementItems, "")}</ul>
+        </article>
+      `;
+    }).join("");
+    const signatureEducationSource = signatureIsTemplateSamplePreview
+      ? (curatedEducationItems.length ? curatedEducationItems : [education]).slice(0, 2)
+      : (curatedEducationItems.length ? curatedEducationItems : [education]);
+    const signatureEducationMarkup = signatureEducationSource.map((item, index) => `
+      <article class="signature-education-item">
+        <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
+        <p><span ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</span>${curatedHasText(item.school) && curatedHasText(item.location) ? " - " : ""}${curatedHasText(item.location) ? `<span>${display(item.location, "")}</span>` : ""}</p>
+        ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
+      </article>
+    `).join("");
+    const signatureProjectItems = signatureLimit(data.projects, Infinity, 2);
+    const signatureProjectsMarkup = signatureProjectItems.map((item) => {
+      const { title, text } = splitTitleText(item);
+      return `
+        <article class="signature-project-item">
+          <strong>${escapeHtml(title)}</strong>
+          ${text ? `<p>${escapeHtml(signatureIsTemplateSamplePreview ? signatureCompactText(text, 122) : text)}</p>` : ""}
+        </article>
+      `;
+    }).join("");
+    const signatureLanguageItems = signatureLimit(data.languages, Infinity, 3);
+    const signatureLanguagesMarkup = signatureLanguageItems.map((item) => {
+      const parts = String(item || "").split(/\s[-:|]\s|\s[-:|]|[-:|]\s/);
+      const language = (parts.shift() || item || "").trim();
+      const level = parts.join(" ").trim();
+      return `<p><strong>${escapeHtml(language)}</strong>${level ? `<span>${escapeHtml(level)}</span>` : ""}</p>`;
+    }).join("");
+    const signatureCertificationItems = signatureLimit(data.certifications, Infinity, 3);
+    const signatureCertificationsMarkup = signatureCertificationItems.map((item) => {
+      const { title, text } = splitTitleText(item);
+      return `<p><strong>${escapeHtml(title)}</strong>${text ? `<span>${escapeHtml(text)}</span>` : ""}</p>`;
+    }).join("");
+    const signatureVisibleLinks = signatureLimit(signatureLinks, Infinity, 2);
+    const signatureLinksMarkup = signatureVisibleLinks.map((item) => {
+      const label = /linkedin/i.test(item) ? "LinkedIn" : /portfolio|portf|site|\.com/i.test(item) ? "Portfolio" : currentLanguage === "pt" ? "Link profissional" : "Professional link";
+      return `<p><span>${escapeHtml(label)}</span><strong>${escapeHtml(item)}</strong></p>`;
+    }).join("");
+    const signatureProfileText = signatureIsTemplateSamplePreview ? signatureCompactText(data.summary, 255) : data.summary;
+    const signatureFooterText = [signatureName, personal.title, displayLocation].filter(Boolean).join(" - ") || signatureLabels.footer;
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-global-executive-signature global-executive-signature-resume ${signatureIsTemplateSamplePreview ? "global-executive-signature-sample-preview" : ""} ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <div class="global-executive-signature-layout">
+              <main class="signature-main">
+                <header class="signature-header">
+                  <h2 data-preview-field="name" data-preview-empty="Rafael Moreira">${display(signatureName, "Rafael Moreira")}</h2>
+                  <strong data-preview-field="title" data-preview-empty="Senior Operations Manager">${display(personal.title, "Senior Operations Manager")}</strong>
+                  <span class="signature-header-rule" aria-hidden="true"></span>
+                  <p>${escapeHtml(signatureTagline)}</p>
+                </header>
+                ${signatureSection("signature-summary", signatureLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(signatureProfileText, "")}</p>`, curatedHasText(signatureProfileText))}
+                ${signatureSection("signature-experience", signatureLabels.experience, signatureExperienceEntries, curatedExperiences.length > 0)}
+                ${signatureSection("signature-achievements", signatureLabels.achievements, signatureAchievementsMarkup, signatureKeyAchievements.length > 0)}
+                ${signatureSection("signature-education", signatureLabels.education, `<div class="signature-education-list">${signatureEducationMarkup}</div>`, curatedEducationItems.length > 0)}
+                ${signatureSection("signature-projects", signatureLabels.projects, `<div class="signature-project-list" data-preview-field="projects" data-preview-empty="">${signatureProjectsMarkup}</div>`, signatureProjectItems.length > 0)}
+              </main>
+              <aside class="signature-sidebar">
+                <div class="signature-monogram" aria-hidden="true">${escapeHtml(signatureInitial)}</div>
+                ${signatureSection("signature-side-section signature-contact", signatureLabels.contact, `<div class="signature-contact-list">${signatureContactMarkup}</div>`, signatureContactRows.length > 0)}
+                ${signatureSection("signature-side-section signature-leadership", signatureLabels.leadership, `<div class="signature-skill-tags" data-preview-field="skills" data-preview-empty="">${skillTags(signatureLeadershipSkills)}</div>`, signatureLeadershipSkills.length > 0)}
+                ${signatureSection("signature-side-section signature-operations", signatureLabels.operations, `<div class="signature-skill-tags">${skillTags(signatureOperationSkills)}</div>`, signatureOperationSkills.length > 0)}
+                ${signatureSection("signature-side-section signature-tools", signatureLabels.tools, `<div class="signature-skill-tags signature-tool-tags">${skillTags(signatureToolSkills)}</div>`, signatureToolSkills.length > 0)}
+                ${signatureSection("signature-side-section signature-languages", signatureLabels.languages, `<div class="signature-side-text-list" data-preview-field="languages" data-preview-empty="">${signatureLanguagesMarkup}</div>`, signatureLanguageItems.length > 0)}
+                ${signatureSection("signature-side-section signature-certifications", signatureLabels.certifications, `<div class="signature-side-text-list" data-preview-field="certifications" data-preview-empty="">${signatureCertificationsMarkup}</div>`, signatureCertificationItems.length > 0)}
+                ${signatureSection("signature-side-section signature-links", signatureLabels.links, `<div class="resume-link-list signature-side-text-list" data-preview-field="links" data-preview-empty="">${signatureLinksMarkup}</div>`, signatureVisibleLinks.length > 0)}
+              </aside>
+            </div>
+            <footer class="signature-footer">${escapeHtml(signatureFooterText)}</footer>
+          </div>
+        </div>
+      </div>
+    `;
+  }
   if (template === "global-impact") {
     const globalLabels = currentLanguage === "pt"
       ? {
@@ -17787,6 +18335,38 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
               </main>
               <aside class="international-sidebar">
                 ${internationalSideSections}
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (template === "developer") {
+    return `
+      <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
+        <div class="resume-page-scale-wrapper">
+          <div class="resume-document professional-preview resume-template-developer developer-premium-resume curated-resume curated-layout-${templateProfile.layout} curated-tone-${templateProfile.tone} curated-accent-${templateProfile.accent} ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+            <header class="curated-header developer-premium-header">
+              <div class="curated-header-mark" aria-hidden="true"></div>
+              <div>
+                <h2 data-preview-field="name" data-preview-empty="Amanda Silva">${display(displayName, "Amanda Silva")}</h2>
+                <strong data-preview-field="title" data-preview-empty="${b.values.professionalTitle}">${display(personal.title, b.values.professionalTitle)}</strong>
+              </div>
+              <p class="resume-contact-line curated-contact-line" data-preview-field="contact" data-preview-empty="${b.document.header}">${display(curatedContact, b.document.header)}</p>
+            </header>
+            <div class="developer-premium-body">
+              <main class="developer-premium-main">
+                ${curatedOptional("curated-summary curated-main-section", curatedLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, curatedHasText(data.summary))}
+                ${curatedOptional("curated-experience curated-main-section", curatedLabels.experience, curatedExperienceEntries, curatedExperiences.length > 0)}
+                ${curatedOptional("curated-projects curated-main-section", curatedLabels.projects, curatedParagraphs(data.projects, "projects"), curatedHasList(data.projects))}
+              </main>
+              <aside class="developer-premium-sidebar">
+                ${curatedOptional("curated-skills curated-side-section", curatedLabels.skills, `<div class="resume-skill-list curated-skill-list" data-preview-field="skills" data-preview-empty="">${listMarkup(data.skills, "")}</div>`, curatedHasList(data.skills))}
+                ${curatedOptional("curated-education curated-side-section", curatedLabels.education, curatedEducationEntries, curatedEducationItems.length > 0)}
+                ${curatedOptional("curated-certifications curated-side-section", curatedLabels.certifications, `<p data-preview-field="certifications" data-preview-empty="">${curatedLines(data.certifications)}</p>`, curatedHasList(data.certifications))}
+                ${curatedOptional("curated-languages curated-side-section", curatedLabels.languages, `<p data-preview-field="languages" data-preview-empty="">${curatedLines(data.languages)}</p>`, curatedHasList(data.languages))}
+                ${curatedOptional("curated-links curated-side-section", curatedLabels.links, `<div class="resume-link-list curated-link-list" data-preview-field="links" data-preview-empty="">${paragraphList(data.professionalLinks, "")}</div>`, curatedHasList(data.professionalLinks))}
               </aside>
             </div>
           </div>

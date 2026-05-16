@@ -529,6 +529,7 @@ body:has(.home-shell)::-webkit-scrollbar {
 }
 
 .hero h1,
+.section-heading h1,
 .section-heading h2,
 .auth-visual h1 {
   margin: 13px 0 0;
@@ -1988,6 +1989,42 @@ body:has(.home-shell)::-webkit-scrollbar {
 }
 
 @media (max-width: 680px) {
+  .public-templates-page,
+  .public-templates-page .section-heading,
+  .public-templates-page .template-catalog-tools,
+  .public-templates-page .template-filter-row,
+  .public-templates-page .template-grid,
+  .public-templates-page .template-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .public-templates-page .section-heading h1,
+  .public-templates-page .section-heading p {
+    justify-self: stretch;
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .public-templates-page .template-card h3,
+  .public-templates-page .template-card p,
+  .public-templates-page .template-best {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .public-templates-page .section-heading h1 {
+    font-size: clamp(30px, 8.4vw, 38px);
+    line-height: 1.12;
+  }
+
+  .public-templates-page .template-filter-row {
+    justify-content: flex-start;
+    overflow: hidden;
+  }
+
   .resume-template-card,
   .dashboard-templates .dashboard-template-card {
     padding: 14px;
@@ -9920,6 +9957,225 @@ select:focus-visible {
   white-space: normal !important;
 }
 
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume {
+  display: block;
+  padding: 46px 66px 42px;
+  border: 0;
+  border-radius: 0;
+  color: #111827;
+  background: #ffffff;
+  box-shadow: 0 18px 44px rgba(17, 24, 39, 0.1);
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  text-rendering: geometricPrecision;
+}
+
+.resume-document-shell[data-preview-scaled="true"] .resume-document.resume-template-clean-basic-free.clean-basic-free-resume {
+  padding: 46px 66px 42px;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume header,
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume section {
+  display: block;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-header {
+  padding-bottom: 20px;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume h2 {
+  margin: 0 0 6px;
+  color: #123a6f;
+  font-size: 39px;
+  font-weight: 850;
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume header strong {
+  display: block;
+  margin: 0;
+  color: #1f2937;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-contact-line {
+  margin-top: 17px;
+  color: #374151;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume section {
+  margin-top: 15px;
+  break-inside: avoid;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume h3 {
+  margin: 0 0 9px;
+  padding-bottom: 5px;
+  border-bottom: 1.4px solid rgba(59, 130, 246, 0.78);
+  color: #1e3a8a;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.25;
+  text-transform: none;
+  break-after: avoid;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume p,
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume li,
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume span,
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume em {
+  color: #1f2937;
+  font-size: 12.5px;
+  line-height: 1.46;
+  letter-spacing: 0;
+  hyphens: none;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-entry {
+  display: grid;
+  gap: 3px;
+  break-inside: avoid;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-entry + .clean-basic-entry {
+  margin-top: 14px;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-entry-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: 16px;
+  align-items: baseline;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-entry-head p {
+  margin: 0;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-entry-head strong,
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-project-item strong {
+  color: #111827;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-entry-head em,
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-meta {
+  color: #4b5563;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume ul {
+  display: block;
+  margin: 7px 0 0;
+  padding-left: 18px;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume li {
+  margin: 3px 0;
+  padding-left: 1px;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-skill-line,
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-inline-list {
+  display: block;
+  margin: 0;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-skill-line span,
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-inline-list span {
+  display: inline;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: #1f2937;
+  background: transparent;
+  box-shadow: none;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.46;
+  white-space: normal;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-skill-line span::after,
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-inline-list span::after {
+  content: " \2022  ";
+  color: #4b5563;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-skill-line span:last-child::after,
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-inline-list span:last-child::after {
+  content: "";
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-project-list {
+  display: grid;
+  gap: 8px;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-project-item {
+  display: grid;
+  gap: 2px;
+  break-inside: avoid;
+}
+
+.resume-document.resume-template-clean-basic-free.clean-basic-free-resume .clean-basic-project-item p {
+  margin: 0;
+}
+
+.pdf-export-document.resume-template-clean-basic-free.clean-basic-free-resume {
+  display: block !important;
+  padding: 12mm 16.8mm 11mm !important;
+  box-shadow: none !important;
+}
+
+.pdf-export-document.resume-template-clean-basic-free.clean-basic-free-resume h2 {
+  font-size: 26pt !important;
+}
+
+.pdf-export-document.resume-template-clean-basic-free.clean-basic-free-resume h3 {
+  font-size: 12pt !important;
+  margin-bottom: 2.2mm !important;
+  padding-bottom: 1.4mm !important;
+}
+
+.pdf-export-document.resume-template-clean-basic-free.clean-basic-free-resume p,
+.pdf-export-document.resume-template-clean-basic-free.clean-basic-free-resume li,
+.pdf-export-document.resume-template-clean-basic-free.clean-basic-free-resume span,
+.pdf-export-document.resume-template-clean-basic-free.clean-basic-free-resume em {
+  font-size: 9.3pt !important;
+  line-height: 1.38 !important;
+}
+
+.pdf-export-document.resume-template-clean-basic-free.clean-basic-free-resume section {
+  margin-top: 3.8mm !important;
+  break-inside: avoid !important;
+}
+
+.pdf-export-document.resume-template-clean-basic-free.clean-basic-free-resume ul {
+  margin-top: 1.8mm !important;
+  padding-left: 4.8mm !important;
+}
+
 .resume-template-elegant {
   border-top: 7px solid #9b7cf7;
   background:
@@ -14192,6 +14448,316 @@ select:focus-visible {
   box-shadow: none;
 }
 
+.resume-document.resume-template-developer.curated-resume {
+  --curated-ink: #102033;
+  --curated-muted: #5a687b;
+  --curated-line: #d8e4ee;
+  --curated-soft: #f5f9fc;
+  --curated-accent: #0891b2;
+  --curated-accent-2: #315eea;
+  --curated-dark: #081827;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
+  align-content: start;
+  gap: 0;
+  padding: 0 40px 34px;
+  overflow: hidden;
+  border: 1px solid #d7e4ee;
+  border-radius: 6px;
+  background:
+    linear-gradient(180deg, rgba(8, 145, 178, 0.055), transparent 154px),
+    linear-gradient(90deg, transparent, rgba(49, 94, 234, 0.035) 78%, transparent),
+    #ffffff;
+  box-shadow: 0 26px 66px rgba(8, 24, 39, 0.14);
+}
+
+.resume-document.resume-template-developer.curated-resume .developer-premium-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(204px, 0.34fr);
+  gap: 14px 24px;
+  align-items: start;
+  padding-top: 16px;
+}
+
+.resume-document.resume-template-developer.curated-resume .developer-premium-main,
+.resume-document.resume-template-developer.curated-resume .developer-premium-sidebar {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.resume-document.resume-template-developer.curated-resume .developer-premium-main {
+  grid-column: 1;
+}
+
+.resume-document.resume-template-developer.curated-resume .developer-premium-sidebar {
+  grid-column: 2;
+}
+
+.resume-document.resume-template-developer.curated-resume .developer-premium-body section {
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+
+.resume-document.resume-template-developer.curated-resume::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 6px;
+  background: linear-gradient(90deg, #0891b2 0 34%, #315eea 34% 72%, #9bc53d 72% 100%);
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-header {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(220px, 0.36fr);
+  gap: 13px 18px;
+  align-items: center;
+  min-height: 158px;
+  margin: 0 -40px;
+  padding: 25px 40px 21px;
+  border: 0;
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(8, 145, 178, 0.24), transparent 31%),
+    linear-gradient(135deg, #081827, #0b2237 58%, #102033);
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-header-mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(8, 145, 178, 0.96), rgba(49, 94, 234, 0.92)),
+    #0891b2;
+  box-shadow: 0 0 0 6px rgba(103, 232, 249, 0.09), 0 16px 32px rgba(1, 12, 25, 0.28);
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-header h2 {
+  color: #ffffff;
+  font-size: 31px;
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-header strong {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 7px;
+  padding: 4px 10px;
+  border: 1px solid rgba(185, 247, 250, 0.22);
+  border-radius: 999px;
+  color: #c7fbff;
+  background: rgba(255, 255, 255, 0.07);
+  font-size: 11.4px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-contact-line {
+  grid-column: 3;
+  margin: 0;
+  padding: 11px 13px;
+  border: 1px solid rgba(199, 251, 255, 0.16);
+  border-radius: 9px;
+  color: #eefcff;
+  background: rgba(2, 14, 26, 0.42);
+  font-size: 10.5px;
+  line-height: 1.42;
+  overflow-wrap: anywhere;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-main-section {
+  align-self: start;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-side-section {
+  align-self: start;
+  padding: 13px 14px !important;
+  border: 1px solid rgba(8, 145, 178, 0.14) !important;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.96) !important;
+  box-shadow: 0 10px 24px rgba(8, 24, 39, 0.045) !important;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-summary {
+  align-self: start;
+  padding: 14px 16px 15px !important;
+  border: 1px solid rgba(8, 145, 178, 0.16) !important;
+  border-left: 4px solid var(--curated-accent) !important;
+  border-radius: 9px;
+  background:
+    linear-gradient(90deg, rgba(8, 145, 178, 0.09), transparent 46%),
+    #f8fcfd !important;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-summary p {
+  max-width: 720px;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-experience {
+  display: grid;
+  gap: 11px;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-skills {
+  color: #102033;
+  border-color: rgba(8, 145, 178, 0.2) !important;
+  background: linear-gradient(180deg, #f2fbfc, #ffffff) !important;
+}
+
+.resume-document.resume-template-developer.curated-resume h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(216, 228, 238, 0.88);
+  color: #0b5964 !important;
+  letter-spacing: 0.08em;
+}
+
+.resume-document.resume-template-developer.curated-resume .developer-premium-sidebar h3 {
+  color: #0b5964 !important;
+}
+
+.resume-document.resume-template-developer.curated-resume h3::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, var(--curated-accent), var(--curated-accent-2));
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-skills h3,
+.resume-document.resume-template-developer.curated-resume .curated-skills h3::before {
+  color: #0b5964 !important;
+}
+
+.resume-document.resume-template-developer.curated-resume p,
+.resume-document.resume-template-developer.curated-resume li {
+  color: #27364a;
+  font-size: 12.15px;
+  line-height: 1.5;
+}
+
+.resume-document.resume-template-developer.curated-resume ul {
+  gap: 4px;
+  margin-top: 7px;
+}
+
+.resume-document.resume-template-developer.curated-resume li::marker {
+  color: var(--curated-accent);
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-experience-item {
+  padding: 0 0 12px 18px;
+  border-bottom-color: rgba(8, 145, 178, 0.12);
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-experience-item::before {
+  inset: 2px auto 12px 2px;
+  width: 5px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--curated-accent), var(--curated-accent-2));
+  box-shadow: 0 0 0 4px rgba(8, 145, 178, 0.09);
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-entry-head strong {
+  color: #071827;
+  font-size: 13.8px;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-entry-meta {
+  margin: 2px 0 0;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-entry-meta span:first-child {
+  color: var(--curated-accent-2);
+  font-weight: 850;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-skill-list span {
+  width: auto;
+  max-width: 100%;
+  padding: 5px 8px;
+  border: 1px solid rgba(8, 145, 178, 0.16) !important;
+  border-left: 2px solid var(--curated-accent) !important;
+  border-radius: 999px;
+  color: #102033 !important;
+  background: #ffffff !important;
+  font-size: 10.55px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-text-list p,
+.resume-document.resume-template-developer.curated-resume .curated-link-list p {
+  color: #27364a;
+  font-size: 11.25px;
+  line-height: 1.44;
+  margin: 0;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-compact-item {
+  display: grid;
+  gap: 4px;
+  color: #27364a;
+  font-size: 11.25px;
+  line-height: 1.42;
+  margin: 0;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-compact-item strong {
+  color: #102033;
+  line-height: 1.25;
+}
+
+.resume-document.resume-template-developer.curated-resume .curated-compact-item span,
+.resume-document.resume-template-developer.curated-resume .curated-compact-item em {
+  color: #5a687b;
+  font-size: 10.7px;
+}
+
+.pdf-export-document.resume-template-developer.curated-resume {
+  grid-template-columns: 1fr !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 0 !important;
+  padding: 0 10.4mm 9.5mm !important;
+  box-shadow: none;
+}
+
+.pdf-export-document.resume-template-developer.curated-resume .developer-premium-body {
+  grid-template-columns: minmax(0, 1fr) minmax(53mm, 0.34fr) !important;
+  gap: 3.7mm 6.2mm !important;
+  padding-top: 4mm !important;
+}
+
+.pdf-export-document.resume-template-developer.curated-resume .curated-header {
+  margin: 0 -10.4mm !important;
+  padding: 7.2mm 10.4mm 5.8mm !important;
+}
+
+.pdf-export-document.resume-template-developer.curated-resume .curated-summary {
+  grid-column: 1 / -1 !important;
+  align-self: start !important;
+}
+
+.pdf-export-document.resume-template-developer.curated-resume .developer-premium-body section {
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+
 .resume-document.tech-lab-resume {
   --tech-ink: #101827;
   --tech-muted: #66758c;
@@ -17362,6 +17928,512 @@ select:focus-visible {
 .pdf-export-document.global-impact-resume article,
 .pdf-fit-export-document.global-impact-resume section,
 .pdf-fit-export-document.global-impact-resume article {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.resume-document.global-executive-signature-resume {
+  --signature-navy: #0f172a;
+  --signature-ink: #111827;
+  --signature-muted: #4b5563;
+  --signature-soft: #f8fafc;
+  --signature-line: #cbd5e1;
+  --signature-violet: #7c3aed;
+  --signature-cyan: #67e8f9;
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  width: var(--resume-page-width);
+  min-height: var(--resume-page-height);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 5px;
+  color: var(--signature-ink);
+  background: #ffffff;
+  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.14);
+  font-family: Inter, Manrope, "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+}
+
+.resume-document.global-executive-signature-resume,
+.resume-document.global-executive-signature-resume * {
+  box-sizing: border-box;
+}
+
+.resume-document-shell[data-preview-scaled="true"] .resume-document.global-executive-signature-resume {
+  padding: 0;
+}
+
+.resume-document.global-executive-signature-resume .global-executive-signature-layout {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.28fr) minmax(0, 0.72fr);
+  min-height: 0;
+  height: 100%;
+}
+
+.resume-document.global-executive-signature-resume .signature-main {
+  grid-column: 2;
+  grid-row: 1;
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  min-width: 0;
+  padding: 38px 42px 24px;
+  background: #ffffff;
+}
+
+.resume-document.global-executive-signature-resume .signature-sidebar {
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  align-content: start;
+  gap: 17px;
+  min-width: 0;
+  padding: 34px 22px 24px;
+  color: #e5e7eb;
+  background: var(--signature-navy);
+}
+
+.resume-document.global-executive-signature-resume header,
+.resume-document.global-executive-signature-resume section {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.resume-document.global-executive-signature-resume section,
+.resume-document.global-executive-signature-resume article {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.resume-document.global-executive-signature-resume section[hidden] {
+  display: none !important;
+}
+
+.resume-document.global-executive-signature-resume .signature-header {
+  display: block;
+  padding: 0 0 7px;
+}
+
+.resume-document.global-executive-signature-resume h2 {
+  margin: 0;
+  color: var(--signature-ink);
+  font-size: 33px;
+  font-weight: 850;
+  line-height: 1.03;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.resume-document.global-executive-signature-resume .signature-header strong {
+  display: block;
+  margin-top: 7px;
+  color: #1f2937;
+  font-size: 15.4px;
+  font-weight: 760;
+  line-height: 1.28;
+  overflow-wrap: anywhere;
+}
+
+.resume-document.global-executive-signature-resume .signature-header-rule {
+  display: block;
+  width: 118px;
+  height: 2px;
+  margin: 13px 0 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--signature-violet), var(--signature-cyan));
+}
+
+.resume-document.global-executive-signature-resume .signature-header p {
+  max-width: 520px;
+  margin: 0;
+  color: var(--signature-muted);
+  font-size: 11.6px;
+  font-weight: 680;
+  line-height: 1.52;
+}
+
+.resume-document.global-executive-signature-resume h3 {
+  display: grid;
+  grid-template-columns: auto minmax(28px, 1fr);
+  gap: 10px;
+  align-items: center;
+  margin: 0 0 9px;
+  color: var(--signature-ink);
+  font-size: 10.8px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.resume-document.global-executive-signature-resume h3::after {
+  content: "";
+  height: 1px;
+  background: linear-gradient(90deg, rgba(124, 58, 237, 0.42), rgba(103, 232, 249, 0.72), transparent);
+}
+
+.resume-document.global-executive-signature-resume p,
+.resume-document.global-executive-signature-resume li {
+  color: #374151;
+  font-size: 10.9px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.resume-document.global-executive-signature-resume ul {
+  display: grid;
+  gap: 4px;
+  margin: 7px 0 0;
+  padding-left: 16px;
+}
+
+.resume-document.global-executive-signature-resume li::marker {
+  color: var(--signature-violet);
+}
+
+.resume-document.global-executive-signature-resume .signature-summary {
+  padding: 13px 15px 13px 16px;
+  border: 1px solid rgba(203, 213, 225, 0.86);
+  border-left: 3px solid var(--signature-violet);
+  border-radius: 8px;
+  background: var(--signature-soft);
+}
+
+.resume-document.global-executive-signature-resume .signature-summary p {
+  margin: 0;
+  color: #1f2937;
+  font-size: 11.3px;
+  line-height: 1.58;
+}
+
+.resume-document.global-executive-signature-resume .signature-experience {
+  display: grid;
+  gap: 0;
+}
+
+.resume-document.global-executive-signature-resume .signature-experience-item {
+  position: relative;
+  display: grid;
+  gap: 5px;
+  padding: 0 0 15px 18px;
+}
+
+.resume-document.global-executive-signature-resume .signature-experience-item:last-child {
+  padding-bottom: 0;
+}
+
+.resume-document.global-executive-signature-resume .signature-experience-item::before {
+  content: "";
+  position: absolute;
+  inset: 4px auto 11px 0;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--signature-cyan), rgba(124, 58, 237, 0.42));
+}
+
+.resume-document.global-executive-signature-resume .signature-experience-item::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: -3px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: var(--signature-cyan);
+  box-shadow: 0 0 0 2px rgba(103, 232, 249, 0.22);
+}
+
+.resume-document.global-executive-signature-resume .signature-entry-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: 10px;
+  align-items: start;
+}
+
+.resume-document.global-executive-signature-resume .signature-entry-head > div {
+  min-width: 0;
+}
+
+.resume-document.global-executive-signature-resume .signature-entry-head strong {
+  display: block;
+  color: var(--signature-ink);
+  font-size: 12.6px;
+  font-weight: 850;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.resume-document.global-executive-signature-resume .signature-entry-head p {
+  margin: 3px 0 0;
+  color: var(--signature-muted);
+  font-size: 10.2px;
+  font-weight: 720;
+  line-height: 1.35;
+}
+
+.resume-document.global-executive-signature-resume .signature-entry-head em {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 118px;
+  padding: 4px 8px;
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  border-radius: 999px;
+  color: #312e81;
+  background: #f8fafc;
+  font-size: 9.4px;
+  font-style: normal;
+  font-weight: 780;
+  line-height: 1.15;
+  text-align: center;
+  white-space: normal;
+}
+
+.resume-document.global-executive-signature-resume .signature-achievements {
+  padding: 12px 15px;
+  border: 1px solid rgba(203, 213, 225, 0.78);
+  border-left: 3px solid var(--signature-cyan);
+  border-radius: 8px;
+  background: var(--signature-soft);
+}
+
+.resume-document.global-executive-signature-resume .signature-achievements ul {
+  margin-top: 0;
+}
+
+.resume-document.global-executive-signature-resume .signature-education-list,
+.resume-document.global-executive-signature-resume .signature-project-list {
+  display: grid;
+  gap: 9px;
+}
+
+.resume-document.global-executive-signature-resume .signature-education-item,
+.resume-document.global-executive-signature-resume .signature-project-item {
+  padding: 10px 0 0;
+  border-top: 1px solid rgba(203, 213, 225, 0.72);
+}
+
+.resume-document.global-executive-signature-resume .signature-education-item:first-child,
+.resume-document.global-executive-signature-resume .signature-project-item:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.resume-document.global-executive-signature-resume .signature-education-item strong,
+.resume-document.global-executive-signature-resume .signature-project-item strong {
+  display: block;
+  color: var(--signature-ink);
+  font-size: 11.7px;
+  font-weight: 820;
+  line-height: 1.28;
+  overflow-wrap: anywhere;
+}
+
+.resume-document.global-executive-signature-resume .signature-education-item p,
+.resume-document.global-executive-signature-resume .signature-project-item p {
+  margin: 4px 0 0;
+  color: var(--signature-muted);
+  font-size: 10.4px;
+  line-height: 1.48;
+}
+
+.resume-document.global-executive-signature-resume .signature-education-item em {
+  display: block;
+  margin-top: 3px;
+  color: #312e81;
+  font-size: 9.8px;
+  font-style: normal;
+  font-weight: 760;
+}
+
+.resume-document.global-executive-signature-resume .signature-monogram {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid rgba(103, 232, 249, 0.34);
+  border-radius: 8px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  font-size: 24px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.resume-document.global-executive-signature-resume .signature-side-section {
+  display: grid;
+  gap: 0;
+  padding: 0 0 14px;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.18);
+}
+
+.resume-document.global-executive-signature-resume .signature-side-section:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.resume-document.global-executive-signature-resume .signature-sidebar h3 {
+  margin-bottom: 8px;
+  color: rgba(248, 250, 252, 0.92);
+  font-size: 9.4px;
+  letter-spacing: 0.1em;
+}
+
+.resume-document.global-executive-signature-resume .signature-sidebar h3::after {
+  background: linear-gradient(90deg, rgba(103, 232, 249, 0.62), rgba(124, 58, 237, 0.42), transparent);
+}
+
+.resume-document.global-executive-signature-resume .signature-contact-list,
+.resume-document.global-executive-signature-resume .signature-side-text-list {
+  display: grid;
+  gap: 8px;
+}
+
+.resume-document.global-executive-signature-resume .signature-contact-list p,
+.resume-document.global-executive-signature-resume .signature-side-text-list p {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+}
+
+.resume-document.global-executive-signature-resume .signature-contact-list span,
+.resume-document.global-executive-signature-resume .signature-side-text-list span {
+  color: rgba(203, 213, 225, 0.72);
+  font-size: 8.9px;
+  font-weight: 720;
+  line-height: 1.25;
+}
+
+.resume-document.global-executive-signature-resume .signature-contact-list strong,
+.resume-document.global-executive-signature-resume .signature-side-text-list strong {
+  color: #f8fafc;
+  font-size: 9.6px;
+  font-weight: 760;
+  line-height: 1.38;
+  overflow-wrap: anywhere;
+}
+
+.resume-document.global-executive-signature-resume .signature-skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.resume-document.global-executive-signature-resume .signature-skill-tags span {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 21px;
+  padding: 4px 7px;
+  border: 1px solid rgba(203, 213, 225, 0.2);
+  border-radius: 999px;
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.07);
+  font-size: 8.9px;
+  font-weight: 740;
+  line-height: 1.2;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.resume-document.global-executive-signature-resume .signature-tool-tags span {
+  border-color: rgba(103, 232, 249, 0.3);
+  color: #cffafe;
+}
+
+.resume-document.global-executive-signature-resume .signature-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 8px 30px 10px;
+  border-top: 1px solid rgba(203, 213, 225, 0.74);
+  color: #64748b;
+  background: #ffffff;
+  font-size: 9.3px;
+  font-weight: 720;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  text-align: center;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.resume-document.global-executive-signature-resume.global-executive-signature-sample-preview .signature-main {
+  gap: 14px;
+  padding: 34px 40px 20px;
+}
+
+.resume-document.global-executive-signature-resume.global-executive-signature-sample-preview .signature-sidebar {
+  gap: 15px;
+  padding: 31px 20px 22px;
+}
+
+@supports (-webkit-line-clamp: 3) {
+  .resume-document.global-executive-signature-resume.global-executive-signature-sample-preview .signature-summary p,
+  .resume-document.global-executive-signature-resume.global-executive-signature-sample-preview .signature-project-item p {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+}
+
+.pdf-export-document.global-executive-signature-resume,
+.pdf-fit-export-document.global-executive-signature-resume {
+  width: var(--resume-page-width) !important;
+  min-height: var(--resume-page-height) !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.pdf-export-document.global-executive-signature-resume .global-executive-signature-layout,
+.pdf-fit-export-document.global-executive-signature-resume .global-executive-signature-layout {
+  grid-template-columns: 58mm minmax(0, 1fr) !important;
+}
+
+.pdf-export-document.global-executive-signature-resume .signature-main,
+.pdf-fit-export-document.global-executive-signature-resume .signature-main {
+  padding: 8mm 9mm 5.5mm !important;
+}
+
+.pdf-export-document.global-executive-signature-resume .signature-sidebar,
+.pdf-fit-export-document.global-executive-signature-resume .signature-sidebar {
+  padding: 7mm 5mm 5.5mm !important;
+  background: #0f172a !important;
+}
+
+.pdf-export-document.global-executive-signature-resume h2,
+.pdf-fit-export-document.global-executive-signature-resume h2 {
+  font-size: 25pt !important;
+}
+
+.pdf-export-document.global-executive-signature-resume h3,
+.pdf-fit-export-document.global-executive-signature-resume h3 {
+  font-size: 8.4pt !important;
+}
+
+.pdf-export-document.global-executive-signature-resume p,
+.pdf-export-document.global-executive-signature-resume li,
+.pdf-fit-export-document.global-executive-signature-resume p,
+.pdf-fit-export-document.global-executive-signature-resume li {
+  font-size: 8.2pt !important;
+}
+
+.pdf-export-document.global-executive-signature-resume section,
+.pdf-export-document.global-executive-signature-resume article,
+.pdf-fit-export-document.global-executive-signature-resume section,
+.pdf-fit-export-document.global-executive-signature-resume article {
   break-inside: avoid;
   page-break-inside: avoid;
 }
