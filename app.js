@@ -8779,8 +8779,8 @@ function tailoringCopy() {
     emptyResume: "Preencha mais informa\u00e7\u00f5es do curr\u00edculo para gerar uma adapta\u00e7\u00e3o melhor.",
     selectResume: "Selecione um curr\u00edculo antes de adaptar para a vaga.",
     jobDescription: "Cole a descri\u00e7\u00e3o da vaga antes de adaptar o curr\u00edculo.",
-    success: "Curr\u00edculo adaptado com sucesso. Revise e salve as altera\u00e7\u00f5es.",
-    undone: "Adapta\u00e7\u00e3o desfeita. O curr\u00edculo anterior foi restaurado.",
+    success: "Adapta\u00e7\u00e3o aplicada. Revise e salve as altera\u00e7\u00f5es.",
+    undone: "Adapta\u00e7\u00e3o desfeita.",
     nothing: "A IA n\u00e3o retornou altera\u00e7\u00f5es aplic\u00e1veis para este curr\u00edculo.",
   } : {
     title: "Resume tailored to this job",
@@ -8802,8 +8802,8 @@ function tailoringCopy() {
     emptyResume: "Fill in more resume information to generate better tailoring.",
     selectResume: "Select a resume before tailoring it to the job.",
     jobDescription: "Paste the job description before tailoring your resume.",
-    success: "Resume tailored successfully. Review and save your changes.",
-    undone: "Tailoring undone. The previous resume was restored.",
+    success: "Tailoring applied. Review and save your changes.",
+    undone: "Tailoring undone.",
     nothing: "AI did not return applicable changes for this resume.",
   };
 }
@@ -8836,6 +8836,13 @@ function resumeForTailoringAi(resume = {}) {
 
 function normalizeTailoringResult(result = {}) {
   const list = (value, max = 24) => Array.isArray(value) ? value.map((item) => String(item || "").trim()).filter(Boolean).slice(0, max) : [];
+  const firstList = (...values) => {
+    for (const value of values) {
+      const normalized = list(value, 32);
+      if (normalized.length) return normalized;
+    }
+    return [];
+  };
   const adaptedExperiences = Array.isArray(result.adaptedExperiences)
     ? result.adaptedExperiences.map((item, index) => ({
       experienceId: String(item?.experienceId || `experience-${index}`).trim(),
@@ -8855,7 +8862,7 @@ function normalizeTailoringResult(result = {}) {
   return {
     adaptedSummary: String(result.adaptedSummary || result.summary || "").trim(),
     adaptedExperiences,
-    suggestedSkills: list(result.suggestedSkills || result.newSkills || result.skills, 32),
+    suggestedSkills: firstList(result.suggestedSkills, result.newSkills, result.skills),
     existingSkills: list(result.existingSkills, 32),
     newSkills: list(result.newSkills, 32),
     adaptedProjects,
@@ -8884,15 +8891,28 @@ function indexFromTailoringId(value = "", prefix = "experience") {
   return Number.isInteger(numeric) && numeric >= 0 ? numeric : -1;
 }
 
+function cloneResumeData(resume = {}) {
+  return normalizeResume(JSON.parse(JSON.stringify(resume || {})));
+}
+
+function tailoredExperienceIndex(experiences = [], item = {}) {
+  const experienceId = String(item.experienceId || "").trim();
+  if (experienceId) {
+    const idMatch = experiences.findIndex((experience) => String(experience?.id || "").trim() === experienceId);
+    if (idMatch >= 0) return idMatch;
+  }
+  return indexFromTailoringId(experienceId, "experience");
+}
+
 function buildTailoredResume(resume, tailoring, mode = "all") {
-  const next = normalizeResume(JSON.parse(JSON.stringify(resume || {})));
+  const next = cloneResumeData(resume);
   if ((mode === "all" || mode === "summary") && tailoring.adaptedSummary) {
     next.summary = tailoring.adaptedSummary;
   }
   if (mode === "all" || mode === "experiences") {
     const experiences = [...(next.workExperience || [])];
     tailoring.adaptedExperiences.forEach((item) => {
-      const index = indexFromTailoringId(item.experienceId, "experience");
+      const index = tailoredExperienceIndex(experiences, item);
       if (index >= 0 && experiences[index] && item.adaptedBullets.length) {
         experiences[index] = { ...experiences[index], achievements: item.adaptedBullets };
       }
@@ -8900,9 +8920,7 @@ function buildTailoredResume(resume, tailoring, mode = "all") {
     next.workExperience = experiences;
   }
   if (mode === "all" || mode === "skills") {
-    const missingKeywords = new Set((tailoring.keywordsMissing || []).map((item) => normalizeAiText(item)));
-    const supportedSkills = tailoring.suggestedSkills.filter((skill) => !missingKeywords.has(normalizeAiText(skill)));
-    next.skills = uniqueTextList([...(next.skills || []), ...supportedSkills]);
+    next.skills = uniqueTextList([...(next.skills || []), ...(tailoring.suggestedSkills || [])]);
   }
   if (mode === "all" && tailoring.adaptedProjects.length) {
     const projects = [...(next.projects || [])];
@@ -8917,26 +8935,50 @@ function buildTailoredResume(resume, tailoring, mode = "all") {
   return normalizeResume(next);
 }
 
-function applyTailoredResume(resume, tailoring, mode = "all") {
-  const backup = normalizeResume(JSON.parse(JSON.stringify(resume || {})));
-  const updated = buildTailoredResume(backup, tailoring, mode);
-  lastTailoredResumeBackup = { resumeId: backup.id, resume: backup, createdAt: isoNow() };
-  const saved = upsertResume(updated);
-  if (currentBuilderResumeId === saved.id || builderDraft?.id === saved.id) {
-    builderDraft = saved;
-    currentBuilderResumeId = saved.id;
-    selectedTemplateKey = saved.selectedTemplate;
-    selectedDocumentFormat = saved.documentFormat;
-    setSaveState("unsaved", tailoringCopy().success);
+function resumeIsOpenInBuilder(resumeId) {
+  return Boolean(
+    resumeId
+    && isBuilderRouteActive()
+    && (currentBuilderResumeId === resumeId || builderDraft?.id === resumeId)
+  );
+}
+
+function tailoringBaseResume(resume = {}) {
+  if (resumeIsOpenInBuilder(resume.id)) return collectBuilderResume();
+  return cloneResumeData(findResume(resume.id) || resume);
+}
+
+function syncTailoredResumeState(updated, message = tailoringCopy().success) {
+  const normalized = normalizeResume(updated);
+  const isCurrentBuilderResume = resumeIsOpenInBuilder(normalized.id);
+  if (isCurrentBuilderResume) {
+    cancelPendingResumeAutosave();
+    builderDraft = normalized;
+    currentBuilderResumeId = normalized.id;
+    selectedTemplateKey = normalized.selectedTemplate;
+    selectedDocumentFormat = normalized.documentFormat;
+    builderSaveState = "unsaved";
+    if (isBuilderRouteActive()) {
+      renderBuilder();
+      setSaveState("unsaved", message);
+    }
+    return normalized;
   }
-  aiAssistantState = { ...aiAssistantState, resumeId: saved.id };
-  return saved;
+  return upsertResume(normalized);
+}
+
+function applyTailoredResume(resume, tailoring, mode = "all") {
+  const backup = tailoringBaseResume(resume);
+  const updated = buildTailoredResume(backup, tailoring, mode);
+  lastTailoredResumeBackup = { resumeId: backup.id, resume: cloneResumeData(backup), createdAt: isoNow() };
+  const applied = syncTailoredResumeState(updated, tailoringCopy().success);
+  aiAssistantState = { ...aiAssistantState, resumeId: applied.id };
+  return applied;
 }
 
 function undoLastTailoring() {
   if (!lastTailoredResumeBackup?.resume) return null;
-  const restored = upsertResume({ ...lastTailoredResumeBackup.resume, updatedAt: isoNow() });
-  if (currentBuilderResumeId === restored.id || builderDraft?.id === restored.id) builderDraft = restored;
+  const restored = syncTailoredResumeState({ ...lastTailoredResumeBackup.resume, updatedAt: isoNow() }, tailoringCopy().undone);
   lastTailoredResumeBackup = null;
   return restored;
 }
@@ -9011,7 +9053,7 @@ function openTailoredResumeModal(resume, rawResult) {
         status.hidden = false;
       }
       modal.querySelector("[data-tailoring-undo]")?.removeAttribute("hidden");
-      render();
+      if (!isBuilderRouteActive()) render();
     }
     if (undoButton) {
       undoLastTailoring();
@@ -9021,7 +9063,7 @@ function openTailoredResumeModal(resume, rawResult) {
         status.hidden = false;
       }
       undoButton.setAttribute("hidden", "");
-      render();
+      if (!isBuilderRouteActive()) render();
     }
   });
 }
