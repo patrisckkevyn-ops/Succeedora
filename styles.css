@@ -14280,6 +14280,362 @@ select:focus-visible {
   padding: 8mm 5.5mm !important;
 }
 
+.resume-document.resume-template-designer.curated-resume {
+  --curated-ink: #171d2f;
+  --curated-muted: #687284;
+  --curated-line: #e2e7f0;
+  --curated-soft: #f7f8fb;
+  --curated-accent: #7c5cff;
+  --curated-accent-2: #f08a72;
+  --curated-dark: #161225;
+  --designer-rail-width: max(188px, calc(25% - 6px));
+  position: relative;
+  grid-template-columns: var(--designer-rail-width) minmax(0, 1fr) minmax(0, 0.9fr);
+  gap: 13px 24px;
+  overflow: hidden;
+  padding: 0 38px 38px 0;
+  border: 1px solid rgba(30, 38, 64, 0.13);
+  border-left: 0;
+  border-radius: 7px;
+  background: #fbfcff;
+  box-shadow: 0 28px 72px rgba(19, 18, 38, 0.15);
+  color: var(--curated-ink);
+  font-family: "Inter", "Manrope", "Helvetica Neue", Arial, sans-serif;
+}
+
+.resume-document.resume-template-designer.curated-resume:not(.pdf-export-document):not(.pdf-fit-export-document)::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 0;
+  width: var(--designer-rail-width);
+  background:
+    radial-gradient(circle at 34px 34px, rgba(240, 138, 114, 0.18), transparent 38px),
+    linear-gradient(180deg, #221936 0%, #111a33 100%);
+}
+
+.resume-document.resume-template-designer.curated-resume > * {
+  position: relative;
+  z-index: 1;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-header {
+  grid-column: 1;
+  grid-row: 1 / span 9;
+  align-self: stretch;
+  display: grid;
+  align-content: start;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 0;
+  padding: 32px 22px;
+  border: 0;
+  border-radius: 0;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 34px 34px, rgba(240, 138, 114, 0.2), transparent 38px),
+    linear-gradient(180deg, #221936 0%, #111a33 100%);
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-header-mark {
+  width: 34px;
+  height: 34px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--curated-accent-2), var(--curated-accent));
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24);
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-header h2 {
+  max-width: 8.4ch;
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 0.96;
+  letter-spacing: 0;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-header strong {
+  max-width: 100%;
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 12.5px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-contact-line {
+  display: grid;
+  gap: 5px;
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 10.6px;
+  font-weight: 650;
+  line-height: 1.36;
+  overflow-wrap: anywhere;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-main-section,
+.resume-document.resume-template-designer.curated-resume .curated-side-section {
+  grid-column: 2 / -1;
+  align-self: start;
+}
+
+.resume-document.resume-template-designer.curated-resume h3 {
+  margin-bottom: 9px;
+  color: #2a3042;
+  font-size: 10.6px;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+}
+
+.resume-document.resume-template-designer.curated-resume p,
+.resume-document.resume-template-designer.curated-resume li {
+  color: #344054;
+  font-size: 12.35px;
+  line-height: 1.52;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-summary {
+  margin-top: 28px !important;
+  padding: 15px 17px !important;
+  border: 1px solid rgba(226, 231, 240, 0.95) !important;
+  border-left: 0 !important;
+  border-radius: 8px;
+  background: #f6f7fb !important;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-summary h3 {
+  color: var(--curated-accent);
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-experience {
+  display: grid;
+  gap: 12px;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-experience h3,
+.resume-document.resume-template-designer.curated-resume .curated-projects h3 {
+  color: var(--curated-accent);
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-experience-item {
+  display: grid;
+  gap: 6px;
+  padding: 0 0 11px;
+  border-bottom: 1px solid rgba(226, 231, 240, 0.95);
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-experience-item::before {
+  content: none;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-entry-head {
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-entry-head strong {
+  color: var(--curated-ink);
+  font-size: 14.2px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-entry-head span {
+  flex: 0 0 auto;
+  padding-top: 1px;
+  color: #778196;
+  font-size: 10.8px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-entry-meta,
+.resume-document.resume-template-designer.curated-resume .curated-compact-item span,
+.resume-document.resume-template-designer.curated-resume .curated-compact-item em {
+  color: var(--curated-muted);
+  font-size: 11.3px;
+  font-weight: 700;
+}
+
+.resume-document.resume-template-designer.curated-resume ul {
+  gap: 6px;
+  margin-top: 5px;
+  padding-left: 16px;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-projects {
+  padding: 13px 15px !important;
+  border: 1px solid rgba(226, 231, 240, 0.95) !important;
+  border-radius: 8px;
+  background: #ffffff !important;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-projects .curated-text-list {
+  gap: 0;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-projects .curated-text-list p {
+  margin: 0;
+  padding: 0 0 8px;
+  border-bottom: 1px solid rgba(226, 231, 240, 0.8);
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-projects .curated-text-list p:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-projects .curated-text-list p::first-line {
+  color: var(--curated-ink);
+  font-weight: 850;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-side-section {
+  padding: 11px 13px !important;
+  border: 1px solid rgba(226, 231, 240, 0.95) !important;
+  border-radius: 8px;
+  background: #ffffff !important;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-skills {
+  grid-column: 2 / -1;
+  padding: 12px 13px !important;
+  background: #f8f9fc !important;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-skill-list {
+  gap: 7px;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-skill-list span {
+  padding: 5.5px 8.5px;
+  border: 1px solid rgba(124, 92, 255, 0.16);
+  border-radius: 999px;
+  color: #2c3347;
+  background: #ffffff;
+  font-size: 10.9px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-education,
+.resume-document.resume-template-designer.curated-resume .curated-certifications,
+.resume-document.resume-template-designer.curated-resume .curated-languages,
+.resume-document.resume-template-designer.curated-resume .curated-links {
+  display: grid;
+  gap: 6px;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-education,
+.resume-document.resume-template-designer.curated-resume .curated-languages {
+  grid-column: 2;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-certifications,
+.resume-document.resume-template-designer.curated-resume .curated-links {
+  grid-column: 3;
+}
+
+.resume-document.resume-template-designer.curated-resume .curated-compact-item strong,
+.resume-document.resume-template-designer.curated-resume .curated-text-list p strong,
+.resume-document.resume-template-designer.curated-resume .curated-link-list p {
+  color: var(--curated-ink);
+  font-weight: 850;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume {
+  --designer-rail-width: max(45mm, calc(25% - 1.5mm));
+  display: grid !important;
+  grid-template-columns: var(--designer-rail-width) minmax(0, 1fr) minmax(0, 0.9fr) !important;
+  gap: 3.4mm 6mm !important;
+  padding: 0 9.5mm 9.5mm 0 !important;
+  border-left: 0 !important;
+  background: #fbfcff !important;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume .curated-header {
+  grid-column: 1 !important;
+  grid-row: 1 / span 9 !important;
+  align-self: stretch !important;
+  padding: 8.2mm 5.6mm !important;
+  background:
+    radial-gradient(circle at 8.6mm 8.6mm, rgba(240, 138, 114, 0.2), transparent 9.6mm),
+    linear-gradient(180deg, #221936 0%, #111a33 100%) !important;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume .curated-main-section,
+.pdf-export-document.resume-template-designer.curated-resume .curated-side-section {
+  grid-column: 2 / -1 !important;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume .curated-education,
+.pdf-export-document.resume-template-designer.curated-resume .curated-languages {
+  grid-column: 2 !important;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume .curated-certifications,
+.pdf-export-document.resume-template-designer.curated-resume .curated-links {
+  grid-column: 3 !important;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume .curated-header h2 {
+  font-size: 24pt !important;
+  line-height: 0.96 !important;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume .curated-header strong {
+  font-size: 9.4pt !important;
+  line-height: 1.35 !important;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume .curated-contact-line {
+  font-size: 7.9pt !important;
+  line-height: 1.36 !important;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume h3 {
+  font-size: 8pt !important;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume p,
+.pdf-export-document.resume-template-designer.curated-resume li {
+  font-size: 9.2pt !important;
+  line-height: 1.48 !important;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume .curated-entry-head strong {
+  font-size: 10.6pt !important;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume .curated-entry-head span,
+.pdf-export-document.resume-template-designer.curated-resume .curated-entry-meta,
+.pdf-export-document.resume-template-designer.curated-resume .curated-compact-item span,
+.pdf-export-document.resume-template-designer.curated-resume .curated-compact-item em {
+  font-size: 8.4pt !important;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume .curated-skill-list span {
+  padding: 1.35mm 2.1mm !important;
+  font-size: 8.1pt !important;
+  line-height: 1.15 !important;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume .curated-summary {
+  margin-top: 7.6mm !important;
+  padding: 4.2mm 4.7mm !important;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume .curated-side-section {
+  padding: 3.2mm 3.7mm !important;
+}
+
+.pdf-export-document.resume-template-designer.curated-resume .curated-projects {
+  padding: 3.7mm 4.2mm !important;
+}
+
 .resume-document.curated-tone-marketing,
 .resume-document.curated-tone-sales {
   --curated-accent: #cc4c2f;
