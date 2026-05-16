@@ -2,14 +2,14 @@ const OPENAI_RESPONSES_ENDPOINT = "https://api.openai.com/v1/responses";
 const GEMINI_GENERATE_ENDPOINT_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 const DEFAULT_MODEL = "gpt-5.4-mini";
 const DEFAULT_FALLBACK_MODELS = ["gpt-5-mini", "gpt-4.1-mini"];
-const DEFAULT_GEMINI_MODEL = "gemini-3.1-flash-lite";
+const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash-lite";
 const MAX_BODY_BYTES = 64 * 1024;
 const MAX_TEXT_CHARS = 14000;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX_REQUESTS = 20;
-const OPENAI_REQUEST_TIMEOUT_MS = 28000;
-const GEMINI_REQUEST_TIMEOUT_MS = 28000;
-const OPENAI_PRIMARY_ATTEMPTS = 2;
+const OPENAI_REQUEST_TIMEOUT_MS = 14000;
+const GEMINI_REQUEST_TIMEOUT_MS = 18000;
+const OPENAI_PRIMARY_ATTEMPTS = 1;
 const OPENAI_FALLBACK_ATTEMPTS = 1;
 const OPENAI_RETRY_STATUSES = new Set([429, 500, 502, 503, 504]);
 const OPENAI_FALLBACK_STATUSES = new Set([400, 404, 429, 500, 502, 503, 504]);
@@ -382,6 +382,17 @@ function geminiModelName() {
   return String(process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL).trim() || DEFAULT_GEMINI_MODEL;
 }
 
+function geminiModelCandidates() {
+  const configuredFallbacks = String(process.env.GEMINI_FALLBACK_MODELS || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  return uniqueStrings([
+    geminiModelName(),
+    ...(configuredFallbacks.length ? configuredFallbacks : ["gemini-2.5-flash-lite", "gemini-2.0-flash-lite"]),
+  ]);
+}
+
 function geminiEndpoint(model = geminiModelName()) {
   const modelPath = String(model || DEFAULT_GEMINI_MODEL).replace(/^models\//, "");
   return `${GEMINI_GENERATE_ENDPOINT_BASE}/${encodeURIComponent(modelPath)}:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY || "")}`;
@@ -681,33 +692,40 @@ async function callOpenAi(taskType, task, input) {
 
 async function callGemini(taskType, task, input) {
   if (!process.env.GEMINI_API_KEY) throw aiError("gemini_missing_api_key");
-  const model = geminiModelName();
-  const requestPayload = geminiRequestPayload(model, task, input);
-  let response;
   let lastError = null;
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    try {
-      response = await fetchGeminiWithTimeout(model, requestPayload);
-      lastError = null;
-    } catch (error) {
-      lastError = error;
-      if (attempt < 1) {
-        await wait(1500 * (attempt + 1));
+  const modelCandidates = geminiModelCandidates();
+  for (const model of modelCandidates) {
+    const requestPayload = geminiRequestPayload(model, task, input);
+    let response;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        response = await fetchGeminiWithTimeout(model, requestPayload);
+        lastError = null;
+      } catch (error) {
+        lastError = error;
+        if (attempt < 1) {
+          await wait(1500 * (attempt + 1));
+          continue;
+        }
+        response = null;
+      }
+      if (!response) break;
+      if (GEMINI_RETRY_STATUSES.has(response.status) && attempt < 1) {
+        await wait(openAiRetryDelayMs(response, attempt));
         continue;
       }
-      response = null;
+      break;
     }
-    if (!response) break;
-    if (GEMINI_RETRY_STATUSES.has(response.status) && attempt < 1) {
-      await wait(openAiRetryDelayMs(response, attempt));
-      continue;
+    if (!response) continue;
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      lastError = providerHttpError("gemini", response, payload);
+      if (lastError.code === "ai_model_unavailable" && model !== modelCandidates[modelCandidates.length - 1]) continue;
+      throw lastError;
     }
-    break;
+    return { provider: "gemini", model, result: await parseProviderResponse("gemini", taskType, payload) };
   }
-  if (!response) throw lastError || aiError("ai_request_failed");
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) throw providerHttpError("gemini", response, payload);
-  return { provider: "gemini", model, result: await parseProviderResponse("gemini", taskType, payload) };
+  throw lastError || aiError("ai_request_failed");
 }
 
 async function generateWithConfiguredProviders(taskType, task, input) {
