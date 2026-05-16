@@ -1,9 +1,15 @@
 const OPENAI_RESPONSES_ENDPOINT = "https://api.openai.com/v1/responses";
 const DEFAULT_MODEL = "gpt-5.4-mini";
+const DEFAULT_FALLBACK_MODELS = ["gpt-5-mini", "gpt-4.1-mini"];
 const MAX_BODY_BYTES = 64 * 1024;
 const MAX_TEXT_CHARS = 14000;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX_REQUESTS = 20;
+const OPENAI_REQUEST_TIMEOUT_MS = 28000;
+const OPENAI_PRIMARY_ATTEMPTS = 2;
+const OPENAI_FALLBACK_ATTEMPTS = 1;
+const OPENAI_RETRY_STATUSES = new Set([429, 500, 502, 503, 504]);
+const OPENAI_FALLBACK_STATUSES = new Set([400, 404, 429, 500, 502, 503, 504]);
 const rateLimitBuckets = new Map();
 const {
   aiTaskCreditCost,
@@ -17,27 +23,27 @@ const ADMIN_EMAILS = ["patrisckkevyn@gmail.com"];
 const TASKS = {
   generate_professional_summary: {
     maxTokens: 900,
-    instruction: "Generate a concise professional resume summary from the supplied role, experience, skills, and target context. Return summary and suggestions.",
+    instruction: "Generate a concise, premium resume summary from the supplied role, experience, skills, and target context. Use 2-3 compact sentences, about 320-520 characters total, optimized for modern two-column resume templates. Avoid filler, repeated words, very long sentences, exaggerated claims, and unbroken text. Return summary and suggestions.",
     responseShape: '{ "summary": "string with 2-4 resume-ready sentences", "suggestions": ["string"] }',
   },
   improve_professional_summary: {
     maxTokens: 900,
-    instruction: "Improve the supplied professional summary without inventing facts. Return summary and suggestions.",
+    instruction: "Improve the supplied professional summary without inventing facts. Make it premium, concise, easy to scan, and suitable for modern resume templates: 2-3 compact sentences, about 320-520 characters total. Remove filler, repetitions, vague wording, and very long sentences. Return summary and suggestions.",
     responseShape: '{ "summary": "improved resume-ready string", "suggestions": ["string"] }',
   },
   rewrite_experience: {
     maxTokens: 1000,
-    instruction: "Rewrite professional experience bullets using action verbs and truthful impact. If the experience field is empty but the user supplied a role, title, skills, or project context, create editable bullet templates grounded in that context. If metrics are missing, use placeholders like [result] and [percentage] instead of inventing numbers.",
+    instruction: "Rewrite professional experience bullets using action verbs and truthful impact. Create 3-5 compact bullets, each ideally 90-155 characters, optimized for premium resume layouts and PDF export. Keep bullets specific, readable, and scannable. If the experience field is empty but the user supplied a role, title, skills, or project context, create editable bullet templates grounded in that context. If metrics are missing, use placeholders like [result] and [percentage] instead of inventing numbers. Avoid huge paragraphs, repeated openings, and unbroken text.",
     responseShape: '{ "bullets": ["3-5 resume bullet strings"], "suggestions": ["string"] }',
   },
   suggest_skills: {
     maxTokens: 800,
-    instruction: "Suggest relevant skills based on role, experience, existing skills, and job description. Group the answer into technicalSkills, softSkills, tools, atsKeywords, and suggestions. Do not invent certifications or companies.",
+    instruction: "Suggest relevant skills based on role, experience, existing skills, and job description. Prefer concise skill labels of 1-4 words that fit chips in modern resume templates. Avoid duplicates, sentences, filler, excessive keywords, and very long skill names. Group the answer into technicalSkills, softSkills, tools, atsKeywords, and suggestions. Do not invent certifications or companies.",
     responseShape: '{ "technicalSkills": ["string"], "softSkills": ["string"], "tools": ["string"], "atsKeywords": ["string"], "skills": ["string"], "suggestions": ["string"] }',
   },
   improve_project_description: {
     maxTokens: 900,
-    instruction: "Improve resume project descriptions using professional, truthful language. Do not invent scope, technologies, results, clients, companies, or metrics. Use placeholders like [result] only when suggesting measurable impact.",
+    instruction: "Improve resume project descriptions using professional, truthful language. Keep each project compact for premium resume templates: a clear project title plus 1 concise impact sentence when possible, about 120-220 characters. Do not invent scope, technologies, results, clients, companies, or metrics. Use placeholders like [result] only when suggesting measurable impact. Avoid long paragraphs and repeated wording.",
     responseShape: '{ "description": "resume-ready project description string", "suggestions": ["string"] }',
   },
   generate_cover_letter: {
@@ -92,12 +98,12 @@ const TASKS = {
   },
   translate_resume: {
     maxTokens: 1600,
-    instruction: "Translate the resume between Brazilian Portuguese and English while preserving structure, facts, names, dates, companies, and credentials.",
+    instruction: "Translate and professionally localize the resume between Brazilian Portuguese and English while preserving structure, facts, names, dates, companies, links, and credentials. Do not translate word-for-word when that would sound unnatural. For English, use concise resume language, action verbs, short clear bullets, natural job-title phrasing, and professional vocabulary used in real resumes. For Portuguese, use fluent Brazilian Portuguese with clear, natural phrasing. Keep summaries to 2-3 compact sentences and bullets ideally 90-155 characters so the result fits modern premium resume templates and PDF export. Keep skill labels short. Avoid repeated openings, awkward literal phrasing, huge paragraphs, and unbroken text. Do not invent metrics, tools, education, certifications, companies, roles, dates, or results.",
     responseShape: '{ "resume": { "personal": {}, "summary": "string", "workExperience": [], "education": [], "skills": [], "languages": [], "certifications": [], "projects": [], "professionalLinks": [] }, "suggestions": ["string"] }',
   },
   tailor_resume_to_job: {
     maxTokens: 2600,
-    instruction: "Generate an applicable, job-specific resume tailoring plan from the selected resume and job description. Return concrete edits for the existing resume only: adaptedSummary, adaptedExperiences, suggestedSkills, adaptedProjects when existing projects are relevant, keywordsUsed, keywordsMissing, warnings, and changes. Preserve truth strictly: do not invent roles, companies, dates, education, certifications, languages, years of experience, metrics, results, tools, or skills not supported by the resume. If the job asks for something not present in the resume, put it in keywordsMissing/warnings instead of adding it as a claimed skill or experience. Use provided experienceId/projectId values when present. Do not return ATS score for this task.",
+    instruction: "Generate an applicable, job-specific resume tailoring plan from the selected resume and job description. Return concrete edits for the existing resume only: adaptedSummary, adaptedExperiences, suggestedSkills, adaptedProjects when existing projects are relevant, keywordsUsed, keywordsMissing, warnings, and changes. Optimize the rewritten content for modern premium resume layouts: adaptedSummary should be 2-3 compact sentences, adaptedBullets should usually be 3-5 bullets per role with each bullet around 90-155 characters, suggestedSkills should be concise 1-4 word labels, and adaptedProjects should be short and scannable. Preserve truth strictly: do not invent roles, companies, dates, education, certifications, languages, years of experience, metrics, results, tools, or skills not supported by the resume. If the job asks for something not present in the resume, put it in keywordsMissing/warnings instead of adding it as a claimed skill or experience. Use provided experienceId/projectId values when present. Do not return ATS score for this task.",
     responseShape: '{ "adaptedSummary": "truthful tailored summary string", "adaptedExperiences": [{ "experienceId": "string", "originalTitle": "string", "adaptedBullets": ["string"], "changes": ["string"] }], "suggestedSkills": ["string"], "existingSkills": ["string"], "newSkills": ["string"], "adaptedProjects": [{ "projectId": "string", "originalTitle": "string", "adaptedText": "string", "changes": ["string"] }], "keywordsUsed": ["string"], "keywordsMissing": ["string"], "warnings": ["string"], "changes": ["string"] }',
   },
   assistant_chat: {
@@ -291,6 +297,67 @@ function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function uniqueStrings(items = []) {
+  const seen = new Set();
+  return items
+    .map((item) => String(item || "").trim())
+    .filter((item) => {
+      if (!item || seen.has(item)) return false;
+      seen.add(item);
+      return true;
+    });
+}
+
+function openAiModelCandidates() {
+  const primary = process.env.OPENAI_MODEL || DEFAULT_MODEL;
+  const configuredFallbacks = String(process.env.OPENAI_FALLBACK_MODELS || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  return uniqueStrings([primary, ...(configuredFallbacks.length ? configuredFallbacks : DEFAULT_FALLBACK_MODELS)]);
+}
+
+function openAiRequestPayload(model, task, input) {
+  return JSON.stringify({
+    model,
+    instructions: `${SYSTEM_PROMPT}\nTask instruction: ${task.instruction}\nRequired JSON shape for result: ${task.responseShape}\nReturn the result object directly, not wrapped in markdown. When the user supplied relevant context, do not return empty strings or empty arrays; use honest editable placeholders for missing metrics instead of inventing facts.`,
+    input: JSON.stringify(input),
+    max_output_tokens: task.maxTokens,
+    text: { format: { type: "json_object" } },
+  });
+}
+
+function openAiRetryDelayMs(response, attempt) {
+  const retryAfter = Number(response?.headers?.get?.("retry-after") || 0);
+  if (Number.isFinite(retryAfter) && retryAfter > 0) return Math.min(retryAfter * 1000, 10000);
+  return 1500 * (attempt + 1);
+}
+
+async function fetchOpenAiWithTimeout(requestPayload) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), OPENAI_REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(OPENAI_RESPONSES_ENDPOINT, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: requestPayload,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      const timeoutError = new Error("ai_generation_timeout");
+      timeoutError.code = "ai_generation_timeout";
+      throw timeoutError;
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 function normalizeResult(taskType, parsed) {
   const result = parsed && typeof parsed === "object" ? (parsed.result && typeof parsed.result === "object" ? parsed.result : parsed) : {};
   const list = (value) => Array.isArray(value) ? value.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 12) : [];
@@ -410,7 +477,6 @@ module.exports = async function handler(req, res) {
   }
 
   const apiKey = process.env.OPENAI_API_KEY;
-  const model = process.env.OPENAI_MODEL || DEFAULT_MODEL;
   if (!apiKey) return json(res, 500, { success: false, error: "missing_openai_api_key" });
 
   const taskType = String(body.taskType || "");
@@ -457,36 +523,51 @@ module.exports = async function handler(req, res) {
   };
 
   try {
-    const requestPayload = JSON.stringify({
-      model,
-      instructions: `${SYSTEM_PROMPT}\nTask instruction: ${task.instruction}\nRequired JSON shape for result: ${task.responseShape}\nReturn the result object directly, not wrapped in markdown. When the user supplied relevant context, do not return empty strings or empty arrays; use honest editable placeholders for missing metrics instead of inventing facts.`,
-      input: JSON.stringify(input),
-      max_output_tokens: task.maxTokens,
-      text: { format: { type: "json_object" } },
-    });
     let response;
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      response = await fetch(OPENAI_RESPONSES_ENDPOINT, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: requestPayload,
-      });
-      if (![429, 500, 502, 503, 504].includes(response.status)) break;
-      if (attempt < 2) await wait(1500 * (attempt + 1));
+    let model = "";
+    let lastRequestError = null;
+    const modelCandidates = openAiModelCandidates();
+    for (let modelIndex = 0; modelIndex < modelCandidates.length; modelIndex += 1) {
+      const candidateModel = modelCandidates[modelIndex];
+      const attempts = modelIndex === 0 ? OPENAI_PRIMARY_ATTEMPTS : OPENAI_FALLBACK_ATTEMPTS;
+      const requestPayload = openAiRequestPayload(candidateModel, task, input);
+      for (let attempt = 0; attempt < attempts; attempt += 1) {
+        try {
+          response = await fetchOpenAiWithTimeout(requestPayload);
+          model = candidateModel;
+          lastRequestError = null;
+        } catch (error) {
+          lastRequestError = error;
+          if (attempt < attempts - 1) {
+            await wait(1500 * (attempt + 1));
+            continue;
+          }
+          response = null;
+        }
+        if (!response) break;
+        if (!OPENAI_FALLBACK_STATUSES.has(response.status)) break;
+        if (OPENAI_RETRY_STATUSES.has(response.status) && attempt < attempts - 1) {
+          await wait(openAiRetryDelayMs(response, attempt));
+          continue;
+        }
+        break;
+      }
+      if (response && !OPENAI_FALLBACK_STATUSES.has(response.status)) break;
+      if (modelIndex >= modelCandidates.length - 1) break;
     }
+    if (!response) throw lastRequestError || new Error("openai_request_failed");
 
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
-      await refundAiCreditsForTask(user, taskType, creditCost, "openai_error");
+      const errorCode = response.status === 429 ? "ai_rate_limited" : "openai_error";
+      await refundAiCreditsForTask(user, taskType, creditCost, errorCode);
       const debug = body.debug === true;
       return json(res, response.status || 502, {
         success: false,
-        error: "openai_error",
+        error: errorCode,
         creditsUsed: 0,
         creditsRefunded: creditCost,
+        retryAfter: response.headers?.get?.("retry-after") || "",
         ...(debug ? { details: payload?.error?.message || payload?.error || payload } : {}),
       });
     }
@@ -502,7 +583,8 @@ module.exports = async function handler(req, res) {
       creditsBalance: state.credits?.balance || 0,
     });
   } catch (error) {
-    await refundAiCreditsForTask(user, taskType, creditCost, "ai_generation_failed").catch(() => null);
-    return json(res, 502, { success: false, error: "ai_generation_failed", creditsUsed: 0, creditsRefunded: creditCost });
+    const errorCode = error?.code === "ai_generation_timeout" ? "ai_generation_timeout" : "ai_generation_failed";
+    await refundAiCreditsForTask(user, taskType, creditCost, errorCode).catch(() => null);
+    return json(res, errorCode === "ai_generation_timeout" ? 504 : 502, { success: false, error: errorCode, creditsUsed: 0, creditsRefunded: creditCost });
   }
 };

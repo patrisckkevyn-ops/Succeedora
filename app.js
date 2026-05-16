@@ -26,6 +26,8 @@ const ADMIN_EMAILS = ["patrisckkevyn@gmail.com"];
 const VERIFICATION_CODE_TTL_MS = 10 * 60 * 1000;
 const VERIFICATION_RESEND_COOLDOWN_MS = 60 * 1000;
 const VERIFICATION_EMAIL_TIMEOUT_MS = 12000;
+const AI_GENERATION_REQUEST_TIMEOUT_MS = 95000;
+const AI_GENERATION_COOLDOWN_MS = 3500;
 const paymentConfig = {
   // Confirm this CNPJ is registered as a Pix key at the bank before using this QR Code in production.
   // If it is not registered, generated Pix BR Codes must not be considered valid for production payments.
@@ -590,6 +592,29 @@ const I18N = {
       generalRecommendations: "General recommendation",
       skillsMatch: "Skills match",
       experienceMatch: "Experience match",
+      advanced: {
+        readiness: "Application readiness",
+        readinessText: "Estimated alignment between your resume and this job.",
+        criticalKeywords: "Critical missing keywords",
+        criticalKeywordsText: "Add these naturally where they are true for your experience.",
+        actionPlan: "Priority action plan",
+        actionPlanText: "Do these edits first to improve the resume for this role.",
+        sectionDiagnostics: "Section diagnostics",
+        keywordCoverage: "Keyword coverage",
+        found: "found",
+        missing: "missing",
+        high: "High",
+        medium: "Medium",
+        low: "Low",
+        where: "Where to apply",
+        noCritical: "No critical keyword gaps detected yet.",
+        scoreWhy: "Why this score",
+        scoreWhyText: "Scores improve when the resume repeats relevant job language truthfully in the summary, experience and skills.",
+        readyHigh: "Strong match",
+        readyMedium: "Good base",
+        readyLow: "Needs targeting",
+        sections: { summary: "Summary", experience: "Experience", skills: "Skills", keywords: "Keywords", structure: "Structure" },
+      },
       categories: { summary: "Professional summary", experience: "Experience", skills: "Skills", keywords: "Keywords", missingSections: "Missing sections", recommendation: "General recommendation", formatting: "Formatting", upgrade: "Advanced optimization" },
       actions: { apply: "Apply suggestion", copy: "Copy suggestion", edit: "Edit in resume", copied: "Suggestion copied", pro: "Available with Pro" },
       suggestions: {
@@ -1058,6 +1083,29 @@ Object.assign(I18N.pt.ai, {
   generalRecommendations: "Recomenda\u00e7\u00e3o geral",
   skillsMatch: "Compatibilidade de habilidades",
   experienceMatch: "Compatibilidade de experiência",
+  advanced: {
+    readiness: "Prontid\u00e3o para candidatura",
+    readinessText: "Alinhamento estimado entre seu curr\u00edculo e esta vaga.",
+    criticalKeywords: "Palavras-chave cr\u00edticas faltando",
+    criticalKeywordsText: "Inclua naturalmente onde isso for verdadeiro na sua experi\u00eancia.",
+    actionPlan: "Plano de a\u00e7\u00e3o priorit\u00e1rio",
+    actionPlanText: "Fa\u00e7a estes ajustes primeiro para melhorar o curr\u00edculo para esta vaga.",
+    sectionDiagnostics: "Diagn\u00f3stico por se\u00e7\u00e3o",
+    keywordCoverage: "Cobertura de palavras-chave",
+    found: "encontradas",
+    missing: "faltando",
+    high: "Alta",
+    medium: "M\u00e9dia",
+    low: "Baixa",
+    where: "Onde aplicar",
+    noCritical: "Nenhuma lacuna cr\u00edtica de palavra-chave detectada ainda.",
+    scoreWhy: "Por que esta nota",
+    scoreWhyText: "A nota melhora quando o curr\u00edculo usa a linguagem relevante da vaga, com verdade, no resumo, experi\u00eancia e habilidades.",
+    readyHigh: "Forte ader\u00eancia",
+    readyMedium: "Boa base",
+    readyLow: "Precisa direcionar",
+    sections: { summary: "Resumo", experience: "Experi\u00eancia", skills: "Habilidades", keywords: "Palavras-chave", structure: "Estrutura" },
+  },
   categories: { summary: "Resumo profissional", experience: "Experiência", skills: "Habilidades", keywords: "Palavras-chave", formatting: "Formatação", upgrade: "Otimização avançada" },
   actions: { apply: "Aplicar sugestão", copy: "Copiar sugestão", edit: "Editar no currículo", copied: "Sugestão copiada", pro: "Disponível no Pro" },
   suggestions: {
@@ -2784,6 +2832,8 @@ const pendingPreviewScaleRoots = new Set();
 let builderStatusTimer = null;
 let builderPreviewTimer = null;
 let aiAssistantState = { resumeId: "", jobTitle: "", company: "", jobDescription: "", result: null, error: "" };
+let aiGenerationInFlight = false;
+let aiGenerationLastFinishedAt = 0;
 let lastTailoredResumeBackup = null;
 
 const CSS_PX_PER_INCH = 96;
@@ -8044,7 +8094,7 @@ function aiActionTask(action = "ai") {
     "cover-letter": "generate_cover_letter",
     translation: "translate_resume",
     "job-tailoring": "tailor_resume_to_job",
-    "job-analysis": "analyze_resume_ats",
+    "job-analysis": "analyze_job_description",
     "ats-keywords": "suggest_ats_keywords",
     ai: "generate_professional_summary",
   };
@@ -8110,6 +8160,9 @@ function aiCopy() {
     improving: "Melhorando texto...",
     translating: "Traduzindo currículo...",
     suggesting: "Sugerindo habilidades...",
+    workingNotice: "A IA est\u00e1 processando sua solicita\u00e7\u00e3o. Se houver limite tempor\u00e1rio, vamos tentar novamente automaticamente.",
+    busyMessage: "A IA j\u00e1 est\u00e1 gerando uma resposta. Aguarde esta solicita\u00e7\u00e3o terminar antes de iniciar outra.",
+    cooldownMessage: "Aguarde alguns segundos antes de iniciar outra gera\u00e7\u00e3o com IA.",
     fallbackError: "Não foi possível gerar a resposta agora. Tente novamente em instantes.",
     noCredits: "Você não tem créditos de IA suficientes para esta ação.",
     apply: "Aplicar",
@@ -8139,6 +8192,9 @@ function aiCopy() {
     improving: "Improving text...",
     translating: "Translating resume...",
     suggesting: "Suggesting skills...",
+    workingNotice: "AI is processing your request. If there is a temporary limit, we will retry automatically.",
+    busyMessage: "AI is already generating a response. Wait for this request to finish before starting another.",
+    cooldownMessage: "Wait a few seconds before starting another AI generation.",
     fallbackError: "Could not generate the response right now. Please try again shortly.",
     noCredits: "You do not have enough AI credits for this action.",
     apply: "Apply",
@@ -8154,7 +8210,14 @@ function aiCopy() {
 
 function aiErrorMessage(error) {
   const code = typeof error === "string" ? error : error?.message || "";
-  if (["openai_error", "ai_generation_failed"].includes(code)) {
+  if (code === "ai_request_in_progress") return aiCopy().busyMessage;
+  if (code === "ai_cooldown") return aiCopy().cooldownMessage;
+  if (code === "ai_rate_limited") {
+    return currentLanguage === "pt"
+      ? "A IA atingiu um limite temporario agora. Tente novamente em alguns minutos. Seus creditos nao foram consumidos."
+      : "AI reached a temporary limit right now. Try again in a few minutes. Your credits were not used.";
+  }
+  if (["openai_error", "ai_generation_failed", "ai_generation_timeout"].includes(code)) {
     return currentLanguage === "pt"
       ? "N\u00e3o foi poss\u00edvel gerar a resposta agora. Seus cr\u00e9ditos n\u00e3o foram consumidos."
       : "Could not generate the response right now. Your credits were not used.";
@@ -8444,41 +8507,56 @@ async function requestAiGeneration(taskType, data = {}) {
     });
     throw new Error("insufficient_credits");
   }
-  let response;
+  if (aiGenerationInFlight) throw new Error("ai_request_in_progress");
+  const cooldownRemaining = AI_GENERATION_COOLDOWN_MS - (Date.now() - aiGenerationLastFinishedAt);
+  if (cooldownRemaining > 0) throw new Error("ai_cooldown");
+  aiGenerationInFlight = true;
   try {
-    response = await fetch("/api/ai/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        taskType,
-        language: currentLanguage,
-        data,
-        user: {
-          id: currentAccount()?.id || "",
-          email: normalizeEmail(currentAccount()?.email || ""),
-        },
-      }),
-    });
-  } catch (error) {
-    recordAiUsage(taskType, 0, "error", "network_error");
-    throw new Error("network_error");
-  }
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok || !payload.success) {
-    recordAiUsage(taskType, 0, "error", payload.error || "ai_generation_failed");
-    if (payload.error === "insufficient_credits") {
-      openInsufficientCreditsModal({
-        balance: payload.creditsBalance,
-        required: payload.creditsRequired || aiTaskCredits(taskType),
-        taskType,
+    let response;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), AI_GENERATION_REQUEST_TIMEOUT_MS);
+    try {
+      response = await fetch("/api/ai/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          taskType,
+          language: currentLanguage,
+          data,
+          user: {
+            id: currentAccount()?.id || "",
+            email: normalizeEmail(currentAccount()?.email || ""),
+          },
+        }),
       });
-      updateLocalAiCreditBalance(payload.creditsBalance || 0);
+    } catch (error) {
+      const code = error?.name === "AbortError" ? "ai_generation_timeout" : "network_error";
+      recordAiUsage(taskType, 0, "error", code);
+      throw new Error(code);
+    } finally {
+      window.clearTimeout(timeout);
     }
-    throw new Error(payload.error || "ai_generation_failed");
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.success) {
+      recordAiUsage(taskType, 0, "error", payload.error || "ai_generation_failed");
+      if (payload.error === "insufficient_credits") {
+        openInsufficientCreditsModal({
+          balance: payload.creditsBalance,
+          required: payload.creditsRequired || aiTaskCredits(taskType),
+          taskType,
+        });
+        updateLocalAiCreditBalance(payload.creditsBalance || 0);
+      }
+      throw new Error(payload.error || "ai_generation_failed");
+    }
+    if (Number.isFinite(Number(payload.creditsBalance))) updateLocalAiCreditBalance(Number(payload.creditsBalance));
+    recordAiUsage(taskType, Number(payload.creditsUsed || aiTaskCredits(taskType)), "success");
+    return payload.result || {};
+  } finally {
+    aiGenerationInFlight = false;
+    aiGenerationLastFinishedAt = Date.now();
   }
-  if (Number.isFinite(Number(payload.creditsBalance))) updateLocalAiCreditBalance(Number(payload.creditsBalance));
-  recordAiUsage(taskType, Number(payload.creditsUsed || aiTaskCredits(taskType)), "success");
-  return payload.result || {};
 }
 
 function setButtonLoading(button, label) {
@@ -10707,10 +10785,10 @@ function bindInteractions() {
         render();
         return;
       }
-      aiAssistantState = { ...nextState, result: { state: "loading" } };
+      aiAssistantState = { ...nextState, result: { state: "loading", message: aiCopy().workingNotice } };
       render();
       try {
-        const result = await requestAiGeneration("analyze_resume_ats", { resume, job: nextState });
+        const result = await requestAiGeneration("analyze_job_description", { resume, job: nextState });
         aiAssistantState = { ...nextState, result: aiAnalysisResult(result, resume, nextState), error: "" };
         render();
       } catch (error) {
@@ -12439,6 +12517,7 @@ function curatedSampleResume(template = "professional") {
   if (template === "senior-executive") {
     return createBlankResume({
       selectedTemplate: template,
+      previewMode: "template-sample",
       personal: {
         fullName: "Patrick Justino",
         title: currentLanguage === "pt" ? "Supervisor Administrativo" : "Administrative Supervisor",
@@ -17426,31 +17505,67 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
   }
   if (template === "senior-executive") {
     const execSection = (className, iconName, title, body, hasContent) => `<section class="${className}" data-optional-section ${hasContent ? "" : "hidden"}><div class="exec-section-title"><span>${icon(iconName)}</span><h3>${title}</h3></div>${body}</section>`;
+    const execIsTemplateSamplePreview = data.previewMode === "template-sample";
+    const execLimit = (items, fullLimit, previewLimit = fullLimit) => {
+      const source = Array.isArray(items) ? items.filter(Boolean) : normalizeTextList(items);
+      return source.slice(0, execIsTemplateSamplePreview ? previewLimit : fullLimit);
+    };
+    const execCompactText = (value, maxLength = 150) => {
+      const text = String(value || "").replace(/\s+/g, " ").trim();
+      if (text.length <= maxLength) return text;
+      const safeLimit = Math.max(20, maxLength - 3);
+      const sliced = text.slice(0, safeLimit);
+      const clean = sliced.includes(" ") ? sliced.replace(/\s+\S*$/, "").trim() : sliced.trim();
+      return `${clean || sliced.trim()}...`;
+    };
+    const execSplitTitleText = (item) => {
+      const parts = String(item || "").split(/\s+-\s+|\s+\u2014\s+|\s+\u2013\s+/);
+      const title = (parts.shift() || item || "").trim();
+      const text = parts.join(" - ").trim();
+      return { title, text };
+    };
     const executiveInitial = (displayName || "Amanda Silva").trim().charAt(0).toUpperCase() || "A";
     const executiveTagline = currentLanguage === "pt"
       ? "Gestão eficiente de processos, pessoas e resultados para impulsionar performance e crescimento."
       : "Efficient leadership of people, processes and results to drive performance and growth.";
     const executiveFooter = currentLanguage === "pt" ? ["ORGANIZAÇÃO", "ESTRATÉGIA", "RESULTADOS"] : ["ORGANIZATION", "STRATEGY", "RESULTS"];
-    const executiveContactItems = [
+    const executiveLinks = normalizeTextList(data.professionalLinks);
+    const executivePrimaryLink = executiveLinks.find((item) => /linkedin/i.test(item)) || executiveLinks[0];
+    const executiveContactItemsFull = [
       ["mail", personal.email],
       ["headset", personal.phone],
       ["globe", displayLocation],
-      ["link", normalizeTextList(data.professionalLinks)[0]],
+      ["link", executivePrimaryLink],
     ].filter((item) => curatedHasText(item[1]));
+    const executiveContactItemsPreview = [
+      ["mail", personal.email],
+      ["globe", displayLocation],
+      ["link", executivePrimaryLink],
+    ].filter((item) => curatedHasText(item[1]));
+    const executiveContactItems = execIsTemplateSamplePreview ? executiveContactItemsPreview : executiveContactItemsFull;
     const executiveContacts = executiveContactItems.length
       ? executiveContactItems.map(([iconName, value], index) => `<p ${index === 0 ? `data-preview-field="contact" data-preview-empty="${b.document.header}"` : ""}><span class="exec-contact-icon">${icon(iconName)}</span><span class="exec-contact-value">${escapeHtml(value)}</span></p>`).join("")
       : `<p data-preview-field="contact" data-preview-empty="${b.document.header}"><span class="exec-contact-icon">${icon("mail")}</span><span class="exec-contact-value">${display(curatedContact, b.document.header)}</span></p>`;
     const executiveSkills = normalizeTextList(data.skills);
-    const executiveSkillList = (executiveSkills.length ? executiveSkills : normalizeTextList(b.values.skills)).map((skill, index) => {
+    const executiveVisibleSkills = execLimit(executiveSkills.length ? executiveSkills : normalizeTextList(b.values.skills), Infinity, 6);
+    const executiveSkillList = executiveVisibleSkills.map((skill, index) => {
       const width = [96, 91, 88, 94, 86, 82, 90, 78][index % 8];
       return `<p><span>${escapeHtml(skill)}</span><em><i style="width:${width}%"></i></em></p>`;
     }).join("");
-    const executiveLanguages = normalizeTextList(data.languages).map((item) => {
+    const executiveLanguageItems = execLimit(data.languages, Infinity, 2);
+    const executiveLanguages = executiveLanguageItems.map((item) => {
       const [language, ...levelParts] = item.split(/[-–—|:]/);
       const level = levelParts.join(" ").trim();
       return `<p><span>${escapeHtml(language.trim() || item)}</span>${level ? `<strong>${escapeHtml(level)}</strong>` : ""}</p>`;
     }).join("");
-    const executiveExperienceEntries = (curatedExperiences.length ? curatedExperiences : [curatedPrimaryExperience]).map((item, index) => `
+    const executiveExperienceSource = execIsTemplateSamplePreview
+      ? (curatedExperiences.length ? curatedExperiences : [curatedPrimaryExperience]).slice(0, 2)
+      : (curatedExperiences.length ? curatedExperiences : [curatedPrimaryExperience]);
+    const executiveExperienceEntries = executiveExperienceSource.map((item, index) => {
+      const achievementItems = execIsTemplateSamplePreview
+        ? normalizeTextList(item.achievements).slice(0, index === 0 ? 2 : 1).map((achievement) => execCompactText(achievement, 118))
+        : item.achievements;
+      return `
       <article class="exec-experience-item">
         <div class="exec-entry-top">
           <div>
@@ -17459,21 +17574,27 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
           </div>
           <em ${index === 0 ? `data-preview-field="experiencePeriod" data-preview-empty=""` : ""}>${display(item.period, "")}</em>
         </div>
-        <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
+        <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(achievementItems, "")}</ul>
       </article>
-    `).join("");
-    const executiveProjectItems = normalizeTextList(data.projects);
-    const executiveProjects = executiveProjectItems.map((item, index) => `
+    `;
+    }).join("");
+    const executiveCertificationItems = execLimit(data.certifications, Infinity, 2);
+    const executiveProjectItems = execLimit(data.projects, Infinity, 1);
+    const executiveProjects = executiveProjectItems.map((item, index) => {
+      const { title, text } = execSplitTitleText(item);
+      return `
       <article class="exec-project-item">
-        <strong>${escapeHtml(item.split(" - ")[0] || item)}</strong>
-        <p>${escapeHtml(item.includes(" - ") ? item.split(" - ").slice(1).join(" - ") : item)}</p>
+        <strong>${escapeHtml(title || item)}</strong>
+        <p>${escapeHtml(execIsTemplateSamplePreview ? execCompactText(text || item, 118) : (text || item))}</p>
         <em>${new Date().getFullYear() - Math.min(index, 3)}</em>
       </article>
-    `).join("");
+    `;
+    }).join("");
+    const executiveSummaryText = execIsTemplateSamplePreview ? execCompactText(data.summary, 150) : data.summary;
     return `
       <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
         <div class="resume-page-scale-wrapper">
-          <div class="resume-document professional-preview resume-template-senior-executive executive-signature-resume ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
+          <div class="resume-document professional-preview resume-template-senior-executive executive-signature-resume ${execIsTemplateSamplePreview ? "executive-signature-sample-preview" : ""} ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}">
             <header class="exec-signature-header">
               <div class="exec-ribbon"><span>${escapeHtml(executiveInitial)}</span></div>
               <div class="exec-title-block">
@@ -17488,10 +17609,10 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
                 ${execSection("exec-side-section exec-contact", "user", currentLanguage === "pt" ? "Contato" : "Contact", executiveContacts, executiveContactItems.length > 0 || curatedHasText(curatedContact))}
                 ${execSection("exec-side-section exec-skills", "sparkles", curatedLabels.skills, `<div class="exec-skill-meter-list" data-preview-field="skills" data-preview-empty="">${executiveSkillList}</div>`, executiveSkills.length > 0)}
                 ${execSection("exec-side-section exec-languages", "globe", curatedLabels.languages, `<div class="exec-language-list" data-preview-field="languages" data-preview-empty="">${executiveLanguages}</div>`, curatedHasList(data.languages))}
-                ${execSection("exec-side-section exec-certifications", "shield", curatedLabels.certifications, `<ul data-preview-field="certifications" data-preview-empty="">${linesMarkup(data.certifications, "")}</ul>`, curatedHasList(data.certifications))}
+                ${execSection("exec-side-section exec-certifications", "shield", curatedLabels.certifications, `<ul data-preview-field="certifications" data-preview-empty="">${linesMarkup(executiveCertificationItems, "")}</ul>`, curatedHasList(data.certifications))}
               </aside>
               <main class="exec-main">
-                ${execSection("exec-main-section exec-summary", "sparkles", curatedLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, curatedHasText(data.summary))}
+                ${execSection("exec-main-section exec-summary", "sparkles", curatedLabels.summary, `<p data-preview-field="summary" data-preview-empty="">${display(executiveSummaryText, "")}</p>`, curatedHasText(data.summary))}
                 ${execSection("exec-main-section exec-experience", "layout", curatedLabels.experience, executiveExperienceEntries, curatedExperiences.length > 0)}
                 ${execSection("exec-main-section exec-education", "file", curatedLabels.education, curatedEducationEntries, curatedEducationItems.length > 0)}
                 ${execSection("exec-main-section exec-projects", "target", curatedLabels.projects, `<div class="exec-project-list" data-preview-field="projects" data-preview-empty="">${executiveProjects}</div>`, executiveProjectItems.length > 0)}
@@ -17728,25 +17849,54 @@ function renderAiAssistant() {
   if (selectedResume && aiAssistantState.resumeId !== selectedResume.id) aiAssistantState.resumeId = selectedResume.id;
   const result = aiAssistantState.result;
   const isLoading = result?.state === "loading";
+  const loadingNotice = result?.message || aiCopy().workingNotice;
+  const aiFormDisabled = isLoading ? "disabled" : "";
   const score = result?.score || 0;
   const scoreLabel = result ? atsScoreLabel(score) : a.scoreLabels[0];
   const suggestionCards = result?.suggestions?.length
     ? result.suggestions.map((suggestion) => aiSuggestionCard(suggestion, selectedResume?.id)).join("")
     : `<div class="ai-empty-panel">${icon("sparkles")}<p>${result ? a.noSuggestions : a.start}</p></div>`;
   const hasAnalysis = result && !isLoading;
-  const atsLocked = !canUseAiTask("analyze_resume_ats");
+  const atsLocked = !canUseAiTask("analyze_job_description");
   const tailorLocked = !canUseAiTask("tailor_resume_to_job");
-  const keywordPanel = hasAnalysis ? `
-    <section class="ai-keyword-grid">
-      ${aiKeywordCard(a.foundKeywords, result.foundKeywords)}
-      ${aiKeywordCard(a.missingKeywords, result.missingKeywords)}
-      ${aiKeywordCard(a.skillSuggestions, result.skillSuggestions)}
-      ${aiKeywordCard(a.missingSections, result.missingSections)}
-      <article class="dash-card ai-match-card"><h3>${a.skillsMatch}</h3><strong>${result.skillsMatch}%</strong><p>${result.skillsMatched.join(", ") || a.noSuggestions}</p></article>
-      <article class="dash-card ai-match-card"><h3>${a.experienceMatch}</h3><strong>${result.experienceMatch}%</strong><p>${result.experienceNote}</p></article>
-      <article class="dash-card ai-match-card ai-recommendation-card"><h3>${a.generalRecommendations}</h3><p>${result.generalRecommendations.join(" ") || result.experienceNote || a.noSuggestions}</p></article>
+  const advanced = a.advanced || {};
+  const foundCount = hasAnalysis ? result.foundKeywords.length : 0;
+  const missingCount = hasAnalysis ? result.missingKeywords.length : 0;
+  const totalKeywordCount = foundCount + missingCount;
+  const keywordCoverage = totalKeywordCount ? Math.round((foundCount / totalKeywordCount) * 100) : score;
+  const atsMetrics = hasAnalysis ? `
+    <section class="ai-ats-metrics">
+      ${atsMetricCard("target", advanced.keywordCoverage || a.foundKeywords, `${keywordCoverage}%`, `${foundCount} ${advanced.found || ""} · ${missingCount} ${advanced.missing || ""}`)}
+      ${atsMetricCard("sparkles", a.skillsMatch, `${result.skillsMatch}%`, result.skillsMatched.join(", ") || a.noSuggestions)}
+      ${atsMetricCard("layout", a.experienceMatch, `${result.experienceMatch}%`, result.experienceNote || a.noSuggestions)}
     </section>
-  ` : `<section class="ai-keyword-grid"><div class="ai-empty-panel wide">${icon("target")}<p>${a.start}</p></div></section>`;
+  ` : "";
+  const keywordPanel = hasAnalysis ? `
+    <section class="ai-ats-command-center">
+      <article class="dash-card ai-ats-priority-card">
+        <div class="ai-section-head"><div><h3>${advanced.criticalKeywords || a.missingKeywords}</h3><p>${advanced.criticalKeywordsText || ""}</p></div></div>
+        <div class="ai-priority-keyword-list">${atsPriorityKeywordMarkup(result)}</div>
+      </article>
+      <article class="dash-card ai-ats-action-plan">
+        <div class="ai-section-head"><div><h3>${advanced.actionPlan || a.suggestionsTitle}</h3><p>${advanced.actionPlanText || ""}</p></div></div>
+        <div class="ai-action-plan-list">${atsActionPlanMarkup(result)}</div>
+      </article>
+      <article class="dash-card ai-ats-diagnostics">
+        <div class="ai-section-head"><div><h3>${advanced.sectionDiagnostics || a.generalRecommendations}</h3><p>${advanced.scoreWhyText || ""}</p></div></div>
+        <div class="ai-section-diagnostics">${atsDiagnosticRows(result)}</div>
+      </article>
+      <article class="dash-card ai-ats-explain-card">
+        <h3>${advanced.scoreWhy || a.generalRecommendations}</h3>
+        <p>${escapeHtml(result.generalRecommendations.join(" ") || result.experienceNote || advanced.scoreWhyText || a.noSuggestions)}</p>
+      </article>
+      <section class="ai-keyword-grid compact">
+        ${aiKeywordCard(a.foundKeywords, result.foundKeywords)}
+        ${aiKeywordCard(a.missingKeywords, result.missingKeywords)}
+        ${aiKeywordCard(a.skillSuggestions, result.skillSuggestions)}
+        ${aiKeywordCard(a.missingSections, result.missingSections)}
+      </section>
+    </section>
+  ` : `<section class="ai-keyword-grid"><div class="ai-empty-panel wide">${icon(isLoading ? "sparkles" : "target")}<p>${isLoading ? escapeHtml(loadingNotice) : a.start}</p></div></section>`;
 
   const content = !resumes.length ? `
     <main class="ai-page ai-empty-page">
@@ -17758,19 +17908,20 @@ function renderAiAssistant() {
         <div class="ai-panel-head"><span class="eyebrow">${a.navTitle}</span><h2>${a.title}</h2><p>${a.text}</p></div>
         <form data-ai-form>
           <label>${a.selectResume}
-            <select data-ai-field="resumeId">
+            <select data-ai-field="resumeId" ${aiFormDisabled}>
               ${resumes.map((resume) => `<option value="${resume.id}" ${resume.id === selectedResume?.id ? "selected" : ""}>${escapeHtml(resume.title)}</option>`).join("")}
             </select>
           </label>
           <div class="two-col">
-            <label>${a.jobTitle}<input data-ai-field="jobTitle" value="${escapeHtml(aiAssistantState.jobTitle)}" /></label>
-            <label>${a.company}<input data-ai-field="company" value="${escapeHtml(aiAssistantState.company)}" /></label>
+            <label>${a.jobTitle}<input data-ai-field="jobTitle" value="${escapeHtml(aiAssistantState.jobTitle)}" ${aiFormDisabled} /></label>
+            <label>${a.company}<input data-ai-field="company" value="${escapeHtml(aiAssistantState.company)}" ${aiFormDisabled} /></label>
           </div>
-          <label>${a.label}<textarea data-ai-field="jobDescription" placeholder="${a.placeholder}">${escapeHtml(aiAssistantState.jobDescription)}</textarea></label>
+          <label>${a.label}<textarea data-ai-field="jobDescription" placeholder="${a.placeholder}" ${aiFormDisabled}>${escapeHtml(aiAssistantState.jobDescription)}</textarea></label>
           <p class="ai-form-error" data-ai-error ${aiAssistantState.error ? "" : "hidden"}>${escapeHtml(aiAssistantState.error)}</p>
+          <p class="ai-status-note" ${isLoading ? "" : "hidden"}>${escapeHtml(loadingNotice)}</p>
           <div class="ai-form-actions">
-            <button class="primary-button full ${atsLocked ? "locked-action" : ""}" type="submit">${icon(atsLocked ? "lock" : "target")} <span>${isLoading ? a.analyzing : aiActionLabel(a.button, "analyze_resume_ats")}</span></button>
-            <button class="secondary-button full ${tailorLocked ? "locked-action" : ""}" type="button" data-ai-tailor-job>${icon(tailorLocked ? "lock" : "sparkles")} <span>${aiActionLabel(aiCopy().tailorJob, "tailor_resume_to_job")}</span></button>
+            <button class="primary-button full ${atsLocked ? "locked-action" : ""}" type="submit" ${isLoading ? "disabled" : ""}>${icon(atsLocked ? "lock" : "target")} <span>${isLoading ? a.analyzing : aiActionLabel(a.button, "analyze_job_description")}</span></button>
+            <button class="secondary-button full ${tailorLocked ? "locked-action" : ""}" type="button" data-ai-tailor-job ${isLoading ? "disabled" : ""}>${icon(tailorLocked ? "lock" : "sparkles")} <span>${aiActionLabel(aiCopy().tailorJob, "tailor_resume_to_job")}</span></button>
             ${aiCreditBalanceBadge()}
           </div>
         </form>
@@ -17779,13 +17930,15 @@ function renderAiAssistant() {
         <article class="ats-score ai-score-card">
           <span>${a.score}</span>
           <strong>${isLoading ? "..." : `${score}%`}</strong>
-          <em>${isLoading ? a.analyzing : scoreLabel}</em>
+          <em>${isLoading ? a.analyzing : atsReadinessLabel(score)}</em>
           <div class="progress"><span style="width:${isLoading ? 18 : score}%"></span></div>
+          ${hasAnalysis ? `<p class="ai-score-summary"><strong>${escapeHtml(advanced.readiness || "")}</strong>${escapeHtml(advanced.readinessText || scoreLabel)}</p>` : ""}
           <p class="ats-disclaimer">${escapeHtml(aiCopy().atsDisclaimer)}</p>
         </article>
+        ${atsMetrics}
         <section class="ai-suggestions-panel">
           <div class="ai-section-head"><h3>${a.suggestionsTitle}</h3>${atsLocked ? lockedBadge("ats_advanced") : ""}</div>
-          <div class="ai-suggestion-grid">${isLoading ? `<div class="ai-empty-panel">${icon("sparkles")}<p>${a.analyzing}</p></div>` : suggestionCards}</div>
+          <div class="ai-suggestion-grid">${isLoading ? `<div class="ai-empty-panel">${icon("sparkles")}<p>${escapeHtml(loadingNotice)}</p></div>` : suggestionCards}</div>
         </section>
       </section>
       ${keywordPanel}
@@ -17801,6 +17954,116 @@ function aiKeywordCard(title, keywords = []) {
       <div class="keyword-cloud">${keywords.length ? keywords.map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join("") : `<small>${t().ai.noSuggestions}</small>`}</div>
     </article>
   `;
+}
+
+function clampAtsScore(value) {
+  return Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
+}
+
+function uniqueAiItems(items = [], max = 12) {
+  const seen = new Set();
+  return (Array.isArray(items) ? items : [])
+    .map((item) => String(item || "").trim())
+    .filter((item) => {
+      const key = normalizeAiText(item);
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, max);
+}
+
+function atsReadinessLabel(score) {
+  const labels = t().ai.advanced || {};
+  if (score >= 82) return labels.readyHigh || atsScoreLabel(score);
+  if (score >= 62) return labels.readyMedium || atsScoreLabel(score);
+  return labels.readyLow || atsScoreLabel(score);
+}
+
+function atsPriorityKeywordItems(result = {}) {
+  const labels = t().ai.advanced || {};
+  return uniqueAiItems(result.missingKeywords || [], 10).map((keyword, index) => ({
+    keyword,
+    priority: index < 4 ? "high" : index < 8 ? "medium" : "low",
+    label: index < 4 ? labels.high : index < 8 ? labels.medium : labels.low,
+    section: index % 3 === 0 ? t().ai.categories.summary : index % 3 === 1 ? t().ai.categories.experience : t().ai.categories.skills,
+  }));
+}
+
+function atsSectionDiagnostics(result = {}) {
+  const labels = t().ai.advanced?.sections || {};
+  const totalKeywords = (result.foundKeywords?.length || 0) + (result.missingKeywords?.length || 0);
+  const keywordScore = totalKeywords ? Math.round(((result.foundKeywords?.length || 0) / totalKeywords) * 100) : clampAtsScore(result.score);
+  const summaryPenalty = Math.min(44, (result.suggestions || []).filter((item) => item.section === "summary").length * 14);
+  const structurePenalty = Math.min(60, (result.missingSections || []).length * 20);
+  return [
+    { key: "summary", label: labels.summary || t().ai.categories.summary, score: clampAtsScore(result.score - summaryPenalty) },
+    { key: "experience", label: labels.experience || t().ai.categories.experience, score: clampAtsScore(result.experienceMatch || 0) },
+    { key: "skills", label: labels.skills || t().ai.categories.skills, score: clampAtsScore(result.skillsMatch || 0) },
+    { key: "keywords", label: labels.keywords || t().ai.categories.keywords, score: clampAtsScore(keywordScore) },
+    { key: "structure", label: labels.structure || t().ai.categories.formatting, score: clampAtsScore(100 - structurePenalty) },
+  ];
+}
+
+function atsActionPlanItems(result = {}) {
+  const labels = t().ai.advanced || {};
+  const source = (result.suggestions || []).filter((item) => item && item.text && !item.locked).slice(0, 5);
+  return source.map((item, index) => ({
+    ...item,
+    priority: index < 2 ? labels.high : index < 4 ? labels.medium : labels.low,
+    target: item.section === "experience" ? t().ai.categories.experience : item.section === "skills" ? t().ai.categories.skills : t().ai.categories.summary,
+  }));
+}
+
+function atsMetricCard(iconName, label, value, detail) {
+  return `
+    <article class="ai-ats-metric">
+      <span>${icon(iconName)}</span>
+      <div>
+        <strong>${escapeHtml(String(value))}</strong>
+        <p>${escapeHtml(label)}</p>
+        ${detail ? `<small>${escapeHtml(detail)}</small>` : ""}
+      </div>
+    </article>
+  `;
+}
+
+function atsDiagnosticRows(result = {}) {
+  return atsSectionDiagnostics(result).map((item) => `
+    <div class="ai-section-diagnostic-row">
+      <span>${escapeHtml(item.label)}</span>
+      <strong>${item.score}%</strong>
+      <i><b style="width:${item.score}%"></b></i>
+    </div>
+  `).join("");
+}
+
+function atsPriorityKeywordMarkup(result = {}) {
+  const labels = t().ai.advanced || {};
+  const items = atsPriorityKeywordItems(result);
+  if (!items.length) return `<p class="ai-ats-muted">${escapeHtml(labels.noCritical || t().ai.noSuggestions)}</p>`;
+  return items.map((item) => `
+    <article class="ai-priority-keyword ${item.priority}">
+      <div><strong>${escapeHtml(item.keyword)}</strong><span>${escapeHtml(item.label || "")}</span></div>
+      <small>${escapeHtml(labels.where || "")}: ${escapeHtml(item.section)}</small>
+    </article>
+  `).join("");
+}
+
+function atsActionPlanMarkup(result = {}) {
+  const labels = t().ai.advanced || {};
+  const items = atsActionPlanItems(result);
+  if (!items.length) return `<p class="ai-ats-muted">${escapeHtml(t().ai.noSuggestions)}</p>`;
+  return items.map((item, index) => `
+    <article class="ai-action-plan-item">
+      <span>${String(index + 1).padStart(2, "0")}</span>
+      <div>
+        <strong>${escapeHtml(item.priority || "")} · ${escapeHtml(item.category || "")}</strong>
+        <p>${escapeHtml(item.text)}</p>
+        <small>${escapeHtml(labels.where || "")}: ${escapeHtml(item.target || "")}</small>
+      </div>
+    </article>
+  `).join("");
 }
 
 function aiSuggestionCard(suggestion, resumeId) {
