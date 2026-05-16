@@ -5145,6 +5145,7 @@ function resetResumeShellPageVars(shell, format = selectedDocumentFormat) {
   applyPdfPageVariables(shell, normalizedFormat);
   shell.dataset.previewScaled = "true";
   delete shell.dataset.previewFit;
+  delete shell.dataset.previewFlow;
   shell.style.setProperty("--resume-page-width", `${spec.widthPx}px`);
   shell.style.setProperty("--resume-page-height", `${spec.heightPx}px`);
   shell.style.setProperty("--preview-scale", "1");
@@ -5184,6 +5185,7 @@ function resetResumeDocumentPreviewFit(documentNode, format = selectedDocumentFo
   const normalizedFormat = normalizeDocumentFormat(format);
   const spec = documentPageSpec(normalizedFormat);
   documentNode.classList.remove("resume-preview-fit-document");
+  documentNode.classList.remove("resume-preview-flow-document");
   documentNode.style.removeProperty("width");
   documentNode.style.removeProperty("max-width");
   documentNode.style.removeProperty("min-width");
@@ -5250,6 +5252,34 @@ function fitResumeDocumentToPreviewPage(shell, format = selectedDocumentFormat) 
   layoutAtScale(scale, true);
 }
 
+function allowResumeDocumentToFlowInPreviewPage(shell, format = selectedDocumentFormat) {
+  const documentNode = shell?.querySelector(".resume-document");
+  if (!documentNode) return;
+  const normalizedFormat = normalizeDocumentFormat(format);
+  const spec = resetResumeDocumentPreviewFit(documentNode, normalizedFormat);
+  const scale = Math.max(0.035, Number.parseFloat(shell.style.getPropertyValue("--preview-scale")) || 1);
+  documentNode.classList.remove("resume-preview-fit-document");
+  documentNode.classList.add("resume-preview-flow-document");
+  delete shell.dataset.previewFit;
+  shell.dataset.previewFlow = "true";
+  documentNode.style.width = `${spec.widthPx}px`;
+  documentNode.style.maxWidth = "none";
+  documentNode.style.minWidth = "0";
+  documentNode.style.height = "auto";
+  documentNode.style.minHeight = `${spec.heightPx}px`;
+  documentNode.style.margin = "0";
+  documentNode.style.transform = "none";
+  documentNode.style.transformOrigin = "top left";
+  documentNode.style.overflow = "visible";
+  documentNode.style.setProperty("--resume-page-width", `${spec.widthPx}px`);
+  documentNode.style.setProperty("--resume-page-height", `${spec.heightPx}px`);
+  const contentHeight = Math.max(spec.heightPx, measureResumePreviewFitHeight(documentNode));
+  shell.style.setProperty("--resume-page-width", `${spec.widthPx}px`);
+  shell.style.setProperty("--resume-page-height", `${contentHeight}px`);
+  shell.style.setProperty("--scaled-page-width", `${(spec.widthPx * scale).toFixed(2)}px`);
+  shell.style.setProperty("--scaled-page-height", `${(contentHeight * scale).toFixed(2)}px`);
+}
+
 function updateResumePreviewScales(root = document) {
   applyBuilderPreviewBranding(root);
   root.querySelectorAll(".resume-document-shell").forEach((shell) => {
@@ -5281,7 +5311,12 @@ function updateResumePreviewScales(root = document) {
       availableHeight: heightTarget,
       maxScale,
     });
-    fitResumeDocumentToPreviewPage(shell, format);
+    const documentNode = shell.querySelector(".resume-document");
+    if (documentNode?.classList?.contains("resume-template-designer")) {
+      allowResumeDocumentToFlowInPreviewPage(shell, format);
+    } else {
+      fitResumeDocumentToPreviewPage(shell, format);
+    }
   });
 }
 
@@ -13955,6 +13990,121 @@ function appendBlockToPdfPages(state, block, sourceDocument, format) {
   return state;
 }
 
+function isDesignerResumeDocument(documentNode) {
+  return Boolean(documentNode?.classList?.contains("resume-template-designer") && documentNode.classList?.contains("curated-resume"));
+}
+
+function createDesignerPdfExportPage(stage, sourceDocument, format) {
+  const normalizedFormat = normalizeDocumentFormat(format);
+  const page = document.createElement("div");
+  page.className = `pdf-export-page pdf-fit-export-page ${documentFormatClass(normalizedFormat)}`;
+  page.setAttribute("data-pdf-page", normalizedFormat);
+  applyPdfPageVariables(page, normalizedFormat);
+
+  const content = document.createElement("div");
+  content.className = "pdf-fit-export-content";
+
+  const documentNode = sourceDocument.cloneNode(false);
+  documentNode.innerHTML = "";
+  documentNode.classList.add("pdf-export-document", "designer-pdf-page-document");
+  documentNode.classList.remove("pdf-fit-export-document", "sample-resume-document", "resume-preview-fit-document", "resume-preview-flow-document");
+  documentNode.removeAttribute("style");
+  documentNode.removeAttribute("data-preview-scaled");
+  applyDocumentFormatClass(documentNode, normalizedFormat);
+  applyPdfPageVariables(documentNode, normalizedFormat);
+  if (stage?.dataset?.pdfBranded === "true") addPdfBrandWatermark(documentNode);
+
+  const header = sourceDocument.querySelector(":scope > .curated-header")?.cloneNode(true);
+  if (header) documentNode.appendChild(header);
+
+  content.appendChild(documentNode);
+  page.appendChild(content);
+  stage.appendChild(page);
+
+  return { page, content, documentNode };
+}
+
+function designerPdfPageHasContent(state) {
+  return Boolean(Array.from(state?.documentNode?.children || []).some((child) => {
+    if (child.classList?.contains("curated-header") || child.classList?.contains("pdf-brand-watermark")) return false;
+    return true;
+  }));
+}
+
+function appendDesignerSectionChunkToPdfPages(state, section, heading, group, sourceDocument, format, allowSplit = true) {
+  const appendToCurrent = (node) => {
+    state.documentNode.appendChild(node);
+    if (pdfContentFits(state)) return true;
+    node.remove();
+    return false;
+  };
+
+  const chunkChildren = heading ? [heading, ...group] : group;
+  const chunk = createSectionChunk(section, chunkChildren);
+  if (appendToCurrent(chunk)) return state;
+
+  if (designerPdfPageHasContent(state)) state = createDesignerPdfExportPage(state.page.parentElement, sourceDocument, format);
+  state.documentNode.appendChild(chunk);
+  if (pdfContentFits(state) || !allowSplit) return state;
+
+  chunk.remove();
+  const splitGroups = splitSectionGroup(group);
+  if (!splitGroups.length) {
+    state.documentNode.appendChild(chunk);
+    return state;
+  }
+
+  splitGroups.forEach((splitGroup) => {
+    state = appendDesignerSectionChunkToPdfPages(state, section, heading, splitGroup, sourceDocument, format, false);
+  });
+  return state;
+}
+
+function appendDesignerBlockToPdfPages(state, block, sourceDocument, format) {
+  const appendToCurrent = (node) => {
+    state.documentNode.appendChild(node);
+    if (pdfContentFits(state)) return true;
+    node.remove();
+    return false;
+  };
+
+  const appendToFreshPage = (node) => {
+    if (designerPdfPageHasContent(state)) state = createDesignerPdfExportPage(state.page.parentElement, sourceDocument, format);
+    state.documentNode.appendChild(node);
+  };
+
+  const clone = block.cloneNode(true);
+  if (appendToCurrent(clone)) return state;
+
+  if (block.tagName === "SECTION") {
+    const { heading, groups } = sectionChildGroups(block);
+    if (!groups.length) {
+      appendToFreshPage(clone);
+      return state;
+    }
+    groups.forEach((group) => {
+      state = appendDesignerSectionChunkToPdfPages(state, block, heading, group, sourceDocument, format);
+    });
+    return state;
+  }
+
+  appendToFreshPage(clone);
+  return state;
+}
+
+function buildDesignerResumePdfExport({ stage, sourceDocument, format }) {
+  let state = createDesignerPdfExportPage(stage, sourceDocument, format);
+  Array.from(sourceDocument.children).forEach((block) => {
+    if (block.classList?.contains("curated-header") || block.classList?.contains("pdf-brand-watermark")) return;
+    state = appendDesignerBlockToPdfPages(state, block, sourceDocument, format);
+  });
+  return {
+    stage,
+    pages: Array.from(stage.querySelectorAll(".pdf-export-page")),
+    filename: resumeExportFilename(sourceDocument),
+  };
+}
+
 function resumePdfPageBlocks(sourceDocument) {
   if (!sourceDocument?.classList?.contains("modern-resume")) return Array.from(sourceDocument.children);
 
@@ -13993,6 +14143,11 @@ function buildResumePdfExport({ template, format, resume, source, brandFree }) {
 
   const sourceDocument = createResumePdfFitDocument({ template, format: normalizedFormat, resume, source, brandFree });
   if (!sourceDocument) throw new Error("Resume document unavailable");
+
+  if (isDesignerResumeDocument(sourceDocument)) {
+    return buildDesignerResumePdfExport({ stage, sourceDocument, format: normalizedFormat });
+  }
+
   if (!brandFree) addPdfBrandWatermark(sourceDocument);
 
   const page = document.createElement("div");

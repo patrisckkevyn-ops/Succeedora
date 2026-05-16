@@ -14314,6 +14314,18 @@ select:focus-visible {
     linear-gradient(180deg, #221936 0%, #111a33 100%);
 }
 
+.pdf-export-document.resume-template-designer.curated-resume::before,
+.pdf-fit-export-document.resume-template-designer.curated-resume::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 0;
+  width: var(--designer-rail-width);
+  background:
+    radial-gradient(circle at 8.6mm 8.6mm, rgba(240, 138, 114, 0.18), transparent 9.6mm),
+    linear-gradient(180deg, #221936 0%, #111a33 100%);
+}
+
 .resume-document.resume-template-designer.curated-resume > * {
   position: relative;
   z-index: 1;
@@ -14546,14 +14558,24 @@ select:focus-visible {
   font-weight: 850;
 }
 
+.resume-document-shell[data-preview-flow="true"] .resume-document.resume-template-designer.curated-resume {
+  height: auto !important;
+  min-height: var(--resume-page-height) !important;
+  overflow: visible !important;
+}
+
 .pdf-export-document.resume-template-designer.curated-resume {
   --designer-rail-width: max(45mm, calc(25% - 1.5mm));
   display: grid !important;
   grid-template-columns: var(--designer-rail-width) minmax(0, 1fr) minmax(0, 0.9fr) !important;
   gap: 3.4mm 6mm !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
   padding: 0 9.5mm 9.5mm 0 !important;
   border-left: 0 !important;
   background: #fbfcff !important;
+  overflow: hidden !important;
 }
 
 .pdf-export-document.resume-template-designer.curated-resume .curated-header {
@@ -14561,9 +14583,7 @@ select:focus-visible {
   grid-row: 1 / span 9 !important;
   align-self: stretch !important;
   padding: 8.2mm 5.6mm !important;
-  background:
-    radial-gradient(circle at 8.6mm 8.6mm, rgba(240, 138, 114, 0.2), transparent 9.6mm),
-    linear-gradient(180deg, #221936 0%, #111a33 100%) !important;
+  background: transparent !important;
 }
 
 .pdf-export-document.resume-template-designer.curated-resume .curated-main-section,
@@ -14582,44 +14602,44 @@ select:focus-visible {
 }
 
 .pdf-export-document.resume-template-designer.curated-resume .curated-header h2 {
-  font-size: 24pt !important;
+  font-size: 26pt !important;
   line-height: 0.96 !important;
 }
 
 .pdf-export-document.resume-template-designer.curated-resume .curated-header strong {
-  font-size: 9.4pt !important;
+  font-size: 10pt !important;
   line-height: 1.35 !important;
 }
 
 .pdf-export-document.resume-template-designer.curated-resume .curated-contact-line {
-  font-size: 7.9pt !important;
+  font-size: 8.4pt !important;
   line-height: 1.36 !important;
 }
 
 .pdf-export-document.resume-template-designer.curated-resume h3 {
-  font-size: 8pt !important;
+  font-size: 8.4pt !important;
 }
 
 .pdf-export-document.resume-template-designer.curated-resume p,
 .pdf-export-document.resume-template-designer.curated-resume li {
-  font-size: 9.2pt !important;
+  font-size: 9.7pt !important;
   line-height: 1.48 !important;
 }
 
 .pdf-export-document.resume-template-designer.curated-resume .curated-entry-head strong {
-  font-size: 10.6pt !important;
+  font-size: 11pt !important;
 }
 
 .pdf-export-document.resume-template-designer.curated-resume .curated-entry-head span,
 .pdf-export-document.resume-template-designer.curated-resume .curated-entry-meta,
 .pdf-export-document.resume-template-designer.curated-resume .curated-compact-item span,
 .pdf-export-document.resume-template-designer.curated-resume .curated-compact-item em {
-  font-size: 8.4pt !important;
+  font-size: 8.8pt !important;
 }
 
 .pdf-export-document.resume-template-designer.curated-resume .curated-skill-list span {
   padding: 1.35mm 2.1mm !important;
-  font-size: 8.1pt !important;
+  font-size: 8.5pt !important;
   line-height: 1.15 !important;
 }
 
