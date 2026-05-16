@@ -365,7 +365,7 @@ function configuredFallbackProvider() {
 }
 
 function aiFallbackEnabled() {
-  return String(process.env.AI_ENABLE_FALLBACK || "false").trim().toLowerCase() === "true";
+  return String(process.env.AI_ENABLE_FALLBACK || "true").trim().toLowerCase() !== "false";
 }
 
 function openAiRequestPayload(model, task, input) {
