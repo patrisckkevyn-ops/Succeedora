@@ -8033,7 +8033,7 @@ function aiActionTask(action = "ai") {
     "cover-letter": "generate_cover_letter",
     translation: "translate_resume",
     "job-tailoring": "tailor_resume_to_job",
-    "job-analysis": "analyze_job_description",
+    "job-analysis": "analyze_resume_ats",
     "ats-keywords": "suggest_ats_keywords",
     ai: "generate_professional_summary",
   };
@@ -8418,6 +8418,9 @@ async function requestAiGeneration(taskType, data = {}) {
       setRoute("/signin");
       throw new Error("auth_required");
     }
+    await syncAiCredits();
+  }
+  if (!canUseAiTask(taskType)) {
     openInsufficientCreditsModal({
       balance: Number(effectiveAccessState().aiCredits || 0),
       required: aiTaskCredits(taskType),
@@ -9988,16 +9991,10 @@ function bindInteractions() {
         render();
         return;
       }
-      if (!canUseAiTask("analyze_job_description")) {
-        openAiTaskAccessModal("analyze_job_description", "ats_advanced");
-        aiAssistantState = { ...aiAssistantState, ...nextState, error: aiCopy().noCredits };
-        render();
-        return;
-      }
       aiAssistantState = { ...nextState, result: { state: "loading" } };
       render();
       try {
-        const result = await requestAiGeneration("analyze_job_description", { resume, job: nextState });
+        const result = await requestAiGeneration("analyze_resume_ats", { resume, job: nextState });
         aiAssistantState = { ...nextState, result: aiAnalysisResult(result, resume, nextState), error: "" };
         render();
       } catch (error) {
@@ -16693,7 +16690,7 @@ function renderAiAssistant() {
     ? result.suggestions.map((suggestion) => aiSuggestionCard(suggestion, selectedResume?.id)).join("")
     : `<div class="ai-empty-panel">${icon("sparkles")}<p>${result ? a.noSuggestions : a.start}</p></div>`;
   const hasAnalysis = result && !isLoading;
-  const atsLocked = !canUseAiTask("analyze_job_description");
+  const atsLocked = !canUseAiTask("analyze_resume_ats");
   const tailorLocked = !canUseAiTask("tailor_resume_to_job");
   const keywordPanel = hasAnalysis ? `
     <section class="ai-keyword-grid">
@@ -16728,7 +16725,7 @@ function renderAiAssistant() {
           <label>${a.label}<textarea data-ai-field="jobDescription" placeholder="${a.placeholder}">${escapeHtml(aiAssistantState.jobDescription)}</textarea></label>
           <p class="ai-form-error" data-ai-error ${aiAssistantState.error ? "" : "hidden"}>${escapeHtml(aiAssistantState.error)}</p>
           <div class="ai-form-actions">
-            <button class="primary-button full ${atsLocked ? "locked-action" : ""}" type="submit">${icon(atsLocked ? "lock" : "target")} <span>${isLoading ? a.analyzing : aiActionLabel(a.button, "analyze_job_description")}</span></button>
+            <button class="primary-button full ${atsLocked ? "locked-action" : ""}" type="submit">${icon(atsLocked ? "lock" : "target")} <span>${isLoading ? a.analyzing : aiActionLabel(a.button, "analyze_resume_ats")}</span></button>
             <button class="secondary-button full ${tailorLocked ? "locked-action" : ""}" type="button" data-ai-tailor-job>${icon(tailorLocked ? "lock" : "sparkles")} <span>${aiActionLabel(aiCopy().tailorJob, "tailor_resume_to_job")}</span></button>
             ${aiCreditBalanceBadge()}
           </div>

@@ -1434,6 +1434,9 @@ body:has(.home-shell)::-webkit-scrollbar {
 }
 
 #templates .templates-cta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content max-content;
+  align-items: center;
   margin-top: clamp(22px, 3vw, 32px);
 }
 
@@ -1441,6 +1444,28 @@ body:has(.home-shell)::-webkit-scrollbar {
 .templates-cta h3 {
   margin: 0;
   font-size: clamp(22px, 2.4vw, 30px);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+#templates .templates-cta .primary-button,
+#templates .templates-cta .secondary-button {
+  flex: 0 0 auto;
+  min-width: max-content;
+}
+
+@media (max-width: 920px) {
+  #templates .templates-cta {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+
+  #templates .templates-cta .primary-button,
+  #templates .templates-cta .secondary-button {
+    width: 100%;
+    min-width: 0;
+    white-space: normal;
+  }
 }
 
 .trust-section {

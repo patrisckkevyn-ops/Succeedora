@@ -233,7 +233,11 @@ async function adjustAiCredits(userInput = {}, amount = 0, transaction = {}) {
     ...current,
     balance: Math.max(0, current.balance + delta),
     totalPurchased: delta > 0 && ["purchase", "admin_add"].includes(transaction.type) ? current.totalPurchased + delta : current.totalPurchased,
-    totalUsed: delta < 0 && ["usage", "admin_remove"].includes(transaction.type) ? current.totalUsed + Math.abs(delta) : current.totalUsed,
+    totalUsed: delta < 0 && ["usage", "admin_remove"].includes(transaction.type)
+      ? current.totalUsed + Math.abs(delta)
+      : delta > 0 && transaction.type === "refund"
+        ? Math.max(0, current.totalUsed - delta)
+        : current.totalUsed,
     updatedAt: new Date().toISOString(),
   };
   if (delta < 0 && current.balance + delta < 0) return { applied: false, reason: "insufficient_credits", credits: current };
