@@ -1,29 +1,15 @@
 const OPENAI_RESPONSES_ENDPOINT = "https://api.openai.com/v1/responses";
-const GEMINI_GENERATE_ENDPOINT_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 const DEFAULT_MODEL = "gpt-5.4-mini";
 const DEFAULT_FALLBACK_MODELS = ["gpt-5-mini", "gpt-4.1-mini"];
-const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash-lite";
 const MAX_BODY_BYTES = 64 * 1024;
 const MAX_TEXT_CHARS = 14000;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX_REQUESTS = 20;
-const OPENAI_REQUEST_TIMEOUT_MS = 14000;
-const GEMINI_REQUEST_TIMEOUT_MS = 18000;
-const OPENAI_PRIMARY_ATTEMPTS = 1;
+const OPENAI_REQUEST_TIMEOUT_MS = 28000;
+const OPENAI_PRIMARY_ATTEMPTS = 2;
 const OPENAI_FALLBACK_ATTEMPTS = 1;
 const OPENAI_RETRY_STATUSES = new Set([429, 500, 502, 503, 504]);
 const OPENAI_FALLBACK_STATUSES = new Set([400, 404, 429, 500, 502, 503, 504]);
-const GEMINI_RETRY_STATUSES = new Set([429, 500, 502, 503, 504]);
-const AI_TEMPORARY_ERROR_CODES = new Set([
-  "ai_generation_timeout",
-  "ai_request_failed",
-  "ai_network_error",
-  "ai_rate_limited",
-  "ai_unavailable",
-  "ai_model_unavailable",
-  "ai_empty_response",
-  "ai_invalid_response",
-]);
 const rateLimitBuckets = new Map();
 const {
   aiTaskCreditCost,
@@ -305,16 +291,6 @@ function extractOutputText(payload) {
   return chunks.join("\n").trim();
 }
 
-function extractGeminiOutputText(payload) {
-  const chunks = [];
-  (payload.candidates || []).forEach((candidate) => {
-    (candidate.content?.parts || []).forEach((part) => {
-      if (typeof part.text === "string") chunks.push(part.text);
-    });
-  });
-  return chunks.join("\n").trim();
-}
-
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -330,10 +306,6 @@ function aiError(code, message = code, details = {}) {
   error.code = code;
   Object.assign(error, details);
   return error;
-}
-
-function isTemporaryAiError(error) {
-  return AI_TEMPORARY_ERROR_CODES.has(error?.code);
 }
 
 function uniqueStrings(items = []) {
@@ -356,18 +328,6 @@ function openAiModelCandidates() {
   return uniqueStrings([primary, ...(configuredFallbacks.length ? configuredFallbacks : DEFAULT_FALLBACK_MODELS)]);
 }
 
-function configuredPrimaryProvider() {
-  return String(process.env.AI_PRIMARY_PROVIDER || "openai").trim().toLowerCase() || "openai";
-}
-
-function configuredFallbackProvider() {
-  return String(process.env.AI_FALLBACK_PROVIDER || "gemini").trim().toLowerCase() || "gemini";
-}
-
-function aiFallbackEnabled() {
-  return String(process.env.AI_ENABLE_FALLBACK || "true").trim().toLowerCase() !== "false";
-}
-
 function openAiRequestPayload(model, task, input) {
   return JSON.stringify({
     model,
@@ -375,45 +335,6 @@ function openAiRequestPayload(model, task, input) {
     input: JSON.stringify(input),
     max_output_tokens: task.maxTokens,
     text: { format: { type: "json_object" } },
-  });
-}
-
-function geminiModelName() {
-  return String(process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL).trim() || DEFAULT_GEMINI_MODEL;
-}
-
-function geminiModelCandidates() {
-  const configuredFallbacks = String(process.env.GEMINI_FALLBACK_MODELS || "")
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-  return uniqueStrings([
-    geminiModelName(),
-    ...(configuredFallbacks.length ? configuredFallbacks : ["gemini-2.5-flash-lite", "gemini-2.0-flash-lite"]),
-  ]);
-}
-
-function geminiEndpoint(model = geminiModelName()) {
-  const modelPath = String(model || DEFAULT_GEMINI_MODEL).replace(/^models\//, "");
-  return `${GEMINI_GENERATE_ENDPOINT_BASE}/${encodeURIComponent(modelPath)}:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY || "")}`;
-}
-
-function geminiRequestPayload(model, task, input) {
-  return JSON.stringify({
-    systemInstruction: {
-      parts: [{
-        text: `${SYSTEM_PROMPT}\nTask instruction: ${task.instruction}\nRequired JSON shape for result: ${task.responseShape}\nReturn the result object directly as valid JSON, not wrapped in markdown. When the user supplied relevant context, do not return empty strings or empty arrays; use honest editable placeholders for missing metrics instead of inventing facts.`,
-      }],
-    },
-    contents: [{
-      role: "user",
-      parts: [{ text: JSON.stringify(input) }],
-    }],
-    generationConfig: {
-      temperature: 0.2,
-      maxOutputTokens: task.maxTokens,
-      responseMimeType: "application/json",
-    },
   });
 }
 
@@ -443,24 +364,6 @@ async function fetchOpenAiWithTimeout(requestPayload) {
       throw timeoutError;
     }
     throw error;
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
-async function fetchGeminiWithTimeout(model, requestPayload) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), GEMINI_REQUEST_TIMEOUT_MS);
-  try {
-    return await fetch(geminiEndpoint(model), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: requestPayload,
-      signal: controller.signal,
-    });
-  } catch (error) {
-    if (error?.name === "AbortError") throw aiError("ai_generation_timeout");
-    throw aiError("ai_network_error");
   } finally {
     clearTimeout(timeout);
   }
@@ -643,8 +546,8 @@ function validateNormalizedResult(taskType, result = {}) {
   return result;
 }
 
-async function parseProviderResponse(provider, taskType, payload) {
-  const outputText = provider === "gemini" ? extractGeminiOutputText(payload) : extractOutputText(payload);
+async function parseProviderResponse(taskType, payload) {
+  const outputText = extractOutputText(payload);
   if (!outputText) throw aiError("ai_empty_response");
   const parsed = parseAiJson(outputText);
   return validateNormalizedResult(taskType, normalizeResult(taskType, parsed));
@@ -687,69 +590,7 @@ async function callOpenAi(taskType, task, input) {
   if (!response) throw lastRequestError || aiError("ai_request_failed");
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) throw providerHttpError("openai", response, payload);
-  return { provider: "openai", model, result: await parseProviderResponse("openai", taskType, payload) };
-}
-
-async function callGemini(taskType, task, input) {
-  if (!process.env.GEMINI_API_KEY) throw aiError("gemini_missing_api_key");
-  let lastError = null;
-  const modelCandidates = geminiModelCandidates();
-  for (const model of modelCandidates) {
-    const requestPayload = geminiRequestPayload(model, task, input);
-    let response;
-    for (let attempt = 0; attempt < 2; attempt += 1) {
-      try {
-        response = await fetchGeminiWithTimeout(model, requestPayload);
-        lastError = null;
-      } catch (error) {
-        lastError = error;
-        if (attempt < 1) {
-          await wait(1500 * (attempt + 1));
-          continue;
-        }
-        response = null;
-      }
-      if (!response) break;
-      if (GEMINI_RETRY_STATUSES.has(response.status) && attempt < 1) {
-        await wait(openAiRetryDelayMs(response, attempt));
-        continue;
-      }
-      break;
-    }
-    if (!response) continue;
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      lastError = providerHttpError("gemini", response, payload);
-      if (lastError.code === "ai_model_unavailable" && model !== modelCandidates[modelCandidates.length - 1]) continue;
-      throw lastError;
-    }
-    return { provider: "gemini", model, result: await parseProviderResponse("gemini", taskType, payload) };
-  }
-  throw lastError || aiError("ai_request_failed");
-}
-
-async function generateWithConfiguredProviders(taskType, task, input) {
-  const primaryProvider = configuredPrimaryProvider();
-  const fallbackProvider = configuredFallbackProvider();
-  const fallbackEnabled = aiFallbackEnabled();
-  const callProvider = async (provider) => {
-    if (provider === "openai") return callOpenAi(taskType, task, input);
-    if (provider === "gemini") return callGemini(taskType, task, input);
-    throw aiError("unsupported_ai_provider");
-  };
-
-  let primaryError = null;
-  try {
-    const response = await callProvider(primaryProvider);
-    return { ...response, fallbackUsed: false };
-  } catch (error) {
-    primaryError = error;
-  }
-
-  if (!fallbackEnabled || fallbackProvider === primaryProvider || !isTemporaryAiError(primaryError)) throw primaryError;
-
-  const fallbackResponse = await callProvider(fallbackProvider);
-  return { ...fallbackResponse, fallbackUsed: true, primaryErrorCode: primaryError?.code || "" };
+  return { provider: "openai", model, fallbackUsed: false, result: await parseProviderResponse(taskType, payload) };
 }
 
 module.exports = async function handler(req, res) {
@@ -813,9 +654,7 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  if (configuredPrimaryProvider() === "openai" && !process.env.OPENAI_API_KEY) {
-    return json(res, 500, { success: false, error: "missing_openai_api_key" });
-  }
+  if (!process.env.OPENAI_API_KEY) return json(res, 500, { success: false, error: "missing_openai_api_key" });
 
   const input = {
     taskType,
@@ -829,7 +668,7 @@ module.exports = async function handler(req, res) {
   };
 
   try {
-    const generated = await generateWithConfiguredProviders(taskType, task, input);
+    const generated = await callOpenAi(taskType, task, input);
     const debit = await adjustAiCredits(user, -creditCost, {
       type: "usage",
       taskType,
