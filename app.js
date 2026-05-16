@@ -8961,8 +8961,8 @@ function aiErrorMessage(error) {
   }
   if (["openai_error", "ai_generation_failed", "ai_generation_timeout"].includes(code)) {
     return currentLanguage === "pt"
-      ? "N\u00e3o foi poss\u00edvel gerar a resposta agora. Seus cr\u00e9ditos n\u00e3o foram consumidos."
-      : "Could not generate the response right now. Your credits were not used.";
+      ? "N\u00e3o foi poss\u00edvel gerar a resposta agora. Tente novamente em instantes. Seus cr\u00e9ditos n\u00e3o foram consumidos."
+      : "Could not generate the response right now. Please try again shortly. Your credits were not used.";
   }
   if (code === "auth_required") {
     return currentLanguage === "pt" ? "Entre na sua conta para usar recursos de IA." : "Sign in to use AI features.";

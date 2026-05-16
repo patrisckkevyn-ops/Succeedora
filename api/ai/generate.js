@@ -1,21 +1,33 @@
 const OPENAI_RESPONSES_ENDPOINT = "https://api.openai.com/v1/responses";
+const GEMINI_GENERATE_ENDPOINT_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 const DEFAULT_MODEL = "gpt-5.4-mini";
 const DEFAULT_FALLBACK_MODELS = ["gpt-5-mini", "gpt-4.1-mini"];
+const DEFAULT_GEMINI_MODEL = "gemini-3.1-flash-lite";
 const MAX_BODY_BYTES = 64 * 1024;
 const MAX_TEXT_CHARS = 14000;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX_REQUESTS = 20;
 const OPENAI_REQUEST_TIMEOUT_MS = 28000;
+const GEMINI_REQUEST_TIMEOUT_MS = 28000;
 const OPENAI_PRIMARY_ATTEMPTS = 2;
 const OPENAI_FALLBACK_ATTEMPTS = 1;
 const OPENAI_RETRY_STATUSES = new Set([429, 500, 502, 503, 504]);
 const OPENAI_FALLBACK_STATUSES = new Set([400, 404, 429, 500, 502, 503, 504]);
+const GEMINI_RETRY_STATUSES = new Set([429, 500, 502, 503, 504]);
+const AI_TEMPORARY_ERROR_CODES = new Set([
+  "ai_generation_timeout",
+  "ai_request_failed",
+  "ai_network_error",
+  "ai_rate_limited",
+  "ai_unavailable",
+  "ai_model_unavailable",
+  "ai_empty_response",
+  "ai_invalid_response",
+]);
 const rateLimitBuckets = new Map();
 const {
   aiTaskCreditCost,
   adjustAiCredits,
-  reserveAiCreditsForTask,
-  refundAiCreditsForTask,
   getAiCreditState,
 } = require("../_lib/succeedora-store");
 const ADMIN_EMAILS = ["patrisckkevyn@gmail.com"];
@@ -293,8 +305,35 @@ function extractOutputText(payload) {
   return chunks.join("\n").trim();
 }
 
+function extractGeminiOutputText(payload) {
+  const chunks = [];
+  (payload.candidates || []).forEach((candidate) => {
+    (candidate.content?.parts || []).forEach((part) => {
+      if (typeof part.text === "string") chunks.push(part.text);
+    });
+  });
+  return chunks.join("\n").trim();
+}
+
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function friendlyGenerationError(language = "pt") {
+  return language === "en"
+    ? "Could not generate the response right now. Please try again shortly. Your credits were not used."
+    : "Não foi possível gerar a resposta agora. Tente novamente em instantes. Seus créditos não foram consumidos.";
+}
+
+function aiError(code, message = code, details = {}) {
+  const error = new Error(message);
+  error.code = code;
+  Object.assign(error, details);
+  return error;
+}
+
+function isTemporaryAiError(error) {
+  return AI_TEMPORARY_ERROR_CODES.has(error?.code);
 }
 
 function uniqueStrings(items = []) {
@@ -317,6 +356,18 @@ function openAiModelCandidates() {
   return uniqueStrings([primary, ...(configuredFallbacks.length ? configuredFallbacks : DEFAULT_FALLBACK_MODELS)]);
 }
 
+function configuredPrimaryProvider() {
+  return String(process.env.AI_PRIMARY_PROVIDER || "openai").trim().toLowerCase() || "openai";
+}
+
+function configuredFallbackProvider() {
+  return String(process.env.AI_FALLBACK_PROVIDER || "gemini").trim().toLowerCase() || "gemini";
+}
+
+function aiFallbackEnabled() {
+  return String(process.env.AI_ENABLE_FALLBACK || "false").trim().toLowerCase() === "true";
+}
+
 function openAiRequestPayload(model, task, input) {
   return JSON.stringify({
     model,
@@ -324,6 +375,34 @@ function openAiRequestPayload(model, task, input) {
     input: JSON.stringify(input),
     max_output_tokens: task.maxTokens,
     text: { format: { type: "json_object" } },
+  });
+}
+
+function geminiModelName() {
+  return String(process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL).trim() || DEFAULT_GEMINI_MODEL;
+}
+
+function geminiEndpoint(model = geminiModelName()) {
+  const modelPath = String(model || DEFAULT_GEMINI_MODEL).replace(/^models\//, "");
+  return `${GEMINI_GENERATE_ENDPOINT_BASE}/${encodeURIComponent(modelPath)}:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY || "")}`;
+}
+
+function geminiRequestPayload(model, task, input) {
+  return JSON.stringify({
+    systemInstruction: {
+      parts: [{
+        text: `${SYSTEM_PROMPT}\nTask instruction: ${task.instruction}\nRequired JSON shape for result: ${task.responseShape}\nReturn the result object directly as valid JSON, not wrapped in markdown. When the user supplied relevant context, do not return empty strings or empty arrays; use honest editable placeholders for missing metrics instead of inventing facts.`,
+      }],
+    },
+    contents: [{
+      role: "user",
+      parts: [{ text: JSON.stringify(input) }],
+    }],
+    generationConfig: {
+      temperature: 0.2,
+      maxOutputTokens: task.maxTokens,
+      responseMimeType: "application/json",
+    },
   });
 }
 
@@ -356,6 +435,68 @@ async function fetchOpenAiWithTimeout(requestPayload) {
   } finally {
     clearTimeout(timeout);
   }
+}
+
+async function fetchGeminiWithTimeout(model, requestPayload) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), GEMINI_REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(geminiEndpoint(model), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: requestPayload,
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error?.name === "AbortError") throw aiError("ai_generation_timeout");
+    throw aiError("ai_network_error");
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function providerHttpError(provider, response, payload = {}) {
+  if (response.status === 429) return aiError("ai_rate_limited", `${provider}_rate_limited`, { status: response.status });
+  if (response.status === 404) return aiError("ai_model_unavailable", `${provider}_model_unavailable`, { status: response.status });
+  if ([500, 502, 503, 504].includes(response.status)) return aiError("ai_unavailable", `${provider}_unavailable`, { status: response.status });
+  if (response.status === 400 && provider === "openai") {
+    const errorText = JSON.stringify(payload?.error || payload || {}).toLowerCase();
+    if (/model|not found|does not exist|unsupported|unavailable/.test(errorText)) {
+      return aiError("ai_model_unavailable", `${provider}_model_unavailable`, { status: response.status });
+    }
+  }
+  return aiError(`${provider}_error`, `${provider}_error`, { status: response.status });
+}
+
+function stripJsonFences(text = "") {
+  return String(text || "")
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+}
+
+function findJsonObjectText(text = "") {
+  const source = stripJsonFences(text);
+  const start = source.indexOf("{");
+  const end = source.lastIndexOf("}");
+  return start >= 0 && end > start ? source.slice(start, end + 1) : source;
+}
+
+function parseAiJson(text = "") {
+  const candidates = [
+    String(text || "").trim(),
+    stripJsonFences(text),
+    findJsonObjectText(text),
+  ].filter(Boolean);
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(candidate);
+    } catch (error) {
+      // Try the next safer extraction.
+    }
+  }
+  throw aiError("ai_invalid_response");
 }
 
 function normalizeResult(taskType, parsed) {
@@ -454,6 +595,145 @@ function normalizeResult(taskType, parsed) {
   return { answer: limitString(result.answer || result.message || "", 4000), suggestions };
 }
 
+function hasAnyText(value) {
+  if (Array.isArray(value)) return value.some((item) => hasAnyText(item));
+  if (value && typeof value === "object") return Object.values(value).some((item) => hasAnyText(item));
+  return String(value || "").trim().length > 0;
+}
+
+function validateNormalizedResult(taskType, result = {}) {
+  if (!result || typeof result !== "object") throw aiError("ai_invalid_response");
+  if (taskType.includes("summary") && !result.summary) throw aiError("ai_invalid_response");
+  if (taskType === "rewrite_experience" && !(result.bullets || []).length) throw aiError("ai_invalid_response");
+  if (taskType === "suggest_skills" && !(result.skills || []).length) throw aiError("ai_invalid_response");
+  if (taskType === "improve_project_description" && !result.description) throw aiError("ai_invalid_response");
+  if (taskType.includes("cover_letter") && !result.body) throw aiError("ai_invalid_response");
+  if (taskType === "translate_resume" && !hasAnyText(result.resume)) throw aiError("ai_invalid_response");
+  if (taskType === "tailor_resume_to_job" && !hasAnyText([
+    result.adaptedSummary,
+    result.adaptedExperiences,
+    result.suggestedSkills,
+    result.adaptedProjects,
+    result.keywordsUsed,
+    result.changes,
+  ])) throw aiError("ai_invalid_response");
+  if (["analyze_resume_ats", "analyze_job_description", "ats_keyword_suggestions", "suggest_ats_keywords"].includes(taskType) && !hasAnyText([
+    result.matchedKeywords,
+    result.missingKeywords,
+    result.summarySuggestions,
+    result.experienceSuggestions,
+    result.skillSuggestions,
+    result.missingSections,
+    result.generalRecommendations,
+    result.explanation,
+  ])) throw aiError("ai_invalid_response");
+  if (taskType === "recommend_resume_template" && !hasAnyText([result.recommendedTemplates, result.explanation])) throw aiError("ai_invalid_response");
+  if (taskType === "assistant_chat" && !result.answer) throw aiError("ai_invalid_response");
+  return result;
+}
+
+async function parseProviderResponse(provider, taskType, payload) {
+  const outputText = provider === "gemini" ? extractGeminiOutputText(payload) : extractOutputText(payload);
+  if (!outputText) throw aiError("ai_empty_response");
+  const parsed = parseAiJson(outputText);
+  return validateNormalizedResult(taskType, normalizeResult(taskType, parsed));
+}
+
+async function callOpenAi(taskType, task, input) {
+  if (!process.env.OPENAI_API_KEY) throw aiError("openai_missing_api_key");
+  let response;
+  let model = "";
+  let lastRequestError = null;
+  const modelCandidates = openAiModelCandidates();
+  for (let modelIndex = 0; modelIndex < modelCandidates.length; modelIndex += 1) {
+    const candidateModel = modelCandidates[modelIndex];
+    const attempts = modelIndex === 0 ? OPENAI_PRIMARY_ATTEMPTS : OPENAI_FALLBACK_ATTEMPTS;
+    const requestPayload = openAiRequestPayload(candidateModel, task, input);
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      try {
+        response = await fetchOpenAiWithTimeout(requestPayload);
+        model = candidateModel;
+        lastRequestError = null;
+      } catch (error) {
+        lastRequestError = error?.code ? error : aiError("ai_network_error");
+        if (attempt < attempts - 1) {
+          await wait(1500 * (attempt + 1));
+          continue;
+        }
+        response = null;
+      }
+      if (!response) break;
+      if (!OPENAI_FALLBACK_STATUSES.has(response.status)) break;
+      if (OPENAI_RETRY_STATUSES.has(response.status) && attempt < attempts - 1) {
+        await wait(openAiRetryDelayMs(response, attempt));
+        continue;
+      }
+      break;
+    }
+    if (response && !OPENAI_FALLBACK_STATUSES.has(response.status)) break;
+    if (modelIndex >= modelCandidates.length - 1) break;
+  }
+  if (!response) throw lastRequestError || aiError("ai_request_failed");
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw providerHttpError("openai", response, payload);
+  return { provider: "openai", model, result: await parseProviderResponse("openai", taskType, payload) };
+}
+
+async function callGemini(taskType, task, input) {
+  if (!process.env.GEMINI_API_KEY) throw aiError("gemini_missing_api_key");
+  const model = geminiModelName();
+  const requestPayload = geminiRequestPayload(model, task, input);
+  let response;
+  let lastError = null;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      response = await fetchGeminiWithTimeout(model, requestPayload);
+      lastError = null;
+    } catch (error) {
+      lastError = error;
+      if (attempt < 1) {
+        await wait(1500 * (attempt + 1));
+        continue;
+      }
+      response = null;
+    }
+    if (!response) break;
+    if (GEMINI_RETRY_STATUSES.has(response.status) && attempt < 1) {
+      await wait(openAiRetryDelayMs(response, attempt));
+      continue;
+    }
+    break;
+  }
+  if (!response) throw lastError || aiError("ai_request_failed");
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw providerHttpError("gemini", response, payload);
+  return { provider: "gemini", model, result: await parseProviderResponse("gemini", taskType, payload) };
+}
+
+async function generateWithConfiguredProviders(taskType, task, input) {
+  const primaryProvider = configuredPrimaryProvider();
+  const fallbackProvider = configuredFallbackProvider();
+  const fallbackEnabled = aiFallbackEnabled();
+  const callProvider = async (provider) => {
+    if (provider === "openai") return callOpenAi(taskType, task, input);
+    if (provider === "gemini") return callGemini(taskType, task, input);
+    throw aiError("unsupported_ai_provider");
+  };
+
+  let primaryError = null;
+  try {
+    const response = await callProvider(primaryProvider);
+    return { ...response, fallbackUsed: false };
+  } catch (error) {
+    primaryError = error;
+  }
+
+  if (!fallbackEnabled || fallbackProvider === primaryProvider || !isTemporaryAiError(primaryError)) throw primaryError;
+
+  const fallbackResponse = await callProvider(fallbackProvider);
+  return { ...fallbackResponse, fallbackUsed: true, primaryErrorCode: primaryError?.code || "" };
+}
+
 module.exports = async function handler(req, res) {
   if (req.method === "GET") {
     const url = requestUrl(req);
@@ -476,9 +756,6 @@ module.exports = async function handler(req, res) {
     return handleAdminAiCredits(req, res, body);
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return json(res, 500, { success: false, error: "missing_openai_api_key" });
-
   const taskType = String(body.taskType || "");
   const task = TASKS[taskType];
   const language = body.language === "en" ? "en" : "pt";
@@ -490,9 +767,9 @@ module.exports = async function handler(req, res) {
   if (containsPromptInjection(data)) return json(res, 400, { success: false, error: "unsafe_input" });
 
   const creditCost = aiTaskCreditCost(taskType);
-  let reservation;
+  let creditState;
   try {
-    reservation = await reserveAiCreditsForTask(user, taskType);
+    creditState = await getAiCreditState(user);
   } catch (error) {
     return json(res, 503, {
       success: false,
@@ -501,14 +778,25 @@ module.exports = async function handler(req, res) {
       creditsBalance: 0,
     });
   }
-  if (!reservation.applied) {
-    const state = await getAiCreditState(user).catch(() => ({ credits: { balance: 0 } }));
-    return json(res, reservation.reason === "server_persistent_store_not_configured" ? 503 : 402, {
+  if (!creditState.configured) {
+    return json(res, 503, {
       success: false,
-      error: reservation.reason || "insufficient_credits",
+      error: "server_persistent_store_not_configured",
       creditsRequired: creditCost,
-      creditsBalance: state.credits?.balance || 0,
+      creditsBalance: 0,
     });
+  }
+  if (Number(creditState.credits?.balance || 0) < creditCost) {
+    return json(res, 402, {
+      success: false,
+      error: "insufficient_credits",
+      creditsRequired: creditCost,
+      creditsBalance: creditState.credits?.balance || 0,
+    });
+  }
+
+  if (configuredPrimaryProvider() === "openai" && !process.env.OPENAI_API_KEY) {
+    return json(res, 500, { success: false, error: "missing_openai_api_key" });
   }
 
   const input = {
@@ -523,68 +811,40 @@ module.exports = async function handler(req, res) {
   };
 
   try {
-    let response;
-    let model = "";
-    let lastRequestError = null;
-    const modelCandidates = openAiModelCandidates();
-    for (let modelIndex = 0; modelIndex < modelCandidates.length; modelIndex += 1) {
-      const candidateModel = modelCandidates[modelIndex];
-      const attempts = modelIndex === 0 ? OPENAI_PRIMARY_ATTEMPTS : OPENAI_FALLBACK_ATTEMPTS;
-      const requestPayload = openAiRequestPayload(candidateModel, task, input);
-      for (let attempt = 0; attempt < attempts; attempt += 1) {
-        try {
-          response = await fetchOpenAiWithTimeout(requestPayload);
-          model = candidateModel;
-          lastRequestError = null;
-        } catch (error) {
-          lastRequestError = error;
-          if (attempt < attempts - 1) {
-            await wait(1500 * (attempt + 1));
-            continue;
-          }
-          response = null;
-        }
-        if (!response) break;
-        if (!OPENAI_FALLBACK_STATUSES.has(response.status)) break;
-        if (OPENAI_RETRY_STATUSES.has(response.status) && attempt < attempts - 1) {
-          await wait(openAiRetryDelayMs(response, attempt));
-          continue;
-        }
-        break;
-      }
-      if (response && !OPENAI_FALLBACK_STATUSES.has(response.status)) break;
-      if (modelIndex >= modelCandidates.length - 1) break;
-    }
-    if (!response) throw lastRequestError || new Error("openai_request_failed");
-
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      const errorCode = response.status === 429 ? "ai_rate_limited" : "openai_error";
-      await refundAiCreditsForTask(user, taskType, creditCost, errorCode);
-      const debug = body.debug === true;
-      return json(res, response.status || 502, {
+    const generated = await generateWithConfiguredProviders(taskType, task, input);
+    const debit = await adjustAiCredits(user, -creditCost, {
+      type: "usage",
+      taskType,
+      reason: "AI usage",
+      provider: generated.provider,
+      fallbackUsed: generated.fallbackUsed === true,
+      creditsUsed: creditCost,
+    });
+    if (!debit.applied) {
+      const latestState = await getAiCreditState(user).catch(() => ({ credits: creditState.credits || { balance: 0 } }));
+      return json(res, debit.reason === "server_persistent_store_not_configured" ? 503 : 402, {
         success: false,
-        error: errorCode,
-        creditsUsed: 0,
-        creditsRefunded: creditCost,
-        retryAfter: response.headers?.get?.("retry-after") || "",
-        ...(debug ? { details: payload?.error?.message || payload?.error || payload } : {}),
+        error: debit.reason || "insufficient_credits",
+        creditsRequired: creditCost,
+        creditsBalance: latestState.credits?.balance || 0,
       });
     }
 
-    const outputText = extractOutputText(payload);
-    const parsed = JSON.parse(outputText || "{}");
-    const state = await getAiCreditState(user).catch(() => ({ credits: reservation.credits || { balance: 0 } }));
     return json(res, 200, {
       success: true,
-      result: normalizeResult(taskType, parsed),
-      model,
+      result: generated.result,
+      model: generated.model,
       creditsUsed: creditCost,
-      creditsBalance: state.credits?.balance || 0,
+      creditsBalance: debit.credits?.balance || 0,
     });
   } catch (error) {
     const errorCode = error?.code === "ai_generation_timeout" ? "ai_generation_timeout" : "ai_generation_failed";
-    await refundAiCreditsForTask(user, taskType, creditCost, errorCode).catch(() => null);
-    return json(res, errorCode === "ai_generation_timeout" ? 504 : 502, { success: false, error: errorCode, creditsUsed: 0, creditsRefunded: creditCost });
+    return json(res, errorCode === "ai_generation_timeout" ? 504 : 502, {
+      success: false,
+      error: errorCode,
+      message: friendlyGenerationError(language),
+      creditsUsed: 0,
+      creditsBalance: creditState.credits?.balance || 0,
+    });
   }
 };
