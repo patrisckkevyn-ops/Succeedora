@@ -2951,7 +2951,7 @@ const TEMPLATE_STATUS_BY_KEY = Object.freeze({
   "senior-executive": TEMPLATE_STATUS.active,
   marketing: TEMPLATE_STATUS.active,
   developer: TEMPLATE_STATUS.active,
-  designer: TEMPLATE_STATUS.hidden,
+  designer: TEMPLATE_STATUS.active,
   healthcare: TEMPLATE_STATUS.hidden,
   legal: TEMPLATE_STATUS.hidden,
   finance: TEMPLATE_STATUS.hidden,
