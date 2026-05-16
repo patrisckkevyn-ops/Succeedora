@@ -2774,6 +2774,7 @@ const pendingPreviewScaleRoots = new Set();
 let builderStatusTimer = null;
 let builderPreviewTimer = null;
 let aiAssistantState = { resumeId: "", jobTitle: "", company: "", jobDescription: "", result: null, error: "" };
+let lastTailoredResumeBackup = null;
 
 const CSS_PX_PER_INCH = 96;
 const MM_PER_INCH = 25.4;
@@ -8216,7 +8217,7 @@ function openAiTaskAccessModal(taskType, featureKey = aiTaskFeature(taskType), c
   }
   const balance = Number(effectiveAccessState().aiCredits || 0);
   if (balance < aiTaskCredits(taskType)) {
-    openInsufficientCreditsModal({ balance, required: aiTaskCredits(taskType) });
+    openInsufficientCreditsModal({ balance, required: aiTaskCredits(taskType), taskType });
     return;
   }
   openFeatureLockModal(featureKey, context);
@@ -8372,9 +8373,14 @@ function openInsufficientCreditsModal(details = {}) {
     best: "Best value",
     many: "For several applications",
   };
+  const message = details.taskType === "tailor_resume_to_job"
+    ? (currentLanguage === "pt"
+      ? "Voc\u00ea precisa de 4 cr\u00e9ditos de IA para adaptar o curr\u00edculo para esta vaga."
+      : "You need 4 AI credits to tailor your resume to this job.")
+    : details.text || copy.text;
   openAccessModal({
     title: copy.title,
-    text: copy.text,
+    text: message,
     featureName: `${copy.balance}: ${balance}`,
     requirement: `${copy.required}: ${required}`,
     benefits: [
@@ -8424,6 +8430,7 @@ async function requestAiGeneration(taskType, data = {}) {
     openInsufficientCreditsModal({
       balance: Number(effectiveAccessState().aiCredits || 0),
       required: aiTaskCredits(taskType),
+      taskType,
     });
     throw new Error("insufficient_credits");
   }
@@ -8453,6 +8460,7 @@ async function requestAiGeneration(taskType, data = {}) {
       openInsufficientCreditsModal({
         balance: payload.creditsBalance,
         required: payload.creditsRequired || aiTaskCredits(taskType),
+        taskType,
       });
       updateLocalAiCreditBalance(payload.creditsBalance || 0);
     }
@@ -8502,6 +8510,518 @@ function openAiSuggestionModal({ title = aiCopy().suggestionTitle, text = "", on
       const value = modal.querySelector("[data-ai-suggestion-text]")?.value || "";
       if (typeof onApply === "function") onApply(value);
       close();
+    }
+  });
+}
+
+function translationReviewCopy() {
+  return currentLanguage === "pt" ? {
+    personal: "Dados pessoais",
+    professionalTitle: "T\u00edtulo profissional",
+    summary: "Resumo profissional",
+    experiences: "Experi\u00eancias",
+    education: "Forma\u00e7\u00e3o",
+    skills: "Habilidades",
+    languages: "Idiomas",
+    certifications: "Certifica\u00e7\u00f5es",
+    projects: "Projetos",
+    links: "Links",
+    firstName: "Nome",
+    lastName: "Sobrenome",
+    fullName: "Nome completo",
+    email: "E-mail",
+    phone: "Telefone",
+    address: "Endere\u00e7o",
+    city: "Cidade",
+    state: "Estado",
+    postalCode: "CEP",
+    location: "Localiza\u00e7\u00e3o",
+    company: "Empresa",
+    role: "Cargo",
+    period: "Per\u00edodo",
+    description: "Descri\u00e7\u00e3o/bullets",
+    school: "Institui\u00e7\u00e3o",
+    degree: "Curso",
+    itemsHint: "Um item por linha",
+    parseError: "N\u00e3o foi poss\u00edvel processar a tradu\u00e7\u00e3o. Tente novamente.",
+  } : {
+    personal: "Personal details",
+    professionalTitle: "Professional title",
+    summary: "Professional summary",
+    experiences: "Experience",
+    education: "Education",
+    skills: "Skills",
+    languages: "Languages",
+    certifications: "Certifications",
+    projects: "Projects",
+    links: "Links",
+    firstName: "First name",
+    lastName: "Last name",
+    fullName: "Full name",
+    email: "Email",
+    phone: "Phone",
+    address: "Address",
+    city: "City",
+    state: "State",
+    postalCode: "Postal code",
+    location: "Location",
+    company: "Company",
+    role: "Role",
+    period: "Period",
+    description: "Description/bullets",
+    school: "School",
+    degree: "Degree",
+    itemsHint: "One item per line",
+    parseError: "Could not process the translation. Please try again.",
+  };
+}
+
+function parseTranslatedResumePayload(value) {
+  if (value && typeof value === "object" && !Array.isArray(value)) return value;
+  const raw = String(value || "").trim().replace(/^```(?:json)?\s*/i, "").replace(/```$/i, "").trim();
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function translationListValue(value) {
+  if (Array.isArray(value)) {
+    return value.map((item) => {
+      if (item && typeof item === "object") {
+        return [item.title, item.name, item.description, item.url].map((part) => String(part || "").trim()).filter(Boolean).join(" - ");
+      }
+      return String(item || "").trim();
+    }).filter(Boolean).join("\n");
+  }
+  return String(value || "");
+}
+
+function translationInput(name, label, value = "") {
+  return `
+    <label>${escapeHtml(label)}
+      <input data-translation-field="${escapeHtml(name)}" value="${escapeHtml(value)}" />
+    </label>
+  `;
+}
+
+function translationTextarea(name, label, value = "", hint = "") {
+  return `
+    <label>${escapeHtml(label)}
+      <textarea data-translation-field="${escapeHtml(name)}" ${hint ? `placeholder="${escapeHtml(hint)}"` : ""}>${escapeHtml(value)}</textarea>
+    </label>
+  `;
+}
+
+function openResumeTranslationModal({ title = aiCopy().translateResume, translated, resume, onApply }) {
+  const parsed = parseTranslatedResumePayload(translated);
+  const labels = translationReviewCopy();
+  if (!parsed) {
+    showAiInlineMessage(labels.parseError);
+    return;
+  }
+  const copy = aiCopy();
+  const reviewResume = normalizeResume({ ...(resume || {}), ...parsed });
+  const personal = reviewResume.personal || {};
+  const experiences = (reviewResume.workExperience || []).length ? reviewResume.workExperience : [];
+  const education = (reviewResume.education || []).length ? reviewResume.education : [];
+  document.querySelectorAll(".ai-suggestion-modal").forEach((modal) => modal.remove());
+  const modal = document.createElement("div");
+  modal.className = "template-preview-modal ai-suggestion-modal";
+  modal.innerHTML = `
+    <section class="template-preview-dialog ai-suggestion-dialog resume-translation-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(title)}">
+      <header class="template-preview-header">
+        <div><span class="eyebrow">Succeedora AI</span><h2>${escapeHtml(title)}</h2><p>${escapeHtml(copy.editBeforeApply)}</p></div>
+        <button class="icon-button" type="button" data-ai-suggestion-close aria-label="${escapeHtml(copy.discard)}">${icon("close")}</button>
+      </header>
+      <div class="template-preview-content resume-translation-content">
+        <form class="resume-translation-form" data-translation-review-form>
+          <section class="resume-translation-section">
+            <h3>${escapeHtml(labels.personal)}</h3>
+            <div class="resume-translation-grid">
+              ${translationInput("personal.firstName", labels.firstName, personal.firstName)}
+              ${translationInput("personal.lastName", labels.lastName, personal.lastName)}
+              ${translationInput("personal.fullName", labels.fullName, personal.fullName)}
+              ${translationInput("personal.email", labels.email, personal.email)}
+              ${translationInput("personal.phone", labels.phone, personal.phone)}
+              ${translationInput("personal.address", labels.address, personal.address)}
+              ${translationInput("personal.city", labels.city, personal.city)}
+              ${translationInput("personal.state", labels.state, personal.state)}
+              ${translationInput("personal.postalCode", labels.postalCode, personal.postalCode)}
+              ${translationInput("personal.location", labels.location, personal.location)}
+            </div>
+          </section>
+          <section class="resume-translation-section">
+            <h3>${escapeHtml(labels.professionalTitle)}</h3>
+            ${translationInput("personal.title", labels.professionalTitle, personal.title)}
+          </section>
+          <section class="resume-translation-section">
+            <h3>${escapeHtml(labels.summary)}</h3>
+            ${translationTextarea("summary", labels.summary, reviewResume.summary)}
+          </section>
+          <section class="resume-translation-section">
+            <h3>${escapeHtml(labels.experiences)}</h3>
+            <div class="resume-translation-list">
+              ${experiences.map((item, index) => `
+                <article class="resume-translation-entry" data-translation-experience>
+                  <div class="resume-translation-grid">
+                    ${translationInput("experience.company", labels.company, item.company)}
+                    ${translationInput("experience.role", labels.role, item.role)}
+                    ${translationInput("experience.period", labels.period, item.period)}
+                    ${translationInput("experience.location", labels.location, item.location)}
+                  </div>
+                  ${translationTextarea("experience.achievements", labels.description, (item.achievements || []).join("\n"), labels.itemsHint)}
+                </article>
+              `).join("")}
+            </div>
+          </section>
+          <section class="resume-translation-section">
+            <h3>${escapeHtml(labels.education)}</h3>
+            <div class="resume-translation-list">
+              ${education.map((item) => `
+                <article class="resume-translation-entry" data-translation-education>
+                  <div class="resume-translation-grid">
+                    ${translationInput("education.school", labels.school, item.school)}
+                    ${translationInput("education.degree", labels.degree, item.degree)}
+                    ${translationInput("education.period", labels.period, item.period)}
+                    ${translationInput("education.location", labels.location, item.location)}
+                  </div>
+                  ${translationTextarea("education.description", labels.description, item.description || "")}
+                </article>
+              `).join("")}
+            </div>
+          </section>
+          <section class="resume-translation-section resume-translation-two-col">
+            ${translationTextarea("skills", labels.skills, translationListValue(reviewResume.skills), labels.itemsHint)}
+            ${translationTextarea("languages", labels.languages, translationListValue(reviewResume.languages), labels.itemsHint)}
+            ${translationTextarea("certifications", labels.certifications, translationListValue(reviewResume.certifications), labels.itemsHint)}
+            ${translationTextarea("projects", labels.projects, translationListValue(reviewResume.projects), labels.itemsHint)}
+            ${translationTextarea("professionalLinks", labels.links, translationListValue(reviewResume.professionalLinks), labels.itemsHint)}
+          </section>
+        </form>
+      </div>
+      <footer class="template-preview-footer">
+        <button class="secondary-button" type="button" data-ai-suggestion-close>${escapeHtml(copy.discard)}</button>
+        <button class="primary-button" type="button" data-ai-suggestion-apply>${escapeHtml(copy.apply)}</button>
+      </footer>
+    </section>
+  `;
+  document.body.appendChild(modal);
+  const field = (name) => modal.querySelector(`[data-translation-field="${name}"]`)?.value.trim() || "";
+  const close = () => modal.remove();
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal || event.target.closest("[data-ai-suggestion-close]")) close();
+    if (event.target.closest("[data-ai-suggestion-apply]")) {
+      const edited = {
+        ...parsed,
+        personal: {
+          ...(parsed.personal || {}),
+          firstName: field("personal.firstName"),
+          lastName: field("personal.lastName"),
+          fullName: field("personal.fullName"),
+          title: field("personal.title"),
+          email: field("personal.email"),
+          phone: field("personal.phone"),
+          address: field("personal.address"),
+          city: field("personal.city"),
+          state: field("personal.state"),
+          postalCode: field("personal.postalCode"),
+          location: field("personal.location"),
+        },
+        summary: field("summary"),
+        workExperience: Array.from(modal.querySelectorAll("[data-translation-experience]")).map((entry) => ({
+          company: entry.querySelector('[data-translation-field="experience.company"]')?.value.trim() || "",
+          role: entry.querySelector('[data-translation-field="experience.role"]')?.value.trim() || "",
+          period: entry.querySelector('[data-translation-field="experience.period"]')?.value.trim() || "",
+          location: entry.querySelector('[data-translation-field="experience.location"]')?.value.trim() || "",
+          achievements: linesFromValue(entry.querySelector('[data-translation-field="experience.achievements"]')?.value || ""),
+        })),
+        education: Array.from(modal.querySelectorAll("[data-translation-education]")).map((entry) => ({
+          school: entry.querySelector('[data-translation-field="education.school"]')?.value.trim() || "",
+          degree: entry.querySelector('[data-translation-field="education.degree"]')?.value.trim() || "",
+          period: entry.querySelector('[data-translation-field="education.period"]')?.value.trim() || "",
+          location: entry.querySelector('[data-translation-field="education.location"]')?.value.trim() || "",
+          description: entry.querySelector('[data-translation-field="education.description"]')?.value.trim() || "",
+        })),
+        skills: normalizeTextList(field("skills")),
+        languages: normalizeTextList(field("languages")),
+        certifications: normalizeTextList(field("certifications")),
+        projects: linesFromValue(field("projects")),
+        professionalLinks: normalizeTextList(field("professionalLinks")),
+      };
+      if (typeof onApply === "function") onApply(edited);
+      close();
+    }
+  });
+}
+
+function tailoringCopy() {
+  return currentLanguage === "pt" ? {
+    title: "Curr\u00edculo adaptado para esta vaga",
+    intro: "A IA sugeriu melhorias com base na descri\u00e7\u00e3o da vaga. Revise antes de aplicar.",
+    summary: "Resumo profissional adaptado",
+    experiences: "Experi\u00eancias adaptadas",
+    skills: "Habilidades sugeridas",
+    projects: "Projetos adaptados",
+    keywordsUsed: "Palavras-chave usadas",
+    keywordsMissing: "Palavras-chave n\u00e3o adicionadas por falta de evid\u00eancia",
+    warnings: "Avisos importantes",
+    changes: "Mudan\u00e7as feitas",
+    applyAll: "Aplicar tudo",
+    applySummary: "Aplicar somente resumo",
+    applyExperiences: "Aplicar experi\u00eancias",
+    applySkills: "Adicionar habilidades",
+    cancel: "Cancelar",
+    undo: "Desfazer adapta\u00e7\u00e3o",
+    emptyResume: "Preencha mais informa\u00e7\u00f5es do curr\u00edculo para gerar uma adapta\u00e7\u00e3o melhor.",
+    selectResume: "Selecione um curr\u00edculo antes de adaptar para a vaga.",
+    jobDescription: "Cole a descri\u00e7\u00e3o da vaga antes de adaptar o curr\u00edculo.",
+    success: "Curr\u00edculo adaptado com sucesso. Revise e salve as altera\u00e7\u00f5es.",
+    undone: "Adapta\u00e7\u00e3o desfeita. O curr\u00edculo anterior foi restaurado.",
+    nothing: "A IA n\u00e3o retornou altera\u00e7\u00f5es aplic\u00e1veis para este curr\u00edculo.",
+  } : {
+    title: "Resume tailored to this job",
+    intro: "Review the AI suggestions before applying them.",
+    summary: "Tailored professional summary",
+    experiences: "Tailored experience",
+    skills: "Suggested skills",
+    projects: "Tailored projects",
+    keywordsUsed: "Keywords used",
+    keywordsMissing: "Keywords not added due to lack of evidence",
+    warnings: "Important warnings",
+    changes: "Changes made",
+    applyAll: "Apply all",
+    applySummary: "Apply summary only",
+    applyExperiences: "Apply experience",
+    applySkills: "Add skills",
+    cancel: "Cancel",
+    undo: "Undo tailoring",
+    emptyResume: "Fill in more resume information to generate better tailoring.",
+    selectResume: "Select a resume before tailoring it to the job.",
+    jobDescription: "Paste the job description before tailoring your resume.",
+    success: "Resume tailored successfully. Review and save your changes.",
+    undone: "Tailoring undone. The previous resume was restored.",
+    nothing: "AI did not return applicable changes for this resume.",
+  };
+}
+
+function resumeHasTailoringBase(resume = {}) {
+  const normalized = normalizeResume(resume);
+  const hasSummary = String(normalized.summary || "").trim().length >= 40;
+  const hasExperience = (normalized.workExperience || []).some((item) => [
+    item.role,
+    item.company,
+    ...(item.achievements || []),
+  ].some((value) => String(value || "").trim()));
+  return Boolean(hasSummary || hasExperience || normalized.skills.length >= 3 || normalized.projects.length);
+}
+
+function resumeForTailoringAi(resume = {}) {
+  const normalized = normalizeResume(resume);
+  return {
+    ...normalized,
+    workExperience: (normalized.workExperience || []).map((item, index) => ({
+      ...item,
+      experienceId: item.id || `experience-${index}`,
+    })),
+    projects: (normalized.projects || []).map((text, index) => ({
+      projectId: `project-${index}`,
+      text,
+    })),
+  };
+}
+
+function normalizeTailoringResult(result = {}) {
+  const list = (value, max = 24) => Array.isArray(value) ? value.map((item) => String(item || "").trim()).filter(Boolean).slice(0, max) : [];
+  const adaptedExperiences = Array.isArray(result.adaptedExperiences)
+    ? result.adaptedExperiences.map((item, index) => ({
+      experienceId: String(item?.experienceId || `experience-${index}`).trim(),
+      originalTitle: String(item?.originalTitle || "").trim(),
+      adaptedBullets: list(item?.adaptedBullets || item?.bullets || item?.achievements, 8),
+      changes: list(item?.changes, 8),
+    })).filter((item) => item.adaptedBullets.length)
+    : [];
+  const adaptedProjects = Array.isArray(result.adaptedProjects)
+    ? result.adaptedProjects.map((item, index) => ({
+      projectId: String(item?.projectId || `project-${index}`).trim(),
+      originalTitle: String(item?.originalTitle || "").trim(),
+      adaptedText: String(item?.adaptedText || item?.text || "").trim(),
+      changes: list(item?.changes, 8),
+    })).filter((item) => item.adaptedText)
+    : [];
+  return {
+    adaptedSummary: String(result.adaptedSummary || result.summary || "").trim(),
+    adaptedExperiences,
+    suggestedSkills: list(result.suggestedSkills || result.newSkills || result.skills, 32),
+    existingSkills: list(result.existingSkills, 32),
+    newSkills: list(result.newSkills, 32),
+    adaptedProjects,
+    keywordsUsed: list(result.keywordsUsed || result.keywords, 32),
+    keywordsMissing: list(result.keywordsMissing || result.missingKeywords, 32),
+    warnings: list(result.warnings, 16),
+    changes: list(result.changes, 20),
+  };
+}
+
+function uniqueTextList(items = []) {
+  const seen = new Set();
+  return normalizeTextList(items).filter((item) => {
+    const key = normalizeAiText(item);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function indexFromTailoringId(value = "", prefix = "experience") {
+  const text = String(value || "").trim();
+  const match = text.match(new RegExp(`^${prefix}-(\\d+)$`));
+  if (match) return Number(match[1]);
+  const numeric = Number(text);
+  return Number.isInteger(numeric) && numeric >= 0 ? numeric : -1;
+}
+
+function buildTailoredResume(resume, tailoring, mode = "all") {
+  const next = normalizeResume(JSON.parse(JSON.stringify(resume || {})));
+  if ((mode === "all" || mode === "summary") && tailoring.adaptedSummary) {
+    next.summary = tailoring.adaptedSummary;
+  }
+  if (mode === "all" || mode === "experiences") {
+    const experiences = [...(next.workExperience || [])];
+    tailoring.adaptedExperiences.forEach((item) => {
+      const index = indexFromTailoringId(item.experienceId, "experience");
+      if (index >= 0 && experiences[index] && item.adaptedBullets.length) {
+        experiences[index] = { ...experiences[index], achievements: item.adaptedBullets };
+      }
+    });
+    next.workExperience = experiences;
+  }
+  if (mode === "all" || mode === "skills") {
+    const missingKeywords = new Set((tailoring.keywordsMissing || []).map((item) => normalizeAiText(item)));
+    const supportedSkills = tailoring.suggestedSkills.filter((skill) => !missingKeywords.has(normalizeAiText(skill)));
+    next.skills = uniqueTextList([...(next.skills || []), ...supportedSkills]);
+  }
+  if (mode === "all" && tailoring.adaptedProjects.length) {
+    const projects = [...(next.projects || [])];
+    tailoring.adaptedProjects.forEach((item) => {
+      const index = indexFromTailoringId(item.projectId, "project");
+      if (index >= 0 && projects[index]) projects[index] = item.adaptedText;
+    });
+    next.projects = projects;
+  }
+  next.updatedAt = isoNow();
+  next.completion = calculateCompletion(next);
+  return normalizeResume(next);
+}
+
+function applyTailoredResume(resume, tailoring, mode = "all") {
+  const backup = normalizeResume(JSON.parse(JSON.stringify(resume || {})));
+  const updated = buildTailoredResume(backup, tailoring, mode);
+  lastTailoredResumeBackup = { resumeId: backup.id, resume: backup, createdAt: isoNow() };
+  const saved = upsertResume(updated);
+  if (currentBuilderResumeId === saved.id || builderDraft?.id === saved.id) {
+    builderDraft = saved;
+    currentBuilderResumeId = saved.id;
+    selectedTemplateKey = saved.selectedTemplate;
+    selectedDocumentFormat = saved.documentFormat;
+    setSaveState("unsaved", tailoringCopy().success);
+  }
+  aiAssistantState = { ...aiAssistantState, resumeId: saved.id };
+  return saved;
+}
+
+function undoLastTailoring() {
+  if (!lastTailoredResumeBackup?.resume) return null;
+  const restored = upsertResume({ ...lastTailoredResumeBackup.resume, updatedAt: isoNow() });
+  if (currentBuilderResumeId === restored.id || builderDraft?.id === restored.id) builderDraft = restored;
+  lastTailoredResumeBackup = null;
+  return restored;
+}
+
+function openTailoredResumeModal(resume, rawResult) {
+  const copy = tailoringCopy();
+  const tailoring = normalizeTailoringResult(rawResult);
+  const hasChanges = Boolean(
+    tailoring.adaptedSummary
+    || tailoring.adaptedExperiences.length
+    || tailoring.suggestedSkills.length
+    || tailoring.adaptedProjects.length
+  );
+  if (!hasChanges) {
+    showAiInlineMessage(copy.nothing);
+    return;
+  }
+  document.querySelectorAll(".resume-tailoring-modal").forEach((modal) => modal.remove());
+  const chips = (items) => items.length ? items.map((item) => `<span>${escapeHtml(item)}</span>`).join("") : `<small>${escapeHtml(t().ai.noSuggestions)}</small>`;
+  const listItems = (items) => items.length ? `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : `<p>${escapeHtml(t().ai.noSuggestions)}</p>`;
+  const modal = document.createElement("div");
+  modal.className = "template-preview-modal resume-tailoring-modal";
+  modal.innerHTML = `
+    <section class="template-preview-dialog resume-tailoring-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(copy.title)}">
+      <header class="template-preview-header">
+        <div><span class="eyebrow">Succeedora AI</span><h2>${escapeHtml(copy.title)}</h2><p>${escapeHtml(copy.intro)}</p></div>
+        <button class="icon-button" type="button" data-tailoring-close aria-label="${escapeHtml(copy.cancel)}">${icon("close")}</button>
+      </header>
+      <div class="template-preview-content resume-tailoring-content">
+        ${tailoring.adaptedSummary ? `<section><h3>${escapeHtml(copy.summary)}</h3><p>${escapeHtml(tailoring.adaptedSummary)}</p></section>` : ""}
+        ${tailoring.adaptedExperiences.length ? `<section><h3>${escapeHtml(copy.experiences)}</h3>${tailoring.adaptedExperiences.map((item) => `
+          <article class="resume-tailoring-entry">
+            <strong>${escapeHtml(item.originalTitle || item.experienceId)}</strong>
+            ${listItems(item.adaptedBullets)}
+            ${item.changes.length ? `<small>${escapeHtml(copy.changes)}: ${escapeHtml(item.changes.join("; "))}</small>` : ""}
+          </article>
+        `).join("")}</section>` : ""}
+        ${tailoring.suggestedSkills.length ? `<section><h3>${escapeHtml(copy.skills)}</h3><div class="keyword-cloud">${chips(tailoring.suggestedSkills)}</div></section>` : ""}
+        ${tailoring.adaptedProjects.length ? `<section><h3>${escapeHtml(copy.projects)}</h3>${tailoring.adaptedProjects.map((item) => `<article class="resume-tailoring-entry"><strong>${escapeHtml(item.originalTitle || item.projectId)}</strong><p>${escapeHtml(item.adaptedText)}</p>${item.changes.length ? `<small>${escapeHtml(copy.changes)}: ${escapeHtml(item.changes.join("; "))}</small>` : ""}</article>`).join("")}</section>` : ""}
+        ${tailoring.keywordsUsed.length ? `<section><h3>${escapeHtml(copy.keywordsUsed)}</h3><div class="keyword-cloud">${chips(tailoring.keywordsUsed)}</div></section>` : ""}
+        ${tailoring.keywordsMissing.length ? `<section><h3>${escapeHtml(copy.keywordsMissing)}</h3><div class="keyword-cloud missing">${chips(tailoring.keywordsMissing)}</div></section>` : ""}
+        ${tailoring.warnings.length ? `<section><h3>${escapeHtml(copy.warnings)}</h3>${listItems(tailoring.warnings)}</section>` : ""}
+        ${tailoring.changes.length ? `<section><h3>${escapeHtml(copy.changes)}</h3>${listItems(tailoring.changes)}</section>` : ""}
+        <p class="settings-message" data-tailoring-status hidden></p>
+      </div>
+      <footer class="template-preview-footer resume-tailoring-actions">
+        <button class="primary-button" type="button" data-tailoring-apply="all">${escapeHtml(copy.applyAll)}</button>
+        <button class="secondary-button" type="button" data-tailoring-apply="summary" ${tailoring.adaptedSummary ? "" : "disabled"}>${escapeHtml(copy.applySummary)}</button>
+        <button class="secondary-button" type="button" data-tailoring-apply="experiences" ${tailoring.adaptedExperiences.length ? "" : "disabled"}>${escapeHtml(copy.applyExperiences)}</button>
+        <button class="secondary-button" type="button" data-tailoring-apply="skills" ${tailoring.suggestedSkills.length ? "" : "disabled"}>${escapeHtml(copy.applySkills)}</button>
+        <button class="ghost-button" type="button" data-tailoring-undo hidden>${escapeHtml(copy.undo)}</button>
+        <button class="ghost-button" type="button" data-tailoring-close>${escapeHtml(copy.cancel)}</button>
+      </footer>
+    </section>
+  `;
+  document.body.appendChild(modal);
+  const close = () => modal.remove();
+  modal.addEventListener("click", (event) => {
+    const closeButton = event.target.closest("[data-tailoring-close]");
+    const applyButton = event.target.closest("[data-tailoring-apply]");
+    const undoButton = event.target.closest("[data-tailoring-undo]");
+    if (event.target === modal || closeButton) {
+      close();
+      return;
+    }
+    if (applyButton) {
+      const mode = applyButton.getAttribute("data-tailoring-apply") || "all";
+      applyTailoredResume(findResume(resume.id) || resume, tailoring, mode);
+      const status = modal.querySelector("[data-tailoring-status]");
+      if (status) {
+        status.textContent = copy.success;
+        status.hidden = false;
+      }
+      modal.querySelector("[data-tailoring-undo]")?.removeAttribute("hidden");
+      render();
+    }
+    if (undoButton) {
+      undoLastTailoring();
+      const status = modal.querySelector("[data-tailoring-status]");
+      if (status) {
+        status.textContent = copy.undone;
+        status.hidden = false;
+      }
+      undoButton.setAttribute("hidden", "");
+      render();
     }
   });
 }
@@ -9940,21 +10460,18 @@ function bindInteractions() {
             onApply: (value) => setField("projects", value),
           });
         } else if (taskType === "translate_resume") {
-          const translated = result.resume && Object.keys(result.resume).length ? result.resume : null;
+          const translated = parseTranslatedResumePayload(result.resume || result.translation || result.text);
           if (!translated) {
-            showAiInlineMessage(copy.fallbackError);
+            showAiInlineMessage(translationReviewCopy().parseError);
             return;
           }
-          openAiSuggestionModal({
+          openResumeTranslationModal({
             title: copy.translateResume,
-            text: JSON.stringify(translated, null, 2),
-            onApply: (value) => {
-              try {
-                builderDraft = normalizeResume({ ...resume, ...JSON.parse(value) });
-                routes["/dashboard/builder"]();
-              } catch (error) {
-                showAiInlineMessage(copy.fallbackError);
-              }
+            translated,
+            resume,
+            onApply: (editedTranslation) => {
+              builderDraft = normalizeResume({ ...resume, ...editedTranslation });
+              routes["/dashboard/builder"]();
             },
           });
         }
@@ -10019,29 +10536,21 @@ function bindInteractions() {
         jobDescription: getValue("jobDescription"),
       };
       const resume = findResume(values.resumeId);
+      const tailorCopy = tailoringCopy();
       if (!resume || !values.jobDescription) {
-        aiAssistantState = { ...aiAssistantState, ...values, error: !resume ? t().ai.selectResumeError : t().ai.jobDescriptionError };
+        aiAssistantState = { ...aiAssistantState, ...values, error: !resume ? tailorCopy.selectResume : tailorCopy.jobDescription };
         render();
         return;
       }
-      if (!canUseAiTask("tailor_resume_to_job")) {
-        openAiTaskAccessModal("tailor_resume_to_job", "job_tailoring", { resumeId: resume.id });
+      if (!resumeHasTailoringBase(resume)) {
+        aiAssistantState = { ...aiAssistantState, ...values, error: tailorCopy.emptyResume };
+        render();
         return;
       }
       const restore = setButtonLoading(button, aiCopy().improving);
       try {
-        const result = await requestAiGeneration("tailor_resume_to_job", { resume, job: values });
-        const text = [
-          result.summary ? `${t().builder.labels.summary}\n${result.summary}` : "",
-          result.experienceBullets?.length ? `${t().builder.labels.achievements}\n${result.experienceBullets.join("\n")}` : "",
-          result.keywords?.length ? `${t().ai.missingKeywords}\n${result.keywords.join(", ")}` : "",
-          result.suggestions?.length ? `${t().ai.suggestionsTitle}\n${result.suggestions.join("\n")}` : "",
-        ].filter(Boolean).join("\n\n");
-        if (!text) {
-          showAiInlineMessage(aiCopy().fallbackError);
-          return;
-        }
-        openAiSuggestionModal({ title: aiCopy().tailorJob, text });
+        const result = await requestAiGeneration("tailor_resume_to_job", { resume: resumeForTailoringAi(resume), job: values });
+        openTailoredResumeModal(resume, result);
       } catch (error) {
         if (error.message !== "insufficient_credits") showAiInlineMessage(aiErrorMessage(error));
       } finally {

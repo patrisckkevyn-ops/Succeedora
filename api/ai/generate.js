@@ -96,9 +96,9 @@ const TASKS = {
     responseShape: '{ "resume": { "personal": {}, "summary": "string", "workExperience": [], "education": [], "skills": [], "languages": [], "certifications": [], "projects": [], "professionalLinks": [] }, "suggestions": ["string"] }',
   },
   tailor_resume_to_job: {
-    maxTokens: 1600,
-    instruction: "Suggest job-specific resume tailoring based on the job description. Improve summary and experience suggestions without inventing experience.",
-    responseShape: '{ "summary": "tailored summary string", "experienceBullets": ["string"], "keywords": ["string"], "suggestions": ["string"] }',
+    maxTokens: 2600,
+    instruction: "Generate an applicable, job-specific resume tailoring plan from the selected resume and job description. Return concrete edits for the existing resume only: adaptedSummary, adaptedExperiences, suggestedSkills, adaptedProjects when existing projects are relevant, keywordsUsed, keywordsMissing, warnings, and changes. Preserve truth strictly: do not invent roles, companies, dates, education, certifications, languages, years of experience, metrics, results, tools, or skills not supported by the resume. If the job asks for something not present in the resume, put it in keywordsMissing/warnings instead of adding it as a claimed skill or experience. Use provided experienceId/projectId values when present. Do not return ATS score for this task.",
+    responseShape: '{ "adaptedSummary": "truthful tailored summary string", "adaptedExperiences": [{ "experienceId": "string", "originalTitle": "string", "adaptedBullets": ["string"], "changes": ["string"] }], "suggestedSkills": ["string"], "existingSkills": ["string"], "newSkills": ["string"], "adaptedProjects": [{ "projectId": "string", "originalTitle": "string", "adaptedText": "string", "changes": ["string"] }], "keywordsUsed": ["string"], "keywordsMissing": ["string"], "warnings": ["string"], "changes": ["string"] }',
   },
   assistant_chat: {
     maxTokens: 1200,
@@ -294,6 +294,7 @@ function wait(ms) {
 function normalizeResult(taskType, parsed) {
   const result = parsed && typeof parsed === "object" ? (parsed.result && typeof parsed.result === "object" ? parsed.result : parsed) : {};
   const list = (value) => Array.isArray(value) ? value.map((item) => String(item || "").trim()).filter(Boolean).slice(0, 12) : [];
+  const listN = (value, max = 12) => Array.isArray(value) ? value.map((item) => String(item || "").trim()).filter(Boolean).slice(0, max) : [];
   const suggestions = list(result.suggestions);
   if (taskType.includes("summary")) return { summary: limitString(result.summary, 1400), suggestions };
   if (taskType === "rewrite_experience") return { bullets: list(result.bullets || result.experience), suggestions };
@@ -340,11 +341,40 @@ function normalizeResult(taskType, parsed) {
   }
   if (taskType === "translate_resume") return { resume: sanitize(result.resume || result.translatedResume || {}), suggestions };
   if (taskType === "tailor_resume_to_job") {
+    const adaptedExperiences = Array.isArray(result.adaptedExperiences)
+      ? result.adaptedExperiences.slice(0, 10).map((item, index) => ({
+        experienceId: limitString(item?.experienceId || item?.id || item?.index || `experience-${index}`, 120),
+        originalTitle: limitString(item?.originalTitle || item?.role || item?.title, 220),
+        adaptedBullets: listN(item?.adaptedBullets || item?.bullets || item?.achievements, 8),
+        changes: listN(item?.changes, 8),
+      })).filter((item) => item.adaptedBullets.length)
+      : [];
+    const adaptedProjects = Array.isArray(result.adaptedProjects)
+      ? result.adaptedProjects.slice(0, 8).map((item, index) => ({
+        projectId: limitString(item?.projectId || item?.id || item?.index || `project-${index}`, 120),
+        originalTitle: limitString(item?.originalTitle || item?.title, 220),
+        adaptedText: limitString(item?.adaptedText || item?.description || item?.text, 2200),
+        changes: listN(item?.changes, 8),
+      })).filter((item) => item.adaptedText)
+      : [];
+    const adaptedSummary = limitString(result.adaptedSummary || result.summary, 1800);
+    const suggestedSkills = listN(result.suggestedSkills || result.skills, 24);
+    const keywordsUsed = listN(result.keywordsUsed || result.keywords, 24);
     return {
-      summary: limitString(result.summary, 1400),
-      experienceBullets: list(result.experienceBullets || result.bullets),
-      keywords: list(result.keywords),
+      adaptedSummary,
+      adaptedExperiences,
+      suggestedSkills,
+      existingSkills: listN(result.existingSkills, 24),
+      newSkills: listN(result.newSkills, 24),
+      adaptedProjects,
+      keywordsUsed,
+      keywordsMissing: listN(result.keywordsMissing || result.missingKeywords, 24),
+      warnings: listN(result.warnings, 12),
+      changes: listN(result.changes || result.changeLog, 16),
       suggestions,
+      summary: adaptedSummary,
+      experienceBullets: adaptedExperiences.flatMap((item) => item.adaptedBullets).slice(0, 12),
+      keywords: keywordsUsed,
     };
   }
   if (taskType === "recommend_resume_template") {
