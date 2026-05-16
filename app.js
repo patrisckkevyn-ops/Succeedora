@@ -1978,12 +1978,12 @@ const SEO_META = {
   },
   blog: {
     pt: {
-      title: "Blog da Succeedora — Currículos, Carreira e Cartas de Apresentação",
-      description: "Leia dicas práticas sobre currículo, carta de apresentação, ATS, entrevistas e carreira.",
+      title: "Blog da Succeedora — Currículos, Cartas e Candidaturas",
+      description: "Guias práticos sobre currículo profissional, primeiro emprego, resumo profissional, carta de apresentação, ATS e currículo em inglês.",
     },
     en: {
-      title: "Succeedora Blog — Resumes, Career and Cover Letters",
-      description: "Read practical tips about resumes, cover letters, ATS, interviews and career.",
+      title: "Succeedora Blog — Resume, Cover Letter and Job Guides",
+      description: "Practical guides about professional resumes, first job resumes, professional summaries, cover letters, ATS and English resumes.",
     },
   },
   terms: {
@@ -2040,60 +2040,60 @@ const SEO_META = {
 
 const BLOG_COPY = {
   en: {
-    title: "Content to build better resumes",
-    subtitle: "Practical guides about resumes, cover letters, ATS, interviews and career to help you apply with more confidence.",
-    featured: "Featured article",
-    categories: ["Resume", "Cover letter", "Interviews", "Career", "ATS", "First job", "English resume"],
+    title: "Resume, cover letter and job search guides",
+    subtitle: "Detailed, practical articles to help you write clearer resumes, stronger cover letters and smarter applications with Succeedora.",
+    featured: "Featured guide",
+    categories: ["Resume", "Cover letter", "ATS", "First job", "English resume"],
     allCategories: "All",
-    searchPlaceholder: "Search articles",
-    readArticle: "Read article",
-    relatedTitle: "Related articles",
+    searchPlaceholder: "Search resume guides",
+    readArticle: "Read guide",
+    relatedTitle: "Related guides",
     clusterTitle: "Most searched guides",
     clusterLinks: [
-      ["How to make a resume", "how-to-create-professional-resume"],
+      ["How to make a resume", "how-to-create-a-professional-resume"],
       ["First job resume", "first-job-resume"],
-      ["Professional summary", "professional-resume-summary"],
-      ["Cover letter", "how-to-write-cover-letter"],
-      ["ATS resume", "what-is-ats-resume"],
-      ["English resume", "how-to-create-english-resume"],
+      ["Professional summary examples", "professional-summary-examples"],
+      ["Cover letter", "how-to-write-a-cover-letter"],
+      ["ATS resume", "what-is-an-ats-resume"],
+      ["English resume", "english-resume"],
     ],
-    noResults: "No articles found. Try another search or category.",
+    noResults: "No guides found. Try another search or category.",
     published: "Published",
     ctaTitle: "Create your professional resume with Succeedora",
-    ctaText: "Choose a template, fill in your details and download your resume as a PDF.",
+    ctaText: "Choose a template, organize your information and export your resume as a PDF.",
     ctaButton: "Create free resume",
-    blogCtaTitle: "Ready to create your resume?",
-    blogCtaText: "Choose a professional template and turn your information into a ready-to-send resume.",
-    insightTitle: "Career insights",
-    insightItems: ["ATS", "Professional summary", "Cover letter", "First job"],
+    blogCtaTitle: "Turn this guide into a ready resume",
+    blogCtaText: "Use Succeedora to choose a template, improve your content with AI and export a polished PDF when your resume is ready.",
+    insightTitle: "Career guides",
+    insightItems: ["Resume", "ATS", "Cover letter", "English resume"],
   },
   pt: {
-    title: "Conteúdo para criar currículos melhores",
-    subtitle: "Guias práticos sobre currículo, carta de apresentação, ATS, entrevistas e carreira para ajudar você a se candidatar com mais confiança.",
-    featured: "Artigo em destaque",
-    categories: ["Currículo", "Carta de apresentação", "Entrevistas", "Carreira", "ATS", "Primeiro emprego", "Currículo em inglês"],
+    title: "Guias de currículo, carta e candidatura",
+    subtitle: "Artigos completos e práticos para ajudar você a escrever currículos mais claros, cartas melhores e candidaturas mais estratégicas com a Succeedora.",
+    featured: "Guia em destaque",
+    categories: ["Currículo", "Carta de apresentação", "ATS", "Primeiro emprego", "Currículo em inglês"],
     allCategories: "Todos",
-    searchPlaceholder: "Buscar artigos",
-    readArticle: "Ler artigo",
-    relatedTitle: "Artigos relacionados",
+    searchPlaceholder: "Buscar guias de currículo",
+    readArticle: "Ler guia",
+    relatedTitle: "Guias relacionados",
     clusterTitle: "Guias mais procurados",
     clusterLinks: [
       ["Como fazer currículo", "como-fazer-curriculo-profissional"],
       ["Currículo para primeiro emprego", "curriculo-primeiro-emprego"],
-      ["Resumo profissional", "resumo-profissional-curriculo"],
-      ["Carta de apresentação", "como-escrever-carta-de-apresentacao"],
+      ["Resumo profissional", "o-que-colocar-no-resumo-profissional"],
+      ["Carta de apresentação", "como-fazer-carta-de-apresentacao"],
       ["Currículo ATS", "o-que-e-curriculo-ats"],
-      ["Currículo em inglês", "como-fazer-curriculo-em-ingles"],
+      ["Currículo em inglês", "curriculo-em-ingles"],
     ],
-    noResults: "Nenhum artigo encontrado. Tente outra busca ou categoria.",
+    noResults: "Nenhum guia encontrado. Tente outra busca ou categoria.",
     published: "Publicado",
-    ctaTitle: "Crie seu currículo profissional com a Succeedora",
-    ctaText: "Escolha um modelo, preencha seus dados e baixe seu currículo em PDF.",
+    ctaTitle: "Crie seu currículo profissional na Succeedora",
+    ctaText: "Escolha um modelo, organize suas informações e baixe seu currículo em PDF.",
     ctaButton: "Criar currículo grátis",
-    blogCtaTitle: "Pronto para criar seu currículo?",
-    blogCtaText: "Escolha um modelo profissional e transforme suas informações em um currículo pronto para enviar.",
+    blogCtaTitle: "Transforme este guia em um currículo pronto",
+    blogCtaText: "Use a Succeedora para escolher um modelo, melhorar seu conteúdo com IA e exportar um PDF profissional quando estiver pronto.",
     insightTitle: "Guias de carreira",
-    insightItems: ["ATS", "Resumo profissional", "Carta de apresentação", "Primeiro emprego"],
+    insightItems: ["Currículo", "ATS", "Carta", "Inglês"],
   },
 };
 
@@ -2103,33 +2103,60 @@ const BLOG_POSTS = [
     slug: "como-fazer-curriculo-profissional",
     category: "Currículo",
     title: "Como fazer um currículo profissional em 2026",
-    subtitle: "Um guia direto para organizar suas informações, destacar resultados e criar um currículo claro para recrutadores.",
-    excerpt: "Veja como estruturar um currículo profissional, escolher informações relevantes e evitar excesso de detalhes.",
+    subtitle: "Um guia prático para organizar suas informações, destacar resultados e criar um currículo claro para recrutadores e sistemas de triagem.",
+    excerpt: "Veja a estrutura ideal de um currículo profissional, exemplos de escrita, erros comuns e formas de adaptar o documento para cada vaga.",
     metaTitle: "Como fazer um currículo profissional em 2026 | Succeedora",
-    metaDescription: "Aprenda como fazer um currículo profissional em 2026 com estrutura clara, exemplos práticos, palavras-chave e cuidados para recrutadores e ATS.",
-    publishedDate: "2026-05-13",
-    readingTime: "6 min",
+    metaDescription: "Aprenda como fazer um currículo profissional em 2026 com estrutura clara, exemplos práticos, palavras-chave naturais, revisão ATS e exportação em PDF.",
+    publishedDate: "2026-05-16",
+    readingTime: "9 min",
     content: [
-      { heading: "Comece pela estrutura certa", body: ["Um currículo profissional precisa ser fácil de ler em poucos segundos. Use nome, contato, resumo profissional, experiência, formação, habilidades e idiomas em uma ordem lógica.", "Antes de escrever, escolha um dos <a href=\"#/templates\" data-route=\"/templates\">modelos de currículo</a> e mantenha espaçamento, títulos e datas consistentes."] },
-      { heading: "Mostre resultados, não apenas tarefas", body: ["Troque frases genéricas por exemplos concretos. Em vez de escrever que era responsável por relatórios, explique que criou relatórios semanais para acompanhar vendas, custos ou atendimento.", "Quando possível, use números reais: volume de clientes, redução de tempo, aumento de conversão, tamanho da equipe ou frequência das entregas."] },
-      { heading: "Revise para a vaga", body: ["Cada candidatura pode pedir ênfases diferentes. Ajuste o resumo, as habilidades e as experiências mais relevantes para a descrição da vaga.", "Depois de revisar, você pode <a href=\"#/signup\" data-route=\"/signup\">criar currículo</a> na Succeedora e baixar uma versão em PDF para enviar."] },
-    ],
-  },
-  {
-    language: "pt",
-    slug: "resumo-profissional-curriculo",
-    category: "Currículo",
-    title: "O que colocar no resumo profissional do currículo",
-    subtitle: "Aprenda a escrever um resumo curto, específico e alinhado ao tipo de vaga que você quer conquistar.",
-    excerpt: "Entenda o papel do resumo profissional e veja exemplos para deixar o início do currículo mais forte.",
-    metaTitle: "O que colocar no resumo profissional do currículo | Succeedora",
-    metaDescription: "Veja o que escrever no resumo profissional do currículo, com exemplos práticos para diferentes perfis e dicas para evitar frases vagas.",
-    publishedDate: "2026-05-13",
-    readingTime: "5 min",
-    content: [
-      { heading: "O resumo deve responder três perguntas", body: ["Em poucas linhas, diga quem você é profissionalmente, quais experiências ou habilidades são mais fortes e que tipo de contribuição pode entregar.", "Evite frases como “profissional proativo” sem contexto. Prefira uma descrição ligada à área, ao nível de experiência e aos resultados."] },
-      { heading: "Exemplo prático", body: ["Para uma pessoa de atendimento: “Profissional de atendimento ao cliente com experiência em suporte por chat e telefone, organização de chamados e acompanhamento de indicadores de satisfação.”", "Esse formato é simples, mas ajuda recrutadores a entenderem rapidamente sua atuação."] },
-      { heading: "Adapte o resumo para cada candidatura", body: ["Leia a vaga e identifique palavras importantes. Se a descrição menciona atendimento, CRM e indicadores, essas ideias podem aparecer naturalmente no resumo.", "Use o resumo junto com uma boa estrutura de <a href=\"#/templates\" data-route=\"/templates\">modelos de currículo</a> para melhorar a primeira impressão."] },
+      {
+        heading: "O que um currículo profissional precisa mostrar",
+        body: [
+          "Um currículo profissional não é uma lista de tudo que você já fez. Ele é um documento de decisão rápida: precisa mostrar quem você é, o que sabe fazer, onde trabalhou ou estudou e por que sua experiência combina com a vaga.",
+          "A melhor estrutura costuma ser simples: dados de contato, resumo profissional, experiência, formação, habilidades, idiomas, certificações, projetos e links. Essa ordem ajuda recrutadores e sistemas de triagem a encontrarem as informações mais importantes sem esforço.",
+        ],
+        blocks: [
+          { type: "list", title: "Checklist inicial", items: ["Nome e contato atualizados", "Cargo ou objetivo profissional claro", "Resumo com área, experiência e foco", "Experiências com responsabilidades e resultados", "Habilidades ligadas à vaga", "PDF final com visual consistente"] },
+        ],
+      },
+      {
+        heading: "Como escrever experiências com mais impacto",
+        body: [
+          "A seção de experiência deve responder a uma pergunta simples: o que mudou por causa do seu trabalho? Mesmo quando não há números exatos, você pode explicar contexto, rotina, volume, responsabilidade e melhoria.",
+          "Evite frases soltas como “responsável por atendimento”. Prefira uma frase com ação e contexto: “Atendi clientes por chat e telefone, registrei chamados no CRM e acompanhei pendências até a resolução”.",
+        ],
+        blocks: [
+          { type: "example", title: "Exemplo de melhoria", badLabel: "Fraco", bad: "Responsável por relatórios e atendimento.", goodLabel: "Melhor", good: "Criei relatórios semanais de atendimento para acompanhar volume de chamados, tempo de resposta e principais dúvidas dos clientes." },
+        ],
+      },
+      {
+        heading: "Como adaptar o currículo para uma vaga",
+        body: [
+          "Cada vaga tem prioridades diferentes. Antes de enviar, leia a descrição e destaque palavras relacionadas a ferramentas, responsabilidades, nível de senioridade e resultados esperados. Inclua apenas o que for verdadeiro para sua experiência.",
+          "Se a vaga pede atendimento, CRM e indicadores, esses termos podem aparecer naturalmente no resumo, na experiência e na lista de habilidades. Não repita palavras de forma artificial: clareza vale mais do que volume.",
+        ],
+        blocks: [
+          { type: "cta", title: "Crie seu currículo profissional na Succeedora", text: "Escolha um modelo, preencha suas informações e ajuste o conteúdo para a vaga antes de exportar em PDF.", button: "Começar agora", route: "/signup" },
+        ],
+      },
+      {
+        heading: "Erros comuns ao montar o currículo",
+        body: [
+          "Os erros mais comuns são excesso de informação, falta de foco, datas inconsistentes, design que dificulta a leitura e descrições genéricas. Um currículo bonito, mas confuso, pode atrapalhar a análise humana e automática.",
+          "Também é importante revisar ortografia, dados de contato, links e nomes de empresas. Pequenos erros passam a sensação de descuido, especialmente em vagas que exigem organização ou comunicação.",
+        ],
+        blocks: [
+          { type: "list", title: "Revise antes de baixar", items: ["O resumo combina com a vaga?", "As experiências estão em ordem cronológica?", "As habilidades são relevantes?", "O layout está fácil de ler no celular e no desktop?", "O PDF não corta nenhuma informação?"] },
+        ],
+      },
+      {
+        heading: "Como a Succeedora ajuda",
+        body: [
+          "A Succeedora reúne modelos modernos, edição guiada, análise ATS, tradução e exportação em PDF. A ideia não é prometer aprovação, e sim ajudar você a criar um currículo mais claro, organizado e adequado ao tipo de candidatura.",
+          "Depois de escrever a primeira versão, use a IA da Succeedora para revisar trechos, melhorar o resumo e comparar seu currículo com a vaga. O resultado final deve continuar honesto, específico e fácil de ler.",
+        ],
+      },
     ],
   },
   {
@@ -2137,50 +2164,286 @@ const BLOG_POSTS = [
     slug: "curriculo-primeiro-emprego",
     category: "Primeiro emprego",
     title: "Como fazer um currículo para primeiro emprego",
-    subtitle: "Veja como montar um currículo forte mesmo sem experiência formal.",
-    excerpt: "Use formação, cursos, projetos, voluntariado e habilidades para criar um currículo de primeiro emprego mais completo.",
-    metaTitle: "Como fazer um currículo para primeiro emprego | Succeedora",
-    metaDescription: "Aprenda como fazer um currículo para primeiro emprego usando cursos, projetos, habilidades e experiências informais de forma profissional.",
-    publishedDate: "2026-05-13",
-    readingTime: "5 min",
+    subtitle: "Veja como montar um currículo forte mesmo sem experiência formal, usando formação, cursos, projetos, atividades e habilidades transferíveis.",
+    excerpt: "Aprenda o que colocar no currículo de primeiro emprego, como escrever objetivo, habilidades, cursos e projetos sem inventar experiência.",
+    metaTitle: "Currículo para primeiro emprego: como fazer | Succeedora",
+    metaDescription: "Veja como fazer um currículo para primeiro emprego com formação, cursos, projetos, habilidades, exemplos de objetivo profissional e modelo em PDF.",
+    publishedDate: "2026-05-16",
+    readingTime: "8 min",
     content: [
-      { heading: "Valorize formação e projetos", body: ["Se você ainda não teve um emprego formal, destaque escola, faculdade, cursos, projetos acadêmicos, trabalhos voluntários e atividades extracurriculares.", "Explique o que você fez e quais habilidades praticou, como organização, comunicação, pesquisa, atendimento, planilhas ou trabalho em equipe."] },
-      { heading: "Inclua habilidades com contexto", body: ["Uma lista de habilidades ajuda, mas exemplos ajudam mais. Se você sabe Excel, diga se usou para organizar dados, controlar gastos ou fazer relatórios.", "Se tem inglês, informe o nível com honestidade e destaque situações em que já usou o idioma."] },
-      { heading: "Use um visual simples", body: ["Para primeiro emprego, clareza vale mais que excesso de design. Prefira um modelo limpo e fácil de ler.", "Você pode começar por um modelo de estudante em <a href=\"#/templates\" data-route=\"/templates\">modelos de currículo</a> e depois ajustar para a vaga."] },
+      {
+        heading: "O que colocar quando você ainda não tem experiência",
+        body: [
+          "Não ter emprego formal não significa não ter nada para mostrar. Você pode destacar formação, cursos, projetos escolares, trabalhos voluntários, atividades extracurriculares, atendimento informal, participação em eventos e habilidades aprendidas na prática.",
+          "O segredo é explicar o que você fez e quais competências desenvolveu. Organização, pontualidade, comunicação, uso de planilhas, atendimento, pesquisa e trabalho em equipe são exemplos úteis quando aparecem com contexto.",
+        ],
+      },
+      {
+        heading: "Objetivo profissional para primeiro emprego",
+        body: [
+          "O objetivo deve ser curto e direto. Ele pode dizer a área de interesse, o tipo de oportunidade e a disposição para aprender. Evite frases longas ou promessas exageradas.",
+          "Um bom objetivo ajuda o recrutador a entender rapidamente onde você quer começar e como seu perfil pode se encaixar na vaga.",
+        ],
+        blocks: [
+          { type: "example", title: "Objetivo profissional", badLabel: "Genérico", bad: "Busco uma oportunidade para crescer na empresa.", goodLabel: "Mais claro", good: "Busco primeira oportunidade como auxiliar administrativo, com interesse em atendimento, organização de documentos e apoio às rotinas da equipe." },
+        ],
+      },
+      {
+        heading: "Como valorizar cursos, projetos e atividades",
+        body: [
+          "Cursos online, projetos acadêmicos e experiências informais podem entrar no currículo quando ajudam a mostrar preparo. Informe o nome do curso, instituição e, se possível, o que você aprendeu ou aplicou.",
+          "Em projetos, descreva o objetivo, sua participação e as ferramentas utilizadas. Isso mostra iniciativa e ajuda o currículo a parecer mais completo sem inventar cargos.",
+        ],
+        blocks: [
+          { type: "list", title: "Boas informações para incluir", items: ["Curso de Excel usado para organizar planilhas", "Projeto escolar com pesquisa e apresentação", "Voluntariado com atendimento ou organização", "Inglês, informática ou ferramentas digitais", "Links para portfólio simples quando existir"] },
+        ],
+      },
+      {
+        heading: "Habilidades que fazem sentido",
+        body: [
+          "Liste habilidades reais e úteis para a vaga. Para primeiro emprego, habilidades comportamentais e operacionais costumam ser importantes, mas devem aparecer de forma objetiva.",
+          "Em vez de colocar uma lista enorme, escolha competências que combinam com a oportunidade: comunicação, organização, atendimento ao cliente, pacote Office, escrita, pesquisa, trabalho em equipe e facilidade de aprendizagem.",
+        ],
+        blocks: [
+          { type: "cta", title: "Escolha um modelo e baixe seu currículo em PDF", text: "A Succeedora tem modelos gratuitos e pagos para criar um currículo simples, organizado e fácil de ler.", button: "Ver modelos", route: "/templates" },
+        ],
+      },
+      {
+        heading: "Conclusão",
+        body: [
+          "Um currículo de primeiro emprego precisa ser honesto, claro e bem organizado. Foque no que você já aprendeu, no que consegue fazer e no tipo de oportunidade que procura.",
+          "Com uma boa estrutura, mesmo um currículo inicial pode transmitir seriedade e preparo para começar.",
+        ],
+      },
     ],
   },
   {
     language: "pt",
-    slug: "como-escrever-carta-de-apresentacao",
-    category: "Carta de apresentação",
-    title: "Como escrever uma carta de apresentação",
-    subtitle: "Entenda quando usar carta de apresentação e como escrever uma mensagem objetiva.",
-    excerpt: "Aprenda uma estrutura simples para explicar seu interesse pela vaga e conectar sua experiência à empresa.",
-    metaTitle: "Como escrever uma carta de apresentação | Succeedora",
-    metaDescription: "Veja como escrever uma carta de apresentação objetiva, com estrutura, exemplos e links úteis para complementar seu currículo.",
-    publishedDate: "2026-05-13",
-    readingTime: "5 min",
+    slug: "o-que-colocar-no-resumo-profissional",
+    category: "Currículo",
+    title: "O que colocar no resumo profissional do currículo",
+    subtitle: "Aprenda a escrever um resumo curto, específico e alinhado ao tipo de vaga que você quer disputar.",
+    excerpt: "Entenda a função do resumo profissional, veja exemplos bons e ruins e aprenda a adaptar o texto para diferentes candidaturas.",
+    metaTitle: "O que colocar no resumo profissional do currículo | Succeedora",
+    metaDescription: "Veja o que colocar no resumo profissional do currículo, com exemplos práticos, estrutura recomendada, erros comuns e dicas para adaptar à vaga.",
+    publishedDate: "2026-05-16",
+    readingTime: "7 min",
     content: [
-      { heading: "Quando a carta ajuda", body: ["A carta de apresentação é útil quando você quer explicar uma transição de carreira, demonstrar interesse real pela empresa ou conectar experiências específicas à vaga.", "Ela não precisa repetir o currículo. O ideal é complementar o documento com contexto."] },
-      { heading: "Estrutura simples", body: ["Comece dizendo a vaga de interesse. Em seguida, explique por que sua experiência combina com a oportunidade. Finalize com disponibilidade para conversar.", "Use parágrafos curtos e exemplos concretos. Uma boa <a href=\"#/dashboard/cover-letters\" data-route=\"/dashboard/cover-letters\">carta de apresentação</a> deve parecer escrita para aquela vaga, não para todas."] },
-      { heading: "Cuidados importantes", body: ["Evite prometer resultados sem conhecer a empresa. Também não use elogios vazios ou textos longos demais.", "Revise ortografia, nome da empresa, cargo e tom antes de enviar."] },
+      {
+        heading: "Para que serve o resumo profissional",
+        body: [
+          "O resumo profissional aparece no início do currículo e funciona como uma apresentação rápida. Ele deve ajudar a pessoa recrutadora a entender sua área, seu nível de experiência e seus pontos mais fortes.",
+          "Um bom resumo não precisa contar tudo. Em três a cinco linhas, ele deve conectar sua experiência ao tipo de vaga desejada.",
+        ],
+      },
+      {
+        heading: "A fórmula simples do resumo",
+        body: [
+          "Uma estrutura útil é: área profissional + tempo ou tipo de experiência + principais competências + foco de contribuição. Essa fórmula evita frases vagas e deixa o texto mais objetivo.",
+          "Se você está mudando de área, destaque habilidades transferíveis e experiências relacionadas. Se tem pouca experiência, valorize formação, projetos e capacidades práticas.",
+        ],
+        blocks: [
+          { type: "list", title: "Perguntas para responder", items: ["Qual é sua área ou cargo alvo?", "Que experiência, curso ou projeto sustenta esse objetivo?", "Quais habilidades são mais relevantes?", "Que tipo de contribuição você pode entregar?"] },
+        ],
+      },
+      {
+        heading: "Exemplos de resumo profissional",
+        body: [
+          "O exemplo abaixo mostra a diferença entre um resumo genérico e um texto mais útil. A versão melhor não promete resultado, mas dá contexto e mostra competências concretas.",
+        ],
+        blocks: [
+          { type: "example", title: "Atendimento ao cliente", badLabel: "Fraco", bad: "Sou uma pessoa proativa, dedicada e em busca de crescimento profissional.", goodLabel: "Melhor", good: "Profissional de atendimento ao cliente com experiência em suporte por chat e telefone, registro de chamados, acompanhamento de solicitações e comunicação clara com diferentes perfis de clientes." },
+          { type: "example", title: "Marketing digital", badLabel: "Fraco", bad: "Tenho experiência em marketing e redes sociais.", goodLabel: "Melhor", good: "Analista de marketing digital com experiência em campanhas de mídia paga, produção de conteúdo, análise de métricas e otimização de páginas para geração de leads." },
+        ],
+      },
+      {
+        heading: "Erros comuns no resumo",
+        body: [
+          "Evite exagerar em adjetivos, repetir informações que já aparecem no cargo e usar frases que serviriam para qualquer pessoa. O resumo deve parecer escrito para o seu perfil.",
+          "Também evite parágrafos longos. O resumo precisa facilitar a leitura, não ocupar metade da primeira página.",
+        ],
+        blocks: [
+          { type: "cta", title: "Use a IA da Succeedora para melhorar seu currículo", text: "Cole sua versão atual e peça sugestões para deixar o resumo mais claro, específico e alinhado à vaga.", button: "Melhorar com IA", route: "/dashboard/ai" },
+        ],
+      },
+      {
+        heading: "Conclusão",
+        body: [
+          "O resumo profissional deve ser curto, verdadeiro e direcionado. Quando bem escrito, ele melhora a primeira leitura do currículo e ajuda o restante do documento a fazer mais sentido.",
+          "Revise o resumo sempre que mudar o tipo de vaga, área ou nível de senioridade desejado.",
+        ],
+      },
+    ],
+  },
+  {
+    language: "pt",
+    slug: "como-fazer-carta-de-apresentacao",
+    category: "Carta de apresentação",
+    title: "Como fazer uma carta de apresentação",
+    subtitle: "Entenda quando usar carta de apresentação e como escrever uma mensagem objetiva, profissional e conectada à vaga.",
+    excerpt: "Veja uma estrutura simples para carta de apresentação, exemplos práticos, erros comuns e formas de complementar seu currículo.",
+    metaTitle: "Como fazer carta de apresentação | Succeedora",
+    metaDescription: "Aprenda como fazer uma carta de apresentação com estrutura clara, exemplos, recomendações e CTA para criar currículo e carta na Succeedora.",
+    publishedDate: "2026-05-16",
+    readingTime: "8 min",
+    content: [
+      {
+        heading: "Quando a carta de apresentação ajuda",
+        body: [
+          "A carta de apresentação é útil quando você quer explicar interesse real por uma vaga, contextualizar uma transição de carreira, destacar um projeto ou mostrar por que sua experiência combina com a empresa.",
+          "Ela não deve repetir o currículo inteiro. O melhor uso da carta é conectar dois ou três pontos fortes ao problema que a vaga parece querer resolver.",
+        ],
+      },
+      {
+        heading: "Estrutura recomendada",
+        body: [
+          "Uma boa carta pode ter quatro partes: saudação, motivo do contato, conexão entre sua experiência e a vaga, e fechamento. Mantenha parágrafos curtos e linguagem natural.",
+          "Se você não sabe o nome da pessoa recrutadora, use uma saudação profissional simples. Evite informalidade excessiva e elogios genéricos à empresa.",
+        ],
+        blocks: [
+          { type: "list", title: "Estrutura rápida", items: ["Diga a vaga ou área de interesse", "Mostre por que a oportunidade faz sentido", "Cite uma experiência ou resultado relevante", "Feche com disponibilidade para conversar"] },
+        ],
+      },
+      {
+        heading: "Exemplo de carta curta",
+        body: [
+          "“Olá, equipe de recrutamento. Tenho interesse na vaga de Analista de Atendimento. Atuei com suporte por chat e telefone, organização de chamados e acompanhamento de indicadores de satisfação. Acredito que minha experiência com comunicação clara, resolução de demandas e controle de processos pode contribuir para a operação da equipe. Fico à disposição para conversar sobre a oportunidade.”",
+          "Esse exemplo é curto, específico e não promete resultados que dependem da empresa. Ele complementa o currículo com contexto.",
+        ],
+        blocks: [
+          { type: "cta", title: "Crie seu currículo profissional na Succeedora", text: "Depois de escrever a carta, mantenha currículo e candidatura com o mesmo padrão visual e profissional.", button: "Criar currículo", route: "/signup" },
+        ],
+      },
+      {
+        heading: "Erros comuns",
+        body: [
+          "Os erros mais frequentes são usar a mesma carta para todas as vagas, escrever demais, repetir o currículo inteiro e não revisar o nome da empresa ou do cargo.",
+          "Também evite prometer que vai “revolucionar” a empresa. Prefira mostrar como sua experiência pode ajudar de forma realista.",
+        ],
+      },
+      {
+        heading: "Conclusão",
+        body: [
+          "Uma carta de apresentação eficiente é breve, específica e conectada à vaga. Ela deve dar contexto ao currículo, não substituir o currículo.",
+          "Use a carta quando ela ajuda a explicar melhor sua candidatura ou quando a empresa solicita esse documento.",
+        ],
+      },
     ],
   },
   {
     language: "pt",
     slug: "o-que-e-curriculo-ats",
     category: "ATS",
-    title: "O que é currículo ATS e como melhorar sua nota",
-    subtitle: "Entenda como sistemas de triagem leem currículos e como melhorar a clareza do seu documento.",
-    excerpt: "Saiba o que é ATS, quais formatos ajudam a leitura e como usar palavras-chave sem exagero.",
-    metaTitle: "O que é currículo ATS e como melhorar sua nota | Succeedora",
-    metaDescription: "Entenda o que é currículo ATS, como melhorar sua nota ATS e quais práticas ajudam sistemas de recrutamento a ler seu currículo.",
-    publishedDate: "2026-05-13",
-    readingTime: "6 min",
+    title: "O que é currículo ATS",
+    subtitle: "Entenda como sistemas de triagem leem currículos e como melhorar a clareza do seu documento sem tentar enganar ferramentas.",
+    excerpt: "Saiba o que é ATS, como estruturar um currículo legível, como usar palavras-chave naturalmente e quais erros atrapalham a leitura.",
+    metaTitle: "O que é currículo ATS e como melhorar a leitura | Succeedora",
+    metaDescription: "Entenda o que é currículo ATS, como sistemas de triagem leem currículos e como melhorar estrutura, palavras-chave e formatação sem promessas.",
+    publishedDate: "2026-05-16",
+    readingTime: "8 min",
     content: [
-      { heading: "O que significa ATS", body: ["ATS é um sistema usado por empresas para organizar candidaturas e, em alguns casos, filtrar currículos por informações relevantes.", "Um bom currículo ATS não é cheio de truques. Ele é claro, bem estruturado e usa termos relacionados à vaga com naturalidade."] },
-      { heading: "Como melhorar a leitura", body: ["Use títulos comuns, como Experiência, Formação e Habilidades. Evite colocar informações importantes apenas em imagens ou elementos muito decorativos.", "A <a href=\"#/dashboard/ai\" data-route=\"/dashboard/ai\">nota ATS</a> deve ser vista como apoio, não como garantia de entrevista."] },
-      { heading: "Palavras-chave com equilíbrio", body: ["Compare a descrição da vaga com seu currículo. Se você realmente tem uma habilidade exigida, inclua essa habilidade no resumo, experiência ou lista de competências.", "Não repita palavras de forma artificial. Recrutadores também leem o documento."] },
+      {
+        heading: "O que significa ATS",
+        body: [
+          "ATS é a sigla para Applicant Tracking System, um sistema usado por empresas para organizar candidaturas. Algumas ferramentas ajudam equipes de recrutamento a localizar informações, comparar requisitos e gerenciar etapas do processo.",
+          "Um currículo amigável a ATS não é um currículo cheio de truques. É um documento claro, com seções reconhecíveis, texto selecionável e informações relevantes escritas de forma objetiva.",
+        ],
+      },
+      {
+        heading: "Como deixar o currículo mais legível",
+        body: [
+          "Use títulos comuns como Resumo, Experiência, Formação, Habilidades, Idiomas e Certificações. Evite colocar informações essenciais apenas em imagens, caixas muito complexas ou elementos que possam não ser lidos corretamente.",
+          "Isso não significa que o currículo precisa ser feio. Ele pode ser bonito e ainda manter uma estrutura simples, desde que o conteúdo principal continue em texto claro.",
+        ],
+        blocks: [
+          { type: "list", title: "Boas práticas ATS", items: ["Use texto real, não imagem", "Prefira títulos de seção tradicionais", "Evite tabelas complexas para informações essenciais", "Inclua palavras-chave verdadeiras da vaga", "Exporte um PDF limpo e revisado"] },
+        ],
+      },
+      {
+        heading: "Palavras-chave sem exagero",
+        body: [
+          "Palavras-chave são termos importantes da vaga, como ferramentas, competências, cargos, metodologias e áreas de conhecimento. Elas ajudam quando representam algo que você realmente sabe ou fez.",
+          "Não copie a descrição inteira da vaga para dentro do currículo. Além de parecer artificial, isso prejudica a leitura humana.",
+        ],
+        blocks: [
+          { type: "example", title: "Uso natural de palavra-chave", badLabel: "Forçado", bad: "Excel, Excel avançado, Excel para relatórios, Excel para indicadores, Excel profissional.", goodLabel: "Natural", good: "Criei planilhas em Excel para acompanhar indicadores semanais de atendimento e apoiar a priorização de demandas." },
+        ],
+      },
+      {
+        heading: "Como usar a análise ATS",
+        body: [
+          "Uma análise ATS deve ser vista como apoio para revisar clareza, estrutura e alinhamento com a vaga. Ela não garante entrevista e não substitui a decisão de recrutadores.",
+          "Use o resultado para identificar lacunas reais: dados ausentes, palavras relevantes que você esqueceu de mencionar, excesso de texto ou seções pouco claras.",
+        ],
+        blocks: [
+          { type: "cta", title: "Use a IA da Succeedora para melhorar seu currículo", text: "Compare seu currículo com a vaga e receba sugestões de clareza, estrutura e palavras-chave naturais.", button: "Analisar currículo", route: "/dashboard/ai" },
+        ],
+      },
+      {
+        heading: "Conclusão",
+        body: [
+          "O melhor currículo ATS é aquele que também é bom para pessoas: organizado, verdadeiro, específico e fácil de ler.",
+          "Evite promessas mágicas. Foque em melhorar estrutura, conteúdo e conexão com a vaga.",
+        ],
+      },
+    ],
+  },
+  {
+    language: "pt",
+    slug: "curriculo-em-ingles",
+    category: "Currículo em inglês",
+    title: "Como fazer um currículo em inglês",
+    subtitle: "Veja como adaptar estrutura, vocabulário e informações para candidaturas internacionais ou vagas remotas.",
+    excerpt: "Aprenda diferenças entre currículo em português e resume em inglês, com exemplos de tradução profissional e cuidados culturais.",
+    metaTitle: "Currículo em inglês: como fazer um resume | Succeedora",
+    metaDescription: "Aprenda como fazer currículo em inglês com estrutura de resume, vocabulário profissional, exemplos, cuidados internacionais e tradução com IA.",
+    publishedDate: "2026-05-16",
+    readingTime: "8 min",
+    content: [
+      {
+        heading: "Currículo em inglês não é tradução literal",
+        body: [
+          "Um resume em inglês costuma ser mais direto, objetivo e orientado a resultados. Traduzir palavra por palavra pode deixar cargos, habilidades e descrições artificiais.",
+          "O ideal é adaptar o texto para o padrão da vaga e do país ou mercado desejado. Isso inclui escolher verbos profissionais, reduzir informações pessoais e organizar resultados com clareza.",
+        ],
+      },
+      {
+        heading: "Informações pessoais: o que evitar",
+        body: [
+          "Em muitos mercados internacionais, não se usa foto, idade, estado civil, documentos pessoais ou informações familiares no currículo. Antes de enviar, pesquise o padrão do país e da empresa.",
+          "Normalmente, contato, cidade ou região, e-mail, telefone, LinkedIn e portfólio são suficientes.",
+        ],
+        blocks: [
+          { type: "list", title: "Estrutura comum em inglês", items: ["Name and contact information", "Professional Summary", "Work Experience", "Education", "Skills", "Languages", "Certifications", "Projects or Portfolio"] },
+        ],
+      },
+      {
+        heading: "Exemplos de escrita em inglês",
+        body: [
+          "Prefira verbos de ação e frases concretas. Quando houver números reais, use-os. Quando não houver, explique contexto e responsabilidade.",
+        ],
+        blocks: [
+          { type: "example", title: "Experiência em produto", badLabel: "Literal", bad: "I was responsible for roadmap and meetings with users.", goodLabel: "Professional", good: "Managed product roadmap priorities based on user research, stakeholder input and product performance metrics." },
+          { type: "example", title: "Atendimento", badLabel: "Literal", bad: "I attended customers and solved problems.", goodLabel: "Professional", good: "Handled customer support requests through chat and email, documented recurring issues and followed up until resolution." },
+        ],
+      },
+      {
+        heading: "Como revisar a tradução",
+        body: [
+          "Depois de traduzir, revise se o texto soa natural para sua área. Cargos como “Analista”, “Assistente” e “Coordenador” podem ter traduções diferentes dependendo do contexto.",
+          "Use ferramentas de IA como apoio, mas mantenha o controle final. O currículo precisa refletir sua experiência real.",
+        ],
+        blocks: [
+          { type: "cta", title: "Use a IA da Succeedora para melhorar seu currículo", text: "Traduza e revise seu currículo com foco em clareza, vocabulário profissional e candidatura internacional.", button: "Traduzir currículo", route: "/dashboard/ai" },
+        ],
+      },
+      {
+        heading: "Conclusão",
+        body: [
+          "Um bom currículo em inglês é adaptado, não apenas traduzido. Ele deve respeitar padrões internacionais, usar linguagem profissional e manter informações relevantes para a vaga.",
+          "Antes de enviar, revise formatação, links, datas e consistência entre LinkedIn, currículo e carta de apresentação.",
+        ],
+      },
     ],
   },
   {
@@ -2188,118 +2451,399 @@ const BLOG_POSTS = [
     slug: "erros-comuns-no-curriculo",
     category: "Currículo",
     title: "Erros comuns no currículo que podem prejudicar sua candidatura",
-    subtitle: "Veja problemas frequentes que deixam o currículo confuso ou pouco convincente.",
-    excerpt: "Corrija erros de clareza, excesso de informação, falta de resultados e problemas de formatação.",
-    metaTitle: "Erros comuns no currículo que prejudicam candidaturas | Succeedora",
-    metaDescription: "Conheça erros comuns no currículo e veja como corrigir excesso de informação, falta de resultados, formatação confusa e dados desatualizados.",
-    publishedDate: "2026-05-13",
-    readingTime: "5 min",
+    subtitle: "Veja problemas frequentes que deixam o currículo confuso, pouco convincente ou difícil de analisar.",
+    excerpt: "Corrija excesso de informação, falta de resultados, formatação inconsistente, resumo genérico e erros que atrapalham recrutadores.",
+    metaTitle: "Erros comuns no currículo e como corrigir | Succeedora",
+    metaDescription: "Conheça erros comuns no currículo e veja como corrigir resumo genérico, falta de resultados, excesso de informação e formatação confusa.",
+    publishedDate: "2026-05-16",
+    readingTime: "8 min",
     content: [
-      { heading: "Currículo longo sem foco", body: ["Um currículo não precisa contar toda a sua história. Ele deve destacar as informações mais relevantes para a vaga atual.", "Remova experiências muito antigas ou pouco relacionadas quando elas não ajudam a explicar seu objetivo."] },
-      { heading: "Descrições vagas", body: ["Frases como “responsável por diversas atividades” não mostram valor. Explique quais atividades, para quem e com qual resultado.", "Use verbos claros: organizei, implementei, analisei, atendi, liderei, reduzi, acompanhei."] },
-      { heading: "Formatação inconsistente", body: ["Datas desalinhadas, fontes diferentes e seções confusas dificultam a leitura.", "Escolha um padrão visual em <a href=\"#/templates\" data-route=\"/templates\">modelos de currículo</a> e mantenha o mesmo estilo em todo o documento."] },
-    ],
-  },
-  {
-    language: "pt",
-    slug: "como-fazer-curriculo-em-ingles",
-    category: "Currículo em inglês",
-    title: "Como fazer um currículo em inglês",
-    subtitle: "Veja cuidados de idioma, estrutura e adaptação para vagas internacionais.",
-    excerpt: "Aprenda diferenças importantes entre currículo em português e resume em inglês.",
-    metaTitle: "Como fazer um currículo em inglês | Succeedora",
-    metaDescription: "Aprenda como fazer um currículo em inglês com estrutura adequada, vocabulário profissional e cuidados para candidaturas internacionais.",
-    publishedDate: "2026-05-13",
-    readingTime: "6 min",
-    content: [
-      { heading: "Currículo em inglês não é tradução literal", body: ["Um resume em inglês costuma ser mais direto e orientado a impacto. Traduzir palavra por palavra pode deixar o texto estranho.", "Revise cargos, habilidades e resultados usando vocabulário natural da sua área."] },
-      { heading: "Adapte informações pessoais", body: ["Em muitos países, não se usa foto, idade, estado civil ou documentos pessoais no currículo. Pesquise o padrão do país antes de enviar.", "Mantenha contato, cidade ou região, LinkedIn e portfólio quando forem relevantes."] },
-      { heading: "Use exemplos concretos", body: ["Prefira frases como “Improved onboarding documentation for new customers” em vez de descrições genéricas.", "Depois de criar a versão base, use <a href=\"#/templates\" data-route=\"/templates\">modelos de currículo</a> limpos para manter a leitura profissional."] },
+      {
+        heading: "Currículo sem foco",
+        body: [
+          "Um currículo sem foco tenta falar com todas as vagas ao mesmo tempo. O resultado costuma ser um documento longo, genérico e difícil de entender.",
+          "Antes de revisar, defina o tipo de cargo ou área desejada. Isso ajuda a decidir quais experiências, habilidades e projetos merecem mais destaque.",
+        ],
+      },
+      {
+        heading: "Resumo profissional genérico",
+        body: [
+          "Frases como “profissional proativo, dinâmico e comunicativo” aparecem em muitos currículos e dizem pouco. O resumo deve explicar área, experiência e competências com contexto.",
+          "Um texto específico ajuda mais do que uma lista de qualidades soltas.",
+        ],
+        blocks: [
+          { type: "example", title: "Resumo profissional", badLabel: "Genérico", bad: "Profissional dedicado em busca de novos desafios.", goodLabel: "Melhor", good: "Assistente administrativo com experiência em organização de documentos, atendimento interno, controle de planilhas e apoio a rotinas financeiras." },
+        ],
+      },
+      {
+        heading: "Experiências sem resultado ou contexto",
+        body: [
+          "Muitas pessoas escrevem apenas tarefas, sem explicar volume, responsabilidade ou impacto. Nem sempre é possível usar números, mas quase sempre é possível ser mais específico.",
+          "Troque “fazia relatórios” por “produzia relatórios mensais de vendas para acompanhar metas, volume de pedidos e desempenho por canal”.",
+        ],
+      },
+      {
+        heading: "Formatação que atrapalha",
+        body: [
+          "Fontes pequenas demais, datas desalinhadas, excesso de cores e seções sem hierarquia deixam o currículo cansativo. A aparência deve ajudar a leitura, não disputar atenção com o conteúdo.",
+          "Também verifique se o PDF final não corta informações e se os links funcionam.",
+        ],
+        blocks: [
+          { type: "cta", title: "Escolha um modelo e baixe seu currículo em PDF", text: "Use um modelo da Succeedora para manter hierarquia, espaçamento e estrutura consistentes.", button: "Ver modelos", route: "/templates" },
+        ],
+      },
+      {
+        heading: "Conclusão",
+        body: [
+          "A maioria dos erros de currículo tem a mesma origem: falta de clareza. Revise o documento pensando em quem vai ler rapidamente e precisa encontrar informação confiável.",
+          "Um currículo mais objetivo, consistente e específico tende a comunicar melhor seu valor profissional.",
+        ],
+      },
     ],
   },
   {
     language: "en",
-    slug: "how-to-create-professional-resume",
+    slug: "how-to-create-a-professional-resume",
     category: "Resume",
     title: "How to create a professional resume in 2026",
-    subtitle: "A practical guide to structure your resume, show impact and make it easier for recruiters to scan.",
-    excerpt: "Learn how to organize a professional resume with clear sections, relevant examples and a polished layout.",
+    subtitle: "A practical guide to structure your resume, communicate impact and make your information easier to read.",
+    excerpt: "Learn how to organize a professional resume with clear sections, strong examples, natural keywords and a clean PDF format.",
     metaTitle: "How to create a professional resume in 2026 | Succeedora",
-    metaDescription: "Learn how to create a professional resume in 2026 with clear structure, practical examples, keywords and recruiter-friendly formatting.",
-    publishedDate: "2026-05-13",
-    readingTime: "6 min",
+    metaDescription: "Learn how to create a professional resume in 2026 with clear structure, practical examples, natural keywords, ATS guidance and PDF export.",
+    publishedDate: "2026-05-16",
+    readingTime: "9 min",
     content: [
-      { heading: "Start with a clear structure", body: ["A professional resume should be easy to scan. Use contact details, summary, work experience, education, skills and languages in a logical order.", "Choose one of the <a href=\"#/templates\" data-route=\"/templates\">resume templates</a> first so spacing, headings and dates stay consistent."] },
-      { heading: "Focus on impact", body: ["Recruiters need more than a list of tasks. Explain what you did, who benefited and what changed because of your work.", "Use numbers when they are accurate: customers served, reports created, time saved, revenue supported, team size or project volume."] },
-      { heading: "Tailor before sending", body: ["Compare your resume with the job description and adjust the summary, skills and most relevant experience.", "When your content is ready, you can <a href=\"#/signup\" data-route=\"/signup\">create resume</a> in Succeedora and export a clean PDF."] },
-    ],
-  },
-  {
-    language: "en",
-    slug: "professional-resume-summary",
-    category: "Resume",
-    title: "What to write in a professional resume summary",
-    subtitle: "Write a concise resume summary that explains your role, strengths and target position.",
-    excerpt: "Use a simple formula to make your resume summary specific, useful and easy to adapt.",
-    metaTitle: "What to write in a professional resume summary | Succeedora",
-    metaDescription: "Learn what to write in a professional resume summary, with examples and tips to avoid vague phrases.",
-    publishedDate: "2026-05-13",
-    readingTime: "5 min",
-    content: [
-      { heading: "Answer three questions", body: ["Your summary should tell the reader who you are professionally, what strengths matter most and what kind of role you are targeting.", "Avoid empty phrases such as “hard-working professional” unless you support them with context."] },
-      { heading: "Use a practical example", body: ["For customer support: “Customer support professional with experience handling chat and phone requests, organizing tickets and tracking satisfaction metrics.”", "This is simple, but it gives recruiters useful information quickly."] },
-      { heading: "Connect it to the job", body: ["If the job mentions CRM, customer retention and reporting, include those ideas only when they honestly match your experience.", "A strong summary works best with clean <a href=\"#/templates\" data-route=\"/templates\">resume templates</a> and consistent formatting."] },
+      {
+        heading: "What a professional resume should communicate",
+        body: [
+          "A professional resume is not a complete biography. It is a focused document that helps a recruiter understand your target role, relevant experience, education, skills and evidence of work.",
+          "A strong structure usually includes contact details, professional summary, work experience, education, skills, languages, certifications, projects and links. This order keeps the document easy to scan.",
+        ],
+        blocks: [
+          { type: "list", title: "Resume essentials", items: ["Updated contact details", "Clear professional title or target role", "Specific summary", "Experience with responsibilities and results", "Skills connected to the role", "Clean PDF export"] },
+        ],
+      },
+      {
+        heading: "Write experience with context and impact",
+        body: [
+          "The experience section should explain what you did, who it helped and what changed because of your work. Numbers are useful when they are accurate, but context also matters.",
+          "Instead of writing “responsible for reports,” explain what the reports tracked, how often you created them and how they supported decisions.",
+        ],
+        blocks: [
+          { type: "example", title: "Experience bullet", badLabel: "Weak", bad: "Responsible for reports and customer service.", goodLabel: "Stronger", good: "Created weekly customer service reports to track ticket volume, response time and recurring issues for the operations team." },
+        ],
+      },
+      {
+        heading: "Tailor your resume to the job",
+        body: [
+          "Read the job description before sending your resume. Look for tools, responsibilities, seniority level and business goals. Add relevant terms only when they honestly match your background.",
+          "A tailored resume does not mean rewriting everything. It means adjusting the summary, skills and strongest experience points to make the fit easier to see.",
+        ],
+        blocks: [
+          { type: "cta", title: "Create your professional resume with Succeedora", text: "Choose a template, organize your information and export your resume as a PDF when it is ready.", button: "Start now", route: "/signup" },
+        ],
+      },
+      {
+        heading: "Common mistakes to avoid",
+        body: [
+          "The most common issues are unfocused content, vague descriptions, inconsistent dates, hard-to-read formatting and outdated contact information.",
+          "Before exporting, check whether the resume is readable on desktop and mobile, whether the PDF keeps the same layout and whether every link works.",
+        ],
+      },
+      {
+        heading: "How Succeedora helps",
+        body: [
+          "Succeedora helps you choose a modern template, write clearer sections, review your resume with AI, analyze ATS readability and export a polished PDF.",
+          "The goal is not to promise interviews or approvals. The goal is to help you build a more organized, honest and easier-to-read application document.",
+        ],
+      },
     ],
   },
   {
     language: "en",
     slug: "first-job-resume",
     category: "First job",
-    title: "How to create a resume for your first job",
-    subtitle: "Build a strong first-job resume even without formal work experience.",
-    excerpt: "Use education, courses, projects, volunteering and transferable skills to create a credible first resume.",
-    metaTitle: "How to create a resume for your first job | Succeedora",
-    metaDescription: "Learn how to create a resume for your first job using education, projects, courses, volunteering and practical skills.",
-    publishedDate: "2026-05-13",
-    readingTime: "5 min",
+    title: "How to create a first job resume",
+    subtitle: "Build a clear resume even without formal work experience by using education, courses, projects and transferable skills.",
+    excerpt: "Learn what to include in a first job resume, how to write an objective and how to present skills without inventing experience.",
+    metaTitle: "First job resume: how to create one | Succeedora",
+    metaDescription: "Learn how to create a first job resume with education, courses, projects, transferable skills, objective examples and a clean PDF template.",
+    publishedDate: "2026-05-16",
+    readingTime: "8 min",
     content: [
-      { heading: "Use what you already have", body: ["If you do not have formal experience, highlight education, courses, academic projects, volunteering and extracurricular activities.", "Explain what you did and which skills you practiced, such as communication, research, spreadsheets, organization or teamwork."] },
-      { heading: "Add context to skills", body: ["A skill list helps, but examples make it stronger. If you know Excel, mention whether you used it for budgets, data organization or reports.", "Be honest about language levels and software familiarity. Recruiters value clarity."] },
-      { heading: "Keep the design simple", body: ["For a first job resume, readability matters more than heavy decoration.", "Start with a student-friendly layout from <a href=\"#/templates\" data-route=\"/templates\">resume templates</a> and adapt it to the role."] },
+      {
+        heading: "What to include without formal experience",
+        body: [
+          "If you have not had a formal job yet, you can still include education, courses, academic projects, volunteering, extracurricular activities, informal service work and practical skills.",
+          "Explain what you did and what you learned. Communication, organization, punctuality, research, spreadsheets and teamwork can be valuable when they appear with context.",
+        ],
+      },
+      {
+        heading: "Write a clear objective",
+        body: [
+          "A first job resume can include a short objective. Keep it specific: mention the type of opportunity, the area of interest and how you hope to contribute while learning.",
+          "Avoid broad sentences that could apply to anyone.",
+        ],
+        blocks: [
+          { type: "example", title: "First job objective", badLabel: "Generic", bad: "Looking for an opportunity to grow professionally.", goodLabel: "Clearer", good: "Seeking a first opportunity as an administrative assistant, with interest in customer service, document organization and support for daily team routines." },
+        ],
+      },
+      {
+        heading: "Use projects and courses well",
+        body: [
+          "Projects and courses can make the resume stronger when they show practical effort. Add the project name, your role, tools used and a short description of the result.",
+          "For courses, include the topic and institution. If the course helped you practice a tool, mention that tool in the skills section too.",
+        ],
+        blocks: [
+          { type: "list", title: "Useful first job content", items: ["School or college projects", "Excel or digital tools courses", "Volunteering or community activities", "Informal customer service experience", "Language level and software familiarity"] },
+        ],
+      },
+      {
+        heading: "Keep the layout simple",
+        body: [
+          "For a first job resume, clarity matters more than decoration. Use a clean template, readable headings and enough spacing.",
+          "A simple resume can still look professional when the information is organized and consistent.",
+        ],
+        blocks: [
+          { type: "cta", title: "Choose a template and export your resume as a PDF", text: "Start with a Succeedora template and build a clear first job resume step by step.", button: "View templates", route: "/templates" },
+        ],
+      },
+      {
+        heading: "Conclusion",
+        body: [
+          "A first job resume should be honest, organized and focused on potential. You do not need to invent experience to look prepared.",
+          "Show what you have learned, what you can do and which type of opportunity you are pursuing.",
+        ],
+      },
     ],
   },
   {
     language: "en",
-    slug: "how-to-write-cover-letter",
+    slug: "professional-summary-examples",
+    category: "Resume",
+    title: "Professional summary examples for your resume",
+    subtitle: "Learn how to write a short, specific summary that presents your experience and target role clearly.",
+    excerpt: "See good and bad professional summary examples, a simple writing formula and common mistakes to avoid.",
+    metaTitle: "Professional summary examples for resumes | Succeedora",
+    metaDescription: "Learn how to write a professional resume summary with examples, structure, mistakes to avoid and tips to tailor it to a job.",
+    publishedDate: "2026-05-16",
+    readingTime: "7 min",
+    content: [
+      {
+        heading: "What a professional summary does",
+        body: [
+          "The professional summary sits near the top of the resume and gives the reader a quick view of your field, experience level and strongest skills.",
+          "It should not be a long paragraph or a list of personality traits. The best summaries are short, concrete and connected to the role you want.",
+        ],
+      },
+      {
+        heading: "A simple formula",
+        body: [
+          "Use this formula: professional area + type of experience + strongest skills + target contribution. This keeps the text specific without making it too long.",
+          "If you are changing careers, emphasize transferable skills and related projects. If you have limited experience, highlight education, courses and practical abilities.",
+        ],
+        blocks: [
+          { type: "list", title: "Questions to answer", items: ["What role or area are you targeting?", "What experience, course or project supports that target?", "Which skills matter most?", "What contribution can you make?"] },
+        ],
+      },
+      {
+        heading: "Examples of stronger summaries",
+        body: [
+          "The examples below show how a generic summary can become more useful without sounding exaggerated.",
+        ],
+        blocks: [
+          { type: "example", title: "Customer support", badLabel: "Weak", bad: "Hard-working professional with good communication skills.", goodLabel: "Stronger", good: "Customer support professional with experience handling chat and email requests, organizing tickets, documenting recurring issues and following up with clients." },
+          { type: "example", title: "Digital marketing", badLabel: "Weak", bad: "Experienced in marketing and social media.", goodLabel: "Stronger", good: "Digital marketing analyst with experience in paid media campaigns, content planning, performance reporting and landing page optimization." },
+        ],
+      },
+      {
+        heading: "Common summary mistakes",
+        body: [
+          "Avoid empty adjectives, overly broad goals and summaries that repeat the job title without context. A recruiter should learn something useful after reading it.",
+          "Keep it short enough to support the resume, not dominate the first page.",
+        ],
+        blocks: [
+          { type: "cta", title: "Use Succeedora AI to improve your resume", text: "Review your current summary and get suggestions to make it clearer, more specific and aligned with the role.", button: "Improve with AI", route: "/dashboard/ai" },
+        ],
+      },
+      {
+        heading: "Conclusion",
+        body: [
+          "A strong professional summary is concise, honest and focused. It helps the rest of the resume make sense faster.",
+          "Update it whenever your target role, seniority level or application direction changes.",
+        ],
+      },
+    ],
+  },
+  {
+    language: "en",
+    slug: "how-to-write-a-cover-letter",
     category: "Cover letter",
     title: "How to write a cover letter",
-    subtitle: "Use a simple structure to connect your experience with a specific role.",
-    excerpt: "Learn when a cover letter helps and how to write one without repeating your resume.",
+    subtitle: "Use a simple structure to connect your experience with a specific role without repeating your resume.",
+    excerpt: "Learn when a cover letter helps, how to structure it, what to write and which mistakes make it feel generic.",
     metaTitle: "How to write a cover letter | Succeedora",
-    metaDescription: "Learn how to write a cover letter with a clear structure, practical examples and useful links to support your application.",
-    publishedDate: "2026-05-13",
-    readingTime: "5 min",
+    metaDescription: "Learn how to write a cover letter with a clear structure, practical examples, mistakes to avoid and links to create your resume.",
+    publishedDate: "2026-05-16",
+    readingTime: "8 min",
     content: [
-      { heading: "Know the purpose", body: ["A cover letter helps when you want to explain a career change, show specific interest in a company or connect a project to the role.", "It should not repeat your resume. It should add context."] },
-      { heading: "Use a simple structure", body: ["Open with the role you are applying for. Explain why your experience fits. Close by inviting a conversation.", "A good <a href=\"#/dashboard/cover-letters\" data-route=\"/dashboard/cover-letters\">cover letter</a> feels specific to the job, not copied for every application."] },
-      { heading: "Keep it concise", body: ["Use short paragraphs and concrete examples. Avoid overpromising results or using generic compliments.", "Before sending, check the company name, role title, spelling and tone."] },
+      {
+        heading: "When a cover letter helps",
+        body: [
+          "A cover letter helps when you need to explain interest in a role, connect a project to the position or add context that does not fit naturally into the resume.",
+          "It should not repeat every resume section. It should make two or three relevant points easier to understand.",
+        ],
+      },
+      {
+        heading: "A simple structure",
+        body: [
+          "Use four parts: greeting, reason for writing, connection between your experience and the role, and a brief closing. Keep the tone professional and natural.",
+          "If you do not know the recruiter's name, use a neutral professional greeting. Avoid generic praise and long paragraphs.",
+        ],
+        blocks: [
+          { type: "list", title: "Cover letter outline", items: ["Mention the role or area", "Explain why the opportunity makes sense", "Highlight one relevant experience or project", "Close with availability for a conversation"] },
+        ],
+      },
+      {
+        heading: "Short example",
+        body: [
+          "“Hello hiring team, I am interested in the Customer Support Analyst role. I have experience handling chat and email requests, organizing tickets and documenting recurring issues. I believe my background in clear communication, follow-up and process organization can support the team’s daily operation. I would be glad to discuss how my experience connects with the role.”",
+          "This example is short, specific and realistic. It adds context without replacing the resume.",
+        ],
+        blocks: [
+          { type: "cta", title: "Create your professional resume with Succeedora", text: "Keep your resume and cover letter aligned with the same professional standard.", button: "Create resume", route: "/signup" },
+        ],
+      },
+      {
+        heading: "Mistakes to avoid",
+        body: [
+          "Avoid sending the same letter to every company, copying your resume word for word or using exaggerated promises.",
+          "Before sending, check the company name, role title, spelling and tone.",
+        ],
+      },
+      {
+        heading: "Conclusion",
+        body: [
+          "A good cover letter is brief, specific and connected to the role. Use it when it adds useful context to your application.",
+          "If the company does not request one, a strong resume may be enough, but a concise letter can still help in selected situations.",
+        ],
+      },
     ],
   },
   {
     language: "en",
-    slug: "what-is-ats-resume",
+    slug: "what-is-an-ats-resume",
     category: "ATS",
-    title: "What is an ATS resume and how to improve your score",
-    subtitle: "Understand how applicant tracking systems read resumes and what makes a resume easier to parse.",
-    excerpt: "Learn what ATS means, how to improve readability and how to use keywords naturally.",
-    metaTitle: "What is an ATS resume and how to improve your score | Succeedora",
-    metaDescription: "Understand what an ATS resume is, how to improve your ATS score and which formatting choices help recruiting systems read your resume.",
-    publishedDate: "2026-05-13",
-    readingTime: "6 min",
+    title: "What is an ATS resume",
+    subtitle: "Understand how applicant tracking systems read resumes and how to make your document easier to parse.",
+    excerpt: "Learn what ATS means, how to improve resume readability, how to use keywords naturally and what formatting mistakes to avoid.",
+    metaTitle: "What is an ATS resume? Meaning and tips | Succeedora",
+    metaDescription: "Understand what an ATS resume is, how applicant tracking systems read resumes and how to improve structure, keywords and formatting.",
+    publishedDate: "2026-05-16",
+    readingTime: "8 min",
     content: [
-      { heading: "What ATS means", body: ["ATS stands for applicant tracking system. Companies use these tools to organize applications and sometimes filter resumes by relevant information.", "A good ATS resume is not about tricks. It is clear, structured and aligned with the job."] },
-      { heading: "Improve readability", body: ["Use common headings such as Experience, Education and Skills. Avoid placing important details only inside images or overly decorative elements.", "Treat an <a href=\"#/dashboard/ai\" data-route=\"/dashboard/ai\">ATS score</a> as guidance, not a guarantee of interviews."] },
-      { heading: "Use keywords naturally", body: ["Compare the job description with your resume. If you truly have a required skill, include it in your summary, experience or skills section.", "Do not repeat keywords unnaturally. Recruiters still read the resume."] },
+      {
+        heading: "What ATS means",
+        body: [
+          "ATS stands for Applicant Tracking System. Companies use these systems to organize applications, search candidate information and manage hiring workflows.",
+          "An ATS-friendly resume is not about tricks. It is a clear document with recognizable sections, selectable text and relevant information written in a structured way.",
+        ],
+      },
+      {
+        heading: "Make your resume easier to read",
+        body: [
+          "Use common headings such as Summary, Experience, Education, Skills, Languages and Certifications. Avoid placing essential information only in images or overly complex design elements.",
+          "A resume can still look polished. The key is making sure the main content remains readable as text.",
+        ],
+        blocks: [
+          { type: "list", title: "ATS-friendly practices", items: ["Use real text instead of images", "Keep common section headings", "Avoid complex tables for essential information", "Include truthful job keywords", "Export a clean PDF"] },
+        ],
+      },
+      {
+        heading: "Use keywords naturally",
+        body: [
+          "Keywords are important terms from a job description, such as tools, methods, responsibilities and areas of expertise. They help when they honestly reflect your background.",
+          "Do not paste the job description into your resume. Recruiters still read the document, and unnatural repetition can hurt credibility.",
+        ],
+        blocks: [
+          { type: "example", title: "Keyword use", badLabel: "Forced", bad: "Excel, advanced Excel, Excel reports, Excel dashboards, Excel professional.", goodLabel: "Natural", good: "Built Excel dashboards to monitor weekly service volume, response time and recurring customer issues." },
+        ],
+      },
+      {
+        heading: "How to use ATS analysis",
+        body: [
+          "Treat an ATS score as guidance, not as a guarantee of interviews or approval. Use it to identify missing details, unclear sections and relevant terms you forgot to include.",
+          "The best resume should work for both systems and people.",
+        ],
+        blocks: [
+          { type: "cta", title: "Use Succeedora AI to improve your resume", text: "Compare your resume with a job description and get suggestions for clearer structure and natural keywords.", button: "Analyze resume", route: "/dashboard/ai" },
+        ],
+      },
+      {
+        heading: "Conclusion",
+        body: [
+          "An ATS resume is simply a resume that is organized, readable and aligned with the role. Avoid shortcuts and focus on clarity.",
+          "Good structure, honest keywords and clean formatting help your application communicate better.",
+        ],
+      },
+    ],
+  },
+  {
+    language: "en",
+    slug: "english-resume",
+    category: "English resume",
+    title: "How to create an English resume",
+    subtitle: "Adapt your resume structure, wording and personal details for international or remote applications.",
+    excerpt: "Understand the difference between translating a CV and writing an English resume, with examples and international formatting tips.",
+    metaTitle: "English resume: how to create one | Succeedora",
+    metaDescription: "Learn how to create an English resume with professional wording, international structure, examples, translation tips and AI review.",
+    publishedDate: "2026-05-16",
+    readingTime: "8 min",
+    content: [
+      {
+        heading: "Do not translate word for word",
+        body: [
+          "An English resume is usually direct, concise and impact-oriented. Literal translation can make job titles, skills and responsibilities sound unnatural.",
+          "Adapt the content to the market, role and country. Use professional verbs, clear results and standard resume sections.",
+        ],
+      },
+      {
+        heading: "Adjust personal information",
+        body: [
+          "In many international markets, resumes do not include photo, age, marital status, personal document numbers or family information.",
+          "Contact details, location, email, phone, LinkedIn and portfolio are usually enough, depending on the role and country.",
+        ],
+        blocks: [
+          { type: "list", title: "Common English resume sections", items: ["Name and contact information", "Professional Summary", "Work Experience", "Education", "Skills", "Languages", "Certifications", "Projects or Portfolio"] },
+        ],
+      },
+      {
+        heading: "Use natural professional wording",
+        body: [
+          "Action verbs and concrete context make the resume stronger. Avoid literal phrases that sound translated from another language.",
+        ],
+        blocks: [
+          { type: "example", title: "Product experience", badLabel: "Literal", bad: "I was responsible for roadmap and meetings with users.", goodLabel: "Professional", good: "Managed product roadmap priorities based on user research, stakeholder input and product performance metrics." },
+          { type: "example", title: "Customer support", badLabel: "Literal", bad: "I attended customers and solved problems.", goodLabel: "Professional", good: "Handled customer support requests through chat and email, documented recurring issues and followed up until resolution." },
+        ],
+      },
+      {
+        heading: "Review the translation",
+        body: [
+          "After translating, review whether the wording sounds natural in your field. Some titles do not have a perfect one-to-one translation.",
+          "AI can help, but you should keep the final text accurate and true to your experience.",
+        ],
+        blocks: [
+          { type: "cta", title: "Use Succeedora AI to improve your resume", text: "Translate and review your resume with a focus on clarity, professional vocabulary and international applications.", button: "Translate resume", route: "/dashboard/ai" },
+        ],
+      },
+      {
+        heading: "Conclusion",
+        body: [
+          "A strong English resume is adapted, not just translated. It should follow international expectations while keeping your experience accurate.",
+          "Before sending, review formatting, dates, links and consistency with your LinkedIn profile.",
+        ],
+      },
     ],
   },
   {
@@ -2307,46 +2851,78 @@ const BLOG_POSTS = [
     slug: "common-resume-mistakes",
     category: "Resume",
     title: "Common resume mistakes that can hurt your application",
-    subtitle: "Fix frequent issues that make resumes hard to read or less convincing.",
-    excerpt: "Avoid vague descriptions, inconsistent formatting, outdated details and unfocused content.",
-    metaTitle: "Common resume mistakes that can hurt your application | Succeedora",
-    metaDescription: "Review common resume mistakes and learn how to fix vague descriptions, inconsistent formatting, outdated details and unfocused content.",
-    publishedDate: "2026-05-13",
-    readingTime: "5 min",
+    subtitle: "Fix frequent issues that make resumes hard to read, unfocused or less convincing.",
+    excerpt: "Avoid vague descriptions, generic summaries, inconsistent formatting, outdated details and unfocused content.",
+    metaTitle: "Common resume mistakes and how to fix them | Succeedora",
+    metaDescription: "Review common resume mistakes and learn how to fix generic summaries, vague bullets, formatting issues and unfocused content.",
+    publishedDate: "2026-05-16",
+    readingTime: "8 min",
     content: [
-      { heading: "Too much information", body: ["A resume does not need to tell your full career story. It should highlight the information most relevant to the role.", "Remove old or unrelated details when they do not support your current target."] },
-      { heading: "Vague responsibility lists", body: ["Phrases like “responsible for various tasks” do not show value. Explain which tasks, for whom and with what outcome.", "Use clear verbs such as organized, improved, analyzed, supported, led, reduced or coordinated."] },
-      { heading: "Inconsistent formatting", body: ["Different fonts, misaligned dates and unclear sections slow down the reader.", "Pick one standard from <a href=\"#/templates\" data-route=\"/templates\">resume templates</a> and keep it consistent."] },
-    ],
-  },
-  {
-    language: "en",
-    slug: "how-to-create-english-resume",
-    category: "English resume",
-    title: "How to create an English resume",
-    subtitle: "Prepare a resume in English with the right structure, wording and international context.",
-    excerpt: "Understand how an English resume differs from a direct translation of your local CV.",
-    metaTitle: "How to create an English resume | Succeedora",
-    metaDescription: "Learn how to create an English resume with professional wording, clear structure and practical tips for international applications.",
-    publishedDate: "2026-05-13",
-    readingTime: "6 min",
-    content: [
-      { heading: "Do not translate word for word", body: ["An English resume is usually direct and impact-oriented. Literal translation can make your experience sound unnatural.", "Review job titles, skills and results using vocabulary that is common in your field."] },
-      { heading: "Adjust personal information", body: ["In many countries, resumes do not include photo, age, marital status or personal document numbers. Research the standard for your target country.", "Keep contact details, location, LinkedIn and portfolio links when relevant."] },
-      { heading: "Use concrete examples", body: ["Prefer phrases like “Improved onboarding documentation for new customers” instead of vague descriptions.", "Use clean <a href=\"#/templates\" data-route=\"/templates\">resume templates</a> so the English version stays easy to scan."] },
+      {
+        heading: "A resume without focus",
+        body: [
+          "An unfocused resume tries to speak to every job at the same time. It often becomes long, generic and hard to understand.",
+          "Before editing, define the type of role you want. This helps you choose which experiences, skills and projects deserve more space.",
+        ],
+      },
+      {
+        heading: "Generic professional summaries",
+        body: [
+          "Phrases such as “motivated professional seeking new challenges” do not tell the reader much. A useful summary explains area, experience and relevant strengths.",
+          "Specific context is more valuable than a list of personality traits.",
+        ],
+        blocks: [
+          { type: "example", title: "Professional summary", badLabel: "Generic", bad: "Dedicated professional looking for new challenges.", goodLabel: "Stronger", good: "Administrative assistant with experience organizing documents, supporting internal requests, updating spreadsheets and assisting finance routines." },
+        ],
+      },
+      {
+        heading: "Experience without context",
+        body: [
+          "Many resumes list tasks without explaining scale, responsibility or value. Numbers help when they are accurate, but context matters too.",
+          "Replace “made reports” with “prepared monthly sales reports to track goals, order volume and channel performance.”",
+        ],
+      },
+      {
+        heading: "Formatting that gets in the way",
+        body: [
+          "Tiny fonts, inconsistent dates, too many colors and unclear section hierarchy make the resume tiring to read.",
+          "Check the final PDF, link behavior and mobile readability before sending.",
+        ],
+        blocks: [
+          { type: "cta", title: "Choose a template and export your resume as a PDF", text: "Use a Succeedora template to keep spacing, hierarchy and structure consistent.", button: "View templates", route: "/templates" },
+        ],
+      },
+      {
+        heading: "Conclusion",
+        body: [
+          "Most resume mistakes come from lack of clarity. Review your resume from the perspective of someone scanning it quickly.",
+          "A focused, specific and consistent resume communicates your value more effectively.",
+        ],
+      },
     ],
   },
 ];
 
 const BLOG_SLUG_TRANSLATIONS = [
-  ["como-fazer-curriculo-profissional", "how-to-create-professional-resume"],
-  ["resumo-profissional-curriculo", "professional-resume-summary"],
+  ["como-fazer-curriculo-profissional", "how-to-create-a-professional-resume"],
+  ["o-que-colocar-no-resumo-profissional", "professional-summary-examples"],
   ["curriculo-primeiro-emprego", "first-job-resume"],
-  ["como-escrever-carta-de-apresentacao", "how-to-write-cover-letter"],
-  ["o-que-e-curriculo-ats", "what-is-ats-resume"],
+  ["como-fazer-carta-de-apresentacao", "how-to-write-a-cover-letter"],
+  ["o-que-e-curriculo-ats", "what-is-an-ats-resume"],
   ["erros-comuns-no-curriculo", "common-resume-mistakes"],
-  ["como-fazer-curriculo-em-ingles", "how-to-create-english-resume"],
+  ["curriculo-em-ingles", "english-resume"],
 ];
+
+const BLOG_LEGACY_SLUGS = Object.freeze({
+  "resumo-profissional-curriculo": "o-que-colocar-no-resumo-profissional",
+  "como-escrever-carta-de-apresentacao": "como-fazer-carta-de-apresentacao",
+  "como-fazer-curriculo-em-ingles": "curriculo-em-ingles",
+  "how-to-create-professional-resume": "how-to-create-a-professional-resume",
+  "professional-resume-summary": "professional-summary-examples",
+  "how-to-write-cover-letter": "how-to-write-a-cover-letter",
+  "what-is-ats-resume": "what-is-an-ats-resume",
+  "how-to-create-english-resume": "english-resume",
+});
 
 const TEMPLATE_STATUS = Object.freeze({
   active: "active",
@@ -5673,6 +6249,20 @@ function localizedRoot(language = currentLanguage) {
   return language === "pt" ? "/pt" : "/en";
 }
 
+function blogRootPath(language = currentLanguage) {
+  return `${localizedRoot(language)}/blog`;
+}
+
+function blogPostPath(slug, language = currentLanguage) {
+  return `${blogRootPath(language)}/${slug}`;
+}
+
+function localizedBlogPath(route = "/blog", language = currentLanguage) {
+  if (route === "/blog") return blogRootPath(language);
+  if (route.startsWith("/blog/")) return blogPostPath(route.replace("/blog/", ""), language);
+  return route;
+}
+
 function shouldUseLocalizedPath() {
   return window.location.protocol === "http:" || window.location.protocol === "https:";
 }
@@ -5711,7 +6301,7 @@ function setRoute(path) {
   if (path === "/dashboard/builder") rememberBuilderReturnRoute();
   if (path === "/blog" || path.startsWith("/blog/")) {
     if (shouldUseLocalizedPath()) {
-      window.history.pushState(null, "", path);
+      window.history.pushState(null, "", localizedBlogPath(path, currentLanguage));
       render();
       return;
     }
@@ -5755,6 +6345,11 @@ function getRoute() {
 
 function pathBlogRoute() {
   const segments = window.location.pathname.split("/").filter(Boolean);
+  if (segments[0] === "pt" || segments[0] === "en") {
+    if (segments[1] !== "blog") return "";
+    currentLanguage = segments[0];
+    return segments.length > 2 ? `/blog/${segments[2]}` : "/blog";
+  }
   if (segments[0] !== "blog") return "";
   return segments.length > 1 ? `/blog/${segments[1]}` : "/blog";
 }
@@ -12072,8 +12667,7 @@ function openResumePreview(resumeId) {
     <section class="template-preview-dialog template-preview-premium-dialog template-preview-resume-only-dialog resume-preview-dialog" role="dialog" aria-modal="true" aria-label="${escapeHtml(resume.title)}">
       <button class="icon-button template-preview-floating-close" type="button" data-modal-close aria-label="${copy.dashboard.close}">${icon("close")}</button>
       <div class="template-preview-content resume-preview-content">${resumeDocument(resume.selectedTemplate, previewFormat, resume)}</div>
-      <footer class="resume-preview-floating-actions">
-        <span class="pdf-export-status modal-pdf-status" data-pdf-status role="status" aria-live="polite"></span>
+      <footer class="resume-preview-floating-actions" hidden>
         <span class="resume-preview-floating-meta">${escapeHtml(template?.name || "")} · ${previewFormat === "letter" ? copy.builder.usLetter : copy.builder.a4}</span>
         <button class="secondary-button" type="button" data-edit-resume="${resume.id}" data-route="/dashboard/builder">${copy.dashboard.library.actions[0]}</button>
         <button class="secondary-button" type="button" data-pdf-export-resume="${resume.id}">${resumeLabels().downloadPdf}</button>
@@ -13568,7 +14162,7 @@ function publicHeader() {
           <a href="#features">${copy.nav.features}</a>
           <a href="#/templates" data-route="/templates">${copy.nav.templates}</a>
           <a href="#/pricing" data-route="/pricing">${copy.nav.pricing}</a>
-          <a href="/blog" data-route="/blog">${copy.nav.blog}</a>
+          <a href="${blogRootPath(currentLanguage)}" data-route="/blog">${copy.nav.blog}</a>
         </div>
         <div class="public-nav-actions">
           <div class="nav-preferences">
@@ -14404,7 +14998,7 @@ function renderPaymentCancel() {
 
 function legalFooterLinks() {
   const copy = t();
-  return `<nav class="legal-footer-links"><a href="/blog" data-route="/blog">${copy.nav.blog}</a><a href="#/terms" data-route="/terms">${copy.nav.termsShort}</a><a href="#/privacy" data-route="/privacy">${copy.nav.privacyShort}</a><a href="#/contact" data-route="/contact">${copy.nav.contact}</a></nav>`;
+  return `<nav class="legal-footer-links"><a href="${blogRootPath(currentLanguage)}" data-route="/blog">${copy.nav.blog}</a><a href="#/terms" data-route="/terms">${copy.nav.termsShort}</a><a href="#/privacy" data-route="/privacy">${copy.nav.privacyShort}</a><a href="#/contact" data-route="/contact">${copy.nav.contact}</a></nav>`;
 }
 
 function renderLegalPage(type) {
@@ -14598,6 +15192,9 @@ function renderBlogPage() {
   const seo = localizedSeo("blog");
   const posts = blogPostsForLanguage();
   const [featured, ...rest] = posts;
+  if (shouldUseLocalizedPath() && window.location.pathname !== blogRootPath(currentLanguage)) {
+    window.history.replaceState(null, "", blogRootPath(currentLanguage));
+  }
   mount(`
     <div class="public-shell">
       ${publicHeader()}
@@ -14648,7 +15245,7 @@ function renderBlogPage() {
                 <b></b><i></i><i></i><i></i>
                 <small>${currentLanguage === "pt" ? "Checklist de candidatura" : "Application checklist"}</small>
               </div>
-              <a class="primary-button" href="/blog/${featured.slug}" data-route="/blog/${featured.slug}">${blog.readArticle} ${icon("arrow")}</a>
+              <a class="primary-button" href="${blogPostPath(featured.slug, featured.language)}" data-route="/blog/${featured.slug}">${blog.readArticle} ${icon("arrow")}</a>
             </article>
           ` : ""}
           <div class="blog-grid">
@@ -14669,22 +15266,26 @@ function renderBlogPage() {
       <footer class="site-footer">${brandLogo("div")}<p>${copy.public.footer}</p>${legalFooterLinks()}</footer>
     </div>
   `, {
-    title: currentLanguage === "pt" ? "Blog da Succeedora | Currículos, carreira e candidaturas" : "Succeedora Blog | Resumes, career and applications",
-    description: seo.description,
     title: seo.title,
-    canonical: seoUrl("/blog"),
+    description: seo.description,
+    canonical: seoUrl(blogRootPath(currentLanguage)),
     ogTitle: seo.title,
     ogDescription: seo.description,
+    alternates: blogRootAlternates(),
   });
 }
 
 function renderBlogArticlePage(slug) {
-  const post = findBlogPostBySlug(slug);
+  const requestedSlug = String(slug || "").split("?")[0].replace(/\/+$/, "");
+  const post = findBlogPostBySlug(requestedSlug);
   if (!post) {
     renderBlogPage();
     return;
   }
   if (post.language !== currentLanguage) currentLanguage = post.language;
+  if (shouldUseLocalizedPath() && window.location.pathname !== blogPostPath(post.slug, post.language)) {
+    window.history.replaceState(null, "", blogPostPath(post.slug, post.language));
+  }
   const copy = t();
   const blog = BLOG_COPY[currentLanguage];
   const related = relatedBlogPosts(post);
@@ -14699,7 +15300,7 @@ function renderBlogArticlePage(slug) {
           </aside>
           <article class="blog-article">
             <header class="blog-article-hero">
-              <a class="blog-back-link" href="/blog" data-route="/blog">${copy.nav.blog}</a>
+              <a class="blog-back-link" href="${blogRootPath(currentLanguage)}" data-route="/blog">${copy.nav.blog}</a>
               <span class="eyebrow">${post.category}</span>
               <h1>${post.title}</h1>
               <p>${post.subtitle}</p>
@@ -14709,7 +15310,7 @@ function renderBlogArticlePage(slug) {
               ${post.content.map((section, index) => `
                 <section id="section-${index + 1}">
                   <h2>${section.heading}</h2>
-                  ${section.body.map((paragraph) => `<p>${paragraph}</p>`).join("")}
+                  ${renderBlogArticleSection(section)}
                   ${index === post.content.length - 1 ? blogArticleChecklist() : ""}
                 </section>
               `).join("")}
@@ -14733,7 +15334,7 @@ function renderBlogArticlePage(slug) {
   `, {
     title: post.metaTitle,
     description: post.metaDescription,
-    canonical: seoUrl(`/blog/${post.slug}`),
+    canonical: seoUrl(blogPostPath(post.slug, post.language)),
     ogTitle: post.title,
     ogDescription: post.metaDescription,
     type: "article",
@@ -14745,16 +15346,31 @@ function blogPostsForLanguage(language = currentLanguage) {
   return BLOG_POSTS.filter((post) => post.language === language);
 }
 
+function canonicalBlogSlug(slug) {
+  const normalized = String(slug || "").trim();
+  return BLOG_LEGACY_SLUGS[normalized] || normalized;
+}
+
 function findBlogPostBySlug(slug) {
-  return BLOG_POSTS.find((post) => post.slug === slug) || null;
+  const canonicalSlug = canonicalBlogSlug(slug);
+  return BLOG_POSTS.find((post) => post.slug === canonicalSlug) || null;
+}
+
+function blogRootAlternates() {
+  return [
+    { hreflang: "pt-BR", href: seoUrl(blogRootPath("pt")) },
+    { hreflang: "en", href: seoUrl(blogRootPath("en")) },
+    { hreflang: "x-default", href: seoUrl(blogRootPath("en")) },
+  ];
 }
 
 function blogArticleAlternates(post) {
   const translatedSlug = equivalentBlogSlug(post.slug, post.language === "pt" ? "en" : "pt");
   const translatedPost = translatedSlug !== post.slug ? findBlogPostBySlug(translatedSlug) : null;
-  const alternates = [{ hreflang: post.language === "pt" ? "pt-BR" : "en", href: seoUrl(`/blog/${post.slug}`) }];
-  if (translatedPost) alternates.push({ hreflang: translatedPost.language === "pt" ? "pt-BR" : "en", href: seoUrl(`/blog/${translatedPost.slug}`) });
-  alternates.push({ hreflang: "x-default", href: post.language === "en" ? seoUrl(`/blog/${post.slug}`) : seoUrl(`/blog/${translatedPost?.slug || post.slug}`) });
+  const alternates = [{ hreflang: post.language === "pt" ? "pt-BR" : "en", href: seoUrl(blogPostPath(post.slug, post.language)) }];
+  if (translatedPost) alternates.push({ hreflang: translatedPost.language === "pt" ? "pt-BR" : "en", href: seoUrl(blogPostPath(translatedPost.slug, translatedPost.language)) });
+  const defaultPost = post.language === "en" ? post : translatedPost;
+  alternates.push({ hreflang: "x-default", href: seoUrl(blogPostPath(defaultPost?.slug || post.slug, defaultPost?.language || post.language)) });
   return alternates;
 }
 
@@ -14770,7 +15386,12 @@ function relatedBlogPosts(post) {
 }
 
 function blogSearchText(post) {
-  return `${post.title} ${post.subtitle} ${post.excerpt} ${post.category}`.toLowerCase();
+  const contentText = (post.content || []).map((section) => [
+    section.heading,
+    ...(section.body || []),
+    ...(section.blocks || []).flatMap((block) => [block.title, block.bad, block.good, block.text, ...(block.items || [])]),
+  ].filter(Boolean).join(" ")).join(" ");
+  return `${post.title} ${post.subtitle} ${post.excerpt} ${post.category} ${contentText}`.toLowerCase();
 }
 
 function blogClusterSection(blog) {
@@ -14782,7 +15403,7 @@ function blogClusterSection(blog) {
       </div>
       <div class="blog-cluster-grid">
         ${blog.clusterLinks.map(([label, slug]) => `
-          <a class="blog-cluster-link" href="/blog/${slug}" data-route="/blog/${slug}">
+          <a class="blog-cluster-link" href="${blogPostPath(slug, currentLanguage)}" data-route="/blog/${slug}">
             <span>${categoryMiniIcon(label)}</span>
             <strong>${label}</strong>
           </a>
@@ -14806,6 +15427,48 @@ function blogArticleChecklist() {
     : `<h3>Before you send</h3><p>Review clarity, contact details, job keywords and visual consistency. Small edits can make the document easier to read.</p>`;
 }
 
+function renderBlogArticleSection(section = {}) {
+  const paragraphs = (section.body || []).map((paragraph) => `<p>${paragraph}</p>`).join("");
+  const blocks = (section.blocks || []).map((block) => renderBlogArticleBlock(block)).join("");
+  return `${paragraphs}${blocks}`;
+}
+
+function renderBlogArticleBlock(block = {}) {
+  if (block.type === "list") {
+    return `
+      <div class="blog-action-list">
+        ${block.title ? `<h3>${block.title}</h3>` : ""}
+        <ul>${(block.items || []).map((item) => `<li>${item}</li>`).join("")}</ul>
+      </div>
+    `;
+  }
+  if (block.type === "example") {
+    return `
+      <div class="blog-example-block">
+        ${block.title ? `<h3>${block.title}</h3>` : ""}
+        <div class="blog-example-grid">
+          <div class="blog-example-card is-bad"><span>${block.badLabel || "Before"}</span><p>${block.bad || ""}</p></div>
+          <div class="blog-example-card is-good"><span>${block.goodLabel || "After"}</span><p>${block.good || ""}</p></div>
+        </div>
+      </div>
+    `;
+  }
+  if (block.type === "cta") {
+    const route = block.route || "/signup";
+    const href = route === "/templates" ? "#/templates" : route === "/dashboard/ai" ? "#/dashboard/ai" : "#/signup";
+    return `
+      <aside class="blog-inline-cta">
+        <div>
+          <h3>${block.title || BLOG_COPY[currentLanguage].ctaTitle}</h3>
+          <p>${block.text || BLOG_COPY[currentLanguage].ctaText}</p>
+        </div>
+        <a class="primary-button small" href="${href}" data-route="${route}">${block.button || BLOG_COPY[currentLanguage].ctaButton}</a>
+      </aside>
+    `;
+  }
+  return "";
+}
+
 function blogCard(post) {
   const blog = BLOG_COPY[post.language];
   return `
@@ -14816,7 +15479,7 @@ function blogCard(post) {
       <p>${post.excerpt}</p>
       <div class="blog-card-footer">
         <span>${formatBlogDate(post.publishedDate)}</span>
-        <a class="secondary-button small" href="/blog/${post.slug}" data-route="/blog/${post.slug}">${blog.readArticle}</a>
+        <a class="secondary-button small" href="${blogPostPath(post.slug, post.language)}" data-route="/blog/${post.slug}">${blog.readArticle}</a>
       </div>
     </article>
   `;
