@@ -23,15 +23,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap"
-      rel="stylesheet"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@700;800&display=swap" /></noscript>
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="192x192" href="/assets/brand/succeedora-favicon-192.png" />
     <link rel="apple-touch-icon" sizes="192x192" href="/assets/brand/succeedora-favicon-192.png" />
-    <script>
-      document.write(`<link rel="stylesheet" href="${window.location.protocol === "file:" ? "./" : "/"}styles.css?v=summary-cta-20260516" />`);
-    </script>
+    <link rel="preload" href="/assets/brand/succeedora-logo-premium-96.png" as="image" type="image/png" />
+    <link rel="stylesheet" href="/styles.css?v=public-perf-20260517" />
     <script>
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
     </script>
@@ -56,8 +58,6 @@
   </head>
   <body>
     <div id="app"></div>
-    <script>
-      document.write(`<script src="${window.location.protocol === "file:" ? "./" : "/"}app.js"><\/script>`);
-    </script>
+    <script src="/app.js?v=public-perf-20260517" defer></script>
   </body>
 </html>

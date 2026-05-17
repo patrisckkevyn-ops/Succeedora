@@ -5412,7 +5412,10 @@ function updateResumePreviewScales(root = document) {
 }
 
 function scheduleResumePreviewScales(root = document) {
-  pendingPreviewScaleRoots.add(root || document);
+  const scope = root || document;
+  const hasPreviewShell = typeof scope.matches === "function" && scope.matches(".resume-document-shell");
+  if (!hasPreviewShell && !scope.querySelector?.(".resume-document-shell")) return;
+  pendingPreviewScaleRoots.add(scope);
   if (previewScaleRaf) return;
   previewScaleRaf = window.requestAnimationFrame(() => {
     previewScaleRaf = 0;
@@ -6385,7 +6388,7 @@ function assetPath(path) {
 
 function brandLogo(tag = "a", href = "#/", route = "/", imageAlt = "") {
   const attrs = tag === "a" ? `href="${href}" data-route="${route}" aria-label="Succeedora home"` : "";
-  return `<${tag} class="brand" ${attrs}><span class="brand-mark" aria-hidden="true"><img class="brand-logo-image" src="${assetPath("assets/brand/succeedora-logo-premium-96.png")}" width="48" height="48" alt="${imageAlt}" decoding="async" fetchpriority="high" /></span><span class="brand-word">Succeedora</span></${tag}>`;
+  return `<${tag} class="brand" ${attrs}><span class="brand-mark" aria-hidden="true"><img class="brand-logo-image" src="${assetPath("assets/brand/succeedora-logo-premium-96.png")}" width="48" height="48" alt="${imageAlt}" decoding="async" /></span><span class="brand-word">Succeedora</span></${tag}>`;
 }
 
 function localizedRoot(language = currentLanguage) {
@@ -17449,49 +17452,16 @@ function firstJobResumeCopy() {
   };
 }
 
-function firstJobResumePreview(copy) {
+function firstJobResumePreview(copy, placement = "inline") {
   const isPt = currentLanguage === "pt";
-  const labels = isPt
-    ? {
-        name: "Nome completo",
-        contact: "Cidade, estado | telefone | e-mail | LinkedIn opcional",
-        objective: "Objetivo profissional",
-        summary: "Resumo profissional",
-        education: "Forma\u00e7\u00e3o",
-        courses: "Cursos",
-        skills: "Habilidades",
-        projects: "Atividades e projetos",
-        educationText: "Ensino M\u00e9dio completo ou em andamento\nNome da escola\nAno de conclus\u00e3o ou previs\u00e3o",
-        coursesText: ["Inform\u00e1tica b\u00e1sica", "Atendimento ao cliente", "Excel b\u00e1sico"],
-        skillsText: ["Comunica\u00e7\u00e3o", "Organiza\u00e7\u00e3o", "Trabalho em equipe", "Pontualidade", "Facilidade de aprendizagem"],
-        projectsText: ["Participa\u00e7\u00e3o em projeto escolar de organiza\u00e7\u00e3o de evento", "Atividade volunt\u00e1ria em campanha comunit\u00e1ria", "Trabalho em grupo com apresenta\u00e7\u00e3o de pesquisa"],
-      }
-    : {
-        name: "Full name",
-        contact: "City, country | phone | email | optional LinkedIn",
-        objective: "Career objective",
-        summary: "Professional summary",
-        education: "Education",
-        courses: "Courses",
-        skills: "Skills",
-        projects: "Projects and activities",
-        educationText: "High school completed or in progress\nSchool name\nGraduation year or expected date",
-        coursesText: ["Basic computer skills", "Customer service", "Basic Excel"],
-        skillsText: ["Communication", "Organization", "Teamwork", "Punctuality", "Willingness to learn"],
-        projectsText: ["Participation in a school event organization project", "Volunteer activity in a community campaign", "Group research presentation project"],
-      };
+  const alt = isPt
+    ? "Exemplo de curr\u00edculo profissional criado na Succeedora"
+    : "Example of a professional resume created with Succeedora";
   return `
-    <article class="first-job-resume-preview">
-      <header><h3>${labels.name}</h3><p>${labels.contact}</p></header>
-      <section><h4>${labels.objective}</h4><p>${copy.objectives[0]}</p></section>
-      <section><h4>${labels.summary}</h4><p>${copy.summaryExamples[0]}</p></section>
-      <section><h4>${labels.education}</h4><p>${labels.educationText.replace(/\n/g, "<br>")}</p></section>
-      <div class="first-job-preview-columns">
-        <section><h4>${labels.courses}</h4>${labels.coursesText.map((item) => `<span>${item}</span>`).join("")}</section>
-        <section><h4>${labels.skills}</h4>${labels.skillsText.map((item) => `<span>${item}</span>`).join("")}</section>
-      </div>
-      <section><h4>${labels.projects}</h4><ul>${labels.projectsText.map((item) => `<li>${item}</li>`).join("")}</ul></section>
-    </article>
+    <figure class="first-job-real-preview ${placement === "hero" ? "is-hero" : "is-inline"}">
+      <img src="${assetPath("assets/previews/first-job-resume-preview.png")}" width="1000" height="1320" alt="${alt}" loading="${placement === "hero" ? "eager" : "lazy"}" fetchpriority="${placement === "hero" ? "high" : "low"}" decoding="async" />
+      <figcaption>${escapeHtml(copy.templateTitle)}</figcaption>
+    </figure>
   `;
 }
 
@@ -17520,7 +17490,7 @@ function renderFirstJobResumePage() {
             </div>
             <small>${copy.micro}</small>
           </div>
-          ${firstJobResumePreview(copy)}
+          ${firstJobResumePreview(copy, "hero")}
         </section>
 
         <section class="first-job-content-card">
