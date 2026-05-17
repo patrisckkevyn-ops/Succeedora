@@ -1887,6 +1887,8 @@ const routes = {
   "/": renderHome,
   "/pt": renderHome,
   "/en": renderHome,
+  "/pt/ferramentas/gerador-resumo-profissional": renderProfessionalSummaryGeneratorPage,
+  "/en/tools/professional-summary-generator": renderProfessionalSummaryGeneratorPage,
   "/pricing": renderPricingPage,
   "/terms": renderTermsPage,
   "/privacy": renderPrivacyPage,
@@ -1950,7 +1952,7 @@ const PRIVATE_ROUTES = new Set([
   "/admin/settings",
 ]);
 
-const PUBLIC_CLEAN_ROUTES = new Set(["/pricing", "/terms", "/privacy", "/contact", "/templates"]);
+const PUBLIC_CLEAN_ROUTES = new Set(["/pricing", "/terms", "/privacy", "/contact", "/templates", "/pt/ferramentas/gerador-resumo-profissional", "/en/tools/professional-summary-generator"]);
 
 const NOINDEX_ROUTES = new Set([
   "/login",
@@ -5444,6 +5446,15 @@ function setLanguagePreference(language, options = {}) {
       window.location.hash = `/blog/${translatedSlug}`;
     }
   }
+  const cleanPath = window.location.pathname.replace(/\/+$/, "") || "/";
+  if (
+    shouldUseLocalizedPath() &&
+    (cleanPath === professionalSummaryGeneratorPath("pt") || cleanPath === professionalSummaryGeneratorPath("en"))
+  ) {
+    window.history.replaceState(null, "", professionalSummaryGeneratorPath(currentLanguage));
+    if (options.renderAfter !== false) render();
+    return;
+  }
   if (options.updatePath !== false) syncPathWithLanguage(currentLanguage);
   if (options.renderAfter !== false) render();
 }
@@ -6263,6 +6274,10 @@ function localizedBlogPath(route = "/blog", language = currentLanguage) {
   return route;
 }
 
+function professionalSummaryGeneratorPath(language = currentLanguage) {
+  return language === "pt" ? "/pt/ferramentas/gerador-resumo-profissional" : "/en/tools/professional-summary-generator";
+}
+
 function shouldUseLocalizedPath() {
   return window.location.protocol === "http:" || window.location.protocol === "https:";
 }
@@ -6314,6 +6329,12 @@ function setRoute(path) {
       render();
       return;
     }
+  }
+  if ((path === professionalSummaryGeneratorPath("pt") || path === professionalSummaryGeneratorPath("en")) && shouldUseLocalizedPath()) {
+    currentLanguage = path === professionalSummaryGeneratorPath("pt") ? "pt" : "en";
+    window.history.pushState(null, "", path);
+    render();
+    return;
   }
   if (PUBLIC_CLEAN_ROUTES.has(path) && shouldUseLocalizedPath()) {
     window.history.pushState(null, "", path);
@@ -10263,6 +10284,7 @@ function bindAdminInteractions() {
 
 function bindInteractions() {
   bindAdminInteractions();
+  bindSummaryGeneratorInteractions();
   document.querySelectorAll("[data-google-auth]").forEach((button) => {
     button.addEventListener("click", () => {
       button.disabled = true;
@@ -14175,6 +14197,556 @@ function publicHeader() {
       </nav>
     </header>
   `;
+}
+
+function summaryGeneratorCopy(language = currentLanguage) {
+  const isPt = language === "pt";
+  return isPt ? {
+    seo: {
+      title: "Gerador de Resumo Profissional Grátis | Succeedora",
+      description: "Crie um resumo profissional para currículo em poucos segundos. Informe seu cargo, experiência e habilidades e gere um texto pronto para revisar, copiar e usar.",
+      canonical: seoUrl(professionalSummaryGeneratorPath("pt")),
+      ogTitle: "Gerador de Resumo Profissional Grátis | Succeedora",
+      ogDescription: "Gere um resumo profissional para currículo de forma simples, rápida e gratuita.",
+    },
+    eyebrow: "FERRAMENTA GRÁTIS DA SUCCEEDORA",
+    title: "Gerador de resumo profissional grátis",
+    subtitle: "Crie um resumo profissional claro, direto e pronto para currículo com base no seu cargo, experiência e principais habilidades.",
+    heroSubtitle: "Informe seu cargo, experiência e principais habilidades para gerar um resumo profissional claro, direto e pronto para revisar.",
+    primaryCta: "Gerar resumo agora",
+    secondaryCta: "Criar currículo completo",
+    badges: ["Grátis", "Sem login obrigatório", "Pronto para currículo", "Editável"],
+    sampleTitle: "Exemplo gerado",
+    sampleSummary: "Profissional com experiência em rotinas administrativas, organização de documentos e apoio a processos internos. Perfil comunicativo, responsável e focado em contribuir para atividades mais claras, organizadas e eficientes.",
+    toolTitle: "Crie seu resumo profissional",
+    toolText: "Preencha algumas informações básicas. Você poderá revisar e editar o texto antes de usar no currículo.",
+    fields: {
+      role: ["Cargo desejado ou cargo atual", "Ex: Auxiliar Administrativo, Product Manager, Desenvolvedor Front-end"],
+      field: ["Área profissional", "Ex: Administração, Tecnologia, Vendas, Atendimento, Marketing"],
+      level: ["Nível profissional", ["Primeiro emprego", "Estágio", "Júnior", "Pleno", "Sênior", "Liderança", "Transição de carreira"]],
+      experience: ["Tempo de experiência", ["Sem experiência", "Menos de 1 ano", "1 a 2 anos", "3 a 5 anos", "Mais de 5 anos"]],
+      skills: ["Principais habilidades", "Ex: organização, atendimento ao cliente, Excel, liderança, comunicação"],
+      goal: ["Objetivo profissional", "Ex: Quero atuar em uma empresa onde eu possa crescer e aplicar minhas habilidades."],
+      tone: ["Tom do resumo", ["Profissional", "Direto", "Confiante", "Formal", "Simples"]],
+    },
+    generate: "Gerar resumo profissional",
+    resultTitle: "Seu resumo profissional",
+    options: ["Mais direta", "Mais profissional", "Mais confiante"],
+    actions: { copy: "Copiar", edit: "Editar", use: "Usar em um currículo", again: "Gerar novamente" },
+    copied: "Resumo copiado com sucesso.",
+    fillHint: "Preencha pelo menos o cargo ou a área profissional para gerar um resumo mais útil.",
+    ctaTitle: "Gostou do resumo?",
+    ctaText: "Use este texto em um currículo profissional completo. Escolha um modelo, adicione suas experiências e baixe em PDF pela Succeedora.",
+    ctaPrimary: "Criar currículo com este resumo",
+    ctaSecondary: "Ver modelos de currículo",
+    examplesTitle: "Exemplos de resumo profissional",
+    examplesSubtitle: "Veja exemplos que você pode adaptar conforme sua experiência e área.",
+    examples: [
+      ["Primeiro emprego", "Profissional em início de carreira, com facilidade de aprendizagem, boa comunicação e interesse em desenvolver habilidades em ambiente corporativo. Busca primeira oportunidade para contribuir com responsabilidade, organização e disposição para crescer profissionalmente."],
+      ["Auxiliar administrativo", "Profissional com experiência em rotinas administrativas, organização de documentos, atendimento interno e apoio a processos operacionais. Perfil organizado, comunicativo e focado em contribuir para o bom funcionamento das atividades da empresa."],
+      ["Vendas", "Profissional da área comercial com experiência em atendimento ao cliente, negociação, acompanhamento de metas e relacionamento com clientes. Perfil comunicativo, orientado a resultados e comprometido com a melhoria da experiência de compra."],
+      ["Tecnologia", "Profissional de tecnologia com experiência no desenvolvimento de soluções digitais, organização de demandas técnicas e melhoria de interfaces ou sistemas. Perfil analítico, prático e focado em entregar soluções funcionais e bem estruturadas."],
+      ["Liderança", "Profissional com experiência em liderança de equipes, organização de processos, acompanhamento de indicadores e melhoria de rotinas operacionais. Perfil estratégico, comunicativo e orientado a resultados."],
+    ],
+    whatTitle: "O que é um resumo profissional?",
+    whatText: "O resumo profissional é uma breve apresentação no início do currículo. Ele mostra, em poucas linhas, quem você é profissionalmente, sua área de atuação, principais habilidades e o tipo de oportunidade que você busca.",
+    shouldBe: ["curto", "claro", "profissional", "verdadeiro", "alinhado com a vaga", "fácil de entender"],
+    shouldNotBe: ["longo demais", "genérico demais", "cheio de promessas", "inventado", "informal demais"],
+    shouldBeTitle: "Ele deve ser",
+    shouldNotBeTitle: "Não deve ser",
+    howTitle: "Como fazer um bom resumo profissional",
+    how: [
+      ["Comece pelo seu cargo ou área", "Explique rapidamente sua atuação."],
+      ["Destaque experiência ou formação", "Se tiver experiência, mencione. Se não tiver, valorize formação, cursos e habilidades."],
+      ["Mostre habilidades importantes", "Inclua competências relevantes para a vaga."],
+      ["Seja direto", "Evite textos longos ou frases vagas."],
+      ["Adapte para cada vaga", "O resumo pode mudar conforme a oportunidade."],
+    ],
+    errorsTitle: "Erros comuns no resumo profissional",
+    errors: [
+      ["Escrever um texto genérico demais", "Exemplo ruim: “Sou uma pessoa esforçada e quero uma oportunidade.”"],
+      ["Inventar experiência", "Não coloque cargos, resultados ou habilidades que você não tem."],
+      ["Escrever muito", "O resumo não deve virar uma carta de apresentação."],
+      ["Usar linguagem informal", "Evite gírias e frases muito pessoais."],
+      ["Copiar qualquer modelo sem adaptar", "Use exemplos como base, mas personalize conforme sua área."],
+    ],
+    compareTitle: "Resumo ruim vs resumo melhor",
+    badExample: "Quero uma oportunidade para mostrar meu trabalho e crescer na empresa.",
+    badProblems: ["muito genérico", "não mostra área", "não mostra habilidades", "não diferencia o candidato"],
+    goodExample: "Profissional em início de carreira, com boa comunicação, organização e interesse em atuar na área administrativa. Busca oportunidade para desenvolver habilidades, apoiar rotinas internas e contribuir com responsabilidade para a equipe.",
+    goodReasons: ["mostra área", "mostra habilidades", "é mais profissional", "é mais claro"],
+    faq: [
+      ["O que colocar no resumo profissional?", "Coloque sua área de atuação, nível de experiência, principais habilidades e objetivo profissional de forma curta e clara."],
+      ["O resumo profissional precisa ser longo?", "Não. O ideal é ter entre 3 e 6 linhas, com informações relevantes e objetivas."],
+      ["Posso usar o resumo gerado no meu currículo?", "Sim. Você pode copiar, editar e usar o resumo no seu currículo. O ideal é revisar antes de enviar."],
+      ["Preciso ter experiência para escrever um resumo?", "Não. Quem busca primeiro emprego pode destacar formação, cursos, habilidades e vontade de aprender."],
+      ["Essa ferramenta garante entrevista?", "Não. A ferramenta ajuda a criar um resumo melhor, mas não garante entrevista, contratação ou aprovação em processos seletivos."],
+      ["Posso criar o currículo completo na Succeedora?", "Sim. Você pode usar o resumo gerado em um currículo completo, escolher um modelo profissional e baixar em PDF."],
+    ],
+    relatedTitle: "Links úteis para continuar",
+    related: [
+      ["/pt", "Início da Succeedora"],
+      ["/pt/modelos", "Modelos de currículo"],
+      ["/pt/ferramentas/verificador-curriculo", "Verificador de currículo"],
+      ["/pt/ferramentas/gerador-habilidades-curriculo", "Gerador de habilidades"],
+      ["/pt/ferramentas/gerador-carta-apresentacao", "Gerador de carta de apresentação"],
+      ["/pt/blog/o-que-colocar-no-resumo-profissional", "O que colocar no resumo profissional"],
+      ["/pt/blog/como-fazer-curriculo-profissional", "Como fazer currículo profissional"],
+    ],
+    routeHome: "/pt",
+    routeSignup: "/signup",
+    routeTemplates: "/templates",
+  } : {
+    seo: {
+      title: "Free Professional Summary Generator | Succeedora",
+      description: "Create a professional resume summary in seconds. Enter your role, experience and skills to generate an editable summary for your resume.",
+      canonical: seoUrl(professionalSummaryGeneratorPath("en")),
+      ogTitle: "Free Professional Summary Generator | Succeedora",
+      ogDescription: "Generate a professional resume summary quickly and easily with Succeedora.",
+    },
+    eyebrow: "FREE SUCCEEDORA TOOL",
+    title: "Free professional summary generator",
+    subtitle: "Create a clear and professional resume summary based on your role, experience and key skills.",
+    heroSubtitle: "Enter your role, experience and key skills to generate a clear, professional and editable resume summary.",
+    primaryCta: "Generate summary now",
+    secondaryCta: "Create full resume",
+    badges: ["Free", "No login required", "Resume-ready", "Editable"],
+    sampleTitle: "Generated example",
+    sampleSummary: "Administrative professional with experience supporting internal routines, organizing documents and improving operational workflows. Organized, communicative and focused on contributing to clear, reliable and efficient team processes.",
+    toolTitle: "Create your professional summary",
+    toolText: "Fill in a few basic details. You can review and edit the text before using it in your resume.",
+    fields: {
+      role: ["Target or current role", "Ex: Administrative Assistant, Product Manager, Front-end Developer"],
+      field: ["Professional field", "Ex: Administration, Technology, Sales, Customer Service, Marketing"],
+      level: ["Career level", ["First job", "Internship", "Junior", "Mid-level", "Senior", "Leadership", "Career change"]],
+      experience: ["Years of experience", ["No experience", "Less than 1 year", "1 to 2 years", "3 to 5 years", "More than 5 years"]],
+      skills: ["Key skills", "Ex: organization, customer service, Excel, leadership, communication"],
+      goal: ["Career goal", "Ex: I want to join a company where I can grow and apply my skills."],
+      tone: ["Summary tone", ["Professional", "Direct", "Confident", "Formal", "Simple"]],
+    },
+    generate: "Generate professional summary",
+    resultTitle: "Your professional summary",
+    options: ["Direct", "Professional", "Confident"],
+    actions: { copy: "Copy", edit: "Edit", use: "Use in a resume", again: "Generate again" },
+    copied: "Summary copied successfully.",
+    fillHint: "Enter at least a role or professional field to generate a more useful summary.",
+    ctaTitle: "Like the summary?",
+    ctaText: "Use this text in a complete professional resume. Choose a template, add your experience and export it as a PDF with Succeedora.",
+    ctaPrimary: "Create resume with this summary",
+    ctaSecondary: "View resume templates",
+    examplesTitle: "Professional summary examples",
+    examplesSubtitle: "Use these examples as a starting point and adapt them to your experience and field.",
+    examples: [
+      ["First job", "Entry-level professional with strong willingness to learn, good communication and interest in developing skills in a corporate environment. Seeking a first opportunity to contribute with responsibility, organization and a growth mindset."],
+      ["Administrative assistant", "Professional with experience in administrative routines, document organization, internal support and operational processes. Organized and communicative profile focused on contributing to reliable business operations."],
+      ["Sales", "Commercial professional with experience in customer service, negotiation, goal tracking and client relationships. Communicative, results-oriented and committed to improving the buying experience."],
+      ["Technology", "Technology professional with experience developing digital solutions, organizing technical tasks and improving interfaces or systems. Analytical, practical and focused on delivering functional, well-structured solutions."],
+      ["Leadership", "Professional with experience leading teams, organizing processes, tracking indicators and improving operational routines. Strategic, communicative and results-oriented profile."],
+    ],
+    whatTitle: "What is a professional summary?",
+    whatText: "A professional summary is a short introduction at the top of your resume. It shows who you are professionally, your field, key skills and the type of opportunity you are looking for.",
+    shouldBe: ["short", "clear", "professional", "truthful", "aligned with the role", "easy to understand"],
+    shouldNotBe: ["too long", "too generic", "full of promises", "invented", "too informal"],
+    shouldBeTitle: "It should be",
+    shouldNotBeTitle: "It should not be",
+    howTitle: "How to write a strong professional summary",
+    how: [
+      ["Start with your role or field", "Explain your professional area quickly."],
+      ["Highlight experience or education", "If you have experience, mention it. If not, value education, courses and skills."],
+      ["Show relevant skills", "Include competencies that matter for the role."],
+      ["Be direct", "Avoid long text and vague phrases."],
+      ["Adapt it for each role", "Your summary can change depending on the opportunity."],
+    ],
+    errorsTitle: "Common professional summary mistakes",
+    errors: [
+      ["Writing something too generic", "Weak example: “I am hardworking and want an opportunity.”"],
+      ["Inventing experience", "Do not add roles, results or skills you do not have."],
+      ["Writing too much", "A summary should not become a cover letter."],
+      ["Using informal language", "Avoid slang and overly personal phrasing."],
+      ["Copying a model without adapting it", "Use examples as a base, but personalize them for your field."],
+    ],
+    compareTitle: "Weak summary vs stronger summary",
+    badExample: "I want an opportunity to show my work and grow in the company.",
+    badProblems: ["too generic", "does not show a field", "does not show skills", "does not differentiate the candidate"],
+    goodExample: "Entry-level professional with good communication, organization and interest in the administrative field. Seeking an opportunity to develop skills, support internal routines and contribute responsibly to the team.",
+    goodReasons: ["shows a field", "shows skills", "sounds more professional", "is clearer"],
+    faq: [
+      ["What should I include in a professional summary?", "Include your field, experience level, key skills and career goal in a short and clear way."],
+      ["Does a professional summary need to be long?", "No. A good summary usually has 3 to 6 lines with relevant and objective information."],
+      ["Can I use the generated summary in my resume?", "Yes. You can copy, edit and use it in your resume. Review it before sending."],
+      ["Do I need experience to write a summary?", "No. First-job candidates can highlight education, courses, skills and willingness to learn."],
+      ["Does this tool guarantee interviews?", "No. The tool helps you create a clearer summary, but it does not guarantee interviews, hiring or approval in selection processes."],
+      ["Can I create the full resume in Succeedora?", "Yes. You can use the generated summary in a full resume, choose a professional template and export it as a PDF."],
+    ],
+    relatedTitle: "Useful links to continue",
+    related: [
+      ["/en", "Succeedora home"],
+      ["/en/templates", "Resume templates"],
+      ["/en/tools/resume-checker", "Resume checker"],
+      ["/en/tools/resume-skills-generator", "Resume skills generator"],
+      ["/en/tools/cover-letter-generator", "Cover letter generator"],
+      ["/en/blog/professional-summary-examples", "Professional summary examples"],
+      ["/en/blog/how-to-create-a-professional-resume", "How to create a professional resume"],
+    ],
+    routeHome: "/en",
+    routeSignup: "/signup",
+    routeTemplates: "/templates",
+  };
+}
+
+function summaryToolAlternates() {
+  return [
+    { hreflang: "pt-BR", href: seoUrl(professionalSummaryGeneratorPath("pt")) },
+    { hreflang: "en", href: seoUrl(professionalSummaryGeneratorPath("en")) },
+    { hreflang: "x-default", href: seoUrl(professionalSummaryGeneratorPath("en")) },
+  ];
+}
+
+function fieldKeywordProfile(value = "", language = currentLanguage) {
+  const text = String(value || "").toLowerCase();
+  const isPt = language === "pt";
+  if (/tec|dev|software|front|back|dados|data|sistema|system|engineering|product/.test(text)) {
+    return isPt ? "com foco em soluções digitais, organização de demandas técnicas e melhoria de sistemas ou interfaces" : "with focus on digital solutions, technical task organization and improvement of systems or interfaces";
+  }
+  if (/atendimento|cliente|customer|service|suporte|support/.test(text)) {
+    return isPt ? "com foco em comunicação, relacionamento com clientes, resolução de problemas e organização" : "with focus on communication, customer relationships, problem solving and organization";
+  }
+  if (/venda|sales|comercial|business/.test(text)) {
+    return isPt ? "com foco em atendimento ao cliente, negociação, acompanhamento de metas e relacionamento comercial" : "with focus on customer service, negotiation, goal tracking and commercial relationships";
+  }
+  if (/marketing|conteúdo|content|social|marca|brand/.test(text)) {
+    return isPt ? "com foco em comunicação, organização de campanhas, análise de público e fortalecimento de marca" : "with focus on communication, campaign organization, audience analysis and brand positioning";
+  }
+  if (/admin|opera|office|assist|finance/.test(text)) {
+    return isPt ? "com foco em rotinas administrativas, organização de documentos, apoio operacional e melhoria de processos" : "with focus on administrative routines, document organization, operational support and process improvement";
+  }
+  return isPt ? "com foco em organização, comunicação e contribuição prática para a equipe" : "with focus on organization, communication and practical contribution to the team";
+}
+
+function summaryExperiencePhrase(level, experience, language = currentLanguage) {
+  const isPt = language === "pt";
+  const normalizedLevel = String(level || "").toLowerCase();
+  const normalizedExperience = String(experience || "").toLowerCase();
+  if (/primeiro|first|sem|no experience/.test(`${normalizedLevel} ${normalizedExperience}`)) {
+    return isPt ? "em início de carreira" : "at the beginning of a professional career";
+  }
+  if (/estágio|intern/.test(normalizedLevel)) return isPt ? "em busca de desenvolvimento profissional por meio de estágio" : "seeking professional development through an internship";
+  if (/júnior|junior/.test(normalizedLevel)) return isPt ? "com base inicial na área e disposição para evoluir com consistência" : "with an initial foundation in the field and willingness to grow consistently";
+  if (/sênior|senior|mais de 5|more than 5/.test(`${normalizedLevel} ${normalizedExperience}`)) return isPt ? "com experiência consolidada e domínio das principais rotinas da área" : "with consolidated experience and command of core routines in the field";
+  if (/lider|leadership/.test(normalizedLevel)) return isPt ? "com experiência em liderança, organização de processos e acompanhamento de prioridades" : "with experience in leadership, process organization and priority management";
+  if (/transição|career change/.test(normalizedLevel)) return isPt ? "em transição de carreira, com habilidades transferíveis e interesse em aplicar experiências anteriores em novo contexto" : "in career transition, with transferable skills and interest in applying previous experience in a new context";
+  return isPt ? "com experiência compatível com a função e foco em desenvolvimento profissional" : "with experience aligned to the role and focus on professional development";
+}
+
+function splitSummarySkills(value = "") {
+  return String(value || "").split(/,|\n|;/).map((item) => item.trim()).filter(Boolean).slice(0, 5);
+}
+
+function generatedSummaryOptions(data = {}, language = currentLanguage) {
+  const isPt = language === "pt";
+  const role = String(data.role || "").trim();
+  const field = String(data.field || "").trim();
+  const skills = splitSummarySkills(data.skills);
+  const skillText = skills.length
+    ? (isPt ? `Competências em ${skills.join(", ")}.` : `Skilled in ${skills.join(", ")}.`)
+    : (isPt ? "Perfil organizado, comunicativo e comprometido com aprendizado contínuo." : "Organized, communicative and committed to continuous learning.");
+  const roleText = role || (isPt ? "Profissional" : "Professional");
+  const fieldText = field || (isPt ? "área informada" : "selected field");
+  const experience = summaryExperiencePhrase(data.level, data.experience, language);
+  const profile = fieldKeywordProfile(`${field} ${role}`, language);
+  const goal = String(data.goal || "").trim();
+  const goalText = goal
+    ? (isPt ? `Busca ${goal.replace(/\.$/, "")}.` : `Seeking to ${goal.replace(/\.$/, "").replace(/^I want to\s+/i, "")}.`)
+    : (isPt ? "Busca contribuir com responsabilidade, clareza e evolução profissional." : "Seeking to contribute with responsibility, clarity and professional growth.");
+  const baseOptions = isPt ? [
+    `${roleText} ${experience}, atuando ou buscando atuação em ${fieldText}. ${skillText} ${goalText}`,
+    `${roleText} ${experience}, ${profile}. ${skillText} ${goalText}`,
+    `${roleText} ${experience}, com perfil prático, confiável e orientado a contribuir para resultados sustentáveis. ${skillText} ${goalText}`,
+  ] : [
+    `${roleText} ${experience}, working in or seeking opportunities in ${fieldText}. ${skillText} ${goalText}`,
+    `${roleText} ${experience}, ${profile}. ${skillText} ${goalText}`,
+    `${roleText} ${experience}, with a practical, reliable profile focused on contributing to sustainable results. ${skillText} ${goalText}`,
+  ];
+  const tone = String(data.tone || "").toLowerCase();
+  if (/formal/.test(tone)) {
+    return baseOptions.map((item) => isPt ? `Perfil profissional: ${item}` : `Professional profile: ${item}`);
+  }
+  if (/simples|simple/.test(tone)) {
+    return baseOptions.map((item) => item.split(". ").slice(0, 2).join(". ").replace(/\.$/, "."));
+  }
+  if (/confiante|confident/.test(tone)) {
+    return baseOptions.map((item) => `${item} ${isPt ? "Demonstra postura proativa, atenção à qualidade e compromisso com entregas consistentes." : "Shows a proactive mindset, attention to quality and commitment to consistent delivery."}`);
+  }
+  if (/direto|direct/.test(tone)) {
+    return baseOptions.map((item) => item.replace(isPt ? "atuando ou buscando atuação em" : "working in or seeking opportunities in", isPt ? "com foco em" : "focused on"));
+  }
+  return baseOptions;
+}
+
+function summaryToolFormData(root = document) {
+  const data = {};
+  root.querySelectorAll("[data-summary-field]").forEach((field) => {
+    data[field.getAttribute("data-summary-field")] = String(field.value || "").trim();
+  });
+  return data;
+}
+
+function renderSummaryToolResults(options = []) {
+  const copy = summaryGeneratorCopy(currentLanguage);
+  const results = document.querySelector("[data-summary-results]");
+  const list = document.querySelector("[data-summary-list]");
+  if (!results || !list) return;
+  list.innerHTML = options.map((text, index) => `
+    <article class="summary-result-option" data-summary-option="${index}">
+      <div>
+        <span>${copy.options[index] || copy.options[0]}</span>
+        <button class="ghost-button small" type="button" data-summary-edit="${index}">${copy.actions.edit}</button>
+      </div>
+      <textarea data-summary-text="${index}">${escapeHtml(text)}</textarea>
+      <footer>
+        <button class="secondary-button small" type="button" data-summary-copy="${index}">${copy.actions.copy}</button>
+        <button class="primary-button small" type="button" data-summary-use="${index}">${copy.actions.use}</button>
+      </footer>
+    </article>
+  `).join("");
+  const again = document.createElement("button");
+  again.className = "ghost-button summary-generate-again";
+  again.type = "button";
+  again.setAttribute("data-summary-generate", "");
+  again.textContent = copy.actions.again;
+  list.appendChild(again);
+  results.hidden = false;
+  results.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function copySummaryText(text, button) {
+  const copy = summaryGeneratorCopy(currentLanguage);
+  try {
+    if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
+    else {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      textarea.remove();
+    }
+    const message = document.querySelector("[data-summary-message]");
+    if (message) {
+      message.textContent = copy.copied;
+      message.hidden = false;
+    }
+    if (button) {
+      const previous = button.textContent;
+      button.textContent = copy.copied;
+      window.setTimeout(() => { button.textContent = previous; }, 1400);
+    }
+  } catch (error) {
+    const message = document.querySelector("[data-summary-message]");
+    if (message) {
+      message.textContent = text;
+      message.hidden = false;
+    }
+  }
+}
+
+function useSummaryInResume(text = "") {
+  try {
+    localStorage.setItem("succeedora.publicSummaryDraft", text);
+  } catch (error) {
+    // Copy still works if storage is unavailable.
+  }
+  if (isLoggedIn()) setRoute("/dashboard/builder");
+  else setRoute("/signup");
+}
+
+function bindSummaryGeneratorInteractions() {
+  const tool = document.querySelector("[data-summary-form]");
+  if (!tool) return;
+  const generate = () => {
+    const copy = summaryGeneratorCopy(currentLanguage);
+    const data = summaryToolFormData(document);
+    const message = document.querySelector("[data-summary-message]");
+    if (!data.role && !data.field) {
+      if (message) {
+        message.textContent = copy.fillHint;
+        message.hidden = false;
+      }
+      return;
+    }
+    if (message) message.hidden = true;
+    const options = generatedSummaryOptions(data, currentLanguage);
+    try {
+      localStorage.setItem("succeedora.publicSummaryInputs", JSON.stringify(data));
+      localStorage.setItem("succeedora.publicSummaryDraft", options[1] || options[0] || "");
+    } catch (error) {
+      // The generated text remains available on the page.
+    }
+    renderSummaryToolResults(options);
+  };
+  document.querySelector(".summary-tool-page")?.addEventListener("click", (event) => {
+    const generateButton = event.target.closest("[data-summary-generate]");
+    if (generateButton) {
+      generate();
+      return;
+    }
+    const copyButton = event.target.closest("[data-summary-copy]");
+    if (copyButton) {
+      const index = copyButton.getAttribute("data-summary-copy");
+      const text = document.querySelector(`[data-summary-text="${index}"]`)?.value || "";
+      copySummaryText(text, copyButton);
+      return;
+    }
+    const editButton = event.target.closest("[data-summary-edit]");
+    if (editButton) {
+      const index = editButton.getAttribute("data-summary-edit");
+      const textarea = document.querySelector(`[data-summary-text="${index}"]`);
+      textarea?.focus();
+      return;
+    }
+    const useButton = event.target.closest("[data-summary-use]");
+    if (useButton) {
+      const index = useButton.getAttribute("data-summary-use");
+      const text = index === "" || index === null
+        ? document.querySelector("[data-summary-text='1']")?.value || document.querySelector("[data-summary-text='0']")?.value || ""
+        : document.querySelector(`[data-summary-text="${index}"]`)?.value || "";
+      if (text) {
+        copySummaryText(text);
+        useSummaryInResume(text);
+      } else {
+        setRoute("/signup");
+      }
+    }
+  });
+}
+
+function renderProfessionalSummaryGeneratorPage() {
+  const path = getRoute();
+  currentLanguage = path === professionalSummaryGeneratorPath("pt") ? "pt" : "en";
+  const copy = summaryGeneratorCopy(currentLanguage);
+  const fieldInput = (key, type = "input") => {
+    const [label, placeholder] = copy.fields[key];
+    return `<label>${label}${type === "textarea" ? `<textarea data-summary-field="${key}" placeholder="${placeholder}"></textarea>` : `<input data-summary-field="${key}" placeholder="${placeholder}" />`}</label>`;
+  };
+  const selectInput = (key) => {
+    const [label, options] = copy.fields[key];
+    return `<label>${label}<select data-summary-field="${key}">${options.map((option) => `<option>${escapeHtml(option)}</option>`).join("")}</select></label>`;
+  };
+  const list = (items) => `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+  mount(`
+    <div class="public-shell summary-tool-page">
+      ${publicHeader()}
+      <main>
+        <section class="summary-tool-hero">
+          <div class="summary-tool-copy">
+            <span class="eyebrow">${copy.eyebrow}</span>
+            <h1>${copy.title}</h1>
+            <p>${copy.heroSubtitle}</p>
+            <div class="summary-tool-actions">
+              <a class="primary-button" href="#summary-tool">${copy.primaryCta} ${icon("arrow")}</a>
+              <a class="secondary-button" href="#/signup" data-route="/signup">${copy.secondaryCta}</a>
+            </div>
+            <div class="summary-tool-badges">${copy.badges.map((badge) => `<span>${icon("check")} ${badge}</span>`).join("")}</div>
+          </div>
+          <aside class="summary-hero-card" aria-label="${copy.sampleTitle}">
+            <div class="panel-top"><span></span><span></span><span></span></div>
+            <span>${copy.sampleTitle}</span>
+            <p>${copy.sampleSummary}</p>
+            <div class="summary-card-lines" aria-hidden="true"><i></i><i></i><i></i></div>
+          </aside>
+        </section>
+
+        <section id="summary-tool" class="summary-tool-section">
+          <div class="summary-form-card">
+            <div class="section-heading left"><span class="eyebrow">Succeedora</span><h2>${copy.toolTitle}</h2><p>${copy.toolText}</p></div>
+            <div class="summary-tool-form" data-summary-form>
+              ${fieldInput("role")}
+              ${fieldInput("field")}
+              ${selectInput("level")}
+              ${selectInput("experience")}
+              ${fieldInput("skills", "textarea")}
+              ${fieldInput("goal", "textarea")}
+              ${selectInput("tone")}
+              <button class="primary-button" type="button" data-summary-generate>${copy.generate}</button>
+              <p class="summary-tool-message" data-summary-message hidden></p>
+            </div>
+          </div>
+          <div class="summary-result-card" data-summary-results hidden>
+            <div class="section-heading left"><span class="eyebrow">Succeedora</span><h2>${copy.resultTitle}</h2></div>
+            <div class="summary-result-list" data-summary-list></div>
+            <div class="summary-result-cta">
+              <h3>${copy.ctaTitle}</h3>
+              <p>${copy.ctaText}</p>
+              <div>
+                <button class="primary-button" type="button" data-summary-use>${copy.ctaPrimary}</button>
+                <a class="secondary-button" href="#/templates" data-route="/templates">${copy.ctaSecondary}</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section summary-examples-section">
+          <div class="section-heading"><span class="eyebrow">Succeedora</span><h2>${copy.examplesTitle}</h2><p>${copy.examplesSubtitle}</p></div>
+          <div class="summary-example-grid">${copy.examples.map(([title, text]) => `<article class="summary-example-card"><h3>${title}</h3><p>${text}</p></article>`).join("")}</div>
+        </section>
+
+        <section class="section summary-education-grid">
+          <article class="summary-education-card wide">
+            <h2>${copy.whatTitle}</h2>
+            <p>${copy.whatText}</p>
+          </article>
+          <article class="summary-education-card"><h3>${copy.shouldBeTitle}</h3>${list(copy.shouldBe)}</article>
+          <article class="summary-education-card"><h3>${copy.shouldNotBeTitle}</h3>${list(copy.shouldNotBe)}</article>
+        </section>
+
+        <section class="section summary-steps-section">
+          <div class="section-heading left"><span class="eyebrow">Succeedora</span><h2>${copy.howTitle}</h2></div>
+          <div class="summary-step-list">${copy.how.map(([title, text], index) => `<article><span>${String(index + 1).padStart(2, "0")}</span><h3>${title}</h3><p>${text}</p></article>`).join("")}</div>
+        </section>
+
+        <section class="section summary-mistakes-section">
+          <div class="section-heading left"><span class="eyebrow">Succeedora</span><h2>${copy.errorsTitle}</h2></div>
+          <div class="summary-mistake-list">${copy.errors.map(([title, text]) => `<article><h3>${title}</h3><p>${text}</p></article>`).join("")}</div>
+        </section>
+
+        <section class="section summary-compare-section">
+          <div class="section-heading"><span class="eyebrow">Succeedora</span><h2>${copy.compareTitle}</h2></div>
+          <div class="summary-compare-grid">
+            <article class="summary-compare-card is-bad"><span>${currentLanguage === "pt" ? "Exemplo ruim" : "Weak example"}</span><p>${copy.badExample}</p>${list(copy.badProblems)}</article>
+            <article class="summary-compare-card is-good"><span>${currentLanguage === "pt" ? "Exemplo melhor" : "Stronger example"}</span><p>${copy.goodExample}</p>${list(copy.goodReasons)}</article>
+          </div>
+        </section>
+
+        <section class="section summary-final-cta">
+          <h2>${copy.ctaTitle}</h2>
+          <p>${copy.ctaText}</p>
+          <div>
+            <a class="primary-button" href="#/signup" data-route="/signup">${copy.ctaPrimary}</a>
+            <a class="secondary-button" href="#/templates" data-route="/templates">${copy.ctaSecondary}</a>
+          </div>
+        </section>
+
+        <section class="section faq-section">
+          <div class="section-heading"><span class="eyebrow">FAQ</span><h2>${currentLanguage === "pt" ? "Perguntas frequentes" : "Frequently asked questions"}</h2></div>
+          <div class="faq-grid">${copy.faq.map(([q, a]) => `<article class="faq-item"><h3>${q}</h3><p>${a}</p></article>`).join("")}</div>
+        </section>
+
+        <section class="section summary-related-section">
+          <div class="section-heading left"><span class="eyebrow">Succeedora</span><h2>${copy.relatedTitle}</h2></div>
+          <div class="summary-related-links">${copy.related.map(([href, label]) => `<a href="${href}">${label}</a>`).join("")}</div>
+        </section>
+      </main>
+      <footer class="site-footer">${brandLogo("div")}<p>${currentLanguage === "pt" ? "Crie um currículo que ajuda você a se apresentar melhor." : "Create a resume that helps you present yourself better."}</p>${legalFooterLinks()}</footer>
+    </div>
+  `, {
+    ...copy.seo,
+    ogTitle: copy.seo.ogTitle,
+    ogDescription: copy.seo.ogDescription,
+    alternates: summaryToolAlternates(),
+  });
 }
 
 function renderHome() {
