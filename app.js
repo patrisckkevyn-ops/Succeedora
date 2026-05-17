@@ -6552,7 +6552,7 @@ function setHreflangLinks(route, canonical, seo = {}) {
   if (route === "/" || route === "/pt" || route === "/en") {
     setMetaLink("alternate", seoUrl("/pt"), "pt-BR");
     setMetaLink("alternate", seoUrl("/en"), "en");
-    setMetaLink("alternate", seoUrl("/en"), "x-default");
+    setMetaLink("alternate", seoUrl("/"), "x-default");
   }
 }
 
@@ -14530,6 +14530,14 @@ function summaryToolAlternates() {
   ];
 }
 
+function publicTemplatesAlternates() {
+  return [
+    { hreflang: "pt-BR", href: seoUrl(publicTemplatesPath("pt")) },
+    { hreflang: "en", href: seoUrl(publicTemplatesPath("en")) },
+    { hreflang: "x-default", href: seoUrl(publicTemplatesPath("en")) },
+  ];
+}
+
 function fieldKeywordProfile(value = "", language = currentLanguage) {
   const text = String(value || "").toLowerCase();
   const isPt = language === "pt";
@@ -16242,6 +16250,7 @@ function renderPublicTemplatesPage() {
     canonical: seoUrl(publicTemplatesPath(currentLanguage)),
     ogTitle: seo.title,
     ogDescription: seo.description,
+    alternates: publicTemplatesAlternates(),
   });
 }
 
