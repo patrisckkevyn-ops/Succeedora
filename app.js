@@ -15368,7 +15368,7 @@ function renderHome() {
     </div>
   `, {
     ...seo,
-    canonical: seoUrl(getRoute() === "/pt" ? "/pt" : "/en"),
+    canonical: seoUrl(getRoute() === "/pt" ? "/pt" : getRoute() === "/en" ? "/en" : "/"),
     ogTitle: seo.title,
     ogDescription: seo.description,
   });
