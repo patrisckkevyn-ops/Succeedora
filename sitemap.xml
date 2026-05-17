@@ -28,6 +28,24 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://succeedora.com/pt/sobre</loc>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://succeedora.com/pt/sobre" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://succeedora.com/en/about" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://succeedora.com/en/about" />
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://succeedora.com/en/about</loc>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://succeedora.com/pt/sobre" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://succeedora.com/en/about" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://succeedora.com/en/about" />
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://succeedora.com/pt/blog</loc>
     <xhtml:link rel="alternate" hreflang="pt-BR" href="https://succeedora.com/pt/blog" />
     <xhtml:link rel="alternate" hreflang="en" href="https://succeedora.com/en/blog" />

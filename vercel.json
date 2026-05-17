@@ -3,6 +3,6 @@
     { "src": "/api/ai/credits", "dest": "/api/ai/generate" },
     { "src": "/api/admin/ai-credits", "dest": "/api/ai/generate" },
     { "handle": "filesystem" },
-    { "src": "/((?!api/|_vercel/|.*\\.).*)", "dest": "/index.html" }
+    { "src": "/(pt/sobre|en/about|pt/modelos|en/templates|pt/ferramentas/gerador-resumo-profissional|en/tools/professional-summary-generator|pt/blog(?:/.*)?|en/blog(?:/.*)?|blog(?:/.*)?|pricing|terms|privacy|contact|cookies|templates|payment/(?:success|cancel)|login|signin|signup|auth/google/callback|verify-email|forgot-password|reset-password|profile|settings|admin(?:/.*)?|dashboard(?:/.*)?)/?", "dest": "/index.html" }
   ]
 }

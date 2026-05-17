@@ -1891,6 +1891,8 @@ const routes = {
   "/": renderHome,
   "/pt": renderHome,
   "/en": renderHome,
+  "/pt/sobre": renderAboutPage,
+  "/en/about": renderAboutPage,
   "/pt/ferramentas/gerador-resumo-profissional": renderProfessionalSummaryGeneratorPage,
   "/en/tools/professional-summary-generator": renderProfessionalSummaryGeneratorPage,
   "/pricing": renderPricingPage,
@@ -1958,7 +1960,7 @@ const PRIVATE_ROUTES = new Set([
   "/admin/settings",
 ]);
 
-const PUBLIC_CLEAN_ROUTES = new Set(["/pricing", "/terms", "/privacy", "/contact", "/templates", "/pt/modelos", "/en/templates", "/pt/ferramentas/gerador-resumo-profissional", "/en/tools/professional-summary-generator"]);
+const PUBLIC_CLEAN_ROUTES = new Set(["/pricing", "/terms", "/privacy", "/contact", "/templates", "/pt/sobre", "/en/about", "/pt/modelos", "/en/templates", "/pt/ferramentas/gerador-resumo-profissional", "/en/tools/professional-summary-generator"]);
 
 const NOINDEX_ROUTES = new Set([
   "/login",
@@ -2022,6 +2024,16 @@ const SEO_META = {
     en: {
       title: "Succeedora — Contact",
       description: "Contact Succeedora for questions, support and suggestions.",
+    },
+  },
+  about: {
+    pt: {
+      title: "Sobre a Succeedora | Plataforma de Curr\u00edculos Profissionais",
+      description: "Conhe\u00e7a a Succeedora, uma plataforma global para criar curr\u00edculos profissionais, cartas de apresenta\u00e7\u00e3o e materiais de candidatura com mais clareza e organiza\u00e7\u00e3o.",
+    },
+    en: {
+      title: "About Succeedora | Professional Resume Platform",
+      description: "Learn about Succeedora, a global platform for creating professional resumes, cover letters and career documents with more clarity and structure.",
     },
   },
   templates: {
@@ -6351,9 +6363,9 @@ function assetPath(path) {
   return `/${normalized}`;
 }
 
-function brandLogo(tag = "a", href = "#/", route = "/") {
+function brandLogo(tag = "a", href = "#/", route = "/", imageAlt = "") {
   const attrs = tag === "a" ? `href="${href}" data-route="${route}" aria-label="Succeedora home"` : "";
-  return `<${tag} class="brand" ${attrs}><span class="brand-mark" aria-hidden="true"><img class="brand-logo-image" src="${assetPath("assets/brand/succeedora-logo-premium-96.png")}" width="48" height="48" alt="" decoding="async" fetchpriority="high" /></span><span class="brand-word">Succeedora</span></${tag}>`;
+  return `<${tag} class="brand" ${attrs}><span class="brand-mark" aria-hidden="true"><img class="brand-logo-image" src="${assetPath("assets/brand/succeedora-logo-premium-96.png")}" width="48" height="48" alt="${imageAlt}" decoding="async" fetchpriority="high" /></span><span class="brand-word">Succeedora</span></${tag}>`;
 }
 
 function localizedRoot(language = currentLanguage) {
@@ -6380,6 +6392,10 @@ function professionalSummaryGeneratorPath(language = currentLanguage) {
 
 function publicTemplatesPath(language = currentLanguage) {
   return language === "pt" ? "/pt/modelos" : "/en/templates";
+}
+
+function aboutPath(language = currentLanguage) {
+  return language === "pt" ? "/pt/sobre" : "/en/about";
 }
 
 function shouldUseLocalizedPath() {
@@ -6442,6 +6458,12 @@ function setRoute(path) {
   }
   if ((path === publicTemplatesPath("pt") || path === publicTemplatesPath("en")) && shouldUseLocalizedPath()) {
     currentLanguage = path === publicTemplatesPath("pt") ? "pt" : "en";
+    window.history.pushState(null, "", path);
+    render();
+    return;
+  }
+  if ((path === aboutPath("pt") || path === aboutPath("en")) && shouldUseLocalizedPath()) {
+    currentLanguage = path === aboutPath("pt") ? "pt" : "en";
     window.history.pushState(null, "", path);
     render();
     return;
@@ -6542,6 +6564,122 @@ function routeShouldNoindex(route = getRoute()) {
   return NOINDEX_ROUTES.has(route) || route.startsWith("/dashboard/");
 }
 
+function organizationSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Succeedora",
+    url: SITE_ORIGIN,
+    logo: `${SITE_ORIGIN}/assets/brand/succeedora-logo-premium-96.png`,
+  };
+}
+
+function websiteSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Succeedora",
+    url: `${SITE_ORIGIN}/`,
+    inLanguage: ["pt-BR", "en"],
+  };
+}
+
+function softwareApplicationSchema(overrides = {}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: overrides.name || "Succeedora",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    url: overrides.url || `${SITE_ORIGIN}/`,
+    description: overrides.description || localizedSeo("home").description || t().metaDescription,
+    inLanguage: overrides.inLanguage || (currentLanguage === "pt" ? "pt-BR" : "en"),
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: currentLanguage === "pt" ? "BRL" : "USD",
+    },
+  };
+}
+
+function breadcrumbNameForRoute(route, title = "") {
+  const isPt = currentLanguage === "pt";
+  if (route === "/" || route === "/pt" || route === "/en") return "Succeedora";
+  if (route === publicTemplatesPath("pt") || route === publicTemplatesPath("en") || route === "/templates") return isPt ? "Modelos de curr\u00edculo" : "Resume templates";
+  if (route === aboutPath("pt") || route === aboutPath("en")) return isPt ? "Sobre" : "About";
+  if (route === professionalSummaryGeneratorPath("pt") || route === professionalSummaryGeneratorPath("en")) return isPt ? "Gerador de resumo profissional" : "Professional summary generator";
+  if (route === blogRootPath("pt") || route === blogRootPath("en") || route === "/blog") return isPt ? "Blog" : "Blog";
+  if (route === "/pricing") return isPt ? "Pre\u00e7os" : "Pricing";
+  if (route === "/contact") return isPt ? "Contato" : "Contact";
+  if (route === "/terms") return isPt ? "Termos de uso" : "Terms of service";
+  if (route === "/privacy") return isPt ? "Pol\u00edtica de privacidade" : "Privacy policy";
+  return String(title || "Succeedora").replace(/\s+\|\s+Succeedora$/, "");
+}
+
+function breadcrumbSchema(route, canonical, title = "") {
+  const homeUrl = route === "/" ? seoUrl("/") : seoUrl(localizedRoot(currentLanguage));
+  const items = route === "/"
+    ? [{ name: "Succeedora", item: seoUrl("/") }]
+    : [
+        { name: currentLanguage === "pt" ? "In\u00edcio" : "Home", item: homeUrl },
+        { name: breadcrumbNameForRoute(route, title), item: canonical },
+      ];
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.item,
+    })),
+  };
+}
+
+function faqSchema(faq = []) {
+  if (!Array.isArray(faq) || !faq.length) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.map(([question, answer]) => ({
+      "@type": "Question",
+      name: question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: answer,
+      },
+    })),
+  };
+}
+
+function setStructuredData(items = []) {
+  document.head.querySelectorAll('script[type="application/ld+json"][data-seo-schema]').forEach((script) => script.remove());
+  items.filter(Boolean).forEach((item, index) => {
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.dataset.seoSchema = String(index + 1);
+    script.textContent = JSON.stringify(item).replace(/</g, "\\u003c");
+    document.head.appendChild(script);
+  });
+}
+
+function seoStructuredData({ route, canonical, title, description, seo, noindex }) {
+  if (noindex) return [];
+  const schemas = [
+    organizationSchema(),
+    websiteSchema(),
+    breadcrumbSchema(route, canonical, title),
+  ];
+  if (seo.softwareApplication) schemas.push(softwareApplicationSchema({
+    ...(typeof seo.softwareApplication === "object" ? seo.softwareApplication : {}),
+    url: canonical,
+    description,
+  }));
+  if (seo.faq) schemas.push(faqSchema(seo.faq));
+  if (Array.isArray(seo.structuredData)) schemas.push(...seo.structuredData);
+  return schemas;
+}
+
 function setHreflangLinks(route, canonical, seo = {}) {
   document.head.querySelectorAll('link[rel="alternate"][hreflang]').forEach((link) => link.remove());
   const alternates = seo.alternates || [];
@@ -6586,6 +6724,7 @@ function updateDocumentLanguage(seo = {}) {
     removeMetaProperty("og:image");
     removeMetaName("twitter:image");
   }
+  setStructuredData(seoStructuredData({ route, canonical, title, description: metaDescription, seo, noindex }));
 }
 
 function mount(html, seo = {}) {
@@ -14294,13 +14433,14 @@ function languageSwitch(compact = false) {
 
 function publicHeader() {
   const copy = t();
+  const homePath = localizedRoot(currentLanguage);
   return `
     <header class="site-header">
-      ${brandLogo()}
+      ${brandLogo("a", homePath, homePath, "Succeedora logo")}
       <button class="icon-button nav-toggle" aria-label="${copy.nav.openNavigation}">${icon("menu")}</button>
       <nav class="public-nav" aria-label="${copy.nav.mainNavigation}">
         <div class="public-nav-center">
-          <a href="#/" data-route="/">${copy.nav.home}</a>
+          <a href="${homePath}" data-route="${homePath}">${copy.nav.home}</a>
           <a href="#features">${copy.nav.features}</a>
           <a href="${publicTemplatesPath(currentLanguage)}" data-route="${publicTemplatesPath(currentLanguage)}">${copy.nav.templates}</a>
           <a href="#/pricing" data-route="/pricing">${copy.nav.pricing}</a>
@@ -14386,6 +14526,13 @@ function summaryGeneratorCopy(language = currentLanguage) {
       ["Seja direto", "Evite textos longos ou frases vagas."],
       ["Adapte para cada vaga", "O resumo pode mudar conforme a oportunidade."],
     ],
+    useTitle: "Como usar esse resumo no curr\u00edculo",
+    useSteps: [
+      ["Revise o texto", "Confira se o resumo representa sua experi\u00eancia real e ajuste detalhes antes de enviar."],
+      ["Cole no campo Resumo Profissional", "Use o texto no in\u00edcio do curr\u00edculo, logo abaixo dos seus dados principais."],
+      ["Escolha um modelo claro", "Prefira um layout com boa leitura, se\u00e7\u00f5es organizadas e espa\u00e7o suficiente para experi\u00eancias."],
+      ["Adapte para cada vaga", "Inclua palavras importantes da oportunidade sem exagerar nem inventar informa\u00e7\u00f5es."],
+    ],
     errorsTitle: "Erros comuns no resumo profissional",
     errors: [
       ["Escrever um texto genérico demais", "Exemplo ruim: “Sou uma pessoa esforçada e quero uma oportunidade.”"],
@@ -14411,11 +14558,10 @@ function summaryGeneratorCopy(language = currentLanguage) {
     related: [
       ["/pt", "Início da Succeedora"],
       ["/pt/modelos", "Modelos de currículo"],
-      ["/pt/ferramentas/verificador-curriculo", "Verificador de currículo"],
-      ["/pt/ferramentas/gerador-habilidades-curriculo", "Gerador de habilidades"],
-      ["/pt/ferramentas/gerador-carta-apresentacao", "Gerador de carta de apresentação"],
       ["/pt/blog/o-que-colocar-no-resumo-profissional", "O que colocar no resumo profissional"],
       ["/pt/blog/como-fazer-curriculo-profissional", "Como fazer currículo profissional"],
+      ["/pt/blog/curriculo-primeiro-emprego", "Curr\u00edculo para primeiro emprego"],
+      ["/pt/blog/o-que-e-curriculo-ats", "O que \u00e9 curr\u00edculo ATS"],
     ],
     routeHome: "/pt",
     routeSignup: "/signup",
@@ -14485,6 +14631,13 @@ function summaryGeneratorCopy(language = currentLanguage) {
       ["Be direct", "Avoid long text and vague phrases."],
       ["Adapt it for each role", "Your summary can change depending on the opportunity."],
     ],
+    useTitle: "How to use this summary in your resume",
+    useSteps: [
+      ["Review the text", "Make sure the summary reflects your real experience and adjust details before sending it."],
+      ["Paste it into the Professional Summary field", "Place the text near the top of your resume, below your main contact details."],
+      ["Choose a clear template", "Use a readable layout with organized sections and enough space for your experience."],
+      ["Adapt it for each job", "Include relevant words from the role without exaggerating or inventing information."],
+    ],
     errorsTitle: "Common professional summary mistakes",
     errors: [
       ["Writing something too generic", "Weak example: “I am hardworking and want an opportunity.”"],
@@ -14510,11 +14663,10 @@ function summaryGeneratorCopy(language = currentLanguage) {
     related: [
       ["/en", "Succeedora home"],
       ["/en/templates", "Resume templates"],
-      ["/en/tools/resume-checker", "Resume checker"],
-      ["/en/tools/resume-skills-generator", "Resume skills generator"],
-      ["/en/tools/cover-letter-generator", "Cover letter generator"],
       ["/en/blog/professional-summary-examples", "Professional summary examples"],
       ["/en/blog/how-to-create-a-professional-resume", "How to create a professional resume"],
+      ["/en/blog/first-job-resume", "First job resume"],
+      ["/en/blog/what-is-an-ats-resume", "What is an ATS resume"],
     ],
     routeHome: "/en",
     routeSignup: "/signup",
@@ -14535,6 +14687,14 @@ function publicTemplatesAlternates() {
     { hreflang: "pt-BR", href: seoUrl(publicTemplatesPath("pt")) },
     { hreflang: "en", href: seoUrl(publicTemplatesPath("en")) },
     { hreflang: "x-default", href: seoUrl(publicTemplatesPath("en")) },
+  ];
+}
+
+function aboutAlternates() {
+  return [
+    { hreflang: "pt-BR", href: seoUrl(aboutPath("pt")) },
+    { hreflang: "en", href: seoUrl(aboutPath("en")) },
+    { hreflang: "x-default", href: seoUrl(aboutPath("en")) },
   ];
 }
 
@@ -15194,6 +15354,11 @@ function renderProfessionalSummaryGeneratorPage() {
           <div class="summary-step-list">${copy.how.map(([title, text], index) => `<article><span>${String(index + 1).padStart(2, "0")}</span><h3>${title}</h3><p>${text}</p></article>`).join("")}</div>
         </section>
 
+        <section class="section summary-use-section">
+          <div class="section-heading left"><span class="eyebrow">Succeedora</span><h2>${copy.useTitle}</h2></div>
+          <div class="summary-step-list">${copy.useSteps.map(([title, text], index) => `<article><span>${String(index + 1).padStart(2, "0")}</span><h3>${title}</h3><p>${text}</p></article>`).join("")}</div>
+        </section>
+
         <section class="section summary-mistakes-section">
           <div class="section-heading left"><span class="eyebrow">Succeedora</span><h2>${copy.errorsTitle}</h2></div>
           <div class="summary-mistake-list">${copy.errors.map(([title, text]) => `<article><h3>${title}</h3><p>${text}</p></article>`).join("")}</div>
@@ -15233,6 +15398,11 @@ function renderProfessionalSummaryGeneratorPage() {
     ogTitle: copy.seo.ogTitle,
     ogDescription: copy.seo.ogDescription,
     alternates: summaryToolAlternates(),
+    faq: copy.faq,
+    softwareApplication: {
+      name: copy.title,
+      inLanguage: currentLanguage === "pt" ? "pt-BR" : "en",
+    },
   });
 }
 
@@ -15349,7 +15519,7 @@ function renderHome() {
           <div class="template-grid">${homeTemplates.map((template, index) => templateCard(template, index, false)).join("")}</div>
           <div class="templates-cta">
             <h3>${p.templatesCtaTitle}</h3>
-            <a class="secondary-button" href="#/templates" data-route="/templates">${viewAllTemplatesLabel}</a>
+            <a class="secondary-button" href="${publicTemplatesPath(currentLanguage)}" data-route="${publicTemplatesPath(currentLanguage)}">${viewAllTemplatesLabel}</a>
             <a class="primary-button" href="#/signup" data-route="/signup">${p.primaryCta} ${icon("arrow")}</a>
           </div>
         </section>
@@ -15379,6 +15549,11 @@ function renderHome() {
     canonical: seoUrl(getRoute() === "/pt" ? "/pt" : getRoute() === "/en" ? "/en" : "/"),
     ogTitle: seo.title,
     ogDescription: seo.description,
+    faq: p.faq,
+    softwareApplication: {
+      name: "Succeedora",
+      inLanguage: currentLanguage === "pt" ? "pt-BR" : "en",
+    },
   });
 }
 
@@ -16057,7 +16232,113 @@ function renderPaymentCancel() {
 
 function legalFooterLinks() {
   const copy = t();
-  return `<nav class="legal-footer-links"><a href="${blogRootPath(currentLanguage)}" data-route="/blog">${copy.nav.blog}</a><a href="#/terms" data-route="/terms">${copy.nav.termsShort}</a><a href="#/privacy" data-route="/privacy">${copy.nav.privacyShort}</a><a href="#/contact" data-route="/contact">${copy.nav.contact}</a></nav>`;
+  const companyLabel = currentLanguage === "pt" ? "Empresa" : "Company";
+  const aboutLabel = currentLanguage === "pt" ? "Sobre" : "About";
+  return `
+    <nav class="legal-footer-links" aria-label="${currentLanguage === "pt" ? "Links do rodap\u00e9" : "Footer links"}">
+      <span class="footer-link-group"><strong>${companyLabel}</strong><a href="${aboutPath(currentLanguage)}" data-route="${aboutPath(currentLanguage)}">${aboutLabel}</a><a href="${blogRootPath(currentLanguage)}" data-route="/blog">${copy.nav.blog}</a></span>
+      <span class="footer-link-group"><strong>${currentLanguage === "pt" ? "Legal" : "Legal"}</strong><a href="#/terms" data-route="/terms">${copy.nav.termsShort}</a><a href="#/privacy" data-route="/privacy">${copy.nav.privacyShort}</a><a href="#/contact" data-route="/contact">${copy.nav.contact}</a></span>
+    </nav>
+  `;
+}
+
+function aboutPageCopy() {
+  return currentLanguage === "pt" ? {
+    title: "Sobre a Succeedora",
+    subtitle: "A Succeedora ajuda pessoas a criarem curr\u00edculos profissionais, cartas de apresenta\u00e7\u00e3o e materiais de candidatura com mais clareza, organiza\u00e7\u00e3o e confian\u00e7a.",
+    stats: ["Plataforma global", "Portugu\u00eas e ingl\u00eas", "Documentos profissionais"],
+    sections: [
+      ["O que \u00e9 a Succeedora", "A Succeedora \u00e9 uma plataforma global criada para simplificar a forma como pessoas constroem e melhoram seus curr\u00edculos. Com modelos profissionais, ferramentas inteligentes e recursos de organiza\u00e7\u00e3o, a plataforma ajuda usu\u00e1rios a transformar suas experi\u00eancias em documentos claros, bem estruturados e prontos para novas oportunidades."],
+      ["Para quem \u00e9", "A Succeedora foi pensada para estudantes, rec\u00e9m-formados, profissionais em transi\u00e7\u00e3o de carreira, pessoas buscando recoloca\u00e7\u00e3o, candidatos a vagas internacionais e qualquer pessoa que queira apresentar sua trajet\u00f3ria profissional de forma mais organizada."],
+      ["Nosso foco", "Nosso objetivo \u00e9 ajudar pessoas a se apresentarem melhor profissionalmente, com curr\u00edculos mais claros, textos mais bem organizados e ferramentas que tornam o processo de candidatura mais simples."],
+      ["Aviso respons\u00e1vel", "A Succeedora n\u00e3o garante emprego, entrevistas ou aprova\u00e7\u00e3o em sistemas ATS. A plataforma oferece ferramentas para melhorar a apresenta\u00e7\u00e3o profissional, mas cada processo seletivo depende de v\u00e1rios fatores externos, como requisitos da vaga, experi\u00eancia, mercado e crit\u00e9rios da empresa."],
+    ],
+    helpTitle: "Como a Succeedora ajuda",
+    helpCards: [
+      ["file", "Cria\u00e7\u00e3o de curr\u00edculo profissional", "Organize experi\u00eancia, forma\u00e7\u00e3o, habilidades e informa\u00e7\u00f5es de contato em uma estrutura clara."],
+      ["layout", "Modelos modernos", "Escolha layouts profissionais com hierarquia visual limpa e leitura objetiva."],
+      ["download", "Exporta\u00e7\u00e3o em PDF", "Prepare um documento final com apar\u00eancia consistente para compartilhar em processos seletivos."],
+      ["mail", "Carta de apresenta\u00e7\u00e3o", "Crie textos de candidatura alinhados ao seu perfil e ao contexto da vaga."],
+      ["sparkles", "An\u00e1lise e melhoria de conte\u00fado", "Revise resumos, experi\u00eancias e palavras importantes com apoio de ferramentas inteligentes."],
+      ["globe", "Tradu\u00e7\u00e3o e adapta\u00e7\u00e3o para vagas", "Ajuste o curr\u00edculo para diferentes idiomas, pa\u00edses e oportunidades."],
+    ],
+    ctaTitle: "Comece pelo seu curr\u00edculo",
+    ctaText: "Crie uma vers\u00e3o profissional do seu curr\u00edculo, escolha um modelo e organize suas informa\u00e7\u00f5es em poucos minutos.",
+    primary: "Criar meu curr\u00edculo",
+    secondary: "Ver modelos",
+  } : {
+    title: "About Succeedora",
+    subtitle: "Succeedora helps people create professional resumes, cover letters and career documents with more clarity, structure and confidence.",
+    stats: ["Global platform", "English and Portuguese", "Professional documents"],
+    sections: [
+      ["What Succeedora is", "Succeedora is a global platform designed to simplify how people build and improve their resumes. With professional templates, smart tools and structured workflows, the platform helps users turn their experience into clear, organized and opportunity-ready career documents."],
+      ["Who it is for", "Succeedora is made for students, recent graduates, career changers, job seekers, international applicants and professionals who want to present their background in a more organized and professional way."],
+      ["Our focus", "Our goal is to help people present themselves better professionally through clearer resumes, better-structured content and tools that make the application process easier."],
+      ["Responsible notice", "Succeedora does not guarantee jobs, interviews or ATS approval. The platform provides tools to improve professional presentation, but each hiring process depends on external factors such as job requirements, experience, market conditions and employer criteria."],
+    ],
+    helpTitle: "How Succeedora helps",
+    helpCards: [
+      ["file", "Professional resume creation", "Organize experience, education, skills and contact details in a clear structure."],
+      ["layout", "Modern templates", "Choose professional layouts with clean visual hierarchy and focused reading."],
+      ["download", "PDF export", "Prepare a consistent final document to share during application processes."],
+      ["mail", "Cover letters", "Create application letters aligned with your background and the role context."],
+      ["sparkles", "Content improvement", "Review summaries, experience and important wording with support from smart tools."],
+      ["globe", "Translation and job tailoring", "Adjust your resume for different languages, countries and opportunities."],
+    ],
+    ctaTitle: "Start with your resume",
+    ctaText: "Create a professional version of your resume, choose a template and organize your information in minutes.",
+    primary: "Create my resume",
+    secondary: "View templates",
+  };
+}
+
+function renderAboutPage() {
+  const page = aboutPageCopy();
+  const seo = localizedSeo("about");
+  const path = aboutPath(currentLanguage);
+  mount(`
+    <div class="public-shell about-shell">
+      ${publicHeader()}
+      <main class="about-page">
+        <section class="about-hero">
+          <div class="about-hero-copy">
+            <span class="eyebrow">Succeedora</span>
+            <h1>${page.title}</h1>
+            <p>${page.subtitle}</p>
+            <div class="about-hero-tags">${page.stats.map((item) => `<span>${item}</span>`).join("")}</div>
+          </div>
+          <div class="about-visual" aria-hidden="true">
+            <div class="about-document-panel"><b></b><i></i><i></i><i></i><span></span></div>
+            <div class="about-signal-panel"><strong>ATS</strong><span></span><span></span></div>
+          </div>
+        </section>
+        <section class="about-grid">
+          ${page.sections.slice(0, 2).map(([title, text]) => `<article class="about-info-card"><h2>${title}</h2><p>${text}</p></article>`).join("")}
+        </section>
+        <section class="about-help-section">
+          <div class="section-heading"><span class="eyebrow">Succeedora</span><h2>${page.helpTitle}</h2></div>
+          <div class="about-help-grid">${page.helpCards.map(([iconName, title, text]) => `<article class="about-help-card">${icon(iconName)}<h3>${title}</h3><p>${text}</p></article>`).join("")}</div>
+        </section>
+        <section class="about-grid about-focus-grid">
+          ${page.sections.slice(2).map(([title, text]) => `<article class="about-info-card ${title.toLowerCase().includes("notice") || title.toLowerCase().includes("respons") || title.toLowerCase().includes("aviso") ? "is-notice" : ""}"><h2>${title}</h2><p>${text}</p></article>`).join("")}
+        </section>
+        <section class="about-final-cta">
+          <div><span class="eyebrow">Succeedora</span><h2>${page.ctaTitle}</h2><p>${page.ctaText}</p></div>
+          <div class="about-final-actions">
+            <a class="primary-button" href="#/signup" data-route="/signup">${page.primary}</a>
+            <a class="secondary-button" href="${publicTemplatesPath(currentLanguage)}" data-route="${publicTemplatesPath(currentLanguage)}">${page.secondary}</a>
+          </div>
+        </section>
+      </main>
+      <footer class="site-footer">${brandLogo("div")}<p>${currentLanguage === "pt" ? "Crie documentos de carreira com mais clareza e organiza\u00e7\u00e3o." : "Create career documents with more clarity and structure."}</p>${legalFooterLinks()}</footer>
+    </div>
+  `, {
+    ...seo,
+    canonical: seoUrl(path),
+    ogTitle: seo.title,
+    ogDescription: seo.description,
+    alternates: aboutAlternates(),
+  });
 }
 
 function renderLegalPage(type) {
@@ -16407,6 +16688,18 @@ function renderBlogArticlePage(slug) {
     ogDescription: post.metaDescription,
     type: "article",
     alternates: blogArticleAlternates(post),
+    structuredData: [{
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: post.title,
+      description: post.metaDescription,
+      datePublished: post.publishedDate,
+      dateModified: post.publishedDate,
+      inLanguage: post.language === "pt" ? "pt-BR" : "en",
+      mainEntityOfPage: seoUrl(blogPostPath(post.slug, post.language)),
+      author: { "@type": "Organization", name: "Succeedora", url: SITE_ORIGIN },
+      publisher: { "@type": "Organization", name: "Succeedora", url: SITE_ORIGIN, logo: `${SITE_ORIGIN}/assets/brand/succeedora-logo-premium-96.png` },
+    }],
   });
 }
 
@@ -16522,8 +16815,9 @@ function renderBlogArticleBlock(block = {}) {
     `;
   }
   if (block.type === "cta") {
-    const route = block.route || "/signup";
-    const href = route === "/templates" ? "#/templates" : route === "/dashboard/ai" ? "#/dashboard/ai" : "#/signup";
+    const requestedRoute = block.route || "/signup";
+    const route = requestedRoute === "/templates" ? publicTemplatesPath(currentLanguage) : requestedRoute;
+    const href = route === publicTemplatesPath(currentLanguage) ? route : route === "/dashboard/ai" ? "#/dashboard/ai" : "#/signup";
     return `
       <aside class="blog-inline-cta">
         <div>
