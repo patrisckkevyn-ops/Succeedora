@@ -20,6 +20,10 @@ const ADMIN_AUDIT_LOG_STORAGE_KEY = "succeedora.adminAuditLog";
 const AI_USAGE_STORAGE_KEY = "succeedora.aiUsage";
 const ONBOARDING_GUIDE_STORAGE_KEY = "succeedora.onboardingGuide";
 const SUPPORT_TICKETS_STORAGE_KEY = "succeedora_support_tickets";
+const PENDING_SUMMARY_STORAGE_KEY = "succeedora_pending_summary";
+const IMPORTED_SUMMARY_NOTICE_STORAGE_KEY = "succeedora_imported_summary_notice";
+const SUMMARY_GENERATION_COUNT_STORAGE_KEY = "succeedora.summaryGeneratorCount";
+const SUMMARY_FREE_GENERATION_LIMIT = 2;
 const SITE_ORIGIN = "https://succeedora.com";
 const TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 const ADMIN_EMAILS = ["patrisckkevyn@gmail.com"];
@@ -1872,14 +1876,14 @@ Object.assign(I18N.pt, {
 Object.assign(I18N.en, {
   security: {
     verificationTitle: "Security verification",
-    verificationError: "Could not confirm the security verification. Please try again.",
+    verificationError: "Could not validate bot protection. Please try again.",
   },
 });
 
 Object.assign(I18N.pt, {
   security: {
     verificationTitle: "Verifica\u00e7\u00e3o de seguran\u00e7a",
-    verificationError: "N\u00e3o foi poss\u00edvel confirmar a verifica\u00e7\u00e3o de seguran\u00e7a. Tente novamente.",
+    verificationError: "N\u00e3o foi poss\u00edvel validar a prote\u00e7\u00e3o contra bots. Tente novamente.",
   },
 });
 
@@ -1897,6 +1901,8 @@ const routes = {
   "/payment/success": renderPaymentSuccess,
   "/payment/cancel": renderPaymentCancel,
   "/templates": renderPublicTemplatesPage,
+  "/pt/modelos": renderPublicTemplatesPage,
+  "/en/templates": renderPublicTemplatesPage,
   "/blog": renderBlogPage,
   "/login": renderSignIn,
   "/signin": renderSignIn,
@@ -1952,7 +1958,7 @@ const PRIVATE_ROUTES = new Set([
   "/admin/settings",
 ]);
 
-const PUBLIC_CLEAN_ROUTES = new Set(["/pricing", "/terms", "/privacy", "/contact", "/templates", "/pt/ferramentas/gerador-resumo-profissional", "/en/tools/professional-summary-generator"]);
+const PUBLIC_CLEAN_ROUTES = new Set(["/pricing", "/terms", "/privacy", "/contact", "/templates", "/pt/modelos", "/en/templates", "/pt/ferramentas/gerador-resumo-profissional", "/en/tools/professional-summary-generator"]);
 
 const NOINDEX_ROUTES = new Set([
   "/login",
@@ -4844,6 +4850,100 @@ function startNewResume(template = selectedTemplateKey) {
   activeBuilderSectionIndex = 0;
 }
 
+function pendingSummaryDraft() {
+  try {
+    const stored = localStorage.getItem(PENDING_SUMMARY_STORAGE_KEY) || sessionStorage.getItem(PENDING_SUMMARY_STORAGE_KEY) || "null";
+    const parsed = JSON.parse(stored);
+    const summary = String(parsed?.summary || "").trim();
+    if (!summary) return null;
+    return {
+      summary,
+      language: String(parsed.language || currentLanguage || "").trim(),
+      source: String(parsed.source || "").trim(),
+      createdAt: String(parsed.createdAt || "").trim(),
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
+function clearPendingSummaryDraft() {
+  try {
+    localStorage.removeItem(PENDING_SUMMARY_STORAGE_KEY);
+    sessionStorage.removeItem(PENDING_SUMMARY_STORAGE_KEY);
+  } catch (error) {
+    // Best effort after importing the summary into the builder.
+  }
+}
+
+function savePendingSummaryDraft(summary = "", language = currentLanguage) {
+  const text = String(summary || "").trim();
+  if (!text) return null;
+  const payload = {
+    summary: text,
+    language: language === "pt" ? "pt-BR" : "en",
+    source: "free-summary-generator",
+    createdAt: new Date().toISOString(),
+  };
+  try {
+    const serialized = JSON.stringify(payload);
+    localStorage.setItem("succeedora.publicSummaryDraft", text);
+    localStorage.setItem(PENDING_SUMMARY_STORAGE_KEY, serialized);
+    sessionStorage.setItem(PENDING_SUMMARY_STORAGE_KEY, serialized);
+  } catch (error) {
+    // The clipboard and visible text still keep the summary available.
+  }
+  return payload;
+}
+
+function importedSummaryNoticePending() {
+  try {
+    return sessionStorage.getItem(IMPORTED_SUMMARY_NOTICE_STORAGE_KEY) === "true";
+  } catch (error) {
+    return false;
+  }
+}
+
+function markImportedSummaryNoticePending() {
+  try {
+    sessionStorage.setItem(IMPORTED_SUMMARY_NOTICE_STORAGE_KEY, "true");
+  } catch (error) {
+    // Notice is progressive enhancement.
+  }
+}
+
+function clearImportedSummaryNoticePending() {
+  try {
+    sessionStorage.removeItem(IMPORTED_SUMMARY_NOTICE_STORAGE_KEY);
+  } catch (error) {
+    // Notice is progressive enhancement.
+  }
+}
+
+function googleOAuthReturnRoute() {
+  if (pendingSummaryDraft()) return "/dashboard/builder";
+  return "/dashboard";
+}
+
+function applyPendingSummaryToBuilder() {
+  const pending = pendingSummaryDraft();
+  if (!pending) return false;
+  const draft = ensureBuilderDraft();
+  builderDraft = normalizeResume({
+    ...draft,
+    summary: pending.summary,
+    updatedAt: isoNow(),
+  });
+  currentBuilderResumeId = builderDraft.id;
+  selectedTemplateKey = builderDraft.selectedTemplate;
+  selectedDocumentFormat = builderDraft.documentFormat;
+  builderSaveState = "unsaved";
+  activeBuilderSectionIndex = 1;
+  markImportedSummaryNoticePending();
+  clearPendingSummaryDraft();
+  return true;
+}
+
 function useTemplateForBuilder(templateKey) {
   selectedTemplateKey = availableTemplateKey(templateKey || selectedTemplateKey);
   if (pendingTemplateChangeDraft) {
@@ -6278,6 +6378,10 @@ function professionalSummaryGeneratorPath(language = currentLanguage) {
   return language === "pt" ? "/pt/ferramentas/gerador-resumo-profissional" : "/en/tools/professional-summary-generator";
 }
 
+function publicTemplatesPath(language = currentLanguage) {
+  return language === "pt" ? "/pt/modelos" : "/en/templates";
+}
+
 function shouldUseLocalizedPath() {
   return window.location.protocol === "http:" || window.location.protocol === "https:";
 }
@@ -6332,6 +6436,12 @@ function setRoute(path) {
   }
   if ((path === professionalSummaryGeneratorPath("pt") || path === professionalSummaryGeneratorPath("en")) && shouldUseLocalizedPath()) {
     currentLanguage = path === professionalSummaryGeneratorPath("pt") ? "pt" : "en";
+    window.history.pushState(null, "", path);
+    render();
+    return;
+  }
+  if ((path === publicTemplatesPath("pt") || path === publicTemplatesPath("en")) && shouldUseLocalizedPath()) {
+    currentLanguage = path === publicTemplatesPath("pt") ? "pt" : "en";
     window.history.pushState(null, "", path);
     render();
     return;
@@ -10286,11 +10396,16 @@ function bindInteractions() {
   bindAdminInteractions();
   bindSummaryGeneratorInteractions();
   document.querySelectorAll("[data-google-auth]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
       button.disabled = true;
       button.innerHTML = `${googleIcon()} <span>${escapeHtml(t().auth.googleSigningIn || "Signing in with Google...")}</span>`;
-      const returnTo = encodeURIComponent(intendedRoute() || "/dashboard");
-      window.location.href = `/api/auth/google/start?lang=${encodeURIComponent(currentLanguage)}&returnTo=${returnTo}`;
+      const returnRoute = googleOAuthReturnRoute();
+      rememberIntendedRoute(returnRoute);
+      const authUrl = new URL("/api/auth/google/start", window.location.origin);
+      authUrl.searchParams.set("lang", currentLanguage === "pt" ? "pt" : "en");
+      authUrl.searchParams.set("returnTo", returnRoute);
+      window.location.assign(authUrl.toString());
     });
   });
 
@@ -11288,6 +11403,11 @@ function bindInteractions() {
       if (!isTemplateActive(getTemplateByKey(templateKey))) return;
       if (destination === "signup") {
         selectedTemplateKey = templateKey;
+        rememberIntendedRoute("/dashboard/builder");
+        if (isLoggedIn()) {
+          openBuilderWithTemplate(templateKey);
+          return;
+        }
         setRoute("/signup");
         return;
       }
@@ -14182,7 +14302,7 @@ function publicHeader() {
         <div class="public-nav-center">
           <a href="#/" data-route="/">${copy.nav.home}</a>
           <a href="#features">${copy.nav.features}</a>
-          <a href="#/templates" data-route="/templates">${copy.nav.templates}</a>
+          <a href="${publicTemplatesPath(currentLanguage)}" data-route="${publicTemplatesPath(currentLanguage)}">${copy.nav.templates}</a>
           <a href="#/pricing" data-route="/pricing">${copy.nav.pricing}</a>
           <a href="${blogRootPath(currentLanguage)}" data-route="/blog">${copy.nav.blog}</a>
         </div>
@@ -14231,13 +14351,17 @@ function summaryGeneratorCopy(language = currentLanguage) {
     },
     generate: "Gerar resumo profissional",
     resultTitle: "Seu resumo profissional",
-    options: ["Mais direta", "Mais profissional", "Mais confiante"],
-    actions: { copy: "Copiar", edit: "Editar", use: "Usar em um currículo", again: "Gerar novamente" },
-    copied: "Resumo copiado com sucesso.",
-    fillHint: "Preencha pelo menos o cargo ou a área profissional para gerar um resumo mais útil.",
+    options: ["Mais direto", "Mais profissional", "Mais confiante"],
+    actions: { copy: "Copiar resumo", edit: "Editar", use: "Copiar e criar currículo completo", again: "Gerar novamente" },
+    copied: "Resumo copiado.",
+    continueCopied: "Resumo copiado. Agora escolha um modelo para criar seu currículo.",
+    resultNotice: "Antes de continuar, copie seu resumo. Na próxima etapa, você poderá escolher um modelo e colar ou revisar esse texto no seu currículo.",
+    pendingNotice: "Você tem um resumo profissional copiado da ferramenta gratuita. Escolha um modelo e cole ou revise esse texto no campo Resumo Profissional.",
+    importedNotice: "Resumo profissional importado da ferramenta gratuita. Revise antes de salvar.",
+    fillHint: "Preencha pelo menos cargo ou área, nível profissional e algumas habilidades para gerar um resumo melhor.",
     ctaTitle: "Gostou do resumo?",
     ctaText: "Use este texto em um currículo profissional completo. Escolha um modelo, adicione suas experiências e baixe em PDF pela Succeedora.",
-    ctaPrimary: "Criar currículo com este resumo",
+    ctaPrimary: "Copiar e criar currículo completo",
     ctaSecondary: "Ver modelos de currículo",
     examplesTitle: "Exemplos de resumo profissional",
     examplesSubtitle: "Veja exemplos que você pode adaptar conforme sua experiência e área.",
@@ -14295,7 +14419,7 @@ function summaryGeneratorCopy(language = currentLanguage) {
     ],
     routeHome: "/pt",
     routeSignup: "/signup",
-    routeTemplates: "/templates",
+    routeTemplates: "/pt/modelos",
   } : {
     seo: {
       title: "Free Professional Summary Generator | Succeedora",
@@ -14327,12 +14451,16 @@ function summaryGeneratorCopy(language = currentLanguage) {
     generate: "Generate professional summary",
     resultTitle: "Your professional summary",
     options: ["Direct", "Professional", "Confident"],
-    actions: { copy: "Copy", edit: "Edit", use: "Use in a resume", again: "Generate again" },
-    copied: "Summary copied successfully.",
-    fillHint: "Enter at least a role or professional field to generate a more useful summary.",
+    actions: { copy: "Copy summary", edit: "Edit", use: "Copy and create full resume", again: "Generate again" },
+    copied: "Summary copied.",
+    continueCopied: "Summary copied. Now choose a template to create your resume.",
+    resultNotice: "Before continuing, copy your summary. In the next step, you can choose a template and paste or review this text in your resume.",
+    pendingNotice: "You have a professional summary copied from the free tool. Choose a template and paste or review this text in the Professional Summary field.",
+    importedNotice: "Professional summary imported from the free tool. Review it before saving.",
+    fillHint: "Fill in at least your role or field, career level and a few skills to generate a better summary.",
     ctaTitle: "Like the summary?",
     ctaText: "Use this text in a complete professional resume. Choose a template, add your experience and export it as a PDF with Succeedora.",
-    ctaPrimary: "Create resume with this summary",
+    ctaPrimary: "Copy and create full resume",
     ctaSecondary: "View resume templates",
     examplesTitle: "Professional summary examples",
     examplesSubtitle: "Use these examples as a starting point and adapt them to your experience and field.",
@@ -14390,7 +14518,7 @@ function summaryGeneratorCopy(language = currentLanguage) {
     ],
     routeHome: "/en",
     routeSignup: "/signup",
-    routeTemplates: "/templates",
+    routeTemplates: "/en/templates",
   };
 }
 
@@ -14442,7 +14570,7 @@ function splitSummarySkills(value = "") {
   return String(value || "").split(/,|\n|;/).map((item) => item.trim()).filter(Boolean).slice(0, 5);
 }
 
-function generatedSummaryOptions(data = {}, language = currentLanguage) {
+function legacyGeneratedSummaryOptions(data = {}, language = currentLanguage) {
   const isPt = language === "pt";
   const role = String(data.role || "").trim();
   const field = String(data.field || "").trim();
@@ -14483,6 +14611,263 @@ function generatedSummaryOptions(data = {}, language = currentLanguage) {
   return baseOptions;
 }
 
+function normalizeSummaryText(value = "") {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function summaryIsFirstJob(data = {}) {
+  return /primeiro emprego|first job/.test(normalizeSummaryText(`${data.level || ""} ${data.experience || ""}`));
+}
+
+function summaryHasNoExperience(data = {}) {
+  return summaryIsFirstJob(data) || /sem experiencia|no experience/.test(normalizeSummaryText(`${data.level || ""} ${data.experience || ""}`));
+}
+
+function hasEnoughSummaryInput(data = {}) {
+  const skills = splitSummarySkills(data.skills);
+  return Boolean(String(data.role || data.field || "").trim() && String(data.level || "").trim() && skills.length >= 2);
+}
+
+function joinSummaryList(items = [], language = currentLanguage) {
+  const values = items.map((item) => String(item || "").trim()).filter(Boolean);
+  if (values.length <= 1) return values[0] || "";
+  const connector = language === "pt" ? " e " : " and ";
+  return `${values.slice(0, -1).join(", ")}${connector}${values[values.length - 1]}`;
+}
+
+function lowercaseFirst(value = "") {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  return `${text.charAt(0).toLowerCase()}${text.slice(1)}`;
+}
+
+function structuredSummaryExperiencePhrase(data = {}, language = currentLanguage) {
+  const isPt = language === "pt";
+  const normalizedLevel = normalizeSummaryText(data.level);
+  const normalizedExperience = normalizeSummaryText(data.experience);
+  const combined = `${normalizedLevel} ${normalizedExperience}`;
+  if (/primeiro emprego|first job/.test(combined)) return isPt ? "em início de carreira" : "entry-level";
+  if (/sem experiencia|no experience/.test(combined)) return isPt ? "perfil em desenvolvimento" : "developing profile";
+  if (/menos de 1|less than 1/.test(normalizedExperience)) return isPt ? "menos de 1 ano de experiência" : "less than 1 year of experience";
+  if (/1 a 2|1 to 2/.test(normalizedExperience)) return isPt ? "1 a 2 anos de experiência" : "1 to 2 years of experience";
+  if (/3 a 5|3 to 5/.test(normalizedExperience)) return isPt ? "3 a 5 anos de experiência" : "3 to 5 years of experience";
+  if (/mais de 5|more than 5/.test(normalizedExperience)) return isPt ? "mais de 5 anos de experiência" : "more than 5 years of experience";
+  if (/estagio|intern/.test(normalizedLevel)) return isPt ? "perfil de estágio" : "internship-level profile";
+  if (/junior/.test(normalizedLevel)) return isPt ? "perfil júnior" : "junior profile";
+  if (/pleno|mid/.test(normalizedLevel)) return isPt ? "perfil pleno" : "mid-level profile";
+  if (/senior/.test(normalizedLevel)) return isPt ? "perfil sênior" : "senior profile";
+  if (/lider|leadership/.test(normalizedLevel)) return isPt ? "perfil de liderança" : "leadership profile";
+  if (/transicao|career change/.test(normalizedLevel)) return isPt ? "em transição de carreira" : "in career transition";
+  return isPt ? "foco em desenvolvimento profissional" : "focused on professional development";
+}
+
+function summaryConfidentLevelPhrase(levelPhrase = "", language = currentLanguage) {
+  const text = String(levelPhrase || "").trim();
+  if (language === "pt") {
+    if (/^perfil\s+/i.test(text)) return text.replace(/^perfil\s+/i, "");
+    if (/^foco em\s+/i.test(text)) return `com ${text}`;
+    return text;
+  }
+  return text
+    .replace(/\s+profile$/i, "")
+    .replace(/^with a\s+/i, "");
+}
+
+function summaryTarget(data = {}, language = currentLanguage, mode = "plain") {
+  const isPt = language === "pt";
+  const role = String(data.role || "").trim();
+  const field = String(data.field || "").trim();
+  if (mode === "direct") {
+    if (role) return role;
+    if (field) return isPt ? `Profissional de ${field}` : `${field} professional`;
+  }
+  if (role && field) return isPt ? `${role} na área de ${field}` : `${role} in ${field}`;
+  return role || field || (isPt ? "sua área profissional" : "the selected field");
+}
+
+function summaryGoalAction(value = "", language = currentLanguage) {
+  const isPt = language === "pt";
+  let text = String(value || "").trim().replace(/\s+/g, " ").replace(/[.!?]+$/g, "");
+  if (!text) return "";
+  if (isPt) {
+    text = text
+      .replace(/^(eu\s+)?quero\s+/i, "")
+      .replace(/^gostaria de\s+/i, "")
+      .replace(/^pretendo\s+/i, "")
+      .replace(/^busco\s+/i, "")
+      .replace(/^procuro\s+/i, "")
+      .replace(/^tenho interesse em\s+/i, "")
+      .replace(/^meu objetivo (é|e)\s+/i, "")
+      .replace(/\bonde eu possa\b/gi, "onde possa")
+      .replace(/\bminhas habilidades\b/gi, "suas habilidades")
+      .replace(/\bmeus conhecimentos\b/gi, "seus conhecimentos");
+  } else {
+    text = text
+      .replace(/^i want to\s+/i, "")
+      .replace(/^i would like to\s+/i, "")
+      .replace(/^i am looking to\s+/i, "")
+      .replace(/^looking to\s+/i, "")
+      .replace(/^seeking to\s+/i, "")
+      .replace(/^my goal is to\s+/i, "")
+      .replace(/\bwhere i can\b/gi, "where they can")
+      .replace(/\bmy skills\b/gi, "skills")
+      .replace(/\bmy knowledge\b/gi, "knowledge");
+  }
+  return lowercaseFirst(text);
+}
+
+function summaryGoalEnding(data = {}, language = currentLanguage, variant = "direct") {
+  const isPt = language === "pt";
+  const goal = summaryGoalAction(data.goal, language);
+  const target = summaryTarget(data, language);
+  if (summaryIsFirstJob(data)) {
+    if (variant === "professional") {
+      return goal
+        ? (isPt ? `com foco em ${goal}` : `with focus on ${goal}`)
+        : (isPt ? "com foco em aprendizado, responsabilidade e desenvolvimento profissional" : "with focus on learning, responsibility and professional development");
+    }
+    if (goal) {
+      return isPt
+        ? `busca primeira oportunidade para ${goal}, desenvolver habilidades e crescer profissionalmente`
+        : `seeking a first opportunity to ${goal}, develop skills and grow professionally`;
+    }
+    return isPt
+      ? "busca primeira oportunidade para apoiar rotinas da empresa, desenvolver habilidades e crescer profissionalmente"
+      : "seeking a first opportunity to support company routines, develop skills and grow professionally";
+  }
+  if (goal) {
+    if (variant === "professional") return isPt ? `com foco em ${goal}` : `with focus on ${goal}`;
+    return isPt ? `buscar uma oportunidade para ${goal}` : `seeking an opportunity to ${goal}`;
+  }
+  if (variant === "professional") return isPt ? `com atuação ligada a ${target}` : `with work connected to ${target}`;
+  return isPt ? `contribuir com ${target}` : `contribute to ${target}`;
+}
+
+function summaryProfileTraits(skills = [], data = {}, language = currentLanguage) {
+  const isPt = language === "pt";
+  const text = normalizeSummaryText(skills.join(" "));
+  const traits = [];
+  if (/comunic|communication|customer|cliente|atendimento/.test(text)) traits.push(isPt ? "comunicativo" : "communicative");
+  if (/organiza|organization|process|processo|excel|dados|data|anal/.test(text)) traits.push(isPt ? "organizado" : "organized");
+  if (/lider|lead|gest|management/.test(text)) traits.push(isPt ? "colaborativo" : "collaborative");
+  if (/respons|aprendiz|learning|learn/.test(text) || summaryIsFirstJob(data)) traits.push(isPt ? "responsável" : "responsible");
+  const unique = [...new Set(traits)].slice(0, 2);
+  if (unique.length) return joinSummaryList(unique, language);
+  return isPt ? "responsável e prático" : "responsible and practical";
+}
+
+function summaryContributionTraits(skills = [], data = {}, language = currentLanguage) {
+  const isPt = language === "pt";
+  const text = normalizeSummaryText(skills.join(" "));
+  const traits = [];
+  if (/organiza|organization|process|processo|excel|dados|data|anal/.test(text)) traits.push(isPt ? "organização" : "organization");
+  if (/comunic|communication|customer|cliente|atendimento/.test(text)) traits.push(isPt ? "comunicação clara" : "clear communication");
+  if (/lider|lead|gest|management/.test(text)) traits.push(isPt ? "colaboração" : "collaboration");
+  if (/respons|aprendiz|learning|learn/.test(text) || summaryIsFirstJob(data)) traits.push(isPt ? "responsabilidade" : "responsibility");
+  const unique = [...new Set(traits)].slice(0, 3);
+  if (unique.length) return joinSummaryList(unique, language);
+  return isPt ? "organização, responsabilidade e aprendizado contínuo" : "organization, responsibility and continuous learning";
+}
+
+function summarySimilarity(a = "", b = "") {
+  const stopwords = new Set(["de", "da", "do", "em", "com", "para", "por", "que", "uma", "um", "and", "the", "with", "for", "to", "in", "of"]);
+  const tokens = (text) => normalizeSummaryText(text)
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((token) => token.length > 2 && !stopwords.has(token));
+  const left = new Set(tokens(a));
+  const right = new Set(tokens(b));
+  if (!left.size || !right.size) return 0;
+  const intersection = [...left].filter((token) => right.has(token)).length;
+  return (2 * intersection) / (left.size + right.size);
+}
+
+function summaryOpeningKey(text = "") {
+  return normalizeSummaryText(text).replace(/[^a-z0-9\s]/g, " ").trim().split(/\s+/).slice(0, 2).join(" ");
+}
+
+function ensureDistinctSummaryOptions(options = [], context = {}, language = currentLanguage) {
+  const isPt = language === "pt";
+  const alternateProfessional = isPt
+    ? `Com atuação ou interesse em ${context.target}, apresenta perfil ${context.profileTraits} e conhecimento em ${context.professionalSkills}. Busca contribuir em ambientes profissionais ${context.professionalGoal}, mantendo foco em organização, responsabilidade e desenvolvimento contínuo.`
+    : `With experience or interest in ${context.target}, this profile is ${context.profileTraits} and brings knowledge in ${context.professionalSkills}. Seeks to contribute in professional environments ${context.professionalGoal}, while staying focused on organization, responsibility and continuous development.`;
+  const alternateConfident = isPt
+    ? `Perfil ${context.confidentLevelPhrase} em ${context.target}, com foco em ${context.confidentSkills} e capacidade de apoiar resultados por meio de ${context.contributionTraits}. ${context.confidentEnding}`
+    : `${context.confidentLevelPhrase} profile in ${context.target}, focused on ${context.confidentSkills} and able to support results through ${context.contributionTraits}. ${context.confidentEnding}`;
+  const adjusted = [...options];
+  for (let i = 0; i < adjusted.length; i += 1) {
+    for (let j = i + 1; j < adjusted.length; j += 1) {
+      if (summarySimilarity(adjusted[i], adjusted[j]) > 0.7) {
+        adjusted[j] = j === 1 ? alternateProfessional : alternateConfident;
+      }
+    }
+  }
+  if (new Set(adjusted.map(summaryOpeningKey)).size < adjusted.length) adjusted[2] = alternateConfident;
+  return adjusted;
+}
+
+function generatedSummaryOptions(data = {}, language = currentLanguage) {
+  const isPt = language === "pt";
+  const skills = splitSummarySkills(data.skills);
+  const directSkills = joinSummaryList(skills.slice(0, 2), language);
+  const professionalSkills = joinSummaryList(skills.slice(0, 4), language);
+  const confidentSkills = joinSummaryList(skills.slice(0, 3), language);
+  const directTarget = summaryTarget(data, language, "direct");
+  const target = summaryTarget(data, language);
+  const levelPhrase = structuredSummaryExperiencePhrase(data, language);
+  const confidentLevelPhrase = summaryConfidentLevelPhrase(levelPhrase, language);
+  const profileTraits = summaryProfileTraits(skills, data, language);
+  const contributionTraits = summaryContributionTraits(skills, data, language);
+  const directGoal = summaryGoalEnding(data, language, "direct");
+  const professionalGoal = summaryGoalEnding(data, language, "professional");
+  const confidentGoal = summaryGoalAction(data.goal, language);
+  const confidentGoalIncludesGrowth = /crescer|crescimento|desenvolv|grow|growth|develop/.test(normalizeSummaryText(confidentGoal));
+  const confidentEnding = summaryIsFirstJob(data)
+    ? (isPt
+      ? "Busca primeira oportunidade para aplicar seus conhecimentos, apoiar a equipe e crescer profissionalmente."
+      : "Seeks a first opportunity to apply knowledge, support the team and grow professionally.")
+    : confidentGoal
+      ? (isPt
+        ? `Busca uma oportunidade para ${confidentGoal}${confidentGoalIncludesGrowth ? " e gerar valor para a equipe." : ", crescer profissionalmente e gerar valor para a equipe."}`
+        : `Seeks an opportunity to ${confidentGoal}${confidentGoalIncludesGrowth ? " and create value for the team." : ", grow professionally and create value for the team."}`)
+      : (isPt
+        ? "Busca uma oportunidade para aplicar seus conhecimentos, crescer profissionalmente e gerar valor para a equipe."
+        : "Seeks an opportunity to apply knowledge, grow professionally and create value for the team.");
+  const knowledgeWord = summaryHasNoExperience(data)
+    ? (isPt ? "conhecimento" : "knowledge")
+    : (isPt ? "experiência/conhecimento" : "experience and knowledge");
+  const professionalLead = summaryHasNoExperience(data)
+    ? (isPt ? "Profissional com interesse em" : "Professional with interest in")
+    : (isPt ? "Profissional com atuação em" : "Professional with experience in");
+  const direct = summaryIsFirstJob(data)
+    ? (isPt
+      ? `${directTarget} em início de carreira, com habilidades em ${directSkills}. ${directGoal.replace(/^b/, "B")}.`
+      : `${directTarget} at the beginning of a career, with skills in ${directSkills}. ${directGoal.replace(/^s/, "S")}.`)
+    : (isPt
+      ? `${directTarget} com ${levelPhrase} e habilidades em ${directSkills}. Busca oportunidade para ${directGoal.replace(/^buscar uma oportunidade para\s+/i, "")}.`
+      : `${directTarget} with ${levelPhrase} and skills in ${directSkills}. Seeking an opportunity to ${directGoal.replace(/^seeking an opportunity to\s+/i, "")}.`);
+  const professional = isPt
+    ? `${professionalLead} ${target}, perfil ${profileTraits} e ${knowledgeWord} em ${professionalSkills}. Busca contribuir em ambientes profissionais ${professionalGoal}, mantendo foco em organização, responsabilidade e desenvolvimento contínuo.`
+    : `${professionalLead} ${target}, with a ${profileTraits} profile and ${knowledgeWord} in ${professionalSkills}. Seeks to contribute in professional environments ${professionalGoal}, while staying focused on organization, responsibility and continuous development.`;
+  const confident = isPt
+    ? `Perfil ${confidentLevelPhrase} em ${target}, com foco em ${confidentSkills} e capacidade de apoiar resultados por meio de ${contributionTraits}. ${confidentEnding}`
+    : `${confidentLevelPhrase} profile in ${target}, focused on ${confidentSkills} and able to support results through ${contributionTraits}. ${confidentEnding}`;
+  return ensureDistinctSummaryOptions([direct, professional, confident], {
+    target,
+    levelPhrase,
+    confidentLevelPhrase,
+    profileTraits,
+    contributionTraits,
+    professionalSkills,
+    confidentSkills,
+    professionalGoal,
+    confidentEnding,
+  }, language);
+}
+
 function summaryToolFormData(root = document) {
   const data = {};
   root.querySelectorAll("[data-summary-field]").forEach((field) => {
@@ -14498,13 +14883,13 @@ function renderSummaryToolResults(options = []) {
   if (!results || !list) return;
   list.innerHTML = options.map((text, index) => `
     <article class="summary-result-option" data-summary-option="${index}">
-      <div>
+      <div class="summary-result-option-head">
         <span>${copy.options[index] || copy.options[0]}</span>
-        <button class="ghost-button small" type="button" data-summary-edit="${index}">${copy.actions.edit}</button>
       </div>
-      <textarea data-summary-text="${index}">${escapeHtml(text)}</textarea>
+      <textarea data-summary-text="${index}" rows="${index === 0 ? 4 : 6}">${escapeHtml(text)}</textarea>
       <footer>
         <button class="secondary-button small" type="button" data-summary-copy="${index}">${copy.actions.copy}</button>
+        <button class="ghost-button small" type="button" data-summary-edit="${index}">${copy.actions.edit}</button>
         <button class="primary-button small" type="button" data-summary-use="${index}">${copy.actions.use}</button>
       </footer>
     </article>
@@ -14515,12 +14900,90 @@ function renderSummaryToolResults(options = []) {
   again.setAttribute("data-summary-generate", "");
   again.textContent = copy.actions.again;
   list.appendChild(again);
+  list.querySelectorAll("[data-summary-text]").forEach((textarea) => {
+    const resize = () => {
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight + 2}px`;
+    };
+    textarea.addEventListener("input", resize);
+    resize();
+  });
   results.hidden = false;
   results.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-async function copySummaryText(text, button) {
+function summarySecurityCopy(language = currentLanguage) {
+  return language === "pt"
+    ? {
+        title: "Proteção contra uso automático",
+        text: "Para continuar gerando resumos gratuitamente, confirme a verificação abaixo.",
+      }
+    : {
+        title: "Bot protection",
+        text: "To keep generating summaries for free, complete the verification below.",
+      };
+}
+
+function summaryGenerationCount() {
+  try {
+    return Math.max(0, Number(sessionStorage.getItem(SUMMARY_GENERATION_COUNT_STORAGE_KEY) || "0"));
+  } catch (error) {
+    return 0;
+  }
+}
+
+function setSummaryGenerationCount(count) {
+  try {
+    sessionStorage.setItem(SUMMARY_GENERATION_COUNT_STORAGE_KEY, String(Math.max(0, Number(count) || 0)));
+  } catch (error) {
+    // The free generation limit is a light client-side friction layer.
+  }
+}
+
+function showSummaryToolMessage(message) {
+  const target = document.querySelector("[data-summary-message]");
+  if (!target) return;
+  target.textContent = message;
+  target.hidden = false;
+}
+
+async function ensureSummaryTurnstileGate() {
+  const tool = document.querySelector("[data-summary-form]");
+  if (!tool) return null;
+  let gate = tool.querySelector("[data-summary-turnstile-gate]");
+  if (!gate) {
+    const copy = summarySecurityCopy(currentLanguage);
+    const message = tool.querySelector("[data-summary-message]");
+    const html = `
+      <div class="summary-security-gate" data-summary-turnstile-gate>
+        <strong>${escapeHtml(copy.title)}</strong>
+        <p>${escapeHtml(copy.text)}</p>
+        ${TurnstileWidget("free_summary_generator")}
+        <p class="auth-error summary-security-error" data-auth-error hidden></p>
+      </div>
+    `;
+    if (message) message.insertAdjacentHTML("beforebegin", html);
+    else tool.insertAdjacentHTML("beforeend", html);
+    gate = tool.querySelector("[data-summary-turnstile-gate]");
+  }
+  gate.hidden = false;
+  await initTurnstileWidgets(gate);
+  return gate;
+}
+
+async function summaryGenerationAllowed() {
+  if (summaryGenerationCount() < SUMMARY_FREE_GENERATION_LIMIT) return true;
+  const gate = await ensureSummaryTurnstileGate();
+  if (!gate) return true;
+  const passed = await verifyTurnstileForForm(gate, "free_summary_generator");
+  if (passed) gate.hidden = true;
+  if (!passed) showSummaryToolMessage(t().security.verificationError);
+  return passed;
+}
+
+async function copySummaryText(text, button, feedback = "") {
   const copy = summaryGeneratorCopy(currentLanguage);
+  const messageText = feedback || copy.copied;
   try {
     if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
     else {
@@ -14536,47 +14999,57 @@ async function copySummaryText(text, button) {
     }
     const message = document.querySelector("[data-summary-message]");
     if (message) {
-      message.textContent = copy.copied;
+      message.textContent = messageText;
       message.hidden = false;
     }
     if (button) {
       const previous = button.textContent;
-      button.textContent = copy.copied;
+      button.textContent = messageText;
       window.setTimeout(() => { button.textContent = previous; }, 1400);
     }
+    return true;
   } catch (error) {
     const message = document.querySelector("[data-summary-message]");
     if (message) {
       message.textContent = text;
       message.hidden = false;
     }
+    return false;
   }
 }
 
-function useSummaryInResume(text = "") {
-  try {
-    localStorage.setItem("succeedora.publicSummaryDraft", text);
-  } catch (error) {
-    // Copy still works if storage is unavailable.
-  }
-  if (isLoggedIn()) setRoute("/dashboard/builder");
-  else setRoute("/signup");
+async function continueWithSummary(text = "", button = null) {
+  const copy = summaryGeneratorCopy(currentLanguage);
+  const summary = String(text || "").trim();
+  if (!summary) return;
+  await copySummaryText(summary, button, copy.continueCopied);
+  savePendingSummaryDraft(summary, currentLanguage);
+  rememberIntendedRoute("/dashboard/builder");
+  window.setTimeout(() => setRoute(publicTemplatesPath(currentLanguage)), 700);
+}
+
+function startResumeFromSummaryLanding(event) {
+  event?.preventDefault();
+  rememberIntendedRoute("/dashboard/templates");
+  setRoute(publicTemplatesPath(currentLanguage));
 }
 
 function bindSummaryGeneratorInteractions() {
   const tool = document.querySelector("[data-summary-form]");
   if (!tool) return;
-  const generate = () => {
+  const generate = async () => {
     const copy = summaryGeneratorCopy(currentLanguage);
     const data = summaryToolFormData(document);
     const message = document.querySelector("[data-summary-message]");
-    if (!data.role && !data.field) {
+    if (!hasEnoughSummaryInput(data)) {
       if (message) {
         message.textContent = copy.fillHint;
         message.hidden = false;
       }
       return;
     }
+    const allowed = await summaryGenerationAllowed();
+    if (!allowed) return;
     if (message) message.hidden = true;
     const options = generatedSummaryOptions(data, currentLanguage);
     try {
@@ -14585,12 +15058,18 @@ function bindSummaryGeneratorInteractions() {
     } catch (error) {
       // The generated text remains available on the page.
     }
+    setSummaryGenerationCount(summaryGenerationCount() + 1);
     renderSummaryToolResults(options);
   };
-  document.querySelector(".summary-tool-page")?.addEventListener("click", (event) => {
+  document.querySelector(".summary-tool-page")?.addEventListener("click", async (event) => {
     const generateButton = event.target.closest("[data-summary-generate]");
     if (generateButton) {
-      generate();
+      await generate();
+      return;
+    }
+    const startResumeButton = event.target.closest("[data-summary-start-resume]");
+    if (startResumeButton) {
+      startResumeFromSummaryLanding(event);
       return;
     }
     const copyButton = event.target.closest("[data-summary-copy]");
@@ -14614,10 +15093,9 @@ function bindSummaryGeneratorInteractions() {
         ? document.querySelector("[data-summary-text='1']")?.value || document.querySelector("[data-summary-text='0']")?.value || ""
         : document.querySelector(`[data-summary-text="${index}"]`)?.value || "";
       if (text) {
-        copySummaryText(text);
-        useSummaryInResume(text);
+        await continueWithSummary(text, useButton);
       } else {
-        setRoute("/signup");
+        setRoute(publicTemplatesPath(currentLanguage));
       }
     }
   });
@@ -14647,7 +15125,7 @@ function renderProfessionalSummaryGeneratorPage() {
             <p>${copy.heroSubtitle}</p>
             <div class="summary-tool-actions">
               <a class="primary-button" href="#summary-tool">${copy.primaryCta} ${icon("arrow")}</a>
-              <a class="secondary-button" href="#/signup" data-route="/signup">${copy.secondaryCta}</a>
+              <a class="secondary-button" href="#/signup" data-summary-start-resume>${copy.secondaryCta}</a>
             </div>
             <div class="summary-tool-badges">${copy.badges.map((badge) => `<span>${icon("check")} ${badge}</span>`).join("")}</div>
           </div>
@@ -14680,9 +15158,10 @@ function renderProfessionalSummaryGeneratorPage() {
             <div class="summary-result-cta">
               <h3>${copy.ctaTitle}</h3>
               <p>${copy.ctaText}</p>
+              <p class="summary-result-note">${copy.resultNotice}</p>
               <div>
                 <button class="primary-button" type="button" data-summary-use>${copy.ctaPrimary}</button>
-                <a class="secondary-button" href="#/templates" data-route="/templates">${copy.ctaSecondary}</a>
+                <a class="secondary-button" href="${copy.routeTemplates}" data-route="${copy.routeTemplates}">${copy.ctaSecondary}</a>
               </div>
             </div>
           </div>
@@ -14724,8 +15203,8 @@ function renderProfessionalSummaryGeneratorPage() {
           <h2>${copy.ctaTitle}</h2>
           <p>${copy.ctaText}</p>
           <div>
-            <a class="primary-button" href="#/signup" data-route="/signup">${copy.ctaPrimary}</a>
-            <a class="secondary-button" href="#/templates" data-route="/templates">${copy.ctaSecondary}</a>
+            <a class="primary-button" href="${copy.routeTemplates}" data-summary-start-resume>${copy.secondaryCta}</a>
+            <a class="secondary-button" href="${copy.routeTemplates}" data-route="${copy.routeTemplates}">${copy.ctaSecondary}</a>
           </div>
         </section>
 
@@ -15730,6 +16209,9 @@ function renderCookiesPage() {
 }
 
 function renderPublicTemplatesPage() {
+  const route = getRoute();
+  if (route === publicTemplatesPath("pt")) currentLanguage = "pt";
+  if (route === publicTemplatesPath("en")) currentLanguage = "en";
   const copy = t();
   const p = copy.public;
   const seo = localizedSeo("templates");
@@ -15737,11 +16219,16 @@ function renderPublicTemplatesPage() {
     ? { search: "Buscar modelos..." }
     : { search: "Search templates..." };
   const templates = resumeTemplates();
+  const pendingSummary = pendingSummaryDraft();
+  const pendingNotice = pendingSummary
+    ? `<aside class="pending-summary-notice">${icon("check")}<p>${escapeHtml(summaryGeneratorCopy(currentLanguage).pendingNotice)}</p></aside>`
+    : "";
   mount(`
     <div class="public-shell">
       ${publicHeader()}
       <main class="section public-templates-page">
         <div class="section-heading"><span class="eyebrow">${p.templatesEyebrow}</span><h1>${p.templatesTitle}</h1><p>${p.templatesSubtitle}</p></div>
+        ${pendingNotice}
         <div class="template-catalog-tools">
           <label class="template-search">${icon("file")}<input type="search" data-template-search placeholder="${labels.search}" /></label>
           <div class="template-filter-row">${templateFilterOptions().map(([key, label], index) => `<button class="${index === 0 ? "active" : ""}" type="button" data-template-filter="${key}">${label}</button>`).join("")}</div>
@@ -15752,7 +16239,7 @@ function renderPublicTemplatesPage() {
     </div>
   `, {
     ...seo,
-    canonical: seoUrl("/templates"),
+    canonical: seoUrl(publicTemplatesPath(currentLanguage)),
     ogTitle: seo.title,
     ogDescription: seo.description,
   });
@@ -16172,7 +16659,7 @@ function googleAuthButton(context = "signin") {
 }
 
 function renderGoogleOAuthCallback() {
-  const a = t().auth;
+  let a = t().auth;
   let payload = null;
   try {
     payload = JSON.parse(localStorage.getItem(GOOGLE_OAUTH_RESULT_STORAGE_KEY) || "{}");
@@ -16181,7 +16668,8 @@ function renderGoogleOAuthCallback() {
     payload = null;
   }
   if (payload?.language === "pt" || payload?.language === "en") {
-    setLanguagePreference(payload.language);
+    setLanguagePreference(payload.language, { renderAfter: false, updatePath: false });
+    a = t().auth;
   }
   if (!payload?.ok) {
     authShell(`
@@ -17669,12 +18157,19 @@ function templateSelectorButton(template) {
 
 function renderBuilder() {
   const b = t().builder;
+  if (!builderDraft && !currentBuilderResumeId && pendingSummaryDraft()) {
+    startNewResume(selectedTemplateKey);
+  }
   if (!builderDraft && !currentBuilderResumeId) {
     renderBuilderTemplateSelection();
     return;
   }
   preferCollapsedSidebarForBuilder();
-  const draft = ensureBuilderDraft();
+  let draft = ensureBuilderDraft();
+  if (applyPendingSummaryToBuilder()) draft = ensureBuilderDraft();
+  const importedSummaryNotice = importedSummaryNoticePending()
+    ? `<aside class="builder-imported-summary-notice">${icon("check")}<p>${escapeHtml(summaryGeneratorCopy(currentLanguage).importedNotice)}</p></aside>`
+    : "";
   const completion = calculateCompletion(draft);
   const selectedTemplate = getTemplateByKey(selectedTemplateKey);
   const adminBuilderTool = isAdminAccount()
@@ -17728,6 +18223,7 @@ function renderBuilder() {
             <p>${b.emptyState}</p>
           </div>
         </article>
+        ${importedSummaryNotice}
         ${b.sections.map((section, index) => builderSectionPanel(section, index)).join("")}
         <div class="builder-step-actions">
           <button class="secondary-button" type="button" data-builder-prev ${activeBuilderSectionIndex === 0 ? "disabled" : ""}>${b.back}</button>
@@ -17740,6 +18236,7 @@ function renderBuilder() {
       </aside>
     </main>
   `);
+  if (importedSummaryNotice) clearImportedSummaryNoticePending();
 }
 
 function builderSection(title, index) {
