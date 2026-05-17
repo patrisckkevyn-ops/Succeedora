@@ -32863,10 +32863,10 @@ select:focus-visible {
   }
 
   .summary-hero-card {
-    width: min(100%, 600px);
-    gap: 14px;
-    padding: 22px;
-    border-radius: 30px;
+    width: min(100%, 560px);
+    gap: 12px;
+    padding: 20px;
+    border-radius: 28px;
   }
 
   .summary-hero-brandline strong {
@@ -32883,14 +32883,14 @@ select:focus-visible {
   }
 
   .summary-hero-document {
-    gap: 14px;
-    padding: 22px;
-    border-radius: 24px;
+    gap: 12px;
+    padding: 20px;
+    border-radius: 22px;
   }
 
   .summary-hero-card p {
-    font-size: 0.98rem;
-    line-height: 1.52;
+    font-size: 0.94rem;
+    line-height: 1.48;
   }
 
   .summary-hero-intelligence span {
