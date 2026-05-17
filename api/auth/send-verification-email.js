@@ -83,7 +83,10 @@ module.exports = async function handler(req, res) {
   const fromEmail = process.env.RESEND_FROM_EMAIL || "contato@succeedora.com";
   const fromName = process.env.RESEND_FROM_NAME || "Succeedora";
 
-  if (!apiKey) return json(res, 500, { ok: false, error: "missing_resend_api_key" });
+  if (!apiKey) {
+    console.error("verification_email_missing_resend_api_key");
+    return json(res, 500, { ok: false, error: "missing_resend_api_key" });
+  }
 
   let body;
   try {
@@ -102,24 +105,36 @@ module.exports = async function handler(req, res) {
   }
 
   const message = verificationEmail({ name, code, language });
-  const response = await fetch(RESEND_EMAILS_ENDPOINT, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: `${fromName} <${fromEmail}>`,
-      to: [email],
-      subject: message.subject,
-      html: message.html,
-      text: message.text,
-      tags: [{ name: "category", value: "email_verification" }],
-    }),
-  });
+  let response;
+  let payload = {};
+  try {
+    response = await fetch(RESEND_EMAILS_ENDPOINT, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: `${fromName} <${fromEmail}>`,
+        to: [email],
+        subject: message.subject,
+        html: message.html,
+        text: message.text,
+        tags: [{ name: "category", value: "email_verification" }],
+      }),
+    });
+    payload = await response.json().catch(() => ({}));
+  } catch (error) {
+    console.error("verification_email_network_error", { message: error?.message || "unknown" });
+    return json(res, 502, { ok: false, error: "email_provider_unavailable" });
+  }
 
-  const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
+    console.error("verification_email_resend_error", {
+      status: response.status,
+      name: payload?.name || "",
+      message: payload?.message || "",
+    });
     return json(res, response.status || 502, { ok: false, error: "resend_error", details: payload });
   }
 
