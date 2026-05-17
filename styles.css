@@ -6011,14 +6011,17 @@ select:focus-visible {
 }
 
 .app-shell {
+  --dashboard-sidebar-width: 248px;
+  --dashboard-sidebar-collapsed-width: 70px;
+  --sidebar-ease: cubic-bezier(0.22, 1, 0.36, 1);
   display: grid;
-  grid-template-columns: 248px minmax(0, 1fr);
+  grid-template-columns: var(--dashboard-sidebar-width) minmax(0, 1fr);
   min-height: 100vh;
-  transition: grid-template-columns 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: grid-template-columns 260ms var(--sidebar-ease);
 }
 
 .app-shell.sidebar-collapsed {
-  grid-template-columns: 70px minmax(0, 1fr);
+  grid-template-columns: var(--dashboard-sidebar-collapsed-width) minmax(0, 1fr);
 }
 
 .sidebar {
@@ -6028,7 +6031,7 @@ select:focus-visible {
   z-index: 30;
   display: flex;
   flex-direction: column;
-  width: 248px;
+  width: var(--dashboard-sidebar-width);
   height: 100vh;
   overflow-y: auto;
   padding: 18px 16px;
@@ -6038,11 +6041,16 @@ select:focus-visible {
     #fff;
   scrollbar-width: none;
   transition:
-    width 0.32s cubic-bezier(0.22, 1, 0.36, 1),
-    padding 0.32s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.24s ease,
-    background 0.24s ease;
+    width 260ms var(--sidebar-ease),
+    padding 260ms var(--sidebar-ease),
+    box-shadow 220ms ease,
+    background 220ms ease,
+    transform 280ms var(--sidebar-ease);
   will-change: width, padding;
+}
+
+.sidebar-backdrop {
+  display: none;
 }
 
 .app-shell.sidebar-collapsed .sidebar {
@@ -6063,17 +6071,80 @@ select:focus-visible {
   display: inline-flex;
 }
 
+.sidebar-collapse-button .icon,
+.sidebar-toggle .icon {
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease;
+}
+
+.sidebar-collapse-button:hover,
+.sidebar-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.app-shell.sidebar-collapsed .sidebar-collapse-button .icon {
+  transform: rotate(180deg);
+}
+
 .app-shell.sidebar-collapsed .sidebar {
-  width: 70px;
+  width: var(--dashboard-sidebar-collapsed-width);
   padding: 16px 10px;
 }
 
+.sidebar .brand,
+.side-nav a,
+.sidebar-link-button,
+.sidebar-upgrade,
+.sidebar .sidebar-toggle {
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    max-width 260ms var(--sidebar-ease),
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.brand-word,
+.side-nav a span,
+.sidebar-link-button span,
+.sidebar-upgrade {
+  opacity: 1;
+  transform: translateX(0);
+  visibility: visible;
+  transition:
+    opacity 180ms ease 90ms,
+    transform 180ms ease 90ms,
+    visibility 0ms linear 90ms,
+    max-width 260ms var(--sidebar-ease);
+}
+
+.side-nav a span,
+.sidebar-link-button span {
+  display: inline-block;
+  max-width: 172px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brand-word {
+  display: inline-block;
+  max-width: 150px;
+  overflow: hidden;
+}
+
 .app-shell.sidebar-collapsed .brand-word,
-.app-shell.sidebar-collapsed .side-nav a,
-.app-shell.sidebar-collapsed .sidebar-link-button,
-.app-shell.sidebar-collapsed .sidebar-upgrade,
-.app-shell.sidebar-collapsed .sidebar-toggle {
-  font-size: 0;
+.app-shell.sidebar-collapsed .side-nav a span,
+.app-shell.sidebar-collapsed .sidebar-link-button span {
+  max-width: 0;
+  opacity: 0;
+  transform: translateX(-6px);
+  visibility: hidden;
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease,
+    visibility 0ms linear 120ms,
+    max-width 220ms var(--sidebar-ease);
 }
 
 .app-shell.sidebar-collapsed .sidebar-head {
@@ -6081,13 +6152,17 @@ select:focus-visible {
 }
 
 .app-shell.sidebar-collapsed .sidebar-head .brand {
-  display: none;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transform: translateX(-6px);
 }
 
 .app-shell.sidebar-collapsed .side-nav a,
 .app-shell.sidebar-collapsed .sidebar-link-button {
-  display: grid;
-  place-items: center;
+  display: flex;
+  gap: 0;
   justify-content: center;
   width: 42px;
   height: 42px;
@@ -6095,11 +6170,6 @@ select:focus-visible {
   margin-inline: auto;
   padding: 0;
   border-radius: 15px;
-}
-
-.app-shell.sidebar-collapsed .side-nav a span,
-.app-shell.sidebar-collapsed .sidebar-link-button span {
-  display: none;
 }
 
 .app-shell.sidebar-collapsed .side-nav a .icon,
@@ -6116,7 +6186,18 @@ select:focus-visible {
 }
 
 .app-shell.sidebar-collapsed .sidebar-upgrade {
-  display: none;
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transform: translateX(-6px);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease,
+    max-height 220ms var(--sidebar-ease),
+    padding 220ms var(--sidebar-ease);
 }
 
 .sidebar-head {
@@ -6152,6 +6233,12 @@ select:focus-visible {
   font-weight: 820;
   line-height: 1.2;
   white-space: nowrap;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .side-nav a .icon,
@@ -6168,6 +6255,7 @@ select:focus-visible {
   color: var(--blue);
   border-color: rgba(31, 105, 213, 0.12);
   background: linear-gradient(135deg, #eef5ff, #f6f2ff);
+  transform: translateX(2px);
 }
 
 .side-nav a:hover .icon,
@@ -6194,6 +6282,7 @@ select:focus-visible {
 }
 
 .sidebar-upgrade {
+  max-height: 220px;
   padding: 12px;
   border-radius: 16px;
   color: #fff;
@@ -6244,11 +6333,18 @@ select:focus-visible {
   font: inherit;
   font-size: 13.5px;
   font-weight: 820;
+  transition:
+    transform 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .sidebar-link-button:hover {
   color: var(--blue);
   background: #f3f8ff;
+  transform: translateX(2px);
 }
 
 .sidebar-link-button.danger {
@@ -6264,6 +6360,10 @@ select:focus-visible {
 .dashboard-main {
   grid-column: 2;
   min-width: 0;
+  transition:
+    width 260ms var(--sidebar-ease),
+    margin-left 260ms var(--sidebar-ease),
+    transform 260ms var(--sidebar-ease);
 }
 
 .dashboard-topbar {
@@ -6274,6 +6374,13 @@ select:focus-visible {
   border-bottom: 1px solid var(--line);
   background: rgba(247, 250, 255, 0.86);
   backdrop-filter: blur(16px);
+  transition:
+    padding 260ms var(--sidebar-ease),
+    width 260ms var(--sidebar-ease),
+    transform 260ms var(--sidebar-ease),
+    background 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease;
 }
 
 .dashboard-topbar h1 {
@@ -6602,6 +6709,10 @@ select:focus-visible {
 .ai-page,
 .builder-page {
   padding: 28px;
+  transition:
+    padding 260ms var(--sidebar-ease),
+    width 260ms var(--sidebar-ease),
+    transform 260ms var(--sidebar-ease);
 }
 
 .workspace-home {
@@ -23933,8 +24044,28 @@ select:focus-visible {
     z-index: 40;
     width: min(86vw, 300px);
     transform: translateX(-105%);
-    transition: transform 0.2s ease;
+    transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 220ms ease;
     box-shadow: var(--shadow);
+    will-change: transform;
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    display: block;
+    border: 0;
+    padding: 0;
+    background: rgba(10, 18, 36, 0.28);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 240ms ease;
+    backdrop-filter: blur(3px);
+  }
+
+  .sidebar.open + .sidebar-backdrop {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .app-shell.sidebar-collapsed .sidebar {
@@ -23951,6 +24082,7 @@ select:focus-visible {
   .app-shell.sidebar-collapsed .side-nav a,
   .app-shell.sidebar-collapsed .sidebar-link-button {
     display: flex;
+    gap: 10px;
     justify-content: flex-start;
     width: 100%;
     height: auto;
@@ -23960,12 +24092,34 @@ select:focus-visible {
 
   .app-shell.sidebar-collapsed .side-nav a span,
   .app-shell.sidebar-collapsed .sidebar-link-button span {
-    display: inline;
+    display: inline-block;
+    max-width: 190px;
+    opacity: 1;
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .app-shell.sidebar-collapsed .brand-word {
+    max-width: 150px;
+    opacity: 1;
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .app-shell.sidebar-collapsed .sidebar-head .brand {
+    max-width: none;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
   }
 
   .app-shell.sidebar-collapsed .sidebar-upgrade {
-    display: block;
     font-size: inherit;
+    max-height: 220px;
+    padding: 12px;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
   }
 
   .sidebar-upgrade:empty {

@@ -11168,6 +11168,10 @@ function bindInteractions() {
     if (sidebar) toggle.addEventListener("click", () => sidebar.classList.toggle("open"));
   });
 
+  document.querySelector(".sidebar-backdrop")?.addEventListener("click", () => {
+    document.querySelector(".sidebar")?.classList.remove("open");
+  });
+
   document.querySelectorAll("[data-sidebar-collapse]").forEach((button) => {
     button.addEventListener("click", () => {
       setSidebarCollapsed(!sidebarCollapsed, { manual: true });
@@ -18931,6 +18935,7 @@ function dashboardShell(activeKey, content) {
           <button class="sidebar-link-button" data-route="/" title="${d.backToWebsite}">${icon("arrow")} <span>${d.backToWebsite}</span></button>
         </div>
       </aside>
+      <button class="sidebar-backdrop" type="button" aria-label="${d.closeSidebar}"></button>
       <div class="dashboard-main">
         <header class="dashboard-topbar">
           <button class="icon-button sidebar-toggle" aria-label="${d.openSidebar}">${icon("menu")}</button>
