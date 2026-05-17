@@ -1,6 +1,31 @@
 {
   "headers": [
     {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "base-uri 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests"
+        }
+      ]
+    },
+    {
       "source": "/assets/(.*)",
       "headers": [
         {
@@ -53,6 +78,6 @@
     { "src": "/api/ai/credits", "dest": "/api/ai/generate" },
     { "src": "/api/admin/ai-credits", "dest": "/api/ai/generate" },
     { "handle": "filesystem" },
-    { "src": "/(pt/sobre|en/about|pt/modelos(?:/curriculo-primeiro-emprego)?|en/templates(?:/first-job-resume)?|pt/ferramentas/gerador-resumo-profissional|en/tools/professional-summary-generator|pt/blog(?:/.*)?|en/blog(?:/.*)?|blog(?:/.*)?|pricing|terms|privacy|contact|cookies|templates|payment/(?:success|cancel)|login|signin|signup|auth/google/callback|verify-email|forgot-password|reset-password|profile|settings|admin(?:/.*)?|dashboard(?:/.*)?)/?", "dest": "/index.html" }
+    { "src": "/(pt/sobre|en/about|pt/modelos(?:/curriculo-primeiro-emprego)?|en/templates(?:/first-job-resume)?|pt/ferramentas/gerador-resumo-profissional|en/tools/professional-summary-generator|pt/(?:termos|privacidade|contato|cookies)|en/(?:terms|privacy|contact|cookies)|pt/blog(?:/.*)?|en/blog(?:/.*)?|blog(?:/.*)?|pricing|terms|privacy|contact|cookies|templates|payment/(?:success|cancel)|login|signin|signup|auth/google/callback|verify-email|forgot-password|reset-password|profile|settings|admin(?:/.*)?|dashboard(?:/.*)?)/?", "dest": "/index.html" }
   ]
 }

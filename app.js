@@ -25,6 +25,10 @@ const IMPORTED_SUMMARY_NOTICE_STORAGE_KEY = "succeedora_imported_summary_notice"
 const SUMMARY_GENERATION_COUNT_STORAGE_KEY = "succeedora.summaryGeneratorCount";
 const SUMMARY_FREE_GENERATION_LIMIT = 2;
 const SITE_ORIGIN = "https://succeedora.com";
+const SOCIAL_IMAGES = {
+  pt: `${SITE_ORIGIN}/assets/brand/succeedora-og-pt.png`,
+  en: `${SITE_ORIGIN}/assets/brand/succeedora-og-en.png`,
+};
 const TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 const ADMIN_EMAILS = ["patrisckkevyn@gmail.com"];
 const VERIFICATION_CODE_TTL_MS = 10 * 60 * 1000;
@@ -1899,9 +1903,17 @@ const routes = {
   "/en/tools/professional-summary-generator": renderProfessionalSummaryGeneratorPage,
   "/pricing": renderPricingPage,
   "/terms": renderTermsPage,
+  "/pt/termos": renderTermsPage,
+  "/en/terms": renderTermsPage,
   "/privacy": renderPrivacyPage,
+  "/pt/privacidade": renderPrivacyPage,
+  "/en/privacy": renderPrivacyPage,
   "/contact": renderContactPage,
+  "/pt/contato": renderContactPage,
+  "/en/contact": renderContactPage,
   "/cookies": renderCookiesPage,
+  "/pt/cookies": renderCookiesPage,
+  "/en/cookies": renderCookiesPage,
   "/payment/success": renderPaymentSuccess,
   "/payment/cancel": renderPaymentCancel,
   "/templates": renderPublicTemplatesPage,
@@ -1962,7 +1974,30 @@ const PRIVATE_ROUTES = new Set([
   "/admin/settings",
 ]);
 
-const PUBLIC_CLEAN_ROUTES = new Set(["/pricing", "/terms", "/privacy", "/contact", "/templates", "/pt/sobre", "/en/about", "/pt/modelos", "/en/templates", "/pt/modelos/curriculo-primeiro-emprego", "/en/templates/first-job-resume", "/pt/ferramentas/gerador-resumo-profissional", "/en/tools/professional-summary-generator"]);
+const PUBLIC_CLEAN_ROUTES = new Set([
+  "/pricing",
+  "/terms",
+  "/pt/termos",
+  "/en/terms",
+  "/privacy",
+  "/pt/privacidade",
+  "/en/privacy",
+  "/contact",
+  "/pt/contato",
+  "/en/contact",
+  "/cookies",
+  "/pt/cookies",
+  "/en/cookies",
+  "/templates",
+  "/pt/sobre",
+  "/en/about",
+  "/pt/modelos",
+  "/en/templates",
+  "/pt/modelos/curriculo-primeiro-emprego",
+  "/en/templates/first-job-resume",
+  "/pt/ferramentas/gerador-resumo-profissional",
+  "/en/tools/professional-summary-generator",
+]);
 
 const NOINDEX_ROUTES = new Set([
   "/login",
@@ -2026,6 +2061,16 @@ const SEO_META = {
     en: {
       title: "Succeedora — Contact",
       description: "Contact Succeedora for questions, support and suggestions.",
+    },
+  },
+  cookies: {
+    pt: {
+      title: "Succeedora \u2014 Cookies",
+      description: "Entenda como a Succeedora usa cookies essenciais, prefer\u00eancias locais e controles de experi\u00eancia.",
+    },
+    en: {
+      title: "Succeedora \u2014 Cookies",
+      description: "Learn how Succeedora uses essential cookies, local preferences and experience controls.",
     },
   },
   about: {
@@ -5582,6 +5627,10 @@ function setLanguagePreference(language, options = {}) {
       [publicTemplatesPath("pt"), publicTemplatesPath("en")],
       [firstJobResumePath("pt"), firstJobResumePath("en")],
       [professionalSummaryGeneratorPath("pt"), professionalSummaryGeneratorPath("en")],
+      [termsPath("pt"), termsPath("en")],
+      [privacyPath("pt"), privacyPath("en")],
+      [contactPath("pt"), contactPath("en")],
+      [cookiesPath("pt"), cookiesPath("en")],
     ];
     const routePair = localizedRoutePairs.find(([ptPath, enPath]) => cleanPath === ptPath || cleanPath === enPath);
     if (routePair) {
@@ -6425,6 +6474,37 @@ function aboutPath(language = currentLanguage) {
   return language === "pt" ? "/pt/sobre" : "/en/about";
 }
 
+function termsPath(language = currentLanguage) {
+  return language === "pt" ? "/pt/termos" : "/en/terms";
+}
+
+function privacyPath(language = currentLanguage) {
+  return language === "pt" ? "/pt/privacidade" : "/en/privacy";
+}
+
+function contactPath(language = currentLanguage) {
+  return language === "pt" ? "/pt/contato" : "/en/contact";
+}
+
+function cookiesPath(language = currentLanguage) {
+  return language === "pt" ? "/pt/cookies" : "/en/cookies";
+}
+
+function localizedLegalAlternates(type) {
+  const pathForType = {
+    terms: termsPath,
+    privacy: privacyPath,
+    contact: contactPath,
+    cookies: cookiesPath,
+  }[type];
+  if (!pathForType) return [];
+  return [
+    { hreflang: "pt-BR", href: seoUrl(pathForType("pt")) },
+    { hreflang: "en", href: seoUrl(pathForType("en")) },
+    { hreflang: "x-default", href: seoUrl(pathForType("en")) },
+  ];
+}
+
 function shouldUseLocalizedPath() {
   return window.location.protocol === "http:" || window.location.protocol === "https:";
 }
@@ -6454,6 +6534,8 @@ function syncPathWithLanguage(language = currentLanguage) {
 }
 
 function setRoute(path) {
+  if (path === termsPath("pt") || path === privacyPath("pt") || path === contactPath("pt") || path === cookiesPath("pt")) currentLanguage = "pt";
+  if (path === termsPath("en") || path === privacyPath("en") || path === contactPath("en") || path === cookiesPath("en")) currentLanguage = "en";
   if (path !== "/dashboard/builder") {
     const builderIsOpen = Boolean(document.querySelector(".builder-page"));
     const editingSavedResume = currentBuilderResumeId && findResume(currentBuilderResumeId);
@@ -6542,6 +6624,8 @@ function pathBlogRoute() {
 
 function pathStaticRoute() {
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
+  const firstSegment = path.split("/").filter(Boolean)[0];
+  if ((firstSegment === "pt" || firstSegment === "en") && routes[path]) currentLanguage = firstSegment;
   return routes[path] ? path : "";
 }
 
@@ -6587,6 +6671,14 @@ function removeMetaProperty(property) {
 
 function seoUrl(path = "/") {
   return `${SITE_ORIGIN}${path === "/" ? "/" : path}`;
+}
+
+function defaultSocialImageUrl(language = currentLanguage) {
+  return SOCIAL_IMAGES[language === "pt" ? "pt" : "en"];
+}
+
+function defaultSocialImageAlt(language = currentLanguage) {
+  return language === "pt" ? "Succeedora Criador de Currículos com IA" : "Succeedora AI Resume Builder";
 }
 
 function localizedSeo(key) {
@@ -6644,9 +6736,10 @@ function breadcrumbNameForRoute(route, title = "") {
   if (route === professionalSummaryGeneratorPath("pt") || route === professionalSummaryGeneratorPath("en")) return isPt ? "Gerador de resumo profissional" : "Professional summary generator";
   if (route === blogRootPath("pt") || route === blogRootPath("en") || route === "/blog") return isPt ? "Blog" : "Blog";
   if (route === "/pricing") return isPt ? "Pre\u00e7os" : "Pricing";
-  if (route === "/contact") return isPt ? "Contato" : "Contact";
-  if (route === "/terms") return isPt ? "Termos de uso" : "Terms of service";
-  if (route === "/privacy") return isPt ? "Pol\u00edtica de privacidade" : "Privacy policy";
+  if (route === "/contact" || route === contactPath("pt") || route === contactPath("en")) return isPt ? "Contato" : "Contact";
+  if (route === "/terms" || route === termsPath("pt") || route === termsPath("en")) return isPt ? "Termos de uso" : "Terms of service";
+  if (route === "/privacy" || route === privacyPath("pt") || route === privacyPath("en")) return isPt ? "Pol\u00edtica de privacidade" : "Privacy policy";
+  if (route === "/cookies" || route === cookiesPath("pt") || route === cookiesPath("en")) return isPt ? "Cookies" : "Cookies";
   return String(title || "Succeedora").replace(/\s+\|\s+Succeedora$/, "");
 }
 
@@ -6748,16 +6841,19 @@ function updateDocumentLanguage(seo = {}) {
   setMetaProperty("og:description", seo.ogDescription || metaDescription);
   setMetaProperty("og:url", canonical);
   setMetaProperty("og:type", seo.type || "website");
-  setMetaName("twitter:card", seo.image ? "summary_large_image" : "summary");
+  const socialImage = seo.image || defaultSocialImageUrl(currentLanguage);
+  const socialImageAlt = seo.imageAlt || defaultSocialImageAlt(currentLanguage);
+  setMetaProperty("og:image", socialImage);
+  setMetaProperty("og:image:secure_url", socialImage);
+  setMetaProperty("og:image:alt", socialImageAlt);
+  setMetaProperty("og:image:width", "1200");
+  setMetaProperty("og:image:height", "630");
+  setMetaProperty("og:image:type", "image/png");
+  setMetaName("twitter:card", "summary_large_image");
   setMetaName("twitter:title", seo.twitterTitle || seo.ogTitle || title);
   setMetaName("twitter:description", seo.twitterDescription || seo.ogDescription || metaDescription);
-  if (seo.image) {
-    setMetaProperty("og:image", seo.image);
-    setMetaName("twitter:image", seo.image);
-  } else {
-    removeMetaProperty("og:image");
-    removeMetaName("twitter:image");
-  }
+  setMetaName("twitter:image", socialImage);
+  setMetaName("twitter:image:alt", socialImageAlt);
   setStructuredData(seoStructuredData({ route, canonical, title, description: metaDescription, seo, noindex }));
 }
 
@@ -17026,7 +17122,7 @@ function legalFooterLinks() {
   const rightsText = currentLanguage === "pt" ? "Todos os direitos reservados." : "All rights reserved.";
   return `
     <nav class="legal-footer-links" aria-label="${currentLanguage === "pt" ? "Links do rodap\u00e9" : "Footer links"}">
-      <span class="footer-link-group"><a href="${aboutPath(currentLanguage)}" data-route="${aboutPath(currentLanguage)}">${aboutLabel}</a><a href="${blogRootPath(currentLanguage)}" data-route="/blog">${copy.nav.blog}</a><a href="#/terms" data-route="/terms">${copy.nav.termsShort}</a><a href="#/privacy" data-route="/privacy">${copy.nav.privacyShort}</a><a href="#/contact" data-route="/contact">${copy.nav.contact}</a></span>
+      <span class="footer-link-group"><a href="${aboutPath(currentLanguage)}" data-route="${aboutPath(currentLanguage)}">${aboutLabel}</a><a href="${blogRootPath(currentLanguage)}" data-route="/blog">${copy.nav.blog}</a><a href="${termsPath(currentLanguage)}" data-route="${termsPath(currentLanguage)}">${copy.nav.termsShort}</a><a href="${privacyPath(currentLanguage)}" data-route="${privacyPath(currentLanguage)}">${copy.nav.privacyShort}</a><a href="${contactPath(currentLanguage)}" data-route="${contactPath(currentLanguage)}">${copy.nav.contact}</a><a href="${cookiesPath(currentLanguage)}" data-route="${cookiesPath(currentLanguage)}">${copy.dashboard.cookies || "Cookies"}</a></span>
       <span class="footer-copyright">&copy; ${currentYear} Succeedora. ${rightsText}</span>
     </nav>
   `;
@@ -17132,11 +17228,14 @@ function renderAboutPage() {
 }
 
 function renderLegalPage(type) {
+  if (getRoute() === termsPath("pt") || getRoute() === privacyPath("pt")) currentLanguage = "pt";
+  if (getRoute() === termsPath("en") || getRoute() === privacyPath("en")) currentLanguage = "en";
   const copy = t();
   const legal = copy.legal;
   const title = type === "terms" ? legal.termsTitle : legal.privacyTitle;
   const sections = type === "terms" ? legal.terms : legal.privacy;
   const seo = localizedSeo(type);
+  const canonicalPath = type === "terms" ? termsPath(currentLanguage) : privacyPath(currentLanguage);
   const backLink = isLoggedIn() ? `<a class="secondary-button legal-back-dashboard" href="#/dashboard" data-route="/dashboard">${copy.settings.backToDashboard}</a>` : "";
   mount(`
     <div class="public-site">
@@ -17158,9 +17257,10 @@ function renderLegalPage(type) {
     </div>
   `, {
     ...seo,
-    canonical: seoUrl(`/${type}`),
+    canonical: seoUrl(canonicalPath),
     ogTitle: seo.title,
     ogDescription: seo.description,
+    alternates: localizedLegalAlternates(type),
   });
 }
 
@@ -17173,6 +17273,8 @@ function renderPrivacyPage() {
 }
 
 function renderContactPage() {
+  if (getRoute() === contactPath("pt")) currentLanguage = "pt";
+  if (getRoute() === contactPath("en")) currentLanguage = "en";
   const copy = t();
   const seo = localizedSeo("contact");
   const title = currentLanguage === "pt" ? "Contato" : "Contact";
@@ -17255,14 +17357,18 @@ function renderContactPage() {
     </div>
   `, {
     ...seo,
-    canonical: seoUrl("/contact"),
+    canonical: seoUrl(contactPath(currentLanguage)),
     ogTitle: seo.title,
     ogDescription: seo.description,
+    alternates: localizedLegalAlternates("contact"),
   });
 }
 
 function renderCookiesPage() {
+  if (getRoute() === cookiesPath("pt")) currentLanguage = "pt";
+  if (getRoute() === cookiesPath("en")) currentLanguage = "en";
   const copy = t();
+  const seo = localizedSeo("cookies");
   const title = copy.dashboard.cookies || "Cookies";
   const sections = currentLanguage === "pt"
     ? [
@@ -17284,7 +17390,13 @@ function renderCookiesPage() {
       </main>
       <footer class="site-footer">${brandLogo("div")}<p>${copy.public.footer}</p>${legalFooterLinks()}</footer>
     </div>
-  `);
+  `, {
+    ...seo,
+    canonical: seoUrl(cookiesPath(currentLanguage)),
+    ogTitle: seo.title,
+    ogDescription: seo.description,
+    alternates: localizedLegalAlternates("cookies"),
+  });
 }
 
 function renderPublicTemplatesPage() {
@@ -18095,8 +18207,8 @@ function authLayout(type) {
     }
   })();
   const legalAcceptance = currentLanguage === "pt"
-    ? `Li e aceito os <a href="#/terms" data-route="/terms">Termos de Uso</a> e a <a href="#/privacy" data-route="/privacy">Pol\u00edtica de Privacidade</a>.`
-    : `I have read and accept the <a href="#/terms" data-route="/terms">Terms of Use</a> and <a href="#/privacy" data-route="/privacy">Privacy Policy</a>.`;
+    ? `Li e aceito os <a href="${termsPath(currentLanguage)}" data-route="${termsPath(currentLanguage)}">Termos de Uso</a> e a <a href="${privacyPath(currentLanguage)}" data-route="${privacyPath(currentLanguage)}">Pol\u00edtica de Privacidade</a>.`
+    : `I have read and accept the <a href="${termsPath(currentLanguage)}" data-route="${termsPath(currentLanguage)}">Terms of Use</a> and <a href="${privacyPath(currentLanguage)}" data-route="${privacyPath(currentLanguage)}">Privacy Policy</a>.`;
   mount(`
     <main class="auth-shell">
       <section class="auth-visual">
@@ -22183,8 +22295,8 @@ function renderSettings() {
           <div class="settings-card-head"><div><span class="eyebrow">${s.accountTitle}</span><h2>${s.accountTitle}</h2></div></div>
           <p>${s.accountText}</p>
           <div class="section-actions">
-            <a class="ghost-button small" href="#/terms" data-route="/terms">${copy.auth.terms}</a>
-            <a class="ghost-button small" href="#/privacy" data-route="/privacy">${copy.auth.privacy}</a>
+            <a class="ghost-button small" href="${termsPath(currentLanguage)}" data-route="${termsPath(currentLanguage)}">${copy.auth.terms}</a>
+            <a class="ghost-button small" href="${privacyPath(currentLanguage)}" data-route="${privacyPath(currentLanguage)}">${copy.auth.privacy}</a>
           </div>
         </article>
       </section>
@@ -22241,9 +22353,9 @@ function renderAccountSettings() {
           <div class="settings-card-head"><div><span class="eyebrow">${s.privacyTitle}</span><h2>${s.privacyTitle}</h2></div></div>
           <p>${s.privacyText}</p>
           <div class="section-actions">
-            <a class="ghost-button small" href="#/terms" data-route="/terms">${copy.auth.terms}</a>
-            <a class="ghost-button small" href="#/privacy" data-route="/privacy">${copy.auth.privacy}</a>
-            <a class="ghost-button small" href="#/cookies" data-route="/cookies">${copy.dashboard.cookies}</a>
+            <a class="ghost-button small" href="${termsPath(currentLanguage)}" data-route="${termsPath(currentLanguage)}">${copy.auth.terms}</a>
+            <a class="ghost-button small" href="${privacyPath(currentLanguage)}" data-route="${privacyPath(currentLanguage)}">${copy.auth.privacy}</a>
+            <a class="ghost-button small" href="${cookiesPath(currentLanguage)}" data-route="${cookiesPath(currentLanguage)}">${copy.dashboard.cookies}</a>
           </div>
         </article>
       </section>
