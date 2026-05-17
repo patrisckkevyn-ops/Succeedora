@@ -15853,7 +15853,7 @@ function initSummaryHeroDemo() {
     if (title) title.textContent = sample.title;
     if (language) language.textContent = sample.language;
     text.textContent = "";
-    score.textContent = "";
+    score.textContent = sample.score;
     card.classList.remove("is-scoring");
     card.classList.add("is-typing");
 
