@@ -14500,25 +14500,60 @@ function summaryGeneratorCopy(language = currentLanguage) {
       ogTitle: "Gerador de Resumo Profissional Grátis | Succeedora",
       ogDescription: "Gere um resumo profissional para currículo de forma simples, rápida e gratuita.",
     },
-    eyebrow: "FERRAMENTA GRÁTIS DA SUCCEEDORA",
-    title: "Gerador de resumo profissional grátis",
+    eyebrow: "CAREER INTELLIGENCE DA SUCCEEDORA",
+    title: "Resumo profissional com padrão global",
     subtitle: "Crie um resumo profissional claro, direto e pronto para currículo com base no seu cargo, experiência e principais habilidades.",
-    heroSubtitle: "Informe seu cargo, experiência e principais habilidades para gerar um resumo profissional claro, direto e pronto para revisar.",
+    heroSubtitle: "Transforme cargo, experiência e habilidades em um texto preciso, elegante e pronto para currículos internacionais, ATS e modelos premium.",
     primaryCta: "Gerar resumo agora",
     secondaryCta: "Criar currículo completo",
-    badges: ["Grátis", "Sem login obrigatório", "Pronto para currículo", "Editável"],
-    sampleTitle: "Exemplo gerado",
-    sampleSummary: "Profissional com experiência em rotinas administrativas, organização de documentos e apoio a processos internos. Perfil comunicativo, responsável e focado em contribuir para atividades mais claras, organizadas e eficientes.",
+    badges: ["Padrão global", "ATS-friendly", "Sem login obrigatório", "Editável"],
+    sampleTitle: "Resumo refinado",
+    sampleSummary: "Profissional de operações administrativas com experiência em organização documental, rotinas internas e apoio a processos. Perfil claro, responsável e orientado a transformar informação em execução consistente para equipes globais.",
+    heroPanel: {
+      label: "Succeedora Intelligence",
+      meta: "Global profile brief",
+      scoreLabel: "Precisão",
+      score: "94",
+      scoreSuffix: "/100",
+      language: "PT / EN",
+      signals: ["Clareza ATS", "Tom executivo", "Pronto para editar"],
+    },
     toolTitle: "Crie seu resumo profissional",
-    toolText: "Preencha algumas informações básicas. Você poderá revisar e editar o texto antes de usar no currículo.",
+    toolText: "Escolha opções guiadas e adicione apenas informações verdadeiras. Você poderá revisar e editar o texto antes de usar no currículo.",
     fields: {
-      role: ["Cargo desejado ou cargo atual", "Ex: Auxiliar Administrativo, Product Manager, Desenvolvedor Front-end"],
-      field: ["Área profissional", "Ex: Administração, Tecnologia, Vendas, Atendimento, Marketing"],
-      level: ["Nível profissional", ["Primeiro emprego", "Estágio", "Júnior", "Pleno", "Sênior", "Liderança", "Transição de carreira"]],
-      experience: ["Tempo de experiência", ["Sem experiência", "Menos de 1 ano", "1 a 2 anos", "3 a 5 anos", "Mais de 5 anos"]],
-      skills: ["Principais habilidades", "Ex: organização, atendimento ao cliente, Excel, liderança, comunicação"],
-      goal: ["Objetivo profissional", "Ex: Quero atuar em uma empresa onde eu possa crescer e aplicar minhas habilidades."],
-      tone: ["Tom do resumo", ["Profissional", "Direto", "Confiante", "Formal", "Simples"]],
+      role: ["Cargo ou área desejada", "Ex: Auxiliar administrativo, Vendedor, Atendimento ao cliente, Desenvolvedor", "Digite o cargo desejado ou a área em que quer atuar."],
+      field: ["Área profissional", ["Administrativo", "Atendimento ao cliente", "Vendas", "Tecnologia", "Marketing", "Financeiro", "Logística", "Educação", "Saúde", "Operacional", "Outro"], "Escolha a área mais próxima do seu objetivo."],
+      level: ["Nível profissional", ["Primeiro emprego", "Estágio", "Júnior", "Pleno", "Sênior", "Transição de carreira"], "Selecione o nível que melhor representa seu momento atual."],
+      goal: ["Objetivo profissional", ["Conseguir minha primeira oportunidade profissional", "Atuar na área escolhida", "Melhorar minha apresentação profissional", "Mudar de área", "Buscar vaga internacional", "Crescer profissionalmente", "Contribuir com minhas habilidades em uma nova empresa"], "Escolha o objetivo principal deste resumo."],
+      goalCustom: ["Objetivo opcional em suas palavras", "Ex: Quero atuar em uma empresa onde eu possa crescer", "Opcional: adicione um detalhe curto se nenhuma opção representar bem seu objetivo."],
+      extra: ["Detalhes extras opcionais", "Ex: cursos, projetos, formação, atividades voluntárias ou experiências relevantes", "Inclua somente detalhes verdadeiros que ajudem a personalizar o texto."],
+      manualSkill: ["Adicionar habilidade manualmente", "Ex: Power BI, escrita, recepção, manutenção", "Use para incluir uma habilidade real que não aparece nas sugestões."],
+    },
+    skillsTitle: "Habilidades principais",
+    skillsHelp: "Escolha pelo menos 2 habilidades. Use apenas habilidades que você realmente possui.",
+    selectedSkillsLabel: "Habilidades selecionadas",
+    noSkillsSelected: "Nenhuma habilidade selecionada ainda.",
+    addSkillButton: "Adicionar",
+    skillSuggestions: {
+      firstJob: ["Comunicação", "Trabalho em equipe", "Pontualidade", "Responsabilidade", "Facilidade de aprendizagem", "Organização"],
+      administrative: ["Organização", "Excel básico", "Atendimento interno", "Controle de documentos", "Comunicação", "Responsabilidade"],
+      customer_service: ["Atendimento ao cliente", "Comunicação", "Empatia", "Resolução de problemas", "Organização", "Paciência"],
+      sales: ["Atendimento ao cliente", "Negociação", "Comunicação", "Prospecção", "Organização", "Foco em metas"],
+      technology: ["Lógica", "Resolução de problemas", "JavaScript", "React", "Suporte técnico", "Organização"],
+      marketing: ["Comunicação", "Redes sociais", "Criação de conteúdo", "Organização de campanhas", "Análise de métricas", "Criatividade"],
+      finance: ["Excel", "Controle financeiro", "Organização", "Atenção aos detalhes", "Conciliação", "Responsabilidade"],
+      logistics: ["Organização", "Controle de estoque", "Roteirização", "Atenção aos prazos", "Comunicação", "Processos"],
+      education: ["Comunicação", "Didática", "Organização", "Planejamento", "Paciência", "Trabalho em equipe"],
+      healthcare: ["Empatia", "Atenção aos detalhes", "Organização", "Comunicação", "Responsabilidade", "Cuidado com pessoas"],
+      operations: ["Organização", "Processos", "Atenção aos detalhes", "Pontualidade", "Trabalho em equipe", "Responsabilidade"],
+      other: ["Comunicação", "Organização", "Responsabilidade", "Trabalho em equipe", "Aprendizagem rápida", "Atenção aos detalhes"],
+    },
+    qualityTitle: "Qualidade das informações",
+    qualityLabels: { basic: "Básica", good: "Boa", strong: "Forte" },
+    qualityDescriptions: {
+      basic: "Seu resumo pode ficar mais genérico. Para melhorar, adicione um objetivo ou detalhe extra.",
+      good: "Boa base. Para fortalecer, adicione um detalhe extra ou selecione mais habilidades reais.",
+      strong: "Ótimo. Há contexto suficiente para gerar versões mais específicas e consistentes.",
     },
     generate: "Gerar resumo profissional",
     resultTitle: "Seu resumo profissional",
@@ -14532,8 +14567,8 @@ function summaryGeneratorCopy(language = currentLanguage) {
     saveEdit: "Salvar edi\u00e7\u00e3o",
     copied: "Resumo copiado.",
     continueCopied: "Resumo copiado. Agora escolha um modelo para criar seu currículo.",
-    missingRequired: "Para gerar um resumo melhor, informe cargo ou \u00e1rea, n\u00edvel profissional e pelo menos duas habilidades.",
-    qualityWarning: "Seu resumo pode ficar mais gen\u00e9rico porque faltam algumas informa\u00e7\u00f5es. Para um resultado melhor, adicione cargo, \u00e1rea, objetivo e pelo menos duas habilidades.",
+    missingRequired: "Para gerar um resumo melhor, informe seu cargo ou área, escolha seu nível profissional e selecione pelo menos duas habilidades.",
+    qualityWarning: "Seu resumo pode ficar mais genérico. Para melhorar, adicione um objetivo ou detalhe extra.",
     resultNotice: "Antes de continuar, copie seu resumo. Na próxima etapa, você poderá escolher um modelo e colar ou revisar esse texto no seu currículo.",
     pendingNotice: "Você tem um resumo profissional copiado da ferramenta gratuita. Escolha um modelo e cole ou revise esse texto no campo Resumo Profissional.",
     importedNotice: "Resumo profissional importado da ferramenta gratuita. Revise antes de salvar.",
@@ -14613,25 +14648,60 @@ function summaryGeneratorCopy(language = currentLanguage) {
       ogTitle: "Free Professional Summary Generator | Succeedora",
       ogDescription: "Generate a professional resume summary quickly and easily with Succeedora.",
     },
-    eyebrow: "FREE SUCCEEDORA TOOL",
-    title: "Free professional summary generator",
+    eyebrow: "SUCCEEDORA CAREER INTELLIGENCE",
+    title: "A global-standard professional summary",
     subtitle: "Create a clear and professional resume summary based on your role, experience and key skills.",
-    heroSubtitle: "Enter your role, experience and key skills to generate a clear, professional and editable resume summary.",
+    heroSubtitle: "Turn your role, experience and skills into precise, polished copy built for international resumes, ATS systems and premium templates.",
     primaryCta: "Generate summary now",
     secondaryCta: "Create full resume",
-    badges: ["Free", "No login required", "Resume-ready", "Editable"],
-    sampleTitle: "Generated example",
-    sampleSummary: "Administrative professional with experience supporting internal routines, organizing documents and improving operational workflows. Organized, communicative and focused on contributing to clear, reliable and efficient team processes.",
+    badges: ["Global standard", "ATS-friendly", "No login required", "Editable"],
+    sampleTitle: "Refined summary",
+    sampleSummary: "Administrative operations professional with experience in document organization, internal routines and process support. Clear, responsible profile focused on turning information into consistent execution for global teams.",
+    heroPanel: {
+      label: "Succeedora Intelligence",
+      meta: "Global profile brief",
+      scoreLabel: "Precision",
+      score: "94",
+      scoreSuffix: "/100",
+      language: "PT / EN",
+      signals: ["ATS clarity", "Executive tone", "Ready to edit"],
+    },
     toolTitle: "Create your professional summary",
-    toolText: "Fill in a few basic details. You can review and edit the text before using it in your resume.",
+    toolText: "Use guided choices and include only true information. You can review and edit the text before using it in your resume.",
     fields: {
-      role: ["Target or current role", "Ex: Administrative Assistant, Product Manager, Front-end Developer"],
-      field: ["Professional field", "Ex: Administration, Technology, Sales, Customer Service, Marketing"],
-      level: ["Career level", ["First job", "Internship", "Junior", "Mid-level", "Senior", "Leadership", "Career change"]],
-      experience: ["Years of experience", ["No experience", "Less than 1 year", "1 to 2 years", "3 to 5 years", "More than 5 years"]],
-      skills: ["Key skills", "Ex: organization, customer service, Excel, leadership, communication"],
-      goal: ["Career goal", "Ex: I want to join a company where I can grow and apply my skills."],
-      tone: ["Summary tone", ["Professional", "Direct", "Confident", "Formal", "Simple"]],
+      role: ["Role or desired field", "Ex: Administrative assistant, Sales representative, Customer service, Developer", "Enter the role or field you want to target."],
+      field: ["Professional field", ["Administrative", "Customer service", "Sales", "Technology", "Marketing", "Finance", "Logistics", "Education", "Healthcare", "Operations", "Other"], "Choose the closest field for your goal."],
+      level: ["Professional level", ["First job", "Internship", "Junior", "Mid-level", "Senior", "Career transition"], "Select the level that best represents your current moment."],
+      goal: ["Professional goal", ["Get my first professional opportunity", "Work in my chosen field", "Improve my professional presentation", "Change careers", "Apply for international roles", "Grow professionally", "Contribute my skills to a new company"], "Choose the main goal for this summary."],
+      goalCustom: ["Optional goal in your own words", "Ex: I want to join a company where I can grow", "Optional: add a short detail if no option fully represents your goal."],
+      extra: ["Optional extra details", "Ex: courses, projects, education, volunteer work or relevant experience", "Include only true details that help personalize the text."],
+      manualSkill: ["Add a skill manually", "Ex: Power BI, writing, reception, maintenance", "Use this to include a real skill that is not listed."],
+    },
+    skillsTitle: "Key skills",
+    skillsHelp: "Choose at least 2 skills. Only include skills you actually have.",
+    selectedSkillsLabel: "Selected skills",
+    noSkillsSelected: "No skills selected yet.",
+    addSkillButton: "Add",
+    skillSuggestions: {
+      firstJob: ["Communication", "Teamwork", "Punctuality", "Responsibility", "Willingness to learn", "Organization"],
+      administrative: ["Organization", "Basic Excel", "Internal support", "Document control", "Communication", "Responsibility"],
+      customer_service: ["Customer service", "Communication", "Empathy", "Problem solving", "Organization", "Patience"],
+      sales: ["Customer service", "Negotiation", "Communication", "Prospecting", "Organization", "Goal focus"],
+      technology: ["Logic", "Problem solving", "JavaScript", "React", "Technical support", "Organization"],
+      marketing: ["Communication", "Social media", "Content creation", "Campaign organization", "Metrics analysis", "Creativity"],
+      finance: ["Excel", "Financial control", "Organization", "Attention to detail", "Reconciliation", "Responsibility"],
+      logistics: ["Organization", "Inventory control", "Routing", "Deadline awareness", "Communication", "Processes"],
+      education: ["Communication", "Teaching skills", "Organization", "Planning", "Patience", "Teamwork"],
+      healthcare: ["Empathy", "Attention to detail", "Organization", "Communication", "Responsibility", "People care"],
+      operations: ["Organization", "Processes", "Attention to detail", "Punctuality", "Teamwork", "Responsibility"],
+      other: ["Communication", "Organization", "Responsibility", "Teamwork", "Fast learning", "Attention to detail"],
+    },
+    qualityTitle: "Information quality",
+    qualityLabels: { basic: "Basic", good: "Good", strong: "Strong" },
+    qualityDescriptions: {
+      basic: "Your summary may be more generic. To improve it, add a goal or an extra detail.",
+      good: "Good base. To make it stronger, add an extra detail or select more real skills.",
+      strong: "Great. There is enough context to generate more specific and consistent versions.",
     },
     generate: "Generate professional summary",
     resultTitle: "Your professional summary",
@@ -14645,8 +14715,8 @@ function summaryGeneratorCopy(language = currentLanguage) {
     saveEdit: "Save edit",
     copied: "Summary copied.",
     continueCopied: "Summary copied. Now choose a template to create your resume.",
-    missingRequired: "To generate a better summary, add a role or field, career level and at least two skills.",
-    qualityWarning: "Your summary may sound more generic because some information is missing. For a stronger result, add a role, field, goal and at least two skills.",
+    missingRequired: "To generate a better summary, enter your role or field, choose your professional level and select at least two skills.",
+    qualityWarning: "Your summary may be more generic. To improve it, add a goal or an extra detail.",
     resultNotice: "Before continuing, copy your summary. In the next step, you can choose a template and paste or review this text in your resume.",
     pendingNotice: "You have a professional summary copied from the free tool. Choose a template and paste or review this text in the Professional Summary field.",
     importedNotice: "Professional summary imported from the free tool. Review it before saving.",
@@ -14790,7 +14860,7 @@ function summaryExperiencePhrase(level, experience, language = currentLanguage) 
 }
 
 function splitSummarySkills(value = "") {
-  return String(value || "").split(/,|\n|;/).map((item) => item.trim()).filter(Boolean).slice(0, 5);
+  return [...new Set(String(value || "").split(/,|\n|;/).map((item) => item.trim()).filter(Boolean))].slice(0, 8);
 }
 
 function legacyGeneratedSummaryOptions(data = {}, language = currentLanguage) {
@@ -14907,7 +14977,11 @@ function summaryTarget(data = {}, language = currentLanguage, mode = "plain") {
     if (role) return role;
     if (field) return isPt ? `Profissional de ${field}` : `${field} professional`;
   }
-  if (role && field) return isPt ? `${role} na área de ${field}` : `${role} in ${field}`;
+  if (role && field) {
+    const sameArea = summaryAreaKeyFromValue(role) === summaryAreaKeyFromValue(field);
+    if (sameArea && summaryAreaKeyFromValue(field) !== "other") return role;
+    return isPt ? `${role} na área de ${field}` : `${role} in ${field}`;
+  }
   return role || field || (isPt ? "sua área profissional" : "the selected field");
 }
 
@@ -15129,6 +15203,11 @@ function detectSummaryArea(data = {}) {
   if (/tec|technology|dev|software|program|javascript|react|dados|data|sistema|suporte tecnico/.test(text)) return "technology";
   if (/atendimento|customer|cliente|suporte|service|support/.test(text)) return "customer_service";
   if (/marketing|conteudo|content|social|campanha|brand|marca/.test(text)) return "marketing";
+  if (/finance|financeiro|contabil|contabilidade|fiscal/.test(text)) return "finance";
+  if (/logistica|logistics|estoque|inventory|rota|transporte/.test(text)) return "logistics";
+  if (/educa|education|ensino|teacher|professor|aula/.test(text)) return "education";
+  if (/saude|health|healthcare|enferm|clinica|cuidado/.test(text)) return "healthcare";
+  if (/operacional|operations|operacao|producao|processo/.test(text)) return "operations";
   return "general";
 }
 
@@ -15150,6 +15229,21 @@ function summaryAreaContext(area = "general", language = currentLanguage) {
     marketing: isPt
       ? "comunicação, conteúdo, campanhas, redes sociais e análise"
       : "communication, content, campaigns, social media and analysis",
+    finance: isPt
+      ? "controle financeiro, organização, análise e atenção aos detalhes"
+      : "financial control, organization, analysis and attention to detail",
+    logistics: isPt
+      ? "organização de processos, controle de estoque, prazos e movimentação"
+      : "process organization, inventory control, deadlines and movement",
+    education: isPt
+      ? "comunicação, planejamento, apoio ao aprendizado e organização"
+      : "communication, planning, learning support and organization",
+    healthcare: isPt
+      ? "cuidado com pessoas, organização, comunicação e responsabilidade"
+      : "people care, organization, communication and responsibility",
+    operations: isPt
+      ? "rotinas operacionais, processos, qualidade e trabalho em equipe"
+      : "operational routines, processes, quality and teamwork",
     general: isPt
       ? "organização, comunicação e atuação profissional consistente"
       : "organization, communication and consistent professional work",
@@ -15157,15 +15251,20 @@ function summaryAreaContext(area = "general", language = currentLanguage) {
   return contexts[area] || contexts.general;
 }
 
+function summaryInformationQuality(data = {}, skills = splitSummarySkills(data.skills)) {
+  const minimum = hasEnoughSummaryInput(data);
+  const hasGoal = Boolean(String(data.goal || "").trim());
+  const hasExtra = Boolean(String(data.extra || "").trim());
+  if (minimum && hasGoal && (hasExtra || skills.length >= 4)) return "strong";
+  if (minimum && hasGoal) return "good";
+  return "basic";
+}
+
 function summaryQualityScore(data = {}, skills = splitSummarySkills(data.skills)) {
-  let score = 0;
-  if (String(data.role || "").trim()) score += 2;
-  if (String(data.field || "").trim()) score += 2;
-  if (String(data.level || "").trim()) score += 2;
-  if (skills.length >= 2) score += 2;
-  if (String(data.goal || "").trim()) score += 1;
-  if (String(data.experience || "").trim()) score += 1;
-  return score;
+  const quality = summaryInformationQuality(data, skills);
+  if (quality === "strong") return 10;
+  if (quality === "good") return 8;
+  return hasEnoughSummaryInput(data) ? 5 : 2;
 }
 
 function detectSummaryProfiles(data = {}, skills = []) {
@@ -15188,6 +15287,7 @@ function analyzeSummaryInput(data = {}, language = currentLanguage) {
   const area = detectSummaryArea(data);
   const profiles = detectSummaryProfiles(data, skills);
   const score = summaryQualityScore(data, skills);
+  const quality = summaryInformationQuality(data, skills);
   const target = summaryTarget(data, language);
   const directTarget = summaryTarget(data, language, "direct");
   const tone = normalizeSummaryText(data.tone || "");
@@ -15200,6 +15300,7 @@ function analyzeSummaryInput(data = {}, language = currentLanguage) {
     area,
     areaContext: summaryAreaContext(area, language),
     score,
+    quality,
     target,
     directTarget,
     tone,
@@ -15282,18 +15383,21 @@ function summarySpecificGoal(analysis, language = currentLanguage) {
 function summaryPostGenerationSuggestions(analysis, language = currentLanguage) {
   const isPt = language === "pt";
   const suggestions = [];
-  if (analysis.score < 8) suggestions.push(isPt
-    ? "Para deixar seu resumo mais forte, adicione uma habilidade técnica, uma área de interesse ou um objetivo profissional mais específico."
-    : "To make your summary stronger, add a technical skill, an area of interest or a more specific career goal.");
+  if (analysis.quality === "basic") suggestions.push(isPt
+    ? "Para deixar seu resumo mais forte, adicione um curso ou projeto relevante."
+    : "To make your summary stronger, add a relevant course or project.");
+  if (analysis.quality !== "strong" && analysis.skills.length < 4) suggestions.push(isPt
+    ? "Selecione mais habilidades reais para deixar as versões menos genéricas."
+    : "Select more real skills to make the versions less generic.");
   if (analysis.isFirstJob) suggestions.push(isPt
-    ? "Seu resumo está mais adequado para primeiro emprego. Evite inventar experiências e destaque cursos, projetos ou atividades relevantes."
-    : "Your summary is better suited for a first job. Avoid inventing experience and highlight courses, projects or relevant activities.");
+    ? "Se este é seu primeiro emprego, destaque formação, responsabilidade e vontade de aprender."
+    : "If this is your first job, highlight education, responsibility and willingness to learn.");
   if (analysis.isTransition) suggestions.push(isPt
     ? "Como é uma transição de carreira, destaque habilidades transferíveis e explique seu interesse na nova área com clareza."
     : "Because this is a career transition, highlight transferable skills and explain your interest in the new field clearly.");
-  if (!analysis.classifiedSkills.technical.length) suggestions.push(isPt
-    ? "Se for verdadeiro para você, inclua uma habilidade técnica específica para deixar o texto menos genérico."
-    : "If it is true for you, include a specific technical skill to make the text less generic.");
+  suggestions.push(isPt
+    ? "Evite colocar habilidades que você não possui."
+    : "Avoid adding skills you do not actually have.");
   return suggestions.slice(0, 2);
 }
 
@@ -15307,6 +15411,21 @@ function toneAdjustedSummaries(options = [], tone = "", language = currentLangua
   return options;
 }
 
+function summaryExtraSentence(extra = "", language = currentLanguage) {
+  const text = String(extra || "").trim().replace(/\s+/g, " ").replace(/[.!?]+$/g, "");
+  if (!text) return "";
+  return language === "pt"
+    ? `Inclui detalhes relevantes como ${lowercaseFirst(text)}.`
+    : `Includes relevant details such as ${lowercaseFirst(text)}.`;
+}
+
+function summaryGoalSentence(goal = "", language = currentLanguage) {
+  const text = String(goal || "").trim().replace(/[.!?]+$/g, "");
+  if (!text) return "";
+  if (language === "pt" && /^buscar\b/i.test(text)) return `Tem como objetivo ${lowercaseFirst(text)}.`;
+  return language === "pt" ? `Busca ${lowercaseFirst(text)}.` : `Seeks to ${lowercaseFirst(text)}.`;
+}
+
 function generatedSummaryOptions(data = {}, language = currentLanguage) {
   const isPt = language === "pt";
   const analysis = analyzeSummaryInput(data, language);
@@ -15317,49 +15436,53 @@ function generatedSummaryOptions(data = {}, language = currentLanguage) {
   const target = analysis.target;
   const directTarget = analysis.directTarget;
   const baseTarget = String(data.role || data.field || target).trim();
+  const levelPhrase = structuredSummaryExperiencePhrase(data, language);
+  const areaContext = analysis.areaContext;
+  const extraSentence = summaryExtraSentence(data.extra, language);
+  const directGoal = summaryGoalSentence(goal, language);
+  const professionalGoal = goal ? (isPt ? `com foco em ${goal}` : `with focus on ${goal}`) : (isPt ? `com foco em ${areaContext}` : `with focus on ${areaContext}`);
   let options;
   if (analysis.isTransition) {
     options = isPt ? [
-      `Profissional em transição para a área de ${target}, com ${skillPhrase}. Busca aplicar experiências anteriores e desenvolver novas competências na área.`,
-      `Profissional em transição de carreira, com interesse em atuar em ${target} e desenvolver novas competências. Possui habilidades transferíveis em ${skillList}, além de perfil ${softPhrase}. Busca uma oportunidade para aplicar seus conhecimentos e crescer de forma consistente na nova área.`,
-      `Perfil em transição para ${target}, com capacidade de adaptação, aprendizado contínuo e habilidades em ${skillList}. Busca contribuir com uma visão prática, responsável e orientada ao desenvolvimento profissional.`,
+      `Profissional em transição para ${target}, com ${skillPhrase}. ${directGoal || "Busca desenvolver novas competências na área."}`,
+      `Com interesse em atuar em ${target}, apresenta habilidades transferíveis em ${skillList} e perfil ${softPhrase}. ${extraSentence} Busca se posicionar com clareza na nova área, sem inventar experiências ou resultados.`,
+      `Perfil em mudança de carreira, orientado a ${areaContext}. Reúne ${skillPhrase} e busca contribuir de forma responsável enquanto desenvolve consistência profissional em ${target}.`,
     ] : [
-      `Professional transitioning into ${target}, with ${skillPhrase}. Seeks to apply previous experience and develop new skills in the field.`,
-      `Career transition profile interested in working in ${target} and developing new competencies. Brings transferable skills in ${skillList}, along with a ${softPhrase} profile. Seeks an opportunity to apply knowledge and grow consistently in the new field.`,
-      `Profile transitioning into ${target}, with adaptability, continuous learning and skills in ${skillList}. Seeks to contribute with a practical, responsible approach focused on professional development.`,
+      `Professional transitioning into ${target}, with ${skillPhrase}. ${directGoal || "Seeks to develop new skills in the field."}`,
+      `Interested in working in ${target}, this profile brings transferable skills in ${skillList} and a ${softPhrase} approach. ${extraSentence} Seeks to position clearly in the new field without inventing experience or results.`,
+      `Career-change profile oriented toward ${areaContext}. Brings ${skillPhrase} and seeks to contribute responsibly while developing professional consistency in ${target}.`,
     ];
   } else if (analysis.isFirstJob) {
     options = isPt ? [
-      `Candidato em busca da primeira oportunidade profissional, com perfil ${softPhrase} e interesse em desenvolver experiência na área de ${target}. Possui ${skillPhrase} e disposição para aprender novas rotinas com responsabilidade.`,
-      `Profissional em início de carreira, com interesse em atuar na área de ${target} e desenvolver experiência prática. Possui habilidades em ${skillList}, além de perfil ${softPhrase}. Busca uma oportunidade para aprender, contribuir com responsabilidade e crescer profissionalmente.`,
-      `Candidato em início de trajetória profissional, com perfil ${softPhrase} e forte disposição para aprender. Reúne habilidades em ${skillList} e busca uma oportunidade para aplicar seus conhecimentos, desenvolver experiência prática e contribuir de forma responsável para a equipe.`,
+      `${baseTarget} em início de carreira, com ${skillPhrase}. ${directGoal || "Busca primeira oportunidade para aprender, apoiar a equipe e crescer profissionalmente."}`,
+      `Profissional em início de trajetória, com interesse em ${target} e perfil ${softPhrase}. Reúne habilidades em ${skillList}. ${extraSentence} Busca aprender com responsabilidade e contribuir para rotinas claras, organizadas e consistentes.`,
+      `Candidato para primeira oportunidade em ${target}, com foco em ${areaContext}. Apresenta ${skillPhrase} e disposição para desenvolver experiência prática sem exagerar informações no currículo.`,
     ] : [
-      `Candidate seeking a first professional opportunity, with a ${softPhrase} profile and interest in developing experience in ${target}. Brings ${skillPhrase} and willingness to learn new routines responsibly.`,
-      `Entry-level professional interested in working in ${target} and developing practical experience. Has skills in ${skillList}, along with a ${softPhrase} profile. Seeks an opportunity to learn, contribute responsibly and grow professionally.`,
-      `Candidate at the beginning of a professional path, with a ${softPhrase} profile and strong willingness to learn. Brings skills in ${skillList} and seeks an opportunity to apply knowledge, develop practical experience and contribute responsibly to the team.`,
+      `${baseTarget} at the beginning of a career, with ${skillPhrase}. ${directGoal || "Seeks a first opportunity to learn, support the team and grow professionally."}`,
+      `Entry-level profile interested in ${target}, with a ${softPhrase} approach. Brings skills in ${skillList}. ${extraSentence} Seeks to learn responsibly and contribute to clear, organized and consistent routines.`,
+      `Candidate for a first opportunity in ${target}, focused on ${areaContext}. Shows ${skillPhrase} and willingness to develop practical experience without overstating information on the resume.`,
     ];
   } else {
-    const exp = structuredSummaryExperiencePhrase(data, language);
     options = isPt ? [
-      `Profissional de ${baseTarget}, com ${exp} e habilidades em ${skillList}. Busca contribuir com organização, qualidade e foco em resultados.`,
-      `Profissional de ${target}, com ${exp} e atuação voltada para ${analysis.areaContext}. Possui ${skillPhrase}, com perfil ${softPhrase}. Busca contribuir para a empresa com uma atuação organizada, clara e profissional.`,
-      `Profissional de ${target}, com perfil ${softPhrase} e experiência em ${analysis.areaContext}. Reúne habilidades em ${skillList} e busca gerar valor por meio de uma atuação responsável, eficiente e alinhada aos objetivos da empresa.`,
+      `Profissional de ${baseTarget}, ${levelPhrase}, com habilidades em ${skillList}. ${directGoal || "Busca contribuir com organização, qualidade e foco em desenvolvimento profissional."}`,
+      `Com foco em ${target}, apresenta perfil ${softPhrase} e atuação orientada a ${areaContext}. Possui ${skillPhrase}. ${extraSentence} Busca contribuir de forma clara, ética e alinhada às necessidades da empresa.`,
+      `Perfil ${levelPhrase} em ${target}, com capacidade de apoiar rotinas e entregas por meio de ${skillList}. Busca gerar valor com responsabilidade, comunicação e consistência profissional.`,
     ] : [
-      `${baseTarget} professional, with ${exp} and skills in ${skillList}. Seeks to contribute with organization, quality and focus on results.`,
-      `${target} professional with ${exp} and work focused on ${analysis.areaContext}. Brings ${skillPhrase}, with a ${softPhrase} profile. Seeks to contribute through organized, clear and professional work.`,
-      `${target} professional with a ${softPhrase} profile and experience in ${analysis.areaContext}. Brings skills in ${skillList} and seeks to create value through responsible, efficient work aligned with company goals.`,
+      `${baseTarget} professional, ${levelPhrase}, with skills in ${skillList}. ${directGoal || "Seeks to contribute with organization, quality and professional development."}`,
+      `Focused on ${target}, this profile is ${softPhrase} and oriented toward ${areaContext}. Brings ${skillPhrase}. ${extraSentence} Seeks to contribute through clear, ethical work aligned with company needs.`,
+      `${levelPhrase} profile in ${target}, able to support routines and deliverables through ${skillList}. Seeks to create value with responsibility, communication and professional consistency.`,
     ];
   }
-  options = toneAdjustedSummaries(options, analysis.tone, language);
+  options = options.map((option) => option.replace(/\s+/g, " ").trim());
   return ensureDistinctSummaryOptions(options, {
     target,
-    levelPhrase: structuredSummaryExperiencePhrase(data, language),
-    confidentLevelPhrase: summaryConfidentLevelPhrase(structuredSummaryExperiencePhrase(data, language), language),
+    levelPhrase,
+    confidentLevelPhrase: summaryConfidentLevelPhrase(levelPhrase, language),
     profileTraits: softPhrase,
     contributionTraits: summaryContributionTraits(analysis.skills, data, language),
     professionalSkills: skillList,
     confidentSkills: skillList,
-    professionalGoal: isPt ? `com foco em ${goal}` : `with focus on ${goal}`,
+    professionalGoal,
     confidentEnding: isPt ? `Busca aplicar seus conhecimentos em ${target} com responsabilidade.` : `Seeks to apply knowledge in ${target} responsibly.`,
   }, language);
 }
@@ -15369,7 +15492,87 @@ function summaryToolFormData(root = document) {
   root.querySelectorAll("[data-summary-field]").forEach((field) => {
     data[field.getAttribute("data-summary-field")] = String(field.value || "").trim();
   });
+  if (data.goalCustom) data.goal = data.goal ? `${data.goal}; ${data.goalCustom}` : data.goalCustom;
   return data;
+}
+
+function summaryAreaKeyFromValue(value = "") {
+  const text = normalizeSummaryText(value);
+  if (/primeiro emprego|first job/.test(text)) return "firstJob";
+  if (/admin/.test(text)) return "administrative";
+  if (/atendimento|customer service/.test(text)) return "customer_service";
+  if (/venda|sales/.test(text)) return "sales";
+  if (/tecnologia|technology|developer|desenvolvedor/.test(text)) return "technology";
+  if (/marketing/.test(text)) return "marketing";
+  if (/finance/.test(text)) return "finance";
+  if (/logistica|logistics/.test(text)) return "logistics";
+  if (/educa|education/.test(text)) return "education";
+  if (/saude|healthcare|health/.test(text)) return "healthcare";
+  if (/operacional|operations/.test(text)) return "operations";
+  return "other";
+}
+
+function summaryCurrentSkills(root = document) {
+  const hidden = root.querySelector("[data-summary-field='skills']");
+  return splitSummarySkills(hidden?.value || "");
+}
+
+function summarySetSkills(skills = [], root = document) {
+  const values = [...new Set(skills.map((skill) => String(skill || "").trim()).filter(Boolean))].slice(0, 8);
+  const hidden = root.querySelector("[data-summary-field='skills']");
+  if (hidden) hidden.value = values.join(", ");
+  return values;
+}
+
+function summarySuggestedSkills(data = {}, language = currentLanguage) {
+  const copy = summaryGeneratorCopy(language);
+  const levelKey = summaryAreaKeyFromValue(data.level);
+  const areaKey = levelKey === "firstJob" ? "firstJob" : summaryAreaKeyFromValue(data.field || data.role);
+  return copy.skillSuggestions?.[areaKey] || copy.skillSuggestions?.other || [];
+}
+
+function updateSummarySkillUi(root = document) {
+  const copy = summaryGeneratorCopy(currentLanguage);
+  const data = summaryToolFormData(root);
+  const selected = summaryCurrentSkills(root);
+  const selectedKeys = new Set(selected.map(normalizeSummaryText));
+  const suggestions = summarySuggestedSkills(data, currentLanguage);
+  const suggestionTarget = root.querySelector("[data-summary-skill-suggestions]");
+  const selectedTarget = root.querySelector("[data-summary-selected-skills]");
+  if (suggestionTarget) {
+    suggestionTarget.innerHTML = suggestions.map((skill) => {
+      const active = selectedKeys.has(normalizeSummaryText(skill));
+      return `<button class="summary-skill-chip ${active ? "is-selected" : ""}" type="button" data-summary-skill="${escapeHtml(skill)}" aria-pressed="${active ? "true" : "false"}">${active ? icon("check") : ""}${escapeHtml(skill)}</button>`;
+    }).join("");
+  }
+  if (selectedTarget) {
+    selectedTarget.innerHTML = selected.length
+      ? selected.map((skill) => `<button class="summary-selected-skill" type="button" data-summary-remove-skill="${escapeHtml(skill)}">${escapeHtml(skill)} <span aria-hidden="true">×</span></button>`).join("")
+      : `<p>${escapeHtml(copy.noSkillsSelected)}</p>`;
+  }
+}
+
+function updateSummaryQualityUi(root = document) {
+  const copy = summaryGeneratorCopy(currentLanguage);
+  const data = summaryToolFormData(root);
+  const quality = summaryInformationQuality(data, splitSummarySkills(data.skills));
+  const target = root.querySelector("[data-summary-quality]");
+  if (!target) return;
+  const labels = copy.qualityLabels || {};
+  const descriptions = copy.qualityDescriptions || {};
+  target.setAttribute("data-quality", quality);
+  target.innerHTML = `
+    <div>
+      <span>${escapeHtml(copy.qualityTitle)}</span>
+      <strong>${escapeHtml(labels[quality] || quality)}</strong>
+    </div>
+    <p>${escapeHtml(descriptions[quality] || "")}</p>
+  `;
+}
+
+function refreshSummaryGuidedForm(root = document) {
+  updateSummarySkillUi(root);
+  updateSummaryQualityUi(root);
 }
 
 function renderSummaryToolResults(options = [], analysis = null) {
@@ -15378,7 +15581,7 @@ function renderSummaryToolResults(options = [], analysis = null) {
   const list = document.querySelector("[data-summary-list]");
   if (!results || !list) return;
   const suggestions = analysis ? summaryPostGenerationSuggestions(analysis, currentLanguage) : [];
-  const warning = analysis?.score < 8 ? `<p class="summary-quality-warning">${escapeHtml(copy.qualityWarning)}</p>` : "";
+  const warning = analysis?.quality === "basic" ? `<p class="summary-quality-warning">${escapeHtml(copy.qualityWarning)}</p>` : "";
   list.innerHTML = `
     ${warning}
     ${options.map((text, index) => `
@@ -15549,6 +15752,7 @@ function startResumeFromSummaryLanding(event) {
 function bindSummaryGeneratorInteractions() {
   const tool = document.querySelector("[data-summary-form]");
   if (!tool) return;
+  refreshSummaryGuidedForm(document);
   const generate = async () => {
     const copy = summaryGeneratorCopy(currentLanguage);
     const data = summaryToolFormData(document);
@@ -15575,6 +15779,33 @@ function bindSummaryGeneratorInteractions() {
     renderSummaryToolResults(options, analysis);
   };
   document.querySelector(".summary-tool-page")?.addEventListener("click", async (event) => {
+    const skillButton = event.target.closest("[data-summary-skill]");
+    if (skillButton) {
+      const skill = skillButton.getAttribute("data-summary-skill") || "";
+      const current = summaryCurrentSkills(document);
+      const exists = current.some((item) => normalizeSummaryText(item) === normalizeSummaryText(skill));
+      summarySetSkills(exists ? current.filter((item) => normalizeSummaryText(item) !== normalizeSummaryText(skill)) : [...current, skill], document);
+      refreshSummaryGuidedForm(document);
+      return;
+    }
+    const removeSkillButton = event.target.closest("[data-summary-remove-skill]");
+    if (removeSkillButton) {
+      const skill = removeSkillButton.getAttribute("data-summary-remove-skill") || "";
+      summarySetSkills(summaryCurrentSkills(document).filter((item) => normalizeSummaryText(item) !== normalizeSummaryText(skill)), document);
+      refreshSummaryGuidedForm(document);
+      return;
+    }
+    const addManualSkill = event.target.closest("[data-summary-add-skill]");
+    if (addManualSkill) {
+      const input = document.querySelector("[data-summary-manual-skill]");
+      const value = String(input?.value || "").trim();
+      if (value) {
+        summarySetSkills([...summaryCurrentSkills(document), value], document);
+        if (input) input.value = "";
+        refreshSummaryGuidedForm(document);
+      }
+      return;
+    }
     const generateButton = event.target.closest("[data-summary-generate]");
     if (generateButton) {
       await generate();
@@ -15627,6 +15858,20 @@ function bindSummaryGeneratorInteractions() {
       }
     }
   });
+  tool.addEventListener("change", () => refreshSummaryGuidedForm(document));
+  tool.addEventListener("input", (event) => {
+    if (event.target.matches("[data-summary-manual-skill]")) return;
+    refreshSummaryGuidedForm(document);
+  });
+  tool.querySelector("[data-summary-manual-skill]")?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    const value = String(event.currentTarget.value || "").trim();
+    if (!value) return;
+    summarySetSkills([...summaryCurrentSkills(document), value], document);
+    event.currentTarget.value = "";
+    refreshSummaryGuidedForm(document);
+  });
 }
 
 function renderProfessionalSummaryGeneratorPage() {
@@ -15634,12 +15879,34 @@ function renderProfessionalSummaryGeneratorPage() {
   currentLanguage = path === professionalSummaryGeneratorPath("pt") ? "pt" : "en";
   const copy = summaryGeneratorCopy(currentLanguage);
   const fieldInput = (key, type = "input") => {
-    const [label, placeholder] = copy.fields[key];
-    return `<label>${label}${type === "textarea" ? `<textarea data-summary-field="${key}" placeholder="${placeholder}"></textarea>` : `<input data-summary-field="${key}" placeholder="${placeholder}" />`}</label>`;
+    const [label, placeholder, help] = copy.fields[key];
+    return `<label class="summary-field">${escapeHtml(label)}${type === "textarea" ? `<textarea data-summary-field="${key}" placeholder="${escapeHtml(placeholder)}"></textarea>` : `<input data-summary-field="${key}" placeholder="${escapeHtml(placeholder)}" />`}${help ? `<small>${escapeHtml(help)}</small>` : ""}</label>`;
   };
   const selectInput = (key) => {
-    const [label, options] = copy.fields[key];
-    return `<label>${label}<select data-summary-field="${key}">${options.map((option) => `<option>${escapeHtml(option)}</option>`).join("")}</select></label>`;
+    const [label, options, help] = copy.fields[key];
+    const placeholder = key === "goal" ? `<option value="">${currentLanguage === "pt" ? "Escolha um objetivo" : "Choose a goal"}</option>` : "";
+    return `<label class="summary-field">${escapeHtml(label)}<select data-summary-field="${key}">${placeholder}${options.map((option) => `<option>${escapeHtml(option)}</option>`).join("")}</select>${help ? `<small>${escapeHtml(help)}</small>` : ""}</label>`;
+  };
+  const skillBuilder = () => {
+    const [label, placeholder, help] = copy.fields.manualSkill;
+    return `
+      <div class="summary-skill-builder">
+        <div>
+          <strong>${escapeHtml(copy.skillsTitle)}</strong>
+          <p>${escapeHtml(copy.skillsHelp)}</p>
+        </div>
+        <input type="hidden" data-summary-field="skills" />
+        <div class="summary-skill-suggestions" data-summary-skill-suggestions></div>
+        <div class="summary-manual-skill-row">
+          <label class="summary-field">${escapeHtml(label)}<input data-summary-manual-skill placeholder="${escapeHtml(placeholder)}" />${help ? `<small>${escapeHtml(help)}</small>` : ""}</label>
+          <button class="secondary-button small" type="button" data-summary-add-skill>${escapeHtml(copy.addSkillButton)}</button>
+        </div>
+        <div class="summary-selected-skills-wrap">
+          <span>${escapeHtml(copy.selectedSkillsLabel)}</span>
+          <div class="summary-selected-skills" data-summary-selected-skills></div>
+        </div>
+      </div>
+    `;
   };
   const list = (items) => `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
   mount(`
@@ -15658,10 +15925,28 @@ function renderProfessionalSummaryGeneratorPage() {
             <div class="summary-tool-badges">${copy.badges.map((badge) => `<span>${icon("check")} ${badge}</span>`).join("")}</div>
           </div>
           <aside class="summary-hero-card" aria-label="${copy.sampleTitle}">
-            <div class="panel-top"><span></span><span></span><span></span></div>
-            <span>${copy.sampleTitle}</span>
-            <p>${copy.sampleSummary}</p>
-            <div class="summary-card-lines" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="summary-hero-card-top">
+              <div class="summary-hero-brandline">
+                <span>${copy.heroPanel.label}</span>
+                <strong>${copy.heroPanel.meta}</strong>
+              </div>
+              <div class="summary-hero-score">
+                <span>${copy.heroPanel.scoreLabel}</span>
+                <strong>${copy.heroPanel.score}</strong>
+                <small>${copy.heroPanel.scoreSuffix}</small>
+              </div>
+            </div>
+            <div class="summary-hero-document">
+              <div class="summary-hero-document-head">
+                <span>${copy.sampleTitle}</span>
+                <em>${copy.heroPanel.language}</em>
+              </div>
+              <p>${copy.sampleSummary}</p>
+              <div class="summary-card-lines" aria-hidden="true"><i></i><i></i><i></i></div>
+            </div>
+            <div class="summary-hero-intelligence">
+              ${copy.heroPanel.signals.map((signal, index) => `<span>${icon(["shield", "sparkles", "globe"][index] || "check")} ${escapeHtml(signal)}</span>`).join("")}
+            </div>
           </aside>
         </section>
 
@@ -15670,12 +15955,13 @@ function renderProfessionalSummaryGeneratorPage() {
             <div class="section-heading left"><span class="eyebrow">Succeedora</span><h2>${copy.toolTitle}</h2><p>${copy.toolText}</p></div>
             <div class="summary-tool-form" data-summary-form>
               ${fieldInput("role")}
-              ${fieldInput("field")}
               ${selectInput("level")}
-              ${selectInput("experience")}
-              ${fieldInput("skills", "textarea")}
-              ${fieldInput("goal", "textarea")}
-              ${selectInput("tone")}
+              ${selectInput("field")}
+              ${skillBuilder()}
+              ${selectInput("goal")}
+              ${fieldInput("goalCustom")}
+              ${fieldInput("extra", "textarea")}
+              <div class="summary-quality-meter" data-summary-quality></div>
               <button class="primary-button" type="button" data-summary-generate>${copy.generate}</button>
               <p class="summary-tool-message" data-summary-message hidden></p>
             </div>
