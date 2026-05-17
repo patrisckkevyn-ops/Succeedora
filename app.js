@@ -6724,7 +6724,7 @@ function setHreflangLinks(route, canonical, seo = {}) {
   if (route === "/" || route === "/pt" || route === "/en") {
     setMetaLink("alternate", seoUrl("/pt"), "pt-BR");
     setMetaLink("alternate", seoUrl("/en"), "en");
-    setMetaLink("alternate", seoUrl("/"), "x-default");
+    setMetaLink("alternate", seoUrl("/en"), "x-default");
   }
 }
 

@@ -1,20 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://succeedora.com/</loc>
-    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://succeedora.com/pt" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://succeedora.com/en" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://succeedora.com/" />
-    <lastmod>2026-05-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
     <loc>https://succeedora.com/pt</loc>
     <xhtml:link rel="alternate" hreflang="pt-BR" href="https://succeedora.com/pt" />
     <xhtml:link rel="alternate" hreflang="en" href="https://succeedora.com/en" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://succeedora.com/" />
-    <lastmod>2026-05-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://succeedora.com/en" />
+    <lastmod>2026-05-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -22,8 +13,8 @@
     <loc>https://succeedora.com/en</loc>
     <xhtml:link rel="alternate" hreflang="pt-BR" href="https://succeedora.com/pt" />
     <xhtml:link rel="alternate" hreflang="en" href="https://succeedora.com/en" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://succeedora.com/" />
-    <lastmod>2026-05-16</lastmod>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://succeedora.com/en" />
+    <lastmod>2026-05-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>

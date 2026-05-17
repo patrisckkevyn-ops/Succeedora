@@ -29,6 +29,27 @@
     }
   ],
   "routes": [
+    {
+      "src": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-ip-country",
+          "value": "BR"
+        }
+      ],
+      "status": 307,
+      "headers": {
+        "Location": "/pt"
+      }
+    },
+    {
+      "src": "/",
+      "status": 307,
+      "headers": {
+        "Location": "/en"
+      }
+    },
     { "src": "/api/ai/credits", "dest": "/api/ai/generate" },
     { "src": "/api/admin/ai-credits", "dest": "/api/ai/generate" },
     { "handle": "filesystem" },
