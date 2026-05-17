@@ -14516,6 +14516,26 @@ function summaryGeneratorCopy(language = currentLanguage) {
       score: "94",
       scoreSuffix: "/100",
       language: "PT / EN",
+      samples: [
+        {
+          title: "Resumo refinado",
+          text: "Profissional de operaÃ§Ãµes administrativas com experiÃªncia em organizaÃ§Ã£o documental, rotinas internas e apoio a processos. Perfil claro, responsÃ¡vel e orientado a transformar informaÃ§Ã£o em execuÃ§Ã£o consistente para equipes globais.",
+          score: "94",
+          language: "PT / EN",
+        },
+        {
+          title: "VersÃ£o ATS",
+          text: "Assistente administrativo com perfil organizado, comunicaÃ§Ã£o clara e vivÃªncia em atendimento interno, controle de documentos e suporte a rotinas corporativas. Atua com responsabilidade, atenÃ§Ã£o aos detalhes e foco em processos mais eficientes.",
+          score: "91",
+          language: "PT",
+        },
+        {
+          title: "Tom internacional",
+          text: "Administrative professional focused on document control, internal support and structured routines. Clear communicator with a responsible profile, prepared to support organized execution in teams that value consistency and global standards.",
+          score: "96",
+          language: "EN",
+        },
+      ],
       signals: ["Clareza ATS", "Tom executivo", "Pronto para editar"],
     },
     toolTitle: "Crie seu resumo profissional",
@@ -14664,6 +14684,26 @@ function summaryGeneratorCopy(language = currentLanguage) {
       score: "94",
       scoreSuffix: "/100",
       language: "PT / EN",
+      samples: [
+        {
+          title: "Refined summary",
+          text: "Administrative operations professional with experience in document organization, internal routines and process support. Clear, responsible profile focused on turning information into consistent execution for global teams.",
+          score: "94",
+          language: "PT / EN",
+        },
+        {
+          title: "ATS version",
+          text: "Administrative assistant with an organized profile, clear communication and experience supporting internal requests, document control and corporate routines. Responsible, detail-oriented and focused on more efficient processes.",
+          score: "91",
+          language: "EN",
+        },
+        {
+          title: "Global tone",
+          text: "Operations professional prepared to support structured workflows, internal documentation and team routines in international environments. Practical communicator with strong organization, responsibility and consistent execution.",
+          score: "96",
+          language: "EN",
+        },
+      ],
       signals: ["ATS clarity", "Executive tone", "Ready to edit"],
     },
     toolTitle: "Create your professional summary",
@@ -15749,9 +15789,102 @@ function startResumeFromSummaryLanding(event) {
   setRoute(publicTemplatesPath(currentLanguage));
 }
 
+let summaryHeroDemoTimers = [];
+
+function clearSummaryHeroDemoTimers() {
+  summaryHeroDemoTimers.forEach((timer) => window.clearTimeout(timer));
+  summaryHeroDemoTimers = [];
+}
+
+function initSummaryHeroDemo() {
+  clearSummaryHeroDemoTimers();
+  const card = document.querySelector("[data-summary-hero-demo]");
+  if (!card) return;
+  let samples = [];
+  try {
+    samples = JSON.parse(card.getAttribute("data-summary-hero-samples") || "[]");
+  } catch (error) {
+    samples = [];
+  }
+  samples = samples
+    .map((sample) => ({
+      title: String(sample?.title || "").trim(),
+      text: String(sample?.text || "").trim(),
+      score: String(sample?.score || "").trim(),
+      language: String(sample?.language || "").trim(),
+    }))
+    .filter((sample) => sample.text);
+  if (!samples.length) return;
+
+  const title = card.querySelector("[data-summary-hero-title]");
+  const text = card.querySelector("[data-summary-hero-text]");
+  const score = card.querySelector("[data-summary-hero-score]");
+  const language = card.querySelector("[data-summary-hero-language]");
+  if (!text || !score) return;
+
+  const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  const showSample = (sample) => {
+    if (title) title.textContent = sample.title;
+    if (language) language.textContent = sample.language;
+    text.textContent = sample.text;
+    score.textContent = sample.score;
+    card.classList.remove("is-typing");
+    card.classList.add("is-scoring");
+  };
+
+  if (prefersReducedMotion) {
+    showSample(samples[0]);
+    return;
+  }
+
+  let sampleIndex = 0;
+  const schedule = (callback, delay) => {
+    const timer = window.setTimeout(callback, delay);
+    summaryHeroDemoTimers.push(timer);
+  };
+  const typeSample = () => {
+    if (!document.body.contains(card)) {
+      clearSummaryHeroDemoTimers();
+      return;
+    }
+    const sample = samples[sampleIndex % samples.length];
+    const characters = Array.from(sample.text);
+    let index = 0;
+    if (title) title.textContent = sample.title;
+    if (language) language.textContent = sample.language;
+    text.textContent = "";
+    score.textContent = "";
+    card.classList.remove("is-scoring");
+    card.classList.add("is-typing");
+
+    const typeNext = () => {
+      if (!document.body.contains(card)) {
+        clearSummaryHeroDemoTimers();
+        return;
+      }
+      text.textContent = characters.slice(0, index).join("");
+      if (index < characters.length) {
+        index += 1;
+        schedule(typeNext, 18 + Math.min(16, index % 7));
+        return;
+      }
+      score.textContent = sample.score;
+      card.classList.remove("is-typing");
+      card.classList.add("is-scoring");
+      sampleIndex += 1;
+      schedule(typeSample, 2600);
+    };
+
+    schedule(typeNext, 180);
+  };
+
+  typeSample();
+}
+
 function bindSummaryGeneratorInteractions() {
   const tool = document.querySelector("[data-summary-form]");
   if (!tool) return;
+  initSummaryHeroDemo();
   refreshSummaryGuidedForm(document);
   const generate = async () => {
     const copy = summaryGeneratorCopy(currentLanguage);
@@ -15909,6 +16042,9 @@ function renderProfessionalSummaryGeneratorPage() {
     `;
   };
   const list = (items) => `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+  const heroSamples = Array.isArray(copy.heroPanel.samples) && copy.heroPanel.samples.length
+    ? copy.heroPanel.samples
+    : [{ title: copy.sampleTitle, text: copy.sampleSummary, score: copy.heroPanel.score, language: copy.heroPanel.language }];
   mount(`
     <div class="public-shell summary-tool-page">
       ${publicHeader()}
@@ -15924,7 +16060,7 @@ function renderProfessionalSummaryGeneratorPage() {
             </div>
             <div class="summary-tool-badges">${copy.badges.map((badge) => `<span>${icon("check")} ${badge}</span>`).join("")}</div>
           </div>
-          <aside class="summary-hero-card" aria-label="${copy.sampleTitle}">
+          <aside class="summary-hero-card" aria-label="${copy.sampleTitle}" data-summary-hero-demo data-summary-hero-samples="${escapeHtml(JSON.stringify(heroSamples))}">
             <div class="summary-hero-card-top">
               <div class="summary-hero-brandline">
                 <span>${copy.heroPanel.label}</span>
@@ -15932,16 +16068,16 @@ function renderProfessionalSummaryGeneratorPage() {
               </div>
               <div class="summary-hero-score">
                 <span>${copy.heroPanel.scoreLabel}</span>
-                <strong>${copy.heroPanel.score}</strong>
+                <strong data-summary-hero-score>${copy.heroPanel.score}</strong>
                 <small>${copy.heroPanel.scoreSuffix}</small>
               </div>
             </div>
             <div class="summary-hero-document">
               <div class="summary-hero-document-head">
-                <span>${copy.sampleTitle}</span>
-                <em>${copy.heroPanel.language}</em>
+                <span data-summary-hero-title>${copy.sampleTitle}</span>
+                <em data-summary-hero-language>${copy.heroPanel.language}</em>
               </div>
-              <p>${copy.sampleSummary}</p>
+              <p data-summary-hero-text>${copy.sampleSummary}</p>
               <div class="summary-card-lines" aria-hidden="true"><i></i><i></i><i></i></div>
             </div>
             <div class="summary-hero-intelligence">
