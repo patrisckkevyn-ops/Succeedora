@@ -307,7 +307,7 @@
       <header>
         <a class="brand" data-home href="/en">
           <span class="brand-mark" aria-hidden="true">
-            <img class="brand-logo-image" data-brand-logo src="/assets/brand/succeedora-logo-premium-96.png" alt="" width="46" height="46" />
+            <img class="brand-logo-image" data-brand-logo alt="" width="46" height="46" />
           </span>
           <span>Succeedora</span>
         </a>
@@ -368,11 +368,9 @@
       const initialLanguage = location.pathname.split("/").filter(Boolean)[0] === "pt" || (navigator.language || "").toLowerCase().startsWith("pt") ? "pt" : "en";
       const brandLogo = document.querySelector("[data-brand-logo]");
       if (brandLogo) {
-        brandLogo.addEventListener("error", () => {
-          if (brandLogo.dataset.fallbackTried) return;
-          brandLogo.dataset.fallbackTried = "true";
-          brandLogo.src = "/assets/brand/succeedora-logo-premium-96.png";
-        });
+        brandLogo.src = location.protocol === "file:"
+          ? "assets/brand/succeedora-logo-premium-96.png"
+          : "/assets/brand/succeedora-logo-premium-96.png";
       }
 
       function applyLanguage(language) {
