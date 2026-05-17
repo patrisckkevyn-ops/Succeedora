@@ -218,7 +218,7 @@ const I18N = {
       pricingTitle: "Start free, upgrade when you need more career power.",
       faqEyebrow: "FAQ",
       faqTitle: "Clear answers before you start.",
-      footer: "Create a resume that helps you get hired.",
+      footer: "Create professional, organized resumes ready for new opportunities.",
       features: [
         ["sparkles", "AI Resume Builder", "Build a professional resume with clear structure, stronger writing and a job-ready layout."],
         ["pen", "Resume Improvement", "Get suggestions to make your summary, experience and skills more compelling."],
@@ -311,7 +311,7 @@ const I18N = {
       ],
     },
     auth: {
-      slogan: "Create a resume that helps you get hired.",
+      slogan: "Create professional, organized resumes ready for new opportunities.",
       support: "Use AI to build, improve and tailor your resume for global job opportunities.",
       signInEyebrow: "Welcome back",
       signUpEyebrow: "Start today",
@@ -708,7 +708,7 @@ const I18N = {
       pricingTitle: "Comece grátis e evolua quando quiser aumentar suas chances de entrevista.",
       faqEyebrow: "Dúvidas",
       faqTitle: "Respostas claras antes de você começar.",
-      footer: "Crie um currículo que aumenta suas chances de entrevista.",
+      footer: "Crie currículos profissionais, organizados e prontos para novas oportunidades.",
       features: [
         ["sparkles", "Criador de Currículo com IA", "Monte um currículo profissional com estrutura clara, textos melhores e visual pronto para candidatura."],
         ["pen", "Melhoria de Currículo", "Receba sugestões para deixar seu resumo, experiências e habilidades mais fortes."],
@@ -762,7 +762,7 @@ const I18N = {
       paymentFaq: [["Posso usar a Succeedora grátis?", "Sim. O plano Grátis permite testar o criador e fazer um currículo básico."], ["Posso pagar apenas uma vez?", "Sim. As opções avulsas servem para quem precisa de um download premium, Career Pack, modelo ou link online sem assinatura."], ["Preciso de assinatura para baixar meu currículo?", "Não. Você pode usar um plano mensal ou escolher o Download PDF Premium avulso."], ["O que são créditos de IA?", "Créditos de IA permitem usar recursos como reescrita, tradução, carta de apresentação e adaptação para vaga sem assinatura."], ["Posso cancelar minha assinatura quando quiser?", "Sim. Assinaturas por cartão são processadas pela Stripe e podem ser gerenciadas conforme as opções exibidas no checkout e no portal de cobrança."], ["Posso fazer upgrade depois?", "Sim. Você pode começar grátis, comprar uma opção avulsa, usar créditos ou migrar para Pro ou Premium depois."]],
     },
     auth: {
-      slogan: "Crie um currículo que aumenta suas chances de entrevista.",
+      slogan: "Crie currículos profissionais, organizados e prontos para novas oportunidades.",
       support: "Use IA para fazer currículo, melhorar seu perfil e adaptar sua candidatura para vagas no Brasil e no exterior.",
       signInEyebrow: "Bem-vindo de volta",
       signUpEyebrow: "Comece hoje",
@@ -1893,6 +1893,8 @@ const routes = {
   "/en": renderHome,
   "/pt/sobre": renderAboutPage,
   "/en/about": renderAboutPage,
+  "/pt/modelos/curriculo-primeiro-emprego": renderFirstJobResumePage,
+  "/en/templates/first-job-resume": renderFirstJobResumePage,
   "/pt/ferramentas/gerador-resumo-profissional": renderProfessionalSummaryGeneratorPage,
   "/en/tools/professional-summary-generator": renderProfessionalSummaryGeneratorPage,
   "/pricing": renderPricingPage,
@@ -1960,7 +1962,7 @@ const PRIVATE_ROUTES = new Set([
   "/admin/settings",
 ]);
 
-const PUBLIC_CLEAN_ROUTES = new Set(["/pricing", "/terms", "/privacy", "/contact", "/templates", "/pt/sobre", "/en/about", "/pt/modelos", "/en/templates", "/pt/ferramentas/gerador-resumo-profissional", "/en/tools/professional-summary-generator"]);
+const PUBLIC_CLEAN_ROUTES = new Set(["/pricing", "/terms", "/privacy", "/contact", "/templates", "/pt/sobre", "/en/about", "/pt/modelos", "/en/templates", "/pt/modelos/curriculo-primeiro-emprego", "/en/templates/first-job-resume", "/pt/ferramentas/gerador-resumo-profissional", "/en/tools/professional-summary-generator"]);
 
 const NOINDEX_ROUTES = new Set([
   "/login",
@@ -2044,6 +2046,16 @@ const SEO_META = {
     en: {
       title: "Succeedora — Resume Templates",
       description: "Explore professional resume templates for modern, clear and easy-to-review career documents.",
+    },
+  },
+  firstJobResume: {
+    pt: {
+      title: "Curr\u00edculo para Primeiro Emprego | Modelo, Exemplo e Dicas",
+      description: "Aprenda como fazer um curr\u00edculo para primeiro emprego, mesmo sem experi\u00eancia. Veja estrutura, exemplos prontos, habilidades e dicas para criar seu curr\u00edculo profissional.",
+    },
+    en: {
+      title: "First Job Resume | Template, Example and Tips",
+      description: "Learn how to create a resume for your first job, even without work experience. See structure, examples, skills and tips to build a professional resume.",
     },
   },
   pricing: {
@@ -5560,12 +5572,20 @@ function setLanguagePreference(language, options = {}) {
   }
   const cleanPath = window.location.pathname.replace(/\/+$/, "") || "/";
   if (
-    shouldUseLocalizedPath() &&
-    (cleanPath === professionalSummaryGeneratorPath("pt") || cleanPath === professionalSummaryGeneratorPath("en"))
+    shouldUseLocalizedPath()
   ) {
-    window.history.replaceState(null, "", professionalSummaryGeneratorPath(currentLanguage));
-    if (options.renderAfter !== false) render();
-    return;
+    const localizedRoutePairs = [
+      [aboutPath("pt"), aboutPath("en")],
+      [publicTemplatesPath("pt"), publicTemplatesPath("en")],
+      [firstJobResumePath("pt"), firstJobResumePath("en")],
+      [professionalSummaryGeneratorPath("pt"), professionalSummaryGeneratorPath("en")],
+    ];
+    const routePair = localizedRoutePairs.find(([ptPath, enPath]) => cleanPath === ptPath || cleanPath === enPath);
+    if (routePair) {
+      window.history.replaceState(null, "", currentLanguage === "pt" ? routePair[0] : routePair[1]);
+      if (options.renderAfter !== false) render();
+      return;
+    }
   }
   if (options.updatePath !== false) syncPathWithLanguage(currentLanguage);
   if (options.renderAfter !== false) render();
@@ -6394,6 +6414,10 @@ function publicTemplatesPath(language = currentLanguage) {
   return language === "pt" ? "/pt/modelos" : "/en/templates";
 }
 
+function firstJobResumePath(language = currentLanguage) {
+  return language === "pt" ? "/pt/modelos/curriculo-primeiro-emprego" : "/en/templates/first-job-resume";
+}
+
 function aboutPath(language = currentLanguage) {
   return language === "pt" ? "/pt/sobre" : "/en/about";
 }
@@ -6458,6 +6482,12 @@ function setRoute(path) {
   }
   if ((path === publicTemplatesPath("pt") || path === publicTemplatesPath("en")) && shouldUseLocalizedPath()) {
     currentLanguage = path === publicTemplatesPath("pt") ? "pt" : "en";
+    window.history.pushState(null, "", path);
+    render();
+    return;
+  }
+  if ((path === firstJobResumePath("pt") || path === firstJobResumePath("en")) && shouldUseLocalizedPath()) {
+    currentLanguage = path === firstJobResumePath("pt") ? "pt" : "en";
     window.history.pushState(null, "", path);
     render();
     return;
@@ -6606,6 +6636,7 @@ function breadcrumbNameForRoute(route, title = "") {
   const isPt = currentLanguage === "pt";
   if (route === "/" || route === "/pt" || route === "/en") return "Succeedora";
   if (route === publicTemplatesPath("pt") || route === publicTemplatesPath("en") || route === "/templates") return isPt ? "Modelos de curr\u00edculo" : "Resume templates";
+  if (route === firstJobResumePath("pt") || route === firstJobResumePath("en")) return isPt ? "Curr\u00edculo para primeiro emprego" : "First job resume";
   if (route === aboutPath("pt") || route === aboutPath("en")) return isPt ? "Sobre" : "About";
   if (route === professionalSummaryGeneratorPath("pt") || route === professionalSummaryGeneratorPath("en")) return isPt ? "Gerador de resumo profissional" : "Professional summary generator";
   if (route === blogRootPath("pt") || route === blogRootPath("en") || route === "/blog") return isPt ? "Blog" : "Blog";
@@ -14690,6 +14721,14 @@ function publicTemplatesAlternates() {
   ];
 }
 
+function firstJobResumeAlternates() {
+  return [
+    { hreflang: "pt-BR", href: seoUrl(firstJobResumePath("pt")) },
+    { hreflang: "en", href: seoUrl(firstJobResumePath("en")) },
+    { hreflang: "x-default", href: seoUrl(firstJobResumePath("en")) },
+  ];
+}
+
 function aboutAlternates() {
   return [
     { hreflang: "pt-BR", href: seoUrl(aboutPath("pt")) },
@@ -16232,12 +16271,13 @@ function renderPaymentCancel() {
 
 function legalFooterLinks() {
   const copy = t();
-  const companyLabel = currentLanguage === "pt" ? "Empresa" : "Company";
   const aboutLabel = currentLanguage === "pt" ? "Sobre" : "About";
+  const currentYear = new Date().getFullYear();
+  const rightsText = currentLanguage === "pt" ? "Todos os direitos reservados." : "All rights reserved.";
   return `
     <nav class="legal-footer-links" aria-label="${currentLanguage === "pt" ? "Links do rodap\u00e9" : "Footer links"}">
-      <span class="footer-link-group"><strong>${companyLabel}</strong><a href="${aboutPath(currentLanguage)}" data-route="${aboutPath(currentLanguage)}">${aboutLabel}</a><a href="${blogRootPath(currentLanguage)}" data-route="/blog">${copy.nav.blog}</a></span>
-      <span class="footer-link-group"><strong>${currentLanguage === "pt" ? "Legal" : "Legal"}</strong><a href="#/terms" data-route="/terms">${copy.nav.termsShort}</a><a href="#/privacy" data-route="/privacy">${copy.nav.privacyShort}</a><a href="#/contact" data-route="/contact">${copy.nav.contact}</a></span>
+      <span class="footer-link-group"><a href="${aboutPath(currentLanguage)}" data-route="${aboutPath(currentLanguage)}">${aboutLabel}</a><a href="${blogRootPath(currentLanguage)}" data-route="/blog">${copy.nav.blog}</a><a href="#/terms" data-route="/terms">${copy.nav.termsShort}</a><a href="#/privacy" data-route="/privacy">${copy.nav.privacyShort}</a><a href="#/contact" data-route="/contact">${copy.nav.contact}</a></span>
+      <span class="footer-copyright">&copy; ${currentYear} Succeedora. ${rightsText}</span>
     </nav>
   `;
 }
@@ -16532,6 +16572,313 @@ function renderPublicTemplatesPage() {
     ogTitle: seo.title,
     ogDescription: seo.description,
     alternates: publicTemplatesAlternates(),
+  });
+}
+
+function firstJobResumeCopy() {
+  const isPt = currentLanguage === "pt";
+  return isPt ? {
+    eyebrow: "Modelo de curr\u00edculo",
+    title: "Curr\u00edculo para primeiro emprego",
+    subtitle: "Aprenda como montar um curr\u00edculo profissional mesmo sem experi\u00eancia. Veja o que colocar, quais habilidades destacar e como criar uma vers\u00e3o clara, organizada e pronta para enviar.",
+    primary: "Criar meu curr\u00edculo gr\u00e1tis",
+    secondary: "Ver modelos de curr\u00edculo",
+    micro: "Ideal para estudantes, jovens aprendizes, estagi\u00e1rios, rec\u00e9m-formados e pessoas buscando a primeira oportunidade.",
+    howTitle: "Como fazer um curr\u00edculo para primeiro emprego",
+    howText: [
+      "Fazer um curr\u00edculo para primeiro emprego pode parecer dif\u00edcil, principalmente quando voc\u00ea ainda n\u00e3o tem experi\u00eancia profissional. Mas um bom curr\u00edculo n\u00e3o depende apenas de empregos anteriores. Ele tamb\u00e9m pode destacar sua forma\u00e7\u00e3o, cursos, habilidades, projetos, atividades volunt\u00e1rias, objetivos e caracter\u00edsticas profissionais.",
+      "O mais importante \u00e9 apresentar suas informa\u00e7\u00f5es de forma clara, honesta e organizada.",
+    ],
+    includeTitle: "O que colocar no curr\u00edculo para primeiro emprego",
+    includeCards: [
+      ["user", "Dados pessoais", "Nome, telefone, e-mail, cidade e link profissional, se tiver."],
+      ["target", "Objetivo profissional", "Uma frase curta explicando a \u00e1rea ou tipo de oportunidade que voc\u00ea busca."],
+      ["file", "Resumo profissional", "Um pequeno texto mostrando seu perfil, suas habilidades e sua vontade de aprender."],
+      ["layout", "Forma\u00e7\u00e3o acad\u00eamica", "Escola, curso t\u00e9cnico, faculdade, previs\u00e3o de conclus\u00e3o ou ano de conclus\u00e3o."],
+      ["sparkles", "Cursos complementares", "Cursos livres, online, inform\u00e1tica, idiomas, atendimento, administra\u00e7\u00e3o, tecnologia, vendas ou \u00e1reas relacionadas."],
+      ["check", "Habilidades", "Comunica\u00e7\u00e3o, organiza\u00e7\u00e3o, trabalho em equipe, responsabilidade, pontualidade, aprendizagem e conhecimentos t\u00e9cnicos."],
+      ["globe", "Projetos ou atividades", "Trabalhos escolares, projetos pessoais, atividades volunt\u00e1rias, eventos, grupos, cursos ou iniciativas relevantes."],
+    ],
+    summaryTitle: "Exemplo de resumo profissional para primeiro emprego",
+    summaryExamples: [
+      "Estudante em busca da primeira oportunidade profissional, com perfil respons\u00e1vel, organizado e facilidade para aprender. Possui habilidades em comunica\u00e7\u00e3o, trabalho em equipe e atendimento ao p\u00fablico, al\u00e9m de interesse em desenvolver experi\u00eancia pr\u00e1tica e contribuir de forma positiva para a empresa.",
+      "Profissional em in\u00edcio de carreira, com vontade de aprender e desenvolver novas habilidades no ambiente de trabalho. Possui boa comunica\u00e7\u00e3o, organiza\u00e7\u00e3o e comprometimento, buscando uma oportunidade para crescer profissionalmente e contribuir com dedica\u00e7\u00e3o.",
+      "Rec\u00e9m-formado em busca do primeiro emprego, com interesse em atuar em ambiente profissional, aprender novas rotinas e desenvolver experi\u00eancia pr\u00e1tica. Tem facilidade de adapta\u00e7\u00e3o, responsabilidade e disposi\u00e7\u00e3o para colaborar com a equipe.",
+    ],
+    summaryButton: "Gerar resumo profissional gr\u00e1tis",
+    objectiveTitle: "Exemplo de objetivo profissional para primeiro emprego",
+    objectives: [
+      "Busco minha primeira oportunidade profissional para desenvolver habilidades, aprender novas rotinas e contribuir com responsabilidade para a equipe.",
+      "Procuro uma oportunidade de primeiro emprego na \u00e1rea administrativa, onde eu possa aplicar meus conhecimentos, aprender com a equipe e crescer profissionalmente.",
+      "Busco uma vaga de jovem aprendiz ou est\u00e1gio para iniciar minha trajet\u00f3ria profissional, desenvolver experi\u00eancia pr\u00e1tica e contribuir com dedica\u00e7\u00e3o.",
+    ],
+    skillsTitle: "Habilidades para curr\u00edculo de primeiro emprego",
+    softTitle: "Habilidades comportamentais",
+    technicalTitle: "Habilidades t\u00e9cnicas",
+    softSkills: ["Comunica\u00e7\u00e3o", "Organiza\u00e7\u00e3o", "Pontualidade", "Responsabilidade", "Trabalho em equipe", "Facilidade de aprendizagem", "Proatividade", "Aten\u00e7\u00e3o aos detalhes", "Comprometimento", "Adaptabilidade"],
+    technicalSkills: ["Pacote Office b\u00e1sico", "Google Docs", "Atendimento ao cliente", "Digita\u00e7\u00e3o", "Organiza\u00e7\u00e3o de documentos", "Redes sociais", "Ingl\u00eas b\u00e1sico, se verdadeiro", "Inform\u00e1tica b\u00e1sica", "Excel b\u00e1sico", "Edi\u00e7\u00e3o simples de documentos"],
+    skillsNotice: "Inclua apenas habilidades que voc\u00ea realmente possui. N\u00e3o coloque conhecimentos falsos no curr\u00edculo.",
+    skillsButton: "Gerar habilidades para curr\u00edculo",
+    templateTitle: "Modelo de curr\u00edculo para primeiro emprego",
+    templateCta: "Usar este modelo na Succeedora",
+    avoidTitle: "O que evitar em um curr\u00edculo para primeiro emprego",
+    avoid: ["Inventar experi\u00eancia profissional", "Colocar habilidades que voc\u00ea n\u00e3o possui", "Usar e-mail informal", "Escrever textos muito longos", "Colocar informa\u00e7\u00f5es pessoais desnecess\u00e1rias", "Usar curr\u00edculo desorganizado", "Enviar curr\u00edculo com erros de portugu\u00eas", "Colocar foto, se a vaga n\u00e3o pedir", "Criar um objetivo gen\u00e9rico demais", "Usar design muito polu\u00eddo"],
+    helpTitle: "Como a Succeedora pode ajudar",
+    helpText: "A Succeedora ajuda voc\u00ea a criar um curr\u00edculo profissional mesmo se ainda n\u00e3o tiver experi\u00eancia. Voc\u00ea pode escolher um modelo, preencher suas informa\u00e7\u00f5es, organizar sua forma\u00e7\u00e3o, destacar habilidades e baixar o curr\u00edculo em PDF.",
+    helpCards: [["layout", "Modelos profissionais"], ["download", "Curr\u00edculo em PDF"], ["file", "Resumo profissional"], ["mail", "Carta de apresenta\u00e7\u00e3o"], ["sparkles", "Ferramentas de melhoria"], ["globe", "Tradu\u00e7\u00e3o para ingl\u00eas"]],
+    responsible: "A Succeedora n\u00e3o garante emprego, entrevista ou aprova\u00e7\u00e3o em sistemas ATS. A plataforma ajuda voc\u00ea a organizar e melhorar sua apresenta\u00e7\u00e3o profissional.",
+    finalTitle: "Crie seu curr\u00edculo para primeiro emprego",
+    finalText: "Comece com um modelo profissional, organize suas informa\u00e7\u00f5es e baixe um curr\u00edculo pronto para enviar.",
+    finalPrimary: "Criar curr\u00edculo gr\u00e1tis",
+    finalSecondary: "Ver modelos",
+    faq: [
+      ["O que colocar no curr\u00edculo para primeiro emprego?", "Voc\u00ea pode colocar seus dados de contato, objetivo profissional, resumo, forma\u00e7\u00e3o, cursos, habilidades, projetos, atividades volunt\u00e1rias e experi\u00eancias acad\u00eamicas relevantes."],
+      ["Posso fazer curr\u00edculo mesmo sem experi\u00eancia?", "Sim. Se voc\u00ea ainda n\u00e3o trabalhou, pode destacar forma\u00e7\u00e3o, cursos, habilidades, projetos, atividades escolares, voluntariado e seu interesse em aprender."],
+      ["Preciso colocar foto no curr\u00edculo?", "Na maioria dos casos, n\u00e3o \u00e9 necess\u00e1rio colocar foto, a menos que a vaga pe\u00e7a. O mais importante \u00e9 manter o curr\u00edculo claro, organizado e profissional."],
+      ["Qual objetivo colocar no curr\u00edculo de primeiro emprego?", "Use uma frase simples dizendo que voc\u00ea busca a primeira oportunidade profissional para aprender, desenvolver habilidades e contribuir com responsabilidade para a empresa."],
+      ["Quais habilidades colocar no primeiro curr\u00edculo?", "Voc\u00ea pode incluir habilidades como comunica\u00e7\u00e3o, organiza\u00e7\u00e3o, trabalho em equipe, responsabilidade, pontualidade, facilidade de aprendizagem e conhecimentos t\u00e9cnicos que realmente possui."],
+      ["Posso usar a Succeedora para criar meu primeiro curr\u00edculo?", "Sim. A Succeedora permite escolher um modelo, preencher suas informa\u00e7\u00f5es, organizar seu curr\u00edculo e baixar em PDF."],
+    ],
+    related: [["In\u00edcio", "/pt"], ["Modelos", publicTemplatesPath("pt")], ["Gerador de resumo profissional", professionalSummaryGeneratorPath("pt")], ["Como fazer curr\u00edculo", "/pt/blog/como-fazer-curriculo-profissional"]],
+  } : {
+    eyebrow: "Resume template",
+    title: "First job resume",
+    subtitle: "Learn how to build a professional resume even without work experience. See what to include, which skills to highlight and how to create a clear, organized resume.",
+    primary: "Create my resume for free",
+    secondary: "View resume templates",
+    micro: "Ideal for students, interns, recent graduates and people looking for their first opportunity.",
+    howTitle: "How to write a resume for your first job",
+    howText: [
+      "Writing a resume for your first job can feel difficult when you do not have professional experience yet. But a strong resume is not only about previous jobs. It can also highlight your education, courses, skills, projects, volunteer work, goals and personal strengths.",
+      "The most important thing is to present your information clearly, honestly and professionally.",
+    ],
+    includeTitle: "What to include in a first job resume",
+    includeCards: [
+      ["user", "Contact information", "Full name, phone, email, city and a professional link if you have one."],
+      ["target", "Career objective", "A short sentence explaining the area or type of opportunity you are looking for."],
+      ["file", "Professional summary", "A brief paragraph showing your profile, skills and willingness to learn."],
+      ["layout", "Education", "School, technical course, college, expected graduation date or graduation year."],
+      ["sparkles", "Courses and certifications", "Free courses, online courses, computer skills, languages, customer service, administration, technology, sales or related areas."],
+      ["check", "Skills", "Communication, organization, teamwork, responsibility, punctuality, willingness to learn and technical knowledge."],
+      ["globe", "Projects or activities", "School projects, personal projects, volunteer work, events, groups, courses or relevant initiatives."],
+    ],
+    summaryTitle: "First job resume summary examples",
+    summaryExamples: [
+      "Student looking for a first job opportunity, with a responsible, organized profile and strong willingness to learn. Skilled in communication, teamwork and customer service, with interest in gaining practical experience and contributing positively to a company.",
+      "Entry-level candidate with motivation to learn and develop new skills in a professional environment. Brings communication, organization and commitment, seeking an opportunity to grow professionally and contribute with dedication.",
+      "Recent graduate looking for a first job, interested in learning workplace routines and developing practical experience. Shows adaptability, responsibility and willingness to collaborate with a team.",
+    ],
+    summaryButton: "Generate a professional summary",
+    objectiveTitle: "First job resume objective examples",
+    objectives: [
+      "I am looking for my first professional opportunity to develop skills, learn workplace routines and contribute responsibly to a team.",
+      "I am seeking an entry-level administrative role where I can apply my knowledge, learn from the team and grow professionally.",
+      "I am looking for an internship or first job opportunity to begin my professional journey, gain practical experience and contribute with dedication.",
+    ],
+    skillsTitle: "Skills for a first job resume",
+    softTitle: "Soft skills",
+    technicalTitle: "Technical skills",
+    softSkills: ["Communication", "Organization", "Punctuality", "Responsibility", "Teamwork", "Willingness to learn", "Proactivity", "Attention to detail", "Commitment", "Adaptability"],
+    technicalSkills: ["Basic Microsoft Office", "Google Docs", "Customer service", "Typing", "Document organization", "Social media", "Basic English, if true", "Basic computer skills", "Basic Excel", "Simple document editing"],
+    skillsNotice: "Only include skills you actually have. Do not add false skills to your resume.",
+    skillsButton: "Generate resume skills",
+    templateTitle: "First job resume template",
+    templateCta: "Use this template on Succeedora",
+    avoidTitle: "What to avoid in a first job resume",
+    avoid: ["Inventing work experience", "Adding skills you do not have", "Using an unprofessional email address", "Writing very long paragraphs", "Adding unnecessary personal information", "Using a disorganized layout", "Sending a resume with grammar mistakes", "Adding a photo when it is not requested", "Writing a generic objective", "Using a cluttered design"],
+    helpTitle: "How Succeedora can help",
+    helpText: "Succeedora helps you create a professional resume even if you do not have work experience yet. You can choose a template, add your information, organize your education, highlight skills and download your resume as a PDF.",
+    helpCards: [["layout", "Professional templates"], ["download", "PDF resume export"], ["file", "Professional summary"], ["mail", "Cover letter"], ["sparkles", "Resume improvement tools"], ["globe", "Translation to English"]],
+    responsible: "Succeedora does not guarantee jobs, interviews or ATS approval. The platform helps you organize and improve your professional presentation.",
+    finalTitle: "Create your first job resume",
+    finalText: "Start with a professional template, organize your information and download a resume ready to send.",
+    finalPrimary: "Create resume for free",
+    finalSecondary: "View templates",
+    faq: [
+      ["What should I include in a first job resume?", "You can include contact information, career objective, professional summary, education, courses, skills, projects, volunteer activities and relevant academic experience."],
+      ["Can I make a resume with no experience?", "Yes. If you have not worked yet, you can highlight education, courses, skills, projects, school activities, volunteer work and your willingness to learn."],
+      ["Do I need a photo on my resume?", "In most cases, you do not need to add a photo unless the job posting asks for one. The most important thing is to keep the resume clear, organized and professional."],
+      ["What objective should I use for a first job resume?", "Use a simple sentence saying that you are looking for your first professional opportunity to learn, develop skills and contribute responsibly to the company."],
+      ["Which skills should I include in my first resume?", "You can include skills such as communication, organization, teamwork, responsibility, punctuality, willingness to learn and technical knowledge you actually have."],
+      ["Can I use Succeedora to create my first resume?", "Yes. Succeedora lets you choose a template, add your information, organize your resume and download it as a PDF."],
+    ],
+    related: [["Home", "/en"], ["Templates", publicTemplatesPath("en")], ["Professional summary generator", professionalSummaryGeneratorPath("en")], ["How to create a resume", "/en/blog/how-to-create-a-professional-resume"]],
+  };
+}
+
+function firstJobResumePreview(copy) {
+  const isPt = currentLanguage === "pt";
+  const labels = isPt
+    ? {
+        name: "Nome completo",
+        contact: "Cidade, estado | telefone | e-mail | LinkedIn opcional",
+        objective: "Objetivo profissional",
+        summary: "Resumo profissional",
+        education: "Forma\u00e7\u00e3o",
+        courses: "Cursos",
+        skills: "Habilidades",
+        projects: "Atividades e projetos",
+        educationText: "Ensino M\u00e9dio completo ou em andamento\nNome da escola\nAno de conclus\u00e3o ou previs\u00e3o",
+        coursesText: ["Inform\u00e1tica b\u00e1sica", "Atendimento ao cliente", "Excel b\u00e1sico"],
+        skillsText: ["Comunica\u00e7\u00e3o", "Organiza\u00e7\u00e3o", "Trabalho em equipe", "Pontualidade", "Facilidade de aprendizagem"],
+        projectsText: ["Participa\u00e7\u00e3o em projeto escolar de organiza\u00e7\u00e3o de evento", "Atividade volunt\u00e1ria em campanha comunit\u00e1ria", "Trabalho em grupo com apresenta\u00e7\u00e3o de pesquisa"],
+      }
+    : {
+        name: "Full name",
+        contact: "City, country | phone | email | optional LinkedIn",
+        objective: "Career objective",
+        summary: "Professional summary",
+        education: "Education",
+        courses: "Courses",
+        skills: "Skills",
+        projects: "Projects and activities",
+        educationText: "High school completed or in progress\nSchool name\nGraduation year or expected date",
+        coursesText: ["Basic computer skills", "Customer service", "Basic Excel"],
+        skillsText: ["Communication", "Organization", "Teamwork", "Punctuality", "Willingness to learn"],
+        projectsText: ["Participation in a school event organization project", "Volunteer activity in a community campaign", "Group research presentation project"],
+      };
+  return `
+    <article class="first-job-resume-preview">
+      <header><h3>${labels.name}</h3><p>${labels.contact}</p></header>
+      <section><h4>${labels.objective}</h4><p>${copy.objectives[0]}</p></section>
+      <section><h4>${labels.summary}</h4><p>${copy.summaryExamples[0]}</p></section>
+      <section><h4>${labels.education}</h4><p>${labels.educationText.replace(/\n/g, "<br>")}</p></section>
+      <div class="first-job-preview-columns">
+        <section><h4>${labels.courses}</h4>${labels.coursesText.map((item) => `<span>${item}</span>`).join("")}</section>
+        <section><h4>${labels.skills}</h4>${labels.skillsText.map((item) => `<span>${item}</span>`).join("")}</section>
+      </div>
+      <section><h4>${labels.projects}</h4><ul>${labels.projectsText.map((item) => `<li>${item}</li>`).join("")}</ul></section>
+    </article>
+  `;
+}
+
+function renderFirstJobResumePage() {
+  const route = getRoute();
+  if (route === firstJobResumePath("pt")) currentLanguage = "pt";
+  if (route === firstJobResumePath("en")) currentLanguage = "en";
+  const copy = firstJobResumeCopy();
+  const seo = localizedSeo("firstJobResume");
+  const path = firstJobResumePath(currentLanguage);
+  const templatesPath = publicTemplatesPath(currentLanguage);
+  const summaryPath = professionalSummaryGeneratorPath(currentLanguage);
+  const schemaLanguage = currentLanguage === "pt" ? "pt-BR" : "en";
+  mount(`
+    <div class="public-shell first-job-shell">
+      ${publicHeader()}
+      <main class="first-job-page">
+        <section class="first-job-hero">
+          <div class="first-job-hero-copy">
+            <span class="eyebrow">${copy.eyebrow}</span>
+            <h1>${copy.title}</h1>
+            <p>${copy.subtitle}</p>
+            <div class="first-job-actions">
+              <a class="primary-button" href="#/signup" data-route="/signup">${copy.primary}</a>
+              <a class="secondary-button" href="${templatesPath}" data-route="${templatesPath}">${copy.secondary}</a>
+            </div>
+            <small>${copy.micro}</small>
+          </div>
+          ${firstJobResumePreview(copy)}
+        </section>
+
+        <section class="first-job-content-card">
+          <h2>${copy.howTitle}</h2>
+          ${copy.howText.map((text) => `<p>${text}</p>`).join("")}
+        </section>
+
+        <section class="first-job-section">
+          <div class="section-heading"><span class="eyebrow">Succeedora</span><h2>${copy.includeTitle}</h2></div>
+          <div class="first-job-card-grid">${copy.includeCards.map(([iconName, title, text]) => `<article class="first-job-card">${icon(iconName)}<h3>${title}</h3><p>${text}</p></article>`).join("")}</div>
+        </section>
+
+        <section class="first-job-section first-job-examples">
+          <div class="section-heading left"><span class="eyebrow">Succeedora</span><h2>${copy.summaryTitle}</h2></div>
+          <div class="first-job-example-grid">${copy.summaryExamples.map((text, index) => `<article><span>${String(index + 1).padStart(2, "0")}</span><p>${text}</p></article>`).join("")}</div>
+          <a class="secondary-button" href="${summaryPath}" data-route="${summaryPath}">${copy.summaryButton}</a>
+        </section>
+
+        <section class="first-job-section first-job-objectives">
+          <div class="section-heading left"><span class="eyebrow">Succeedora</span><h2>${copy.objectiveTitle}</h2></div>
+          <div class="first-job-objective-list">${copy.objectives.map((item) => `<p>${item}</p>`).join("")}</div>
+        </section>
+
+        <section class="first-job-section">
+          <div class="section-heading"><span class="eyebrow">Succeedora</span><h2>${copy.skillsTitle}</h2></div>
+          <div class="first-job-skills-grid">
+            <article><h3>${copy.softTitle}</h3><div>${copy.softSkills.map((item) => `<span>${item}</span>`).join("")}</div></article>
+            <article><h3>${copy.technicalTitle}</h3><div>${copy.technicalSkills.map((item) => `<span>${item}</span>`).join("")}</div></article>
+          </div>
+          <p class="first-job-notice">${copy.skillsNotice}</p>
+          <a class="secondary-button first-job-inline-button" href="#/signup" data-route="/signup">${copy.skillsButton}</a>
+        </section>
+
+        <section class="first-job-section first-job-template-section">
+          <div>
+            <span class="eyebrow">Succeedora</span>
+            <h2>${copy.templateTitle}</h2>
+            <p>${copy.micro}</p>
+            <a class="primary-button" href="#/signup" data-route="/signup">${copy.templateCta}</a>
+          </div>
+          ${firstJobResumePreview(copy)}
+        </section>
+
+        <section class="first-job-section">
+          <div class="section-heading"><span class="eyebrow">Succeedora</span><h2>${copy.avoidTitle}</h2></div>
+          <div class="first-job-avoid-grid">${copy.avoid.map((item) => `<span>${item}</span>`).join("")}</div>
+        </section>
+
+        <section class="first-job-section first-job-help">
+          <div>
+            <span class="eyebrow">Succeedora</span>
+            <h2>${copy.helpTitle}</h2>
+            <p>${copy.helpText}</p>
+          </div>
+          <div class="first-job-help-grid">${copy.helpCards.map(([iconName, title]) => `<article>${icon(iconName)}<h3>${title}</h3></article>`).join("")}</div>
+          <p class="first-job-responsible">${copy.responsible}</p>
+        </section>
+
+        <section class="first-job-section first-job-related">
+          <div class="first-job-related-links">${copy.related.map(([label, href]) => `<a href="${href}" data-route="${href.startsWith("/pt/blog") || href.startsWith("/en/blog") ? `/blog/${href.split("/").pop()}` : href}">${label}</a>`).join("")}</div>
+        </section>
+
+        <section class="first-job-final-cta">
+          <div><span class="eyebrow">Succeedora</span><h2>${copy.finalTitle}</h2><p>${copy.finalText}</p></div>
+          <div class="first-job-actions">
+            <a class="primary-button" href="#/signup" data-route="/signup">${copy.finalPrimary}</a>
+            <a class="secondary-button" href="${templatesPath}" data-route="${templatesPath}">${copy.finalSecondary}</a>
+          </div>
+        </section>
+
+        <section class="first-job-section first-job-faq">
+          <div class="section-heading"><span class="eyebrow">FAQ</span><h2>${currentLanguage === "pt" ? "D\u00favidas sobre curr\u00edculo para primeiro emprego" : "First job resume FAQ"}</h2></div>
+          <div class="first-job-faq-list">${copy.faq.map(([question, answer]) => `<details><summary>${question}</summary><p>${answer}</p></details>`).join("")}</div>
+        </section>
+      </main>
+      <footer class="site-footer">${brandLogo("div")}<p>${t().public.footer}</p>${legalFooterLinks()}</footer>
+    </div>
+  `, {
+    ...seo,
+    canonical: seoUrl(path),
+    ogTitle: seo.title,
+    ogDescription: seo.description,
+    alternates: firstJobResumeAlternates(),
+    faq: copy.faq,
+    structuredData: [{
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: seo.title,
+      description: seo.description,
+      url: seoUrl(path),
+      inLanguage: schemaLanguage,
+      isPartOf: { "@type": "WebSite", name: "Succeedora", url: SITE_ORIGIN },
+    }, {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: currentLanguage === "pt" ? "In\u00edcio" : "Home", item: seoUrl(localizedRoot(currentLanguage)) },
+        { "@type": "ListItem", position: 2, name: currentLanguage === "pt" ? "Modelos" : "Templates", item: seoUrl(templatesPath) },
+        { "@type": "ListItem", position: 3, name: copy.title, item: seoUrl(path) },
+      ],
+    }],
   });
 }
 
