@@ -31841,11 +31841,17 @@ select:focus-visible {
 
 .summary-hero-card.is-scoring .summary-hero-score {
   border-color: rgba(125, 231, 247, 0.42);
-  background: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(22, 79, 183, 0.92), rgba(17, 148, 137, 0.72));
   box-shadow:
-    0 14px 34px rgba(82, 148, 255, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 14px 34px rgba(11, 45, 111, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
   animation: summaryPrecisionPop 0.58s cubic-bezier(0.18, 0.9, 0.25, 1.24);
+}
+
+.summary-hero-card.is-scoring .summary-hero-score strong,
+.summary-hero-card.is-scoring .summary-hero-score small {
+  opacity: 1;
+  color: #ffffff;
 }
 
 .summary-hero-card.is-scoring .summary-card-lines i:nth-child(3) {
