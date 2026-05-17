@@ -5381,6 +5381,14 @@ function measureResumePreviewFitHeight(documentNode) {
   return Math.max(...bottoms);
 }
 
+function applyResumeDensityClass(documentNode, scale = 1) {
+  if (!documentNode) return;
+  documentNode.classList.remove("resume-density-comfortable", "resume-density-compact", "resume-density-dense");
+  if (scale < 0.72) documentNode.classList.add("resume-density-dense");
+  else if (scale < 0.88) documentNode.classList.add("resume-density-compact");
+  else documentNode.classList.add("resume-density-comfortable");
+}
+
 function fitResumeDocumentToPreviewPage(shell, format = selectedDocumentFormat) {
   const previewContainer = shell?.closest(".builder-preview-frame, .resume-thumbnail, .template-preview-content");
   if (!previewContainer) return;
@@ -5417,6 +5425,7 @@ function fitResumeDocumentToPreviewPage(shell, format = selectedDocumentFormat) 
   }
 
   documentNode.classList.add("resume-preview-fit-document");
+  applyResumeDensityClass(documentNode, scale);
   shell.dataset.previewFit = "true";
   layoutAtScale(scale, true);
 }
@@ -14210,6 +14219,7 @@ function fitPdfDocumentToPage(documentNode, format) {
     scale = nextScale;
   }
 
+  applyResumeDensityClass(documentNode, scale);
   layoutAtScale(scale, true);
   return scale;
 }
