@@ -14523,9 +14523,17 @@ function summaryGeneratorCopy(language = currentLanguage) {
     generate: "Gerar resumo profissional",
     resultTitle: "Seu resumo profissional",
     options: ["Mais direto", "Mais profissional", "Mais confiante"],
+    optionDescriptions: [
+      "Ideal para curr\u00edculos simples e objetivos.",
+      "Ideal para um curr\u00edculo mais completo e formal.",
+      "Ideal para destacar seu valor profissional sem exagero.",
+    ],
     actions: { copy: "Copiar resumo", edit: "Editar", use: "Copiar e criar currículo completo", again: "Gerar novamente" },
+    saveEdit: "Salvar edi\u00e7\u00e3o",
     copied: "Resumo copiado.",
     continueCopied: "Resumo copiado. Agora escolha um modelo para criar seu currículo.",
+    missingRequired: "Para gerar um resumo melhor, informe cargo ou \u00e1rea, n\u00edvel profissional e pelo menos duas habilidades.",
+    qualityWarning: "Seu resumo pode ficar mais gen\u00e9rico porque faltam algumas informa\u00e7\u00f5es. Para um resultado melhor, adicione cargo, \u00e1rea, objetivo e pelo menos duas habilidades.",
     resultNotice: "Antes de continuar, copie seu resumo. Na próxima etapa, você poderá escolher um modelo e colar ou revisar esse texto no seu currículo.",
     pendingNotice: "Você tem um resumo profissional copiado da ferramenta gratuita. Escolha um modelo e cole ou revise esse texto no campo Resumo Profissional.",
     importedNotice: "Resumo profissional importado da ferramenta gratuita. Revise antes de salvar.",
@@ -14628,9 +14636,17 @@ function summaryGeneratorCopy(language = currentLanguage) {
     generate: "Generate professional summary",
     resultTitle: "Your professional summary",
     options: ["Direct", "Professional", "Confident"],
+    optionDescriptions: [
+      "Ideal for simple and objective resumes.",
+      "Ideal for a more complete and formal resume.",
+      "Ideal for highlighting your professional value without exaggeration.",
+    ],
     actions: { copy: "Copy summary", edit: "Edit", use: "Copy and create full resume", again: "Generate again" },
+    saveEdit: "Save edit",
     copied: "Summary copied.",
     continueCopied: "Summary copied. Now choose a template to create your resume.",
+    missingRequired: "To generate a better summary, add a role or field, career level and at least two skills.",
+    qualityWarning: "Your summary may sound more generic because some information is missing. For a stronger result, add a role, field, goal and at least two skills.",
     resultNotice: "Before continuing, copy your summary. In the next step, you can choose a template and paste or review this text in your resume.",
     pendingNotice: "You have a professional summary copied from the free tool. Choose a template and paste or review this text in the Professional Summary field.",
     importedNotice: "Professional summary imported from the free tool. Review it before saving.",
@@ -15075,6 +15091,279 @@ function generatedSummaryOptions(data = {}, language = currentLanguage) {
   }, language);
 }
 
+function summarySkillMatches(skill = "", keywords = []) {
+  const normalized = normalizeSummaryText(skill);
+  return keywords.some((keyword) => normalized.includes(normalizeSummaryText(keyword)));
+}
+
+function classifySummarySkills(skills = []) {
+  const softKeywords = [
+    "comunicacao", "communication", "organizacao", "organization", "lideranca", "leadership",
+    "trabalho em equipe", "teamwork", "responsabilidade", "responsibility", "pontualidade", "punctuality",
+    "proatividade", "proactivity", "empatia", "empathy", "adaptabilidade", "adaptability",
+    "facilidade de aprendizagem", "willingness to learn", "fast learning", "aprendizagem",
+    "atencao aos detalhes", "attention to detail", "comprometimento", "commitment",
+  ];
+  const technicalKeywords = [
+    "excel", "word", "powerpoint", "google docs", "atendimento ao cliente", "customer service",
+    "vendas", "sales", "programacao", "programming", "javascript", "react", "design", "marketing",
+    "analise de dados", "data analysis", "suporte tecnico", "technical support", "administracao",
+    "administration", "financeiro", "finance", "logistica", "logistics", "redes sociais",
+    "social media", "digitacao", "typing",
+  ];
+  const soft = [];
+  const technical = [];
+  const other = [];
+  skills.forEach((skill) => {
+    if (summarySkillMatches(skill, softKeywords)) soft.push(skill);
+    else if (summarySkillMatches(skill, technicalKeywords)) technical.push(skill);
+    else other.push(skill);
+  });
+  return { soft, technical, other };
+}
+
+function detectSummaryArea(data = {}) {
+  const text = normalizeSummaryText(`${data.role || ""} ${data.field || ""} ${data.goal || ""}`);
+  if (/venda|sales|comercial|negoci/.test(text)) return "sales";
+  if (/admin|assistente|auxiliar|office|operacion|document|rotina/.test(text)) return "administrative";
+  if (/tec|technology|dev|software|program|javascript|react|dados|data|sistema|suporte tecnico/.test(text)) return "technology";
+  if (/atendimento|customer|cliente|suporte|service|support/.test(text)) return "customer_service";
+  if (/marketing|conteudo|content|social|campanha|brand|marca/.test(text)) return "marketing";
+  return "general";
+}
+
+function summaryAreaContext(area = "general", language = currentLanguage) {
+  const isPt = language === "pt";
+  const contexts = {
+    sales: isPt
+      ? "relacionamento com clientes, comunicação e acompanhamento de metas"
+      : "customer relationships, communication and goal tracking",
+    administrative: isPt
+      ? "rotinas administrativas, organização de documentos e controle de informações"
+      : "administrative routines, document organization and information control",
+    technology: isPt
+      ? "soluções digitais, lógica, projetos e melhoria de processos"
+      : "digital solutions, logic, projects and process improvement",
+    customer_service: isPt
+      ? "suporte ao cliente, comunicação clara, empatia e resolução de problemas"
+      : "customer support, clear communication, empathy and problem solving",
+    marketing: isPt
+      ? "comunicação, conteúdo, campanhas, redes sociais e análise"
+      : "communication, content, campaigns, social media and analysis",
+    general: isPt
+      ? "organização, comunicação e atuação profissional consistente"
+      : "organization, communication and consistent professional work",
+  };
+  return contexts[area] || contexts.general;
+}
+
+function summaryQualityScore(data = {}, skills = splitSummarySkills(data.skills)) {
+  let score = 0;
+  if (String(data.role || "").trim()) score += 2;
+  if (String(data.field || "").trim()) score += 2;
+  if (String(data.level || "").trim()) score += 2;
+  if (skills.length >= 2) score += 2;
+  if (String(data.goal || "").trim()) score += 1;
+  if (String(data.experience || "").trim()) score += 1;
+  return score;
+}
+
+function detectSummaryProfiles(data = {}, skills = []) {
+  const combined = normalizeSummaryText(`${data.role || ""} ${data.field || ""} ${data.level || ""} ${data.experience || ""} ${data.goal || ""}`);
+  const classified = classifySummarySkills(skills);
+  const profiles = new Set();
+  if (/primeiro emprego|first job|sem experiencia|no experience/.test(combined)) profiles.add("first_job");
+  if (/estagio|intern|estudante|student|jovem aprendiz|trainee|recem[- ]?formado|recent graduate/.test(combined)) profiles.add("student_or_intern");
+  if (!profiles.has("first_job") && /menos de 1|1 a 2|3 a 5|mais de 5|less than 1|1 to 2|3 to 5|more than 5|junior|pleno|mid|senior|lider|leadership/.test(combined)) profiles.add("experienced_professional");
+  if (/transicao|mudanca de area|nova area|career change|transition|new field/.test(combined)) profiles.add("career_transition");
+  if (classified.technical.length) profiles.add("technical_profile");
+  if (classified.soft.length) profiles.add("soft_skill_profile");
+  if (!profiles.size) profiles.add("experienced_professional");
+  return Array.from(profiles);
+}
+
+function analyzeSummaryInput(data = {}, language = currentLanguage) {
+  const skills = splitSummarySkills(data.skills);
+  const classifiedSkills = classifySummarySkills(skills);
+  const area = detectSummaryArea(data);
+  const profiles = detectSummaryProfiles(data, skills);
+  const score = summaryQualityScore(data, skills);
+  const target = summaryTarget(data, language);
+  const directTarget = summaryTarget(data, language, "direct");
+  const tone = normalizeSummaryText(data.tone || "");
+  return {
+    data,
+    language,
+    skills,
+    classifiedSkills,
+    profiles,
+    area,
+    areaContext: summaryAreaContext(area, language),
+    score,
+    target,
+    directTarget,
+    tone,
+    isFirstJob: profiles.includes("first_job") || profiles.includes("student_or_intern"),
+    isTransition: profiles.includes("career_transition"),
+    isExperienced: profiles.includes("experienced_professional") && !profiles.includes("first_job"),
+  };
+}
+
+function hasEnoughSummaryInput(data = {}) {
+  const skills = splitSummarySkills(data.skills);
+  return Boolean(String(data.role || data.field || "").trim() && String(data.level || "").trim() && skills.length >= 2);
+}
+
+function summarySkillPhrase(analysis, language = currentLanguage, limit = 4) {
+  const isPt = language === "pt";
+  const technical = analysis.classifiedSkills.technical.slice(0, 2);
+  const soft = analysis.classifiedSkills.soft.slice(0, 2).map((skill) => summarySoftAdjective(skill, language));
+  const other = analysis.classifiedSkills.other.slice(0, 2);
+  const all = analysis.skills.slice(0, limit);
+  if (technical.length && soft.length) {
+    return isPt
+      ? `habilidades técnicas em ${joinSummaryList(technical, language)}, além de perfil ${joinSummaryList(soft, language)}`
+      : `technical skills in ${joinSummaryList(technical, language)}, along with a ${joinSummaryList(soft, language)} profile`;
+  }
+  if (technical.length) {
+    const extra = other.length ? [...technical, ...other].slice(0, limit) : technical;
+    return isPt ? `habilidades em ${joinSummaryList(extra, language)}` : `skills in ${joinSummaryList(extra, language)}`;
+  }
+  if (soft.length) {
+    const extra = other.length ? [...soft, ...other].slice(0, limit) : soft;
+    return isPt ? `perfil ${joinSummaryList(extra, language)}` : `a ${joinSummaryList(extra, language)} profile`;
+  }
+  return isPt ? `habilidades em ${joinSummaryList(all, language)}` : `skills in ${joinSummaryList(all, language)}`;
+}
+
+function summarySoftAdjective(skill = "", language = currentLanguage) {
+  const normalized = normalizeSummaryText(skill);
+  const isPt = language === "pt";
+  const entries = [
+    [/comunic|communication/, isPt ? "comunicativo" : "communicative"],
+    [/organiza|organization/, isPt ? "organizado" : "organized"],
+    [/lider|leadership|trabalho em equipe|teamwork/, isPt ? "colaborativo" : "collaborative"],
+    [/respons/, isPt ? "responsável" : "responsible"],
+    [/pontual|punctual/, isPt ? "pontual" : "punctual"],
+    [/proativ|proactiv/, isPt ? "proativo" : "proactive"],
+    [/empatia|empathy/, isPt ? "empático" : "empathetic"],
+    [/adapt|adaptability/, isPt ? "adaptável" : "adaptable"],
+    [/aprendiz|learning|learn/, isPt ? "com facilidade para aprender" : "quick to learn"],
+    [/detalh|detail/, isPt ? "atento aos detalhes" : "detail-oriented"],
+    [/compromet|commitment/, isPt ? "comprometido" : "committed"],
+  ];
+  return entries.find(([pattern]) => pattern.test(normalized))?.[1] || skill;
+}
+
+function summarySoftPhrase(analysis, language = currentLanguage) {
+  const fallback = language === "pt" ? ["responsável", "organizado"] : ["responsible", "organized"];
+  const values = analysis.classifiedSkills.soft.length
+    ? analysis.classifiedSkills.soft.map((skill) => summarySoftAdjective(skill, language))
+    : fallback;
+  return joinSummaryList(values.slice(0, 2), language);
+}
+
+function summaryTechnicalOrAllPhrase(analysis, language = currentLanguage, limit = 3) {
+  const values = analysis.classifiedSkills.technical.length
+    ? [...analysis.classifiedSkills.technical, ...analysis.classifiedSkills.other].slice(0, limit)
+    : analysis.skills.slice(0, limit);
+  return joinSummaryList(values, language);
+}
+
+function summarySpecificGoal(analysis, language = currentLanguage) {
+  const isPt = language === "pt";
+  const goal = summaryGoalAction(analysis.data.goal, language);
+  if (goal) return goal;
+  if (analysis.isFirstJob) return isPt ? `desenvolver experiência na área de ${analysis.target}` : `develop experience in ${analysis.target}`;
+  if (analysis.isTransition) return isPt ? `desenvolver novas competências em ${analysis.target}` : `develop new skills in ${analysis.target}`;
+  return isPt ? `contribuir na área de ${analysis.target}` : `contribute in ${analysis.target}`;
+}
+
+function summaryPostGenerationSuggestions(analysis, language = currentLanguage) {
+  const isPt = language === "pt";
+  const suggestions = [];
+  if (analysis.score < 8) suggestions.push(isPt
+    ? "Para deixar seu resumo mais forte, adicione uma habilidade técnica, uma área de interesse ou um objetivo profissional mais específico."
+    : "To make your summary stronger, add a technical skill, an area of interest or a more specific career goal.");
+  if (analysis.isFirstJob) suggestions.push(isPt
+    ? "Seu resumo está mais adequado para primeiro emprego. Evite inventar experiências e destaque cursos, projetos ou atividades relevantes."
+    : "Your summary is better suited for a first job. Avoid inventing experience and highlight courses, projects or relevant activities.");
+  if (analysis.isTransition) suggestions.push(isPt
+    ? "Como é uma transição de carreira, destaque habilidades transferíveis e explique seu interesse na nova área com clareza."
+    : "Because this is a career transition, highlight transferable skills and explain your interest in the new field clearly.");
+  if (!analysis.classifiedSkills.technical.length) suggestions.push(isPt
+    ? "Se for verdadeiro para você, inclua uma habilidade técnica específica para deixar o texto menos genérico."
+    : "If it is true for you, include a specific technical skill to make the text less generic.");
+  return suggestions.slice(0, 2);
+}
+
+function toneAdjustedSummaries(options = [], tone = "", language = currentLanguage) {
+  if (/simples|simple|direto|direct/.test(tone)) {
+    return options.map((option, index) => index === 0 ? option.split(". ").slice(0, 2).join(". ").replace(/\.$/, ".") : option);
+  }
+  if (/formal/.test(tone)) {
+    return options.map((option) => option.replace(/^Candidato/i, language === "pt" ? "Profissional" : "Professional candidate"));
+  }
+  return options;
+}
+
+function generatedSummaryOptions(data = {}, language = currentLanguage) {
+  const isPt = language === "pt";
+  const analysis = analyzeSummaryInput(data, language);
+  const skillPhrase = summarySkillPhrase(analysis, language);
+  const softPhrase = summarySoftPhrase(analysis, language);
+  const skillList = summaryTechnicalOrAllPhrase(analysis, language);
+  const goal = summarySpecificGoal(analysis, language);
+  const target = analysis.target;
+  const directTarget = analysis.directTarget;
+  const baseTarget = String(data.role || data.field || target).trim();
+  let options;
+  if (analysis.isTransition) {
+    options = isPt ? [
+      `Profissional em transição para a área de ${target}, com ${skillPhrase}. Busca aplicar experiências anteriores e desenvolver novas competências na área.`,
+      `Profissional em transição de carreira, com interesse em atuar em ${target} e desenvolver novas competências. Possui habilidades transferíveis em ${skillList}, além de perfil ${softPhrase}. Busca uma oportunidade para aplicar seus conhecimentos e crescer de forma consistente na nova área.`,
+      `Perfil em transição para ${target}, com capacidade de adaptação, aprendizado contínuo e habilidades em ${skillList}. Busca contribuir com uma visão prática, responsável e orientada ao desenvolvimento profissional.`,
+    ] : [
+      `Professional transitioning into ${target}, with ${skillPhrase}. Seeks to apply previous experience and develop new skills in the field.`,
+      `Career transition profile interested in working in ${target} and developing new competencies. Brings transferable skills in ${skillList}, along with a ${softPhrase} profile. Seeks an opportunity to apply knowledge and grow consistently in the new field.`,
+      `Profile transitioning into ${target}, with adaptability, continuous learning and skills in ${skillList}. Seeks to contribute with a practical, responsible approach focused on professional development.`,
+    ];
+  } else if (analysis.isFirstJob) {
+    options = isPt ? [
+      `Candidato em busca da primeira oportunidade profissional, com perfil ${softPhrase} e interesse em desenvolver experiência na área de ${target}. Possui ${skillPhrase} e disposição para aprender novas rotinas com responsabilidade.`,
+      `Profissional em início de carreira, com interesse em atuar na área de ${target} e desenvolver experiência prática. Possui habilidades em ${skillList}, além de perfil ${softPhrase}. Busca uma oportunidade para aprender, contribuir com responsabilidade e crescer profissionalmente.`,
+      `Candidato em início de trajetória profissional, com perfil ${softPhrase} e forte disposição para aprender. Reúne habilidades em ${skillList} e busca uma oportunidade para aplicar seus conhecimentos, desenvolver experiência prática e contribuir de forma responsável para a equipe.`,
+    ] : [
+      `Candidate seeking a first professional opportunity, with a ${softPhrase} profile and interest in developing experience in ${target}. Brings ${skillPhrase} and willingness to learn new routines responsibly.`,
+      `Entry-level professional interested in working in ${target} and developing practical experience. Has skills in ${skillList}, along with a ${softPhrase} profile. Seeks an opportunity to learn, contribute responsibly and grow professionally.`,
+      `Candidate at the beginning of a professional path, with a ${softPhrase} profile and strong willingness to learn. Brings skills in ${skillList} and seeks an opportunity to apply knowledge, develop practical experience and contribute responsibly to the team.`,
+    ];
+  } else {
+    const exp = structuredSummaryExperiencePhrase(data, language);
+    options = isPt ? [
+      `Profissional de ${baseTarget}, com ${exp} e habilidades em ${skillList}. Busca contribuir com organização, qualidade e foco em resultados.`,
+      `Profissional de ${target}, com ${exp} e atuação voltada para ${analysis.areaContext}. Possui ${skillPhrase}, com perfil ${softPhrase}. Busca contribuir para a empresa com uma atuação organizada, clara e profissional.`,
+      `Profissional de ${target}, com perfil ${softPhrase} e experiência em ${analysis.areaContext}. Reúne habilidades em ${skillList} e busca gerar valor por meio de uma atuação responsável, eficiente e alinhada aos objetivos da empresa.`,
+    ] : [
+      `${baseTarget} professional, with ${exp} and skills in ${skillList}. Seeks to contribute with organization, quality and focus on results.`,
+      `${target} professional with ${exp} and work focused on ${analysis.areaContext}. Brings ${skillPhrase}, with a ${softPhrase} profile. Seeks to contribute through organized, clear and professional work.`,
+      `${target} professional with a ${softPhrase} profile and experience in ${analysis.areaContext}. Brings skills in ${skillList} and seeks to create value through responsible, efficient work aligned with company goals.`,
+    ];
+  }
+  options = toneAdjustedSummaries(options, analysis.tone, language);
+  return ensureDistinctSummaryOptions(options, {
+    target,
+    levelPhrase: structuredSummaryExperiencePhrase(data, language),
+    confidentLevelPhrase: summaryConfidentLevelPhrase(structuredSummaryExperiencePhrase(data, language), language),
+    profileTraits: softPhrase,
+    contributionTraits: summaryContributionTraits(analysis.skills, data, language),
+    professionalSkills: skillList,
+    confidentSkills: skillList,
+    professionalGoal: isPt ? `com foco em ${goal}` : `with focus on ${goal}`,
+    confidentEnding: isPt ? `Busca aplicar seus conhecimentos em ${target} com responsabilidade.` : `Seeks to apply knowledge in ${target} responsibly.`,
+  }, language);
+}
+
 function summaryToolFormData(root = document) {
   const data = {};
   root.querySelectorAll("[data-summary-field]").forEach((field) => {
@@ -15083,24 +15372,34 @@ function summaryToolFormData(root = document) {
   return data;
 }
 
-function renderSummaryToolResults(options = []) {
+function renderSummaryToolResults(options = [], analysis = null) {
   const copy = summaryGeneratorCopy(currentLanguage);
   const results = document.querySelector("[data-summary-results]");
   const list = document.querySelector("[data-summary-list]");
   if (!results || !list) return;
-  list.innerHTML = options.map((text, index) => `
+  const suggestions = analysis ? summaryPostGenerationSuggestions(analysis, currentLanguage) : [];
+  const warning = analysis?.score < 8 ? `<p class="summary-quality-warning">${escapeHtml(copy.qualityWarning)}</p>` : "";
+  list.innerHTML = `
+    ${warning}
+    ${options.map((text, index) => `
     <article class="summary-result-option" data-summary-option="${index}">
       <div class="summary-result-option-head">
-        <span>${copy.options[index] || copy.options[0]}</span>
+        <div>
+          <span>${copy.options[index] || copy.options[0]}</span>
+          <p>${copy.optionDescriptions?.[index] || ""}</p>
+        </div>
       </div>
-      <textarea data-summary-text="${index}" rows="${index === 0 ? 4 : 6}">${escapeHtml(text)}</textarea>
+      <p class="summary-result-readable" data-summary-readable="${index}">${escapeHtml(text)}</p>
+      <textarea data-summary-text="${index}" hidden>${escapeHtml(text)}</textarea>
       <footer>
         <button class="secondary-button small" type="button" data-summary-copy="${index}">${copy.actions.copy}</button>
         <button class="ghost-button small" type="button" data-summary-edit="${index}">${copy.actions.edit}</button>
         <button class="primary-button small" type="button" data-summary-use="${index}">${copy.actions.use}</button>
       </footer>
     </article>
-  `).join("");
+    `).join("")}
+    ${suggestions.length ? `<aside class="summary-suggestions"><strong>${currentLanguage === "pt" ? "Sugestões para melhorar" : "Suggestions to improve"}</strong>${suggestions.map((item) => `<p>${escapeHtml(item)}</p>`).join("")}</aside>` : ""}
+  `;
   const again = document.createElement("button");
   again.className = "ghost-button summary-generate-again";
   again.type = "button";
@@ -15117,6 +15416,12 @@ function renderSummaryToolResults(options = []) {
   });
   results.hidden = false;
   results.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function summaryOptionText(index = "") {
+  const textarea = document.querySelector(`[data-summary-text="${index}"]`);
+  const readable = document.querySelector(`[data-summary-readable="${index}"]`);
+  return String(textarea?.value || readable?.textContent || "").trim();
 }
 
 function summarySecurityCopy(language = currentLanguage) {
@@ -15247,10 +15552,11 @@ function bindSummaryGeneratorInteractions() {
   const generate = async () => {
     const copy = summaryGeneratorCopy(currentLanguage);
     const data = summaryToolFormData(document);
+    const analysis = analyzeSummaryInput(data, currentLanguage);
     const message = document.querySelector("[data-summary-message]");
     if (!hasEnoughSummaryInput(data)) {
       if (message) {
-        message.textContent = copy.fillHint;
+        message.textContent = copy.missingRequired || copy.fillHint;
         message.hidden = false;
       }
       return;
@@ -15266,7 +15572,7 @@ function bindSummaryGeneratorInteractions() {
       // The generated text remains available on the page.
     }
     setSummaryGenerationCount(summaryGenerationCount() + 1);
-    renderSummaryToolResults(options);
+    renderSummaryToolResults(options, analysis);
   };
   document.querySelector(".summary-tool-page")?.addEventListener("click", async (event) => {
     const generateButton = event.target.closest("[data-summary-generate]");
@@ -15282,7 +15588,7 @@ function bindSummaryGeneratorInteractions() {
     const copyButton = event.target.closest("[data-summary-copy]");
     if (copyButton) {
       const index = copyButton.getAttribute("data-summary-copy");
-      const text = document.querySelector(`[data-summary-text="${index}"]`)?.value || "";
+      const text = summaryOptionText(index);
       copySummaryText(text, copyButton);
       return;
     }
@@ -15290,15 +15596,30 @@ function bindSummaryGeneratorInteractions() {
     if (editButton) {
       const index = editButton.getAttribute("data-summary-edit");
       const textarea = document.querySelector(`[data-summary-text="${index}"]`);
-      textarea?.focus();
+      const readable = document.querySelector(`[data-summary-readable="${index}"]`);
+      if (!textarea || !readable) return;
+      const isEditing = !textarea.hidden;
+      if (isEditing) {
+        readable.textContent = textarea.value.trim();
+        readable.hidden = false;
+        textarea.hidden = true;
+        editButton.textContent = copy.actions.edit;
+      } else {
+        textarea.hidden = false;
+        readable.hidden = true;
+        editButton.textContent = copy.saveEdit || copy.actions.edit;
+        textarea.style.height = "auto";
+        textarea.style.height = `${textarea.scrollHeight + 2}px`;
+        textarea.focus();
+      }
       return;
     }
     const useButton = event.target.closest("[data-summary-use]");
     if (useButton) {
       const index = useButton.getAttribute("data-summary-use");
       const text = index === "" || index === null
-        ? document.querySelector("[data-summary-text='1']")?.value || document.querySelector("[data-summary-text='0']")?.value || ""
-        : document.querySelector(`[data-summary-text="${index}"]`)?.value || "";
+        ? summaryOptionText("1") || summaryOptionText("0")
+        : summaryOptionText(index);
       if (text) {
         await continueWithSummary(text, useButton);
       } else {
