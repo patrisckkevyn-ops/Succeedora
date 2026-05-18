@@ -5784,6 +5784,22 @@ function templateFilterOptions() {
   return options.filter(([key]) => key === "all" || activeGroups.has(key));
 }
 
+function templateFilterControls() {
+  const options = templateFilterOptions();
+  const label = currentLanguage === "pt" ? "Filtrar modelos" : "Filter templates";
+  return `
+    <div class="template-filter-control">
+      <label class="template-filter-select">
+        <span>${label}</span>
+        <select data-template-filter-select aria-label="${label}">
+          ${options.map(([key, optionLabel]) => `<option value="${key}">${optionLabel}</option>`).join("")}
+        </select>
+      </label>
+      <div class="template-filter-row">${options.map(([key, optionLabel], index) => `<button class="${index === 0 ? "active" : ""}" type="button" data-template-filter="${key}">${optionLabel}</button>`).join("")}</div>
+    </div>
+  `;
+}
+
 function sampleResumeData() {
   if (currentLanguage === "pt") {
     return {
@@ -11683,8 +11699,9 @@ function bindInteractions() {
   });
 
   const templateSearch = document.querySelector("[data-template-search]");
+  const templateFilterSelect = document.querySelector("[data-template-filter-select]");
   const applyTemplateFilters = () => {
-    const activeFilter = document.querySelector("[data-template-filter].active")?.getAttribute("data-template-filter") || "all";
+    const activeFilter = templateFilterSelect?.value || document.querySelector("[data-template-filter].active")?.getAttribute("data-template-filter") || "all";
     const query = String(templateSearch?.value || "").trim().toLowerCase();
     document.querySelectorAll("[data-template-category]").forEach((card) => {
       const groups = String(card.getAttribute("data-template-groups") || "").split(/\s+/);
@@ -11698,9 +11715,19 @@ function bindInteractions() {
   document.querySelectorAll("[data-template-filter]").forEach((button) => {
     button.addEventListener("click", () => {
       document.querySelectorAll("[data-template-filter]").forEach((item) => item.classList.toggle("active", item === button));
+      if (templateFilterSelect) templateFilterSelect.value = button.getAttribute("data-template-filter") || "all";
       applyTemplateFilters();
     });
   });
+  if (templateFilterSelect) {
+    templateFilterSelect.addEventListener("change", () => {
+      const activeFilter = templateFilterSelect.value || "all";
+      document.querySelectorAll("[data-template-filter]").forEach((item) => {
+        item.classList.toggle("active", item.getAttribute("data-template-filter") === activeFilter);
+      });
+      applyTemplateFilters();
+    });
+  }
   if (templateSearch) templateSearch.addEventListener("input", applyTemplateFilters);
 
   const resumeSearch = document.querySelector("[data-resume-search]");
@@ -17537,7 +17564,7 @@ function renderPublicTemplatesPage() {
         ${pendingNotice}
         <div class="template-catalog-tools">
           <label class="template-search">${icon("file")}<input type="search" data-template-search placeholder="${labels.search}" /></label>
-          <div class="template-filter-row">${templateFilterOptions().map(([key, label], index) => `<button class="${index === 0 ? "active" : ""}" type="button" data-template-filter="${key}">${label}</button>`).join("")}</div>
+          ${templateFilterControls()}
         </div>
         <div class="template-grid">${templates.map((template, index) => templateCard(template, index, false)).join("")}</div>
       </main>
@@ -22632,7 +22659,7 @@ function renderTemplatesPage() {
         </div>
         <label class="template-search">${icon("file")}<input type="search" data-template-search placeholder="${labels.search}" /></label>
       </section>
-      <div class="template-filter-row">${templateFilterOptions().map(([key, label], index) => `<button class="${index === 0 ? "active" : ""}" type="button" data-template-filter="${key}">${label}</button>`).join("")}</div>
+      ${templateFilterControls()}
       <div class="template-grid dashboard-templates">${templates.map((template, index) => {
         const locked = !canUseTemplate(template.key);
         const accessClass = templateAccessClass(template);

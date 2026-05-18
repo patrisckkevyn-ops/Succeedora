@@ -4970,10 +4970,15 @@ body,
       "statement"
       "links";
     align-items: start;
+    overflow: hidden;
   }
 
   .site-footer > p {
+    width: 100%;
+    min-width: 0;
     justify-self: stretch;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .legal-footer-links {
@@ -23595,6 +23600,44 @@ select:focus-visible {
   margin-bottom: 22px;
 }
 
+.template-filter-control {
+  min-width: 0;
+}
+
+.template-filter-select {
+  display: none;
+  width: 100%;
+  margin-bottom: 18px;
+}
+
+.template-filter-select span {
+  display: block;
+  margin: 0 0 8px;
+  color: #52627e;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.template-filter-select select {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 42px 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 850;
+  outline: 0;
+}
+
+.template-filter-select select:focus {
+  border-color: rgba(31, 105, 213, 0.42);
+  box-shadow: 0 0 0 4px rgba(31, 105, 213, 0.1);
+}
+
 .template-filter-row button {
   min-height: 38px;
   padding: 0 15px;
@@ -23613,6 +23656,16 @@ select:focus-visible {
   color: var(--blue);
   border-color: rgba(31, 105, 213, 0.22);
   background: #eef5ff;
+}
+
+@media (max-width: 680px) {
+  .template-filter-select {
+    display: block;
+  }
+
+  .template-filter-row {
+    display: none;
+  }
 }
 
 .locked-feature {
@@ -32228,6 +32281,7 @@ select:focus-visible {
 :root[data-theme="dark"] .support-form-grid input,
 :root[data-theme="dark"] .support-form-grid select,
 :root[data-theme="dark"] .support-form-grid textarea,
+:root[data-theme="dark"] .template-filter-select select,
 :root[data-theme="dark"] .admin-form input,
 :root[data-theme="dark"] .admin-form select,
 :root[data-theme="dark"] .admin-form textarea {
@@ -33529,6 +33583,7 @@ select:focus-visible {
   gap: 17px;
   min-height: 0;
   padding: clamp(18px, 2.4vw, 28px);
+  min-width: 0;
   border: 1px solid rgba(31, 105, 213, 0.11);
   border-radius: 28px;
   color: #263551;
@@ -33564,6 +33619,8 @@ select:focus-visible {
   font-size: 1.05rem;
   font-weight: 740;
   line-height: 1.62;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .summary-hero-card [data-summary-hero-text] {
@@ -34821,11 +34878,12 @@ select:focus-visible {
 
   .summary-hero-card {
     aspect-ratio: auto;
-    width: min(100%, calc(100vw - 54px));
-    max-width: calc(100vw - 54px);
+    width: 100%;
+    max-width: 100%;
     min-width: 0;
-    justify-self: start;
-    height: clamp(226px, 30svh, 304px);
+    justify-self: stretch;
+    height: auto;
+    min-height: 246px;
     gap: 8px;
     padding: 14px;
     border-radius: 24px;
@@ -34861,6 +34919,7 @@ select:focus-visible {
   .summary-hero-document {
     gap: 9px;
     min-height: 0;
+    overflow: hidden;
     padding: 14px;
     border-radius: 18px;
   }
@@ -34879,18 +34938,21 @@ select:focus-visible {
     overflow: hidden;
     font-size: 0.82rem;
     line-height: 1.43;
-    min-height: calc(1.43em * 4);
+    min-height: 0;
+    max-height: calc(1.43em * 4);
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 4;
   }
 
   .summary-hero-intelligence {
     gap: 6px;
+    min-width: 0;
   }
 
   .summary-hero-intelligence span {
     grid-template-columns: 1fr;
     justify-items: center;
+    min-width: 0;
     min-height: 44px;
     padding: 6px 5px;
     font-size: 9.5px;
