@@ -3029,8 +3029,8 @@ const TEMPLATE_STATUS_BY_KEY = Object.freeze({
   marketing: TEMPLATE_STATUS.active,
   developer: TEMPLATE_STATUS.active,
   designer: TEMPLATE_STATUS.active,
-  healthcare: TEMPLATE_STATUS.hidden,
-  legal: TEMPLATE_STATUS.hidden,
+  healthcare: TEMPLATE_STATUS.active,
+  legal: TEMPLATE_STATUS.active,
   finance: TEMPLATE_STATUS.hidden,
   academic: TEMPLATE_STATUS.hidden,
   "remote-work": TEMPLATE_STATUS.hidden,
@@ -5513,8 +5513,12 @@ function scheduleBuilderStatusRefresh(delay = 120) {
   }, delay);
 }
 
+function canUseTestResumeTools() {
+  return isAdminAccount() || isLocalDevelopmentRuntime();
+}
+
 function fillAdminTestResume() {
-  if (!isAdminAccount()) return;
+  if (!canUseTestResumeTools()) return;
   cancelPendingResumeAutosave();
   const filled = adminTestResume(ADMIN_TEST_RESUME_PROFILES.productManager, ensureBuilderDraft());
   builderDraft = filled;
@@ -5527,7 +5531,7 @@ function fillAdminTestResume() {
 }
 
 function openAdminTestResumeConfirmModal() {
-  if (!isAdminAccount()) return;
+  if (!canUseTestResumeTools()) return;
   const labels = resumeLabels();
   const modal = document.createElement("div");
   modal.className = "template-preview-modal admin-test-resume-modal";
@@ -5559,7 +5563,7 @@ function openAdminTestResumeConfirmModal() {
 }
 
 function requestAdminTestResumeFill() {
-  if (!isAdminAccount()) return;
+  if (!canUseTestResumeTools()) return;
   const currentResume = collectBuilderResume();
   if (resumeHasFilledContent(currentResume)) {
     openAdminTestResumeConfirmModal();
@@ -8576,6 +8580,52 @@ function isLocalDevelopmentRuntime() {
   return !host || host === "localhost" || host === "127.0.0.1" || host === "::1" || window.location.protocol === "file:";
 }
 
+function ensureLocalDevelopmentTestAccount() {
+  if (!isLocalDevelopmentRuntime()) return null;
+  const email = "dev.local@succeedora.test";
+  const planState = normalizePlanState({
+    type: "premium",
+    status: "manual",
+    source: "manual",
+    startedAt: isoNow(),
+    expiresAt: null,
+    durationLabel: "Local development",
+  }, "premium");
+  let account = findAccountByEmail(email);
+  if (!account) {
+    account = createAccount({
+      fullName: "Succeedora Dev",
+      email,
+      provider: "google",
+      googleId: `local-dev-${Date.now().toString(36)}`,
+      emailVerified: true,
+    });
+  }
+  if (!account) return null;
+  account = updateAccount(account.id, (current) => ({
+    ...current,
+    password: "",
+    provider: current.provider || "local",
+    plan: planState,
+    status: "active",
+    emailVerified: true,
+    authProviders: Array.from(new Set([...(current.authProviders || []).filter((provider) => provider !== "password"), "local"])),
+    profile: {
+      ...current.profile,
+      fullName: current.profile?.fullName || "Succeedora Dev",
+      email,
+      preferredLanguage: current.profile?.preferredLanguage || currentLanguage,
+    },
+  })) || account;
+  saveUserAccess(account, {
+    ...defaultAccessState(),
+    plan: "premium",
+    planState,
+    aiCredits: 999,
+  });
+  return account;
+}
+
 function paidAccessRequiresServerVerification() {
   return !isLocalDevelopmentRuntime();
 }
@@ -10684,6 +10734,18 @@ function bindInteractions() {
       authUrl.searchParams.set("lang", currentLanguage === "pt" ? "pt" : "en");
       authUrl.searchParams.set("returnTo", returnRoute);
       window.location.assign(authUrl.toString());
+    });
+  });
+
+  document.querySelectorAll("[data-local-dev-auth]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (!isLocalDevelopmentRuntime()) return;
+      const account = ensureLocalDevelopmentTestAccount();
+      if (!account) return;
+      prepareCollapsedDashboardEntry();
+      setSession(account, true);
+      routeToDashboardEntry(consumeIntendedRoute());
     });
   });
 
@@ -18147,6 +18209,12 @@ function googleAuthButton(context = "signin") {
   return `<button class="google-auth-button" type="button" data-google-auth="${escapeHtml(context)}">${googleIcon()} <span>${escapeHtml(a.google || "Continue with Google")}</span></button>`;
 }
 
+function localDevelopmentAuthButton(context = "signin") {
+  if (!isLocalDevelopmentRuntime()) return "";
+  const label = currentLanguage === "pt" ? "Entrar com conta local de teste" : "Use local test account";
+  return `<button class="google-auth-button local-dev-auth-button" type="button" data-local-dev-auth="${escapeHtml(context)}"><span>${escapeHtml(label)}</span></button>`;
+}
+
 function renderGoogleOAuthCallback() {
   let a = t().auth;
   let payload = null;
@@ -18232,6 +18300,7 @@ function authLayout(type) {
         <h2>${isSignIn ? a.signInTitle : a.signUpTitle}</h2>
         <p class="auth-subtitle">${isSignIn ? a.signInSubtitle : a.signUpSubtitle}</p>
         ${googleAuthButton(type)}
+        ${localDevelopmentAuthButton(type)}
         <div class="auth-divider"><span>${escapeHtml(a.or || (currentLanguage === "pt" ? "ou" : "or"))}</span></div>
         <form class="auth-form" data-auth-form="${type}">
           ${isSignIn ? "" : `<label>${a.fullName}<input type="text" name="fullName" autocomplete="name" placeholder="${a.fullNamePlaceholder}" required /></label>`}
@@ -19662,7 +19731,7 @@ function renderBuilder() {
     : "";
   const completion = calculateCompletion(draft);
   const selectedTemplate = getTemplateByKey(selectedTemplateKey);
-  const adminBuilderTool = isAdminAccount()
+  const adminBuilderTool = canUseTestResumeTools()
     ? `<div class="admin-builder-tools"><button class="secondary-button small admin-builder-tool" type="button" data-admin-fill-test-resume><span>${escapeHtml(resumeLabels().adminToolLabel)}:</span> ${escapeHtml(resumeLabels().adminFillTest)}</button></div>`
     : "";
   const saveStateMarkup = `
@@ -22593,4 +22662,5 @@ if (window.matchMedia) {
 }
 applyTheme();
 normalizeLanguagePath(true);
+ensureLocalDevelopmentTestAccount();
 render();
