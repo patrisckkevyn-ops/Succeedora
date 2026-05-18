@@ -4692,7 +4692,7 @@ body,
 }
 
 .cover-letter-preview-dialog .template-preview-content {
-  align-items: stretch;
+  align-items: flex-start;
 }
 
 @media (max-width: 1180px) and (min-width: 861px) {
@@ -5065,8 +5065,8 @@ body,
   }
 
   .letter-document {
-    min-height: 540px;
-    padding: 28px 22px;
+    min-height: 0;
+    padding: 0;
   }
 
   .ai-match-grid,
@@ -11901,6 +11901,244 @@ select:focus-visible {
 .pdf-export-document.resume-template-simple-ats.simple-ats-resume span,
 .pdf-export-document.resume-template-simple-ats.simple-ats-resume em {
   font-size: 9.7pt !important;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-compact {
+  padding: 40px 46px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense {
+  padding: 32px 38px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-compact .clean-start-header {
+  padding-bottom: 10px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense .clean-start-header {
+  gap: 2px;
+  padding-bottom: 7px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-compact h2 {
+  font-size: 27px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense h2 {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-compact header strong {
+  font-size: 12.5px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense header strong {
+  font-size: 10.8px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-compact .clean-start-contact-line {
+  font-size: 10.4px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense .clean-start-contact-line {
+  font-size: 9.1px;
+  line-height: 1.25;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-compact section {
+  margin-top: 10px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense section {
+  margin-top: 6px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-compact h3 {
+  margin-bottom: 5px;
+  padding-bottom: 3px;
+  font-size: 10.5px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense h3 {
+  margin-bottom: 3px;
+  padding-bottom: 2px;
+  font-size: 8.8px;
+  line-height: 1.08;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-compact p,
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-compact li {
+  font-size: 10.9px;
+  line-height: 1.32;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense p,
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense li {
+  font-size: 9.2px;
+  line-height: 1.22;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-compact ul {
+  margin-top: 3px;
+  padding-left: 14px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense ul {
+  margin-top: 2px;
+  padding-left: 11px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-compact .clean-start-entry + .clean-start-entry {
+  margin-top: 7px;
+  padding-top: 6px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense .clean-start-entry,
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense .clean-start-project-item {
+  gap: 1px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense .clean-start-entry + .clean-start-entry {
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-compact .clean-start-entry strong,
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-compact .clean-start-project-item strong {
+  font-size: 11.2px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense .clean-start-entry strong,
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense .clean-start-project-item strong {
+  font-size: 9.8px;
+}
+
+.resume-template-clean-start-ats.clean-start-ats-resume.resume-density-dense .clean-start-period {
+  font-size: 8.8px !important;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact {
+  padding: 34px 54px 32px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense {
+  padding: 26px 42px 24px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact .simple-ats-header {
+  padding-bottom: 8px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense .simple-ats-header {
+  padding-bottom: 5px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact h2 {
+  font-size: 29px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense h2 {
+  margin-bottom: 2px;
+  font-size: 23px;
+  line-height: 1.05;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact header strong {
+  font-size: 14.5px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense header strong {
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact .simple-ats-contact-line {
+  margin-top: 6px;
+  font-size: 11px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense .simple-ats-contact-line {
+  margin-top: 3px;
+  font-size: 9px;
+  line-height: 1.22;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact section {
+  margin-top: 7px;
+  padding-top: 6px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense section {
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact h3 {
+  margin-bottom: 4px;
+  padding-bottom: 3px;
+  font-size: 11px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense h3 {
+  margin-bottom: 2px;
+  padding-bottom: 2px;
+  font-size: 8.8px;
+  line-height: 1.08;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact p,
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact li,
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact span,
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact em {
+  font-size: 10.8px;
+  line-height: 1.32;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense p,
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense li,
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense span,
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense em {
+  font-size: 9.1px;
+  line-height: 1.22;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact ul {
+  margin-top: 3px;
+  padding-left: 14px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense ul {
+  margin-top: 2px;
+  padding-left: 11px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact .simple-ats-experience-item {
+  padding-bottom: 5px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense .simple-ats-experience-item {
+  padding-bottom: 3px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact .simple-ats-experience-item + .simple-ats-experience-item {
+  margin-top: 5px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense .simple-ats-experience-item + .simple-ats-experience-item {
+  margin-top: 3px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact .simple-ats-experience-item > strong,
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact .simple-ats-education-item strong,
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-compact .simple-ats-project-list strong {
+  font-size: 11.4px;
+}
+
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense .simple-ats-experience-item > strong,
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense .simple-ats-education-item strong,
+.resume-document.resume-template-simple-ats.simple-ats-resume.resume-density-dense .simple-ats-project-list strong {
+  font-size: 9.7px;
 }
 
 .resume-document.resume-template-student,
@@ -20813,6 +21051,11 @@ select:focus-visible {
   display: none;
 }
 
+.resume-document.resume-template-legal.curated-resume .curated-experience-item::before,
+.resume-document.resume-template-legal.curated-resume .curated-experience-item::after {
+  display: none;
+}
+
 .resume-document.resume-template-legal.curated-resume .curated-entry-head {
   grid-template-columns: minmax(0, 1fr) max-content;
 }
@@ -20878,6 +21121,20 @@ select:focus-visible {
   background: #ffffff;
 }
 
+.resume-document.resume-template-legal.curated-resume .curated-education .curated-compact-item {
+  display: grid;
+  gap: 4px;
+}
+
+.resume-document.resume-template-legal.curated-resume .curated-education-location {
+  color: #223657;
+}
+
+.resume-document.resume-template-legal.curated-resume .curated-education-description {
+  margin: 3px 0 0;
+  color: #1f2b40;
+}
+
 .resume-document.resume-template-legal.curated-resume .curated-languages p,
 .resume-document.resume-template-legal.curated-resume .curated-links .curated-link-list {
   display: grid;
@@ -20887,6 +21144,175 @@ select:focus-visible {
 
 .resume-document.resume-template-legal.curated-resume .curated-links .curated-link-list {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact {
+  padding: 42px 50px 38px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense {
+  padding: 32px 40px 28px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact .curated-header {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense .curated-header {
+  margin-bottom: 9px;
+  padding-bottom: 8px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact .curated-header h2 {
+  font-size: 44px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense .curated-header h2 {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact .curated-header strong {
+  font-size: 13px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense .curated-header strong {
+  font-size: 10.5px;
+  letter-spacing: 0.32em;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact .curated-contact-line {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense .curated-contact-line {
+  margin-top: 5px;
+  font-size: 9.8px;
+  line-height: 1.25;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact section {
+  margin-bottom: 8px !important;
+  padding: 13px 15px 13px 56px !important;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense section {
+  margin-bottom: 5px !important;
+  padding: 10px 12px 10px 48px !important;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact section::before {
+  left: 17px;
+  top: 13px;
+  width: 26px;
+  height: 26px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense section::before {
+  left: 14px;
+  top: 10px;
+  width: 22px;
+  height: 22px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact section::after {
+  left: 30px;
+  top: 42px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense section::after {
+  left: 25px;
+  top: 34px;
+  bottom: 8px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact h3 {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense h3 {
+  gap: 12px;
+  margin-bottom: 5px;
+  font-size: 11.4px;
+  line-height: 1.1;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact p,
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact li {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense p,
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense li {
+  font-size: 10.7px;
+  line-height: 1.3;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact .curated-entry-head strong {
+  font-size: 15.4px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense .curated-entry-head strong {
+  font-size: 12.8px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact .curated-entry-head span,
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact .curated-entry-meta {
+  font-size: 12.3px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense .curated-entry-head span,
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense .curated-entry-meta {
+  font-size: 10px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact ul {
+  gap: 4px;
+  margin-top: 5px;
+  padding-left: 17px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense ul {
+  gap: 2px;
+  margin-top: 3px;
+  padding-left: 14px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact .curated-skill-list {
+  gap: 7px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense .curated-skill-list {
+  gap: 4px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact .curated-skill-list span {
+  padding: 4px 8px;
+  font-size: 11.4px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense .curated-skill-list span {
+  padding: 3px 6px;
+  font-size: 9.2px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact .curated-education .curated-compact-item,
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact .curated-certifications p,
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact .curated-languages p,
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-compact .curated-links .curated-link-list {
+  padding: 8px 10px;
+}
+
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense .curated-education .curated-compact-item,
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense .curated-certifications p,
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense .curated-languages p,
+.resume-document.resume-template-legal.curated-resume.resume-fit-document.resume-density-dense .curated-links .curated-link-list {
+  gap: 2px;
+  padding: 6px 8px;
 }
 
 .template-sample-thumb .resume-document.resume-template-legal.curated-resume {
@@ -21310,6 +21736,29 @@ select:focus-visible {
   line-height: 1.6;
 }
 
+.letter-option-check {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+  color: #10214a;
+  font-weight: 800;
+}
+
+.letter-option-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: #1f69d5;
+}
+
+.letter-option-check span {
+  line-height: 1.3;
+}
+
 .cover-letter-builder-actions {
   align-items: center;
 }
@@ -21325,72 +21774,87 @@ select:focus-visible {
 }
 
 .letter-document {
-  min-height: 640px;
-  padding: clamp(34px, 4vw, 56px);
+  box-sizing: border-box;
+  width: min(100%, 820px);
+  min-height: 0;
+  margin: 0 auto;
+  padding: 0;
   border: 1px solid var(--line);
-  border-radius: 5px;
+  border-radius: 8px;
   background: #fff;
-  box-shadow: var(--shadow);
+  box-shadow: 0 18px 50px rgba(12, 28, 64, 0.12);
   color: #26334f;
-  line-height: 1.7;
-  overflow-wrap: anywhere;
+  overflow: visible;
+  overflow-wrap: break-word;
 }
 
 .letter-document p {
-  margin: 0 0 18px;
+  margin: 0;
 }
 
 .cover-letter-document {
-  min-height: 610px;
+  box-sizing: border-box;
+  min-height: 900px;
+  padding: clamp(46px, 5vw, 62px) clamp(48px, 5.2vw, 68px);
   display: flex;
   flex-direction: column;
-  color: #26334f;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 14px;
-  line-height: 1.65;
-  overflow-wrap: anywhere;
+  color: #162542;
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  line-height: 1.62;
+  overflow-wrap: break-word;
 }
 
 .cover-letter-doc-header {
-  padding-bottom: 22px;
-  border-bottom: 1px solid #dbe3f3;
-  margin-bottom: 26px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #d7e0ee;
+  margin-bottom: 24px;
 }
 
 .cover-letter-doc-header h2 {
-  margin: 0 0 8px;
+  margin: 0 0 9px;
   color: #10214a;
-  font-size: 28px;
+  font-size: 34px;
+  font-weight: 900;
   line-height: 1.1;
+  letter-spacing: 0;
 }
 
 .cover-letter-doc-header p,
 .cover-letter-doc-meta p {
   margin: 0;
-  color: #54617d;
+  color: #50607a;
+  font-size: 14px;
+  line-height: 1.45;
 }
 
 .cover-letter-doc-meta {
   display: grid;
-  gap: 16px;
-  margin-bottom: 28px;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 18px;
+  margin-bottom: 26px;
+  padding: 14px 16px;
+  border: 1px solid #e1e8f4;
+  border-radius: 8px;
+  background: #f8fbff;
 }
 
 .cover-letter-doc-body p {
-  margin: 0 0 18px;
+  margin: 0 0 17px;
 }
 
 .cover-letter-brand-footer {
   margin-top: auto;
-  padding-top: 22px;
+  padding-top: 18px;
   border-top: 1px solid #e3eaf6;
   color: #7d88a5;
-  font-size: 11px;
+  font-size: 11.5px;
   text-align: center;
 }
 
 .cover-letter-preview-content {
   background: #f5f8ff;
+  padding: clamp(16px, 2vw, 26px);
 }
 
 .cover-letter-preview-content .letter-document {
@@ -21404,18 +21868,49 @@ select:focus-visible {
 
 .cover-letter-pdf-content {
   box-sizing: border-box;
-  padding: 22mm 18mm;
+  padding: 0;
 }
 
 .cover-letter-pdf-content .cover-letter-document {
-  min-height: calc(100% - 1px);
-  font-size: 12.5px;
-  line-height: 1.55;
+  width: 100%;
+  min-height: calc(var(--resume-page-height-print, 297mm) - 1px);
+  padding: 17mm 17mm 15mm;
+  border: 0;
+  border-radius: 0;
   box-shadow: none;
+  font-size: 15.4px;
+  line-height: 1.58;
+  background: #ffffff;
 }
 
 .cover-letter-pdf-content .cover-letter-doc-header h2 {
-  font-size: 24px;
+  font-size: 32px;
+}
+
+.cover-letter-pdf-content .cover-letter-doc-meta {
+  margin-bottom: 22px;
+  padding: 12px 14px;
+}
+
+.cover-letter-pdf-content .cover-letter-doc-body p {
+  margin-bottom: 15px;
+}
+
+@media (max-width: 720px) {
+  .cover-letter-document {
+    min-height: 0;
+    padding: 34px 28px;
+    font-size: 14.5px;
+  }
+
+  .cover-letter-doc-header h2 {
+    font-size: 28px;
+  }
+
+  .cover-letter-doc-meta {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 }
 
 .ai-input-panel {
@@ -32606,7 +33101,7 @@ select:focus-visible {
     box-sizing: border-box;
     width: 100%;
     min-height: min(74vh, 640px);
-    padding: 26px 22px;
+    padding: 0;
     border-radius: 0;
   }
 

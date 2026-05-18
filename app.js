@@ -3286,7 +3286,7 @@ const RESUME_TEMPLATES = [
     access: "pro",
     previewDescriptions: {
       en: "A sober classic format for conservative applications, with strong readability, centered header and no unnecessary decoration.",
-      pt: "Um formato classico e sobrio para candidaturas tradicionais, com alta legibilidade, cabecalho centralizado e sem decoracao excessiva.",
+      pt: "Um formato clássico e sóbrio para candidaturas tradicionais, com alta legibilidade, cabeçalho centralizado e sem decoração excessiva.",
     },
     descriptions: {
       en: "A timeless resume with familiar hierarchy and careful spacing.",
@@ -3309,7 +3309,7 @@ const RESUME_TEMPLATES = [
     access: "pro",
     previewDescriptions: {
       en: "A polished corporate resume for office, operations, finance and management roles, built to feel serious and business-ready.",
-      pt: "Um curriculo corporativo polido para escritorio, operacoes, financas e gestao, com aparencia seria e pronta para empresas.",
+      pt: "Um currículo corporativo polido para escritório, operações, finanças e gestão, com aparência séria e pronta para empresas.",
     },
     descriptions: {
       en: "A restrained corporate layout for business and consulting roles.",
@@ -3431,8 +3431,8 @@ const RESUME_TEMPLATES = [
 ];
 
 const ADDITIONAL_RESUME_TEMPLATES = [
-  ["global-impact", "Global Impact", "Global Impact", "Global / Executive", "Global / Executivo moderno", "premium", ["premium", "international", "executive", "corporate", "technology"], "A Premium global resume with a sophisticated navy header, strategic sidebar and refined timeline for high-value international applications.", "Modelo Premium com layout global, cabecalho sofisticado, sidebar estrategica e experiencia em timeline refinada. Ideal para transmitir alto valor e presenca internacional.", "International professionals, managers, product leaders, consultants, remote roles and technology careers", "Profissionais internacionais, gerentes, product managers, consultores, tecnologia, lideres e vagas remotas"],
-  ["global-executive-signature", "Global Executive Signature", "Global Executive Signature", "Executive / Leadership / International / Premium", "Executivo / Lideranca / Internacional / Premium", "premium", ["premium", "executive", "international", "corporate", "technology"], "Executive premium resume with sidebar, monogram, refined hierarchy and a global leadership style.", "Curriculo Premium executivo com sidebar navy, monograma, hierarquia refinada e estilo global para lideranca.", "Experienced professionals, managers, senior technology leaders, consultants, directors, international and remote leadership roles", "Profissionais experientes, gestores, lideres de tecnologia senior, consultores, diretores e vagas internacionais ou remotas de lideranca"],
+  ["global-impact", "Global Impact", "Global Impact", "Global / Executive", "Global / Executivo moderno", "premium", ["premium", "international", "executive", "corporate", "technology"], "A Premium global resume with a sophisticated navy header, strategic sidebar and refined timeline for high-value international applications.", "Modelo Premium com layout global, cabeçalho sofisticado, sidebar estratégica e experiência em timeline refinada. Ideal para transmitir alto valor e presença internacional.", "International professionals, managers, product leaders, consultants, remote roles and technology careers", "Profissionais internacionais, gerentes, product managers, consultores, tecnologia, líderes e vagas remotas"],
+  ["global-executive-signature", "Global Executive Signature", "Global Executive Signature", "Executive / Leadership / International / Premium", "Executivo / Liderança / Internacional / Premium", "premium", ["premium", "executive", "international", "corporate", "technology"], "Executive premium resume with sidebar, monogram, refined hierarchy and a global leadership style.", "Currículo Premium executivo com sidebar navy, monograma, hierarquia refinada e estilo global para liderança.", "Experienced professionals, managers, senior technology leaders, consultants, directors, international and remote leadership roles", "Profissionais experientes, gestores, líderes de tecnologia sênior, consultores, diretores e vagas internacionais ou remotas de liderança"],
   ["professional", "Professional", "Profissional", "Corporate / Professional", "Corporativo / Profissional", "pro", ["pro", "corporate"], "A modern corporate Pro template with a strong contact card, clean timeline and organized sidebar.", "Um modelo Pro corporativo moderno, com card de contato forte, timeline limpa e sidebar organizada.", "Best for corporate, administrative and marketing roles", "Ideal para areas corporativas, administrativas e marketing"],
   ["clean-pro", "Clean Pro", "Clean Pro", "ATS", "ATS", "pro", ["pro", "ats", "corporate"], "A minimal premium layout with generous spacing, refined bullets and discreet skill chips.", "Um layout minimalista premium, com respiro, bullets refinados e chips discretos.", "ATS-focused with premium polish", "Focado em ATS com acabamento premium"],
   ["modern-ats", "Modern ATS", "ATS moderno", "ATS", "ATS", "pro", ["pro", "ats", "technology"], "ATS-safe structure with a sharper modern header and a separated skills band.", "Estrutura segura para ATS, com cabeçalho moderno e faixa de habilidades destacada.", "Online applications and ATS uploads", "Candidaturas online e uploads em ATS"],
@@ -3441,14 +3441,14 @@ const ADDITIONAL_RESUME_TEMPLATES = [
   ["sales", "Sales", "Vendas", "Sales / Commercial", "Vendas / Comercial", "pro", ["pro", "corporate"], "A modern Pro resume for sales, revenue, account, customer success and commercial relationship roles, with metrics-first hierarchy.", "Um curriculo Pro moderno para vendas, receita, contas, sucesso do cliente e relacionamento comercial, com hierarquia orientada a metricas.", "Best for sales, SDR, BDR, account executive, customer success and client-facing growth roles", "Ideal para vendas, SDR, BDR, account executive, customer success e relacionamento com clientes"],
   ["developer", "Developer", "Desenvolvedor", "Technology", "Tecnologia", "premium", ["premium", "technology", "ats"], "A premium technical resume with stack sidebar, project-first structure and visible engineering links.", "Um currículo técnico premium, com sidebar de stack, projetos em destaque e links de engenharia visíveis.", "For tech and product", "Para tecnologia e produto"],
   ["designer", "Designer", "Designer", "Creative", "Criativo", "premium", ["premium", "creative", "technology"], "A refined visual layout for design, UX and portfolio-driven careers.", "Um layout visual refinado para design, UX e carreiras orientadas a portfólio.", "Creative modern layout", "Visual criativo e moderno"],
-  ["healthcare", "Healthcare", "Saude", "Corporate", "Corporativo", "pro", ["pro", "corporate", "ats"], "A trustworthy clinical resume for healthcare and care operations.", "Um curriculo confiavel para saude, clinica e operacoes de cuidado.", "For healthcare professionals", "Para profissionais de saude"],
-  ["legal", "Legal", "Juridico", "Corporate", "Corporativo", "pro", ["pro", "corporate", "executive"], "A formal layout for legal, compliance and advisory careers.", "Um layout formal para juridico, compliance e consultoria.", "For legal and compliance roles", "Para juridico e compliance"],
-  ["finance", "Finance", "Financas", "Corporate", "Corporativo", "pro", ["pro", "corporate", "executive"], "A precise, numbers-led template for finance and accounting.", "Um modelo preciso e orientado a numeros para financas e contabilidade.", "For finance and accounting", "Para financas e contabilidade"],
-  ["academic", "Academic", "Academico", "International", "Internacional", "pro", ["pro", "international", "corporate"], "A structured academic format for education, research and teaching.", "Um formato academico para educacao, pesquisa e docencia.", "For education and research", "Para educacao e pesquisa"],
+  ["healthcare", "Healthcare", "Saúde", "Corporate", "Corporativo", "pro", ["pro", "corporate", "ats"], "A trustworthy clinical resume for healthcare and care operations.", "Um currículo confiável para saúde, clínica e operações de cuidado.", "For healthcare professionals", "Para profissionais de saúde"],
+  ["legal", "Legal", "Jurídico", "Corporate", "Corporativo", "pro", ["pro", "corporate", "executive"], "A formal layout for legal, compliance and advisory careers.", "Um layout formal para jurídico, compliance e consultoria.", "For legal and compliance roles", "Para jurídico e compliance"],
+  ["finance", "Finance", "Finanças", "Corporate", "Corporativo", "pro", ["pro", "corporate", "executive"], "A precise, numbers-led template for finance and accounting.", "Um modelo preciso e orientado a números para finanças e contabilidade.", "For finance and accounting", "Para finanças e contabilidade"],
+  ["academic", "Academic", "Acadêmico", "International", "Internacional", "pro", ["pro", "international", "corporate"], "A structured academic format for education, research and teaching.", "Um formato acadêmico para educação, pesquisa e docência.", "For education and research", "Para educação e pesquisa"],
   ["remote-work", "Remote Work", "Trabalho remoto", "International", "Internacional", "premium", ["premium", "international", "technology"], "A premium global resume for remote, async and distributed teams.", "Um currículo global premium para vagas remotas, assíncronas e times distribuídos.", "International remote applications", "Candidaturas remotas internacionais"],
-  ["operations", "Operations", "Operacoes", "Corporate", "Corporativo", "pro", ["pro", "corporate", "ats"], "A process-focused resume for logistics, operations and delivery.", "Um curriculo focado em processos para logistica, operacoes e entrega.", "Best for operations roles", "Ideal para operacoes"],
+  ["operations", "Operations", "Operações", "Corporate", "Corporativo", "pro", ["pro", "corporate", "ats"], "A process-focused resume for logistics, operations and delivery.", "Um currículo focado em processos para logística, operações e entrega.", "Best for operations roles", "Ideal para operações"],
   ["customer-service", "Customer Service", "Atendimento", "Corporate", "Corporativo", "free", ["free", "corporate", "first-job"], "A clear service resume for support, success and client care.", "Um curriculo claro para suporte, sucesso do cliente e atendimento.", "Best for customer service", "Ideal para atendimento ao cliente"],
-  ["graduate", "Graduate", "Recem-formado", "First job", "Primeiro emprego", "free", ["free", "first-job", "ats"], "A confident early-career layout for new graduates.", "Um layout confiante para recem-formados e inicio de carreira.", "Good for first jobs", "Bom para primeiro emprego"],
+  ["graduate", "Graduate", "Recém-formado", "First job", "Primeiro emprego", "free", ["free", "first-job", "ats"], "A confident early-career layout for new graduates.", "Um layout confiante para recém-formados e início de carreira.", "Good for first jobs", "Bom para primeiro emprego"],
   ["manager", "Manager", "Gerente", "Executive", "Executivo", "premium", ["premium", "executive", "corporate"], "A premium leadership resume for managers, coordinators and team leads.", "Um currículo premium de liderança para gerentes, coordenadores e líderes.", "For managers and team leads", "Para gerentes e lideranças"],
   ["consultant", "Consultant", "Consultor", "Corporate", "Corporativo", "premium", ["premium", "corporate", "executive"], "A strategic premium consulting resume with specialty cards and project-led hierarchy.", "Um currículo premium de consultoria, com cards de especialidade e hierarquia orientada a projetos.", "For consultants and advisors", "Para consultores e assessores"],
   ["startup", "Startup", "Startup", "Technology", "Tecnologia", "premium", ["premium", "technology", "creative"], "A high-energy premium layout for builders, operators and startup teams.", "Um layout premium dinâmico para builders, operações e times de startup.", "For startup and product roles", "Para startups e produto"],
@@ -3465,18 +3465,18 @@ const ADDITIONAL_RESUME_TEMPLATES = [
   descriptions: { en: enDescription, pt: ptDescription },
   previewDescriptions: key === "global-impact" ? {
     en: "Premium resume with an international visual system, sophisticated navy header, strategic sidebar, career highlight cards and refined experience timeline.",
-    pt: "Curriculo Premium com visual internacional, cabecalho navy sofisticado, sidebar estrategica, cards de destaque e timeline refinada de experiencia.",
+    pt: "Currículo Premium com visual internacional, cabeçalho navy sofisticado, sidebar estratégica, cards de destaque e timeline refinada de experiência.",
   } : key === "global-executive-signature" ? {
     en: "Executive premium resume with sidebar, monogram, refined hierarchy and a global leadership style.",
-    pt: "Curriculo Premium executivo com sidebar navy, monograma, hierarquia refinada e estilo global para lideranca.",
+    pt: "Currículo Premium executivo com sidebar navy, monograma, hierarquia refinada e estilo global para liderança.",
   } : undefined,
   bestFor: { en: enBestFor, pt: ptBestFor },
   idealFor: key === "global-impact" ? {
     en: ["international professionals", "managers", "coordinators", "product managers", "consultants", "technology professionals", "remote candidates", "team leaders", "global roles"],
-    pt: ["profissionais internacionais", "gerentes", "coordenadores", "product managers", "consultores", "profissionais de tecnologia", "profissionais remotos", "lideres de equipe", "vagas globais"],
+    pt: ["profissionais internacionais", "gerentes", "coordenadores", "product managers", "consultores", "profissionais de tecnologia", "profissionais remotos", "líderes de equipe", "vagas globais"],
   } : key === "global-executive-signature" ? {
     en: ["experienced professionals", "managers", "coordinators", "executives", "consultants", "senior technology professionals", "remote leadership roles", "international applications"],
-    pt: ["profissionais experientes", "gestores", "coordenadores", "executivos", "consultores", "profissionais senior de tecnologia", "lideranca remota", "candidaturas internacionais"],
+    pt: ["profissionais experientes", "gestores", "coordenadores", "executivos", "consultores", "profissionais sênior de tecnologia", "liderança remota", "candidaturas internacionais"],
   } : undefined,
   premiumPlanOnly: key === "global-executive-signature",
 }));
@@ -3957,13 +3957,15 @@ function documentFormatSwitch(activeFormat = selectedDocumentFormat, scope = "bu
       <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
     </div>
   `).join("");
-  const curatedEducationItems = (data.education || []).filter((item) => curatedHasText(item.degree) || curatedHasText(item.school) || curatedHasText(item.period));
+  const curatedEducationItems = (data.education || []).filter((item) => curatedHasText(item.degree) || curatedHasText(item.school) || curatedHasText(item.location) || curatedHasText(item.period) || curatedHasText(item.description));
   const curatedEducationEntries = (curatedEducationItems.length ? curatedEducationItems : [education]).map((item, index) => `
-    <p class="curated-compact-item">
+    <article class="curated-compact-item">
       <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
       <span ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</span>
+      ${curatedHasText(item.location) ? `<span class="curated-education-location" ${index === 0 ? `data-preview-field="educationLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span>` : ""}
       ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
-    </p>
+      ${curatedHasText(item.description) ? `<p class="curated-education-description" ${index === 0 ? `data-preview-field="educationDescription" data-preview-empty=""` : ""}>${display(item.description, "")}</p>` : ""}
+    </article>
   `).join("");
   return `
     <div class="resume-document-shell ${documentFormatClass(format)}" data-document-format-current="${normalizeDocumentFormat(format)}" data-resume-document-shell>
@@ -4452,6 +4454,7 @@ function coverLetterLabels() {
       email: "E-mail",
       phone: "Telefone",
       location: "Localização",
+      includeDate: "Incluir data na carta",
       body: "Texto da carta",
     },
     tones: ["Profissional", "Formal", "Direto", "Confiante", "Entusiasmado"],
@@ -4515,6 +4518,7 @@ function coverLetterLabels() {
       email: "Email",
       phone: "Phone",
       location: "Location",
+      includeDate: "Include date on letter",
       body: "Letter body",
     },
     tones: ["Professional", "Formal", "Direct", "Confident", "Enthusiastic"],
@@ -4602,6 +4606,7 @@ function createBlankCoverLetter(overrides = {}) {
     email: profile.email || "",
     phone: "",
     location: profile.location || "",
+    includeDate: false,
     body: "",
     resumeId: "",
     ownerEmail: getAuthEmail(),
@@ -4630,6 +4635,7 @@ function normalizeCoverLetter(raw = {}) {
     email: String(raw.email || base.email),
     phone: String(raw.phone || base.phone),
     location: String(raw.location || base.location),
+    includeDate: raw.includeDate === true || raw.includeDate === "true",
     body: String(raw.body || base.body),
     resumeId: String(raw.resumeId || base.resumeId),
     ownerEmail: String(raw.ownerEmail || getAuthEmail() || ""),
@@ -4743,7 +4749,7 @@ function updateCoverLetterDraftFromForm(options = {}) {
   if (!coverLetterDraft) coverLetterDraft = createBlankCoverLetter({ id: currentCoverLetterId || undefined });
   document.querySelectorAll("[data-letter-field]").forEach((field) => {
     const key = field.getAttribute("data-letter-field");
-    if (key) coverLetterDraft[key] = field.value;
+    if (key) coverLetterDraft[key] = field.type === "checkbox" ? field.checked : field.value;
   });
   if (markDirty) {
     coverLetterDraft.updatedAt = isoNow();
@@ -4832,7 +4838,14 @@ function coverLetterDocument(letter, options = {}) {
   const normalized = normalizeCoverLetter(letter);
   const labels = coverLetterLabels();
   const contacts = [normalized.location, normalized.email, normalized.phone].map((item) => String(item || "").trim()).filter(Boolean);
-  const date = new Intl.DateTimeFormat(currentLanguage === "pt" ? "pt-BR" : "en-US", { dateStyle: "long" }).format(new Date(normalized.updatedAt || Date.now()));
+  const date = normalized.includeDate
+    ? new Intl.DateTimeFormat(currentLanguage === "pt" ? "pt-BR" : "en-US", { dateStyle: "long" }).format(new Date(normalized.updatedAt || Date.now()))
+    : "";
+  const recipient = [normalized.recruiter, normalized.company, normalized.targetRole].map((item) => String(item || "").trim()).filter(Boolean).map(escapeHtml).join("<br>");
+  const metaItems = [
+    date ? `<p>${escapeHtml(date)}</p>` : "",
+    recipient ? `<p>${recipient}</p>` : "",
+  ].filter(Boolean).join("");
   const body = normalized.body || (currentLanguage === "pt"
     ? "Gere ou escreva sua carta para visualizar o documento final."
     : "Generate or write your letter to preview the final document.");
@@ -4842,10 +4855,7 @@ function coverLetterDocument(letter, options = {}) {
         <h2>${escapeHtml(normalized.candidateName || labels.fields.candidateName)}</h2>
         ${contacts.length ? `<p>${contacts.map(escapeHtml).join(" | ")}</p>` : ""}
       </header>
-      <div class="cover-letter-doc-meta">
-        <p>${escapeHtml(date)}</p>
-        ${normalized.company || normalized.recruiter || normalized.targetRole ? `<p>${[normalized.recruiter, normalized.company, normalized.targetRole].map((item) => String(item || "").trim()).filter(Boolean).map(escapeHtml).join("<br>")}</p>` : ""}
-      </div>
+      ${metaItems ? `<div class="cover-letter-doc-meta">${metaItems}</div>` : ""}
       <div class="cover-letter-doc-body">
         ${coverLetterParagraphs(body).map((paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, "<br>")}</p>`).join("")}
       </div>
@@ -5354,7 +5364,7 @@ function resetResumeDocumentPreviewFit(documentNode, format = selectedDocumentFo
   if (!documentNode) return documentPageSpec(format);
   const normalizedFormat = normalizeDocumentFormat(format);
   const spec = documentPageSpec(normalizedFormat);
-  documentNode.classList.remove("resume-preview-fit-document");
+  documentNode.classList.remove("resume-preview-fit-document", "resume-fit-document");
   documentNode.style.removeProperty("width");
   documentNode.style.removeProperty("max-width");
   documentNode.style.removeProperty("min-width");
@@ -5389,6 +5399,19 @@ function applyResumeDensityClass(documentNode, scale = 1) {
   else documentNode.classList.add("resume-density-comfortable");
 }
 
+function minimumResumeFitScale(documentNode) {
+  if (!documentNode) return 0.54;
+  if (
+    documentNode.classList.contains("clean-start-ats-resume") ||
+    documentNode.classList.contains("simple-ats-resume") ||
+    documentNode.classList.contains("clean-basic-free-resume") ||
+    documentNode.classList.contains("resume-template-legal")
+  ) {
+    return 0.42;
+  }
+  return 0.54;
+}
+
 function fitResumeDocumentToPreviewPage(shell, format = selectedDocumentFormat) {
   const previewContainer = shell?.closest(".builder-preview-frame, .resume-thumbnail, .template-preview-content");
   if (!previewContainer) return;
@@ -5396,6 +5419,7 @@ function fitResumeDocumentToPreviewPage(shell, format = selectedDocumentFormat) 
   if (!documentNode) return;
   const normalizedFormat = normalizeDocumentFormat(format);
   const spec = resetResumeDocumentPreviewFit(documentNode, normalizedFormat);
+  const minimumScale = minimumResumeFitScale(documentNode);
   let scale = 1;
   const layoutAtScale = (nextScale, final = false) => {
     const width = spec.widthPx / nextScale;
@@ -5416,7 +5440,7 @@ function fitResumeDocumentToPreviewPage(shell, format = selectedDocumentFormat) 
   for (let index = 0; index < 4; index += 1) {
     layoutAtScale(scale, false);
     const contentHeight = Math.max(1, measureResumePreviewFitHeight(documentNode));
-    const nextScale = Math.max(0.54, Math.min(1, spec.heightPx / contentHeight));
+    const nextScale = Math.max(minimumScale, Math.min(1, spec.heightPx / contentHeight));
     if (Math.abs(nextScale - scale) < 0.01) {
       scale = nextScale;
       break;
@@ -5424,8 +5448,16 @@ function fitResumeDocumentToPreviewPage(shell, format = selectedDocumentFormat) 
     scale = nextScale;
   }
 
-  documentNode.classList.add("resume-preview-fit-document");
+  documentNode.classList.add("resume-preview-fit-document", "resume-fit-document");
   applyResumeDensityClass(documentNode, scale);
+  for (let index = 0; index < 2; index += 1) {
+    layoutAtScale(scale, false);
+    const contentHeight = Math.max(1, measureResumePreviewFitHeight(documentNode));
+    const nextScale = Math.max(minimumScale, Math.min(scale, spec.heightPx / contentHeight));
+    if (Math.abs(nextScale - scale) < 0.006) break;
+    scale = nextScale;
+    applyResumeDensityClass(documentNode, scale);
+  }
   shell.dataset.previewFit = "true";
   layoutAtScale(scale, true);
 }
@@ -9010,7 +9042,7 @@ function featureBenefits(featureKey) {
     ? {
         premium_templates: ["Modelos mais sofisticados", "Visual mais profissional", "Mais opções para vagas internacionais"],
         premium_template_library: ["Layouts Premium exclusivos", "Estrutura mais sofisticada", "Maior valor visual para candidaturas importantes"],
-        premium_template_plan_only: ["Design executivo exclusivo", "Sidebar premium com monograma", "Layout global para cargos de lideranca"],
+        premium_template_plan_only: ["Design executivo exclusivo", "Sidebar premium com monograma", "Layout global para cargos de liderança"],
         watermark_free_pdf: ["PDF sem marca da Succeedora", "Arquivo mais profissional", "Opção de upgrade ou compra única"],
         premium_pdf: ["PDF sem marca da Succeedora", "Arquivo mais profissional", "Opção de upgrade ou compra única"],
         remove_watermark: ["PDF sem marca da Succeedora", "Arquivo mais profissional", "Opção de upgrade ou compra única"],
@@ -13084,8 +13116,10 @@ function openTemplatePreview(templateKey, context = "public") {
   const root = document.body || document.getElementById("app");
   const existing = document.querySelector(".template-preview-modal");
   if (existing) existing.remove();
-  const currentResume = context === "builder" ? document.querySelector(".builder-preview .resume-document-shell") : null;
-  const resumeMarkup = currentResume ? currentResume.outerHTML : sampleResumeDocument(template.key, selectedDocumentFormat);
+  const builderResume = context === "builder" ? collectBuilderResume() : null;
+  const resumeMarkup = builderResume
+    ? resumeDocument(template.key, normalizeDocumentFormat(builderResume.documentFormat || selectedDocumentFormat), builderResume)
+    : sampleResumeDocument(template.key, selectedDocumentFormat);
   const previewTitle = template.key === "first-job" && currentLanguage === "pt" ? "Primeiro Emprego" : template.name;
   const modal = document.createElement("div");
   modal.className = "template-preview-modal resume-only-preview-modal";
@@ -13364,7 +13398,7 @@ function curatedSampleResume(template = "professional") {
         location: currentLanguage === "pt" ? "Sao Paulo, Brasil" : "Sao Paulo, Brazil",
       },
       summary: currentLanguage === "pt"
-        ? "Lider operacional senior com experiencia em eficiencia de processos, performance de equipes e execucao escalavel de negocios em ambientes dinamicos. Atua na lideranca de times multifuncionais, gestao de indicadores, redesenho de fluxos internos e melhoria continua para apoiar decisoes executivas e crescimento sustentavel."
+        ? "Líder operacional sênior com experiência em eficiência de processos, performance de equipes e execução escalável de negócios em ambientes dinâmicos. Atua na liderança de times multifuncionais, gestão de indicadores, redesenho de fluxos internos e melhoria contínua para apoiar decisões executivas e crescimento sustentável."
         : "Senior operations leader with experience improving process efficiency, team performance and scalable business execution in fast-paced environments. Skilled in cross-functional leadership, KPI management, workflow redesign and continuous improvement to support executive decisions and sustainable growth.",
       workExperience: currentLanguage === "pt"
         ? [
@@ -13374,10 +13408,10 @@ function curatedSampleResume(template = "professional") {
             location: "Sao Paulo, Brasil",
             period: "Jan 2021 - Atual",
             achievements: [
-              "Liderou 18 profissionais em operacoes, suporte ao cliente e controle de processos internos.",
+              "Liderou 18 profissionais em operações, suporte ao cliente e controle de processos internos.",
               "Aumentou a eficiencia operacional em 32% ao redesenhar distribuicao de tarefas e rotinas de reporte.",
               "Implementou indicadores de performance para melhorar decisoes executivas e responsabilizacao das equipes.",
-              "Coordenou iniciativas com financas, vendas e customer success para reduzir gargalos operacionais.",
+              "Coordenou iniciativas com finanças, vendas e customer success para reduzir gargalos operacionais.",
               "Reduziu atrasos em 24% ao padronizar comunicacao interna e processos de escalonamento.",
             ],
           },
@@ -13387,7 +13421,7 @@ function curatedSampleResume(template = "professional") {
             location: "Remoto",
             period: "Mar 2018 - Dez 2020",
             achievements: [
-              "Gerenciou fluxos diarios de atendimento e operacoes com foco em qualidade e consistencia.",
+              "Gerenciou fluxos diários de atendimento e operações com foco em qualidade e consistência.",
               "Criou dashboards de produtividade para acompanhar volume, prazos e principais gargalos.",
               "Apoiou expansao para duas novas regioes de atendimento com processos documentados.",
             ],
@@ -13437,7 +13471,7 @@ function curatedSampleResume(template = "professional") {
         : ["Leadership and Management Certificate - 2023", "Advanced Excel for Business - 2022", "Project Management Fundamentals - 2021"],
       projects: currentLanguage === "pt"
         ? [
-          "Operational Dashboard Implementation - Desenvolveu dashboard de performance para monitorar produtividade, volume de servicos e gargalos operacionais, ampliando a visibilidade para decisoes de lideranca.",
+          "Operational Dashboard Implementation - Desenvolveu dashboard de performance para monitorar produtividade, volume de serviços e gargalos operacionais, ampliando a visibilidade para decisões de liderança.",
           "Customer Support Process Redesign - Liderou melhoria de processos que reduziu solicitacoes repetidas e aumentou a consistencia das respostas internas.",
         ]
         : [
@@ -13747,7 +13781,7 @@ function curatedSampleResume(template = "professional") {
         location: currentLanguage === "pt" ? "Sao Paulo, SP" : "Sao Paulo, Brazil",
       },
       summary: currentLanguage === "pt"
-        ? "Profissional de vendas B2B com 6+ anos em gestao de contas estrategicas, prospeccao consultiva, CRM e crescimento de receita. Atua na construcao de relacionamentos de longo prazo, previsibilidade de pipeline e negociacoes orientadas a valor."
+        ? "Profissional de vendas B2B com 6+ anos em gestão de contas estratégicas, prospecção consultiva, CRM e crescimento de receita. Atua na construção de relacionamentos de longo prazo, previsibilidade de pipeline e negociações orientadas a valor."
         : "B2B sales professional with 6+ years in strategic account management, consultative prospecting, CRM and revenue growth. Strong background building long-term client relationships, pipeline predictability and value-led negotiations.",
       workExperience: currentLanguage === "pt"
         ? [
@@ -13829,7 +13863,7 @@ function curatedSampleResume(template = "professional") {
       projects: currentLanguage === "pt"
         ? [
           "Reestruturacao do Funil de Vendas - Redesenhei etapas de qualificacao e aumentei em 27% a taxa de conversao.",
-          "Expansao de Contas Estrategicas - Desenvolvi estrategia de upsell e cross-sell, gerando 35% de crescimento no faturamento das contas existentes.",
+          "Expansão de Contas Estratégicas - Desenvolvi estratégia de upsell e cross-sell, gerando 35% de crescimento no faturamento das contas existentes.",
           "Programa de Recuperacao de Clientes - Reativei clientes inativos e recuperei 18% da receita perdida.",
           "Padronizacao do Processo de Prospeccao - Criei cadencias e playbooks, gerando +40% em reunioes qualificadas.",
           "Curso: Negociacao de Alta Performance - Instituto Brasileiro de Vendas",
@@ -13860,7 +13894,7 @@ function curatedSampleResume(template = "professional") {
         location: currentLanguage === "pt" ? "Serra, Espirito Santo" : "Serra, Espirito Santo",
       },
       summary: currentLanguage === "pt"
-        ? "Profissional com mais de 8 anos de experiencia em gestao administrativa, financeira e de pessoas. Atuacao estrategica na otimizacao de processos, reducao de custos e melhoria de resultados, com forte habilidade analitica, visao sistemica e foco em eficiencia operacional."
+        ? "Profissional com mais de 8 anos de experiência em gestão administrativa, financeira e de pessoas. Atuação estratégica na otimização de processos, redução de custos e melhoria de resultados, com forte habilidade analítica, visão sistêmica e foco em eficiência operacional."
         : "Professional with 8+ years of experience in administrative, financial and people management. Strategic background in process optimization, cost reduction and performance improvement, with analytical thinking, systems view and operational efficiency focus.",
       workExperience: currentLanguage === "pt"
         ? [
@@ -13882,8 +13916,8 @@ function curatedSampleResume(template = "professional") {
             location: "Vitoria, ES",
             period: "06/2017 - 02/2021",
             achievements: [
-              "Realizei analise financeira e acompanhamento de despesas para decisoes estrategicas.",
-              "Apoiei a lideranca na gestao de contratos, fornecedores e indicadores de desempenho.",
+              "Realizei análise financeira e acompanhamento de despesas para decisões estratégicas.",
+              "Apoiei a liderança na gestão de contratos, fornecedores e indicadores de desempenho.",
               "Participei de projetos de melhoria de processos e reducao de custos operacionais.",
             ],
           },
@@ -13919,10 +13953,10 @@ function curatedSampleResume(template = "professional") {
         : ["Team Management", "Strategic Planning", "Budget Control", "KPI Analysis", "Process Improvement", "Advanced Excel", "Power BI", "Communication and Negotiation"],
       languages: currentLanguage === "pt" ? ["Portugues - Nativo", "Ingles - Avancado (C1)", "Espanhol - Intermediario (B1)"] : ["Portuguese - Native", "English - Advanced (C1)", "Spanish - Intermediate (B1)"],
       certifications: currentLanguage === "pt"
-        ? ["CPA-20 - Certificacao Profissional ANBIMA", "Excel Avancado - Fundacao Bradesco", "Power BI para Negocios - Data Science Academy", "Lideranca e Gestao de Pessoas - FGV Online"]
+        ? ["CPA-20 - Certificação Profissional ANBIMA", "Excel Avançado - Fundação Bradesco", "Power BI para Negócios - Data Science Academy", "Liderança e Gestão de Pessoas - FGV Online"]
         : ["CPA-20 - ANBIMA Professional Certification", "Advanced Excel - Bradesco Foundation", "Power BI for Business - Data Science Academy", "Leadership and People Management - FGV Online"],
       projects: currentLanguage === "pt"
-        ? ["Projeto de Reducao de Custos Operacionais - Lideranca do projeto que identificou oportunidades de economia e renegociacao com fornecedores, resultando em reducao de 18% nos custos anuais.", "Implantacao de Dashboard Gerencial - Desenvolvimento e implantacao de painel de indicadores em Power BI para aumentar a agilidade e precisao das analises."]
+        ? ["Projeto de Redução de Custos Operacionais - Liderança do projeto que identificou oportunidades de economia e renegociação com fornecedores, resultando em redução de 18% nos custos anuais.", "Implantação de Dashboard Gerencial - Desenvolvimento e implantação de painel de indicadores em Power BI para aumentar a agilidade e precisão das análises."]
         : ["Operational Cost Reduction Project - Led a project that identified savings and supplier renegotiation opportunities, reducing annual costs by 18%.", "Management Dashboard Implementation - Developed and implemented Power BI KPI dashboards to improve analysis speed and accuracy."],
       professionalLinks: ["linkedin.com/in/patrickjustino"],
     });
@@ -14226,7 +14260,7 @@ function createResumePdfFitDocument({ template, format, resume, source, brandFre
   const sourceDocument = holder.querySelector(".resume-document") || source?.cloneNode(true);
   if (!sourceDocument) return null;
   const documentNode = sourceDocument.cloneNode(true);
-  documentNode.classList.add("pdf-fit-export-document");
+  documentNode.classList.add("pdf-fit-export-document", "resume-fit-document");
   documentNode.classList.remove("sample-resume-document", "pdf-export-document");
   documentNode.removeAttribute("style");
   documentNode.removeAttribute("data-preview-scaled");
@@ -14252,6 +14286,7 @@ function measurePdfFitHeight(documentNode) {
 function fitPdfDocumentToPage(documentNode, format) {
   if (!documentNode) return 1;
   const spec = documentPageSpec(format);
+  const minimumScale = minimumResumeFitScale(documentNode);
   let scale = 1;
   const layoutAtScale = (nextScale, final = false) => {
     const width = spec.widthPx / nextScale;
@@ -14273,7 +14308,7 @@ function fitPdfDocumentToPage(documentNode, format) {
   for (let index = 0; index < 4; index += 1) {
     layoutAtScale(scale, false);
     const contentHeight = Math.max(1, measurePdfFitHeight(documentNode));
-    const nextScale = Math.max(0.54, Math.min(1, spec.heightPx / contentHeight));
+    const nextScale = Math.max(minimumScale, Math.min(1, spec.heightPx / contentHeight));
     if (Math.abs(nextScale - scale) < 0.01) {
       scale = nextScale;
       break;
@@ -14282,6 +14317,14 @@ function fitPdfDocumentToPage(documentNode, format) {
   }
 
   applyResumeDensityClass(documentNode, scale);
+  for (let index = 0; index < 2; index += 1) {
+    layoutAtScale(scale, false);
+    const contentHeight = Math.max(1, measurePdfFitHeight(documentNode));
+    const nextScale = Math.max(minimumScale, Math.min(scale, spec.heightPx / contentHeight));
+    if (Math.abs(nextScale - scale) < 0.006) break;
+    scale = nextScale;
+    applyResumeDensityClass(documentNode, scale);
+  }
   layoutAtScale(scale, true);
   return scale;
 }
@@ -16550,7 +16593,7 @@ function templateCatalogDescription(template = {}) {
     elegant: "Currículo refinado com acabamento premium discreto, ideal para consultores, analistas e perfis corporativos.",
     "senior-executive": "Modelo Premium para liderança, com assinatura visual forte, sidebar estratégica e foco em resultados.",
     "global-impact": "Currículo Premium com visual internacional, cabeçalho sofisticado e estrutura estratégica de alto impacto.",
-    "global-executive-signature": "Curriculo Premium executivo com sidebar navy, monograma, hierarquia refinada e estilo global para lideranca.",
+    "global-executive-signature": "Currículo Premium executivo com sidebar navy, monograma, hierarquia refinada e estilo global para liderança.",
     sales: "Modelo Pro para vendas e relacionamento comercial, com foco em métricas, resultados e crescimento de receita.",
     tech: "Layout moderno para tecnologia, produto e dados, com stack, projetos e experiência em destaque.",
     creative: "Visual com mais personalidade para portfólio, marketing e criação sem perder credibilidade profissional.",
@@ -20679,23 +20722,25 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
       <ul ${index === 0 ? `data-preview-field="experience" data-preview-empty=""` : ""}>${linesMarkup(item.achievements, "")}</ul>
     </div>
   `).join("");
-  const curatedEducationItems = (data.education || []).filter((item) => curatedHasText(item.degree) || curatedHasText(item.school) || curatedHasText(item.period));
+  const curatedEducationItems = (data.education || []).filter((item) => curatedHasText(item.degree) || curatedHasText(item.school) || curatedHasText(item.location) || curatedHasText(item.period) || curatedHasText(item.description));
   const curatedEducationEntries = (curatedEducationItems.length ? curatedEducationItems : [education]).map((item, index) => `
-    <p class="curated-compact-item">
+    <article class="curated-compact-item">
       <strong ${index === 0 ? `data-preview-field="educationDegree" data-preview-empty=""` : ""}>${display(item.degree, "")}</strong>
       <span ${index === 0 ? `data-preview-field="educationSchool" data-preview-empty=""` : ""}>${display(item.school, "")}</span>
+      ${curatedHasText(item.location) ? `<span class="curated-education-location" ${index === 0 ? `data-preview-field="educationLocation" data-preview-empty=""` : ""}>${display(item.location, "")}</span>` : ""}
       ${curatedHasText(item.period) ? `<em>${display(item.period, "")}</em>` : ""}
-    </p>
+      ${curatedHasText(item.description) ? `<p class="curated-education-description" ${index === 0 ? `data-preview-field="educationDescription" data-preview-empty=""` : ""}>${display(item.description, "")}</p>` : ""}
+    </article>
   `).join("");
   if (template === "global-executive-signature") {
     const signatureLabels = currentLanguage === "pt"
       ? {
         contact: "Contato",
-        leadership: "Lideranca",
-        operations: "Operacoes",
+        leadership: "Liderança",
+        operations: "Operações",
         tools: "Business tools",
         languages: "Idiomas",
-        certifications: "Certificacoes",
+        certifications: "Certificações",
         links: "Links",
         summary: "Executive Summary",
         experience: "Professional Experience",
@@ -20744,7 +20789,7 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
     const summaryText = String(data.summary || "").replace(/\s+/g, " ").trim();
     const summaryFirstSentence = summaryText.match(/^[^.!?]+[.!?]?/)?.[0] || "";
     const signatureTagline = signatureCompactText(summaryFirstSentence || (currentLanguage === "pt"
-      ? "Lideranca operacional focada em eficiencia de processos, performance de equipes e execucao escalavel."
+      ? "Liderança operacional focada em eficiência de processos, performance de equipes e execução escalável."
       : "Operational leader focused on process efficiency, team performance and scalable business execution."), 150);
     const signatureLinks = normalizeTextList(data.professionalLinks);
     const signaturePrimaryLink = signatureLinks.find((item) => /linkedin/i.test(item)) || signatureLinks[0] || "";
@@ -20891,13 +20936,13 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
         skills: "Habilidades principais",
         tools: "Ferramentas",
         languages: "Idiomas",
-        certifications: "Certificacoes",
+        certifications: "Certificações",
         links: "Links",
         profile: "Perfil profissional",
         highlights: "Destaques de carreira",
-        experience: "Experiencia profissional",
+        experience: "Experiência profissional",
         projects: "Projetos selecionados",
-        education: "Formacao academica",
+        education: "Formação acadêmica",
         footer: "Presenca global",
       }
       : {
@@ -20994,7 +21039,7 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
       data.summary,
     ].filter(Boolean);
     const fallbackHighlightTitles = currentLanguage === "pt"
-      ? ["Estrategia e impacto", "Experiencia do usuario", "Entrega global"]
+      ? ["Estratégia e impacto", "Experiência do usuário", "Entrega global"]
       : ["Strategy and impact", "User experience", "Global delivery"];
     const highlightItems = highlightTexts.slice(0, globalIsTemplateSamplePreview ? 2 : 3).map((text, index) => ({
       title: globalImpactCompactText(globalCoreSkills[index] || fallbackHighlightTitles[index] || fallbackHighlightTitles[0], 46),
@@ -21246,13 +21291,13 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
               ${salesSection("sales-profile", "user", currentLanguage === "pt" ? "Perfil Profissional" : "Professional Profile", `<p data-preview-field="summary" data-preview-empty="">${display(data.summary, "")}</p>`, curatedHasText(data.summary))}
               ${salesSection("sales-metrics", "target", currentLanguage === "pt" ? "Destaques Comerciais" : "Commercial Highlights", `<div class="sales-metric-grid">${salesMetricCards}</div>`, salesMetrics.length > 0)}
               ${salesSection("sales-cases", "card", currentLanguage === "pt" ? "Projetos e Cases Comerciais" : "Commercial Projects and Cases", `<div data-preview-field="projects" data-preview-empty="">${salesCases}</div>`, salesCaseItems.length > 0)}
-              ${salesSection("sales-education", "file", currentLanguage === "pt" ? "Formacao Academica" : "Education", salesEducation, curatedEducationItems.length > 0)}
+              ${salesSection("sales-education", "file", currentLanguage === "pt" ? "Formação Acadêmica" : "Education", salesEducation, curatedEducationItems.length > 0)}
               ${salesSection("sales-courses", "file", currentLanguage === "pt" ? "Cursos Complementares" : "Additional Courses", `<ul>${linesMarkup(salesCourseItems, "")}</ul>`, salesCourseItems.length > 0)}
             </main>
             <aside class="sales-pro-sidebar">
-              ${salesSection("sales-experience-card", "card", currentLanguage === "pt" ? "Experiencia Profissional" : "Professional Experience", salesExperience, curatedExperiences.length > 0)}
-              ${salesSection("sales-skill-card", "sparkles", currentLanguage === "pt" ? "Competencias" : "Core Skills", `<div class="sales-skill-tags" data-preview-field="skills" data-preview-empty="">${salesSkillTags}</div>`, salesSkills.length > 0)}
-              ${salesSection("sales-cert-card", "shield", currentLanguage === "pt" ? "Certificacoes" : "Certifications", `<div data-preview-field="certifications" data-preview-empty="">${salesCertifications}</div>`, curatedHasList(data.certifications))}
+              ${salesSection("sales-experience-card", "card", currentLanguage === "pt" ? "Experiência Profissional" : "Professional Experience", salesExperience, curatedExperiences.length > 0)}
+              ${salesSection("sales-skill-card", "sparkles", currentLanguage === "pt" ? "Competências" : "Core Skills", `<div class="sales-skill-tags" data-preview-field="skills" data-preview-empty="">${salesSkillTags}</div>`, salesSkills.length > 0)}
+              ${salesSection("sales-cert-card", "shield", currentLanguage === "pt" ? "Certificações" : "Certifications", `<div data-preview-field="certifications" data-preview-empty="">${salesCertifications}</div>`, curatedHasList(data.certifications))}
             </aside>
           </div>
         </div>
@@ -21328,7 +21373,7 @@ function resumeDocument(template = "modern", format = selectedDocumentFormat, re
             <aside class="professional-pro-sidebar">
       ${professionalSection("professional-pro-contact", "mail", currentLanguage === "pt" ? "Contato" : "Contact", `<div class="professional-pro-contact-list">${professionalContacts}</div>`, professionalContactItems.length > 0)}
               ${professionalSection("professional-pro-card professional-pro-skills", "sparkles", curatedLabels.skills, `<div class="professional-pro-skill-tags" data-preview-field="skills" data-preview-empty="">${professionalSkillTags}</div>`, professionalSkills.length > 0)}
-              ${professionalSection("professional-pro-card professional-pro-education-side", "file", currentLanguage === "pt" ? "Educacao" : "Education", professionalSideEducation, curatedEducationItems.length > 0)}
+              ${professionalSection("professional-pro-card professional-pro-education-side", "file", currentLanguage === "pt" ? "Educação" : "Education", professionalSideEducation, curatedEducationItems.length > 0)}
               ${professionalSection("professional-pro-card professional-pro-certifications", "shield", curatedLabels.certifications, `<div data-preview-field="certifications" data-preview-empty="">${professionalCertifications}</div>`, curatedHasList(data.certifications))}
             </aside>
             <main class="professional-pro-main">
@@ -22486,6 +22531,10 @@ function renderCoverLetters() {
           <label>${c.fields.email}<input data-letter-field="email" type="email" value="${escapeHtml(draft.email)}" /></label>
           <label>${c.fields.phone}<input data-letter-field="phone" value="${escapeHtml(draft.phone)}" /></label>
           <label>${c.fields.location}<input data-letter-field="location" value="${escapeHtml(draft.location)}" /></label>
+          <label class="letter-option-check">
+            <input data-letter-field="includeDate" type="checkbox" ${draft.includeDate ? "checked" : ""} />
+            <span>${c.fields.includeDate}</span>
+          </label>
         </div>
         <label>${c.fields.jobDescription}<textarea data-letter-field="jobDescription" class="letter-job-field">${escapeHtml(draft.jobDescription)}</textarea></label>
         <div class="two-col">
