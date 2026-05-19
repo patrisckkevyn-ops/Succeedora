@@ -5365,6 +5365,9 @@ function resetResumeDocumentPreviewFit(documentNode, format = selectedDocumentFo
   const normalizedFormat = normalizeDocumentFormat(format);
   const spec = documentPageSpec(normalizedFormat);
   documentNode.classList.remove("resume-preview-fit-document", "resume-fit-document");
+  documentNode.classList.remove("resume-density-comfortable", "resume-density-compact", "resume-density-dense");
+  delete documentNode.dataset.resumeDensity;
+  delete documentNode.dataset.resumeContentLevel;
   documentNode.style.removeProperty("width");
   documentNode.style.removeProperty("max-width");
   documentNode.style.removeProperty("min-width");
@@ -5391,12 +5394,37 @@ function measureResumePreviewFitHeight(documentNode) {
   return Math.max(...bottoms);
 }
 
-function applyResumeDensityClass(documentNode, scale = 1) {
-  if (!documentNode) return;
+function resumeContentDensityLevel(documentNode, contentHeight = 0, spec = documentPageSpec(selectedDocumentFormat)) {
+  if (!documentNode) return 0;
+  const safeSpec = spec || documentPageSpec(selectedDocumentFormat);
+  const pageAreaFactor = Math.max(0.72, Math.min(1.16, (safeSpec.widthPx * safeSpec.heightPx) / (794 * 1123)));
+  const layoutPressure = contentHeight ? contentHeight / Math.max(1, safeSpec.heightPx) : 0;
+  const textLength = String(documentNode.textContent || "").replace(/\s+/g, " ").trim().length;
+  const bulletCount = documentNode.querySelectorAll("li").length;
+  const sectionCount = documentNode.querySelectorAll("section").length;
+  const entryCount = documentNode.querySelectorAll("article, .resume-entry, .clean-start-entry, .simple-ats-experience-item, .curated-experience-item").length;
+  const compactTextLimit = Math.round(3000 * pageAreaFactor);
+  const denseTextLimit = Math.round(4300 * pageAreaFactor);
+  const shouldBeDense = layoutPressure > 1.12 || textLength > denseTextLimit || bulletCount > 26 || entryCount > 15 || sectionCount > 11;
+  if (shouldBeDense) return 2;
+  const shouldBeCompact = layoutPressure > 0.96 || textLength > compactTextLimit || bulletCount > 16 || entryCount > 10 || sectionCount > 8;
+  return shouldBeCompact ? 1 : 0;
+}
+
+function resumeDensityForFit(scale = 1, contentLevel = 0) {
+  if (contentLevel >= 2 || scale < 0.78) return "dense";
+  if (contentLevel >= 1 || scale < 0.94) return "compact";
+  return "comfortable";
+}
+
+function applyResumeDensityClass(documentNode, scale = 1, contentLevel = 0) {
+  if (!documentNode) return "";
+  const density = resumeDensityForFit(scale, contentLevel);
   documentNode.classList.remove("resume-density-comfortable", "resume-density-compact", "resume-density-dense");
-  if (scale < 0.72) documentNode.classList.add("resume-density-dense");
-  else if (scale < 0.88) documentNode.classList.add("resume-density-compact");
-  else documentNode.classList.add("resume-density-comfortable");
+  documentNode.classList.add(`resume-density-${density}`);
+  documentNode.dataset.resumeDensity = density;
+  documentNode.dataset.resumeContentLevel = String(contentLevel);
+  return density;
 }
 
 function minimumResumeFitScale(documentNode) {
@@ -5437,9 +5465,14 @@ function fitResumeDocumentToPreviewPage(shell, format = selectedDocumentFormat) 
     documentNode.style.setProperty("--resume-page-height", `${height}px`);
   };
 
+  layoutAtScale(1, false);
+  let contentLevel = resumeContentDensityLevel(documentNode, measureResumePreviewFitHeight(documentNode), spec);
+  applyResumeDensityClass(documentNode, 1, contentLevel);
   for (let index = 0; index < 4; index += 1) {
     layoutAtScale(scale, false);
     const contentHeight = Math.max(1, measureResumePreviewFitHeight(documentNode));
+    contentLevel = Math.max(contentLevel, resumeContentDensityLevel(documentNode, contentHeight, spec));
+    applyResumeDensityClass(documentNode, scale, contentLevel);
     const nextScale = Math.max(minimumScale, Math.min(1, spec.heightPx / contentHeight));
     if (Math.abs(nextScale - scale) < 0.01) {
       scale = nextScale;
@@ -5449,14 +5482,21 @@ function fitResumeDocumentToPreviewPage(shell, format = selectedDocumentFormat) 
   }
 
   documentNode.classList.add("resume-preview-fit-document", "resume-fit-document");
-  applyResumeDensityClass(documentNode, scale);
-  for (let index = 0; index < 2; index += 1) {
+  applyResumeDensityClass(documentNode, scale, contentLevel);
+  for (let index = 0; index < 4; index += 1) {
     layoutAtScale(scale, false);
     const contentHeight = Math.max(1, measureResumePreviewFitHeight(documentNode));
-    const nextScale = Math.max(minimumScale, Math.min(scale, spec.heightPx / contentHeight));
+    const nextContentLevel = Math.max(contentLevel, resumeContentDensityLevel(documentNode, contentHeight, spec));
+    const densityBefore = documentNode.dataset.resumeDensity || "";
+    const nextScale = Math.max(minimumScale, Math.min(1, spec.heightPx / contentHeight));
+    const densityAfter = applyResumeDensityClass(documentNode, nextScale, nextContentLevel);
+    contentLevel = nextContentLevel;
+    if (densityAfter !== densityBefore) {
+      scale = nextScale;
+      continue;
+    }
     if (Math.abs(nextScale - scale) < 0.006) break;
     scale = nextScale;
-    applyResumeDensityClass(documentNode, scale);
   }
   shell.dataset.previewFit = "true";
   layoutAtScale(scale, true);
@@ -14332,9 +14372,14 @@ function fitPdfDocumentToPage(documentNode, format) {
     documentNode.style.setProperty("--resume-page-height", `${height}px`);
   };
 
+  layoutAtScale(1, false);
+  let contentLevel = resumeContentDensityLevel(documentNode, measurePdfFitHeight(documentNode), spec);
+  applyResumeDensityClass(documentNode, 1, contentLevel);
   for (let index = 0; index < 4; index += 1) {
     layoutAtScale(scale, false);
     const contentHeight = Math.max(1, measurePdfFitHeight(documentNode));
+    contentLevel = Math.max(contentLevel, resumeContentDensityLevel(documentNode, contentHeight, spec));
+    applyResumeDensityClass(documentNode, scale, contentLevel);
     const nextScale = Math.max(minimumScale, Math.min(1, spec.heightPx / contentHeight));
     if (Math.abs(nextScale - scale) < 0.01) {
       scale = nextScale;
@@ -14343,14 +14388,21 @@ function fitPdfDocumentToPage(documentNode, format) {
     scale = nextScale;
   }
 
-  applyResumeDensityClass(documentNode, scale);
-  for (let index = 0; index < 2; index += 1) {
+  applyResumeDensityClass(documentNode, scale, contentLevel);
+  for (let index = 0; index < 4; index += 1) {
     layoutAtScale(scale, false);
     const contentHeight = Math.max(1, measurePdfFitHeight(documentNode));
-    const nextScale = Math.max(minimumScale, Math.min(scale, spec.heightPx / contentHeight));
+    const nextContentLevel = Math.max(contentLevel, resumeContentDensityLevel(documentNode, contentHeight, spec));
+    const densityBefore = documentNode.dataset.resumeDensity || "";
+    const nextScale = Math.max(minimumScale, Math.min(1, spec.heightPx / contentHeight));
+    const densityAfter = applyResumeDensityClass(documentNode, nextScale, nextContentLevel);
+    contentLevel = nextContentLevel;
+    if (densityAfter !== densityBefore) {
+      scale = nextScale;
+      continue;
+    }
     if (Math.abs(nextScale - scale) < 0.006) break;
     scale = nextScale;
-    applyResumeDensityClass(documentNode, scale);
   }
   layoutAtScale(scale, true);
   return scale;
